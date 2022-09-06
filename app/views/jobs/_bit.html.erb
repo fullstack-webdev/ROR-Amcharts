@@ -1,0 +1,35 @@
+<% bit ||= {} %>
+<div class="section-sub-header">
+  Bit
+</div>
+
+<div class="block">
+  <table class="table-normal">
+    <tbody>
+    <tr>
+      <td style="width: 20%;">Size</td>
+      <td style="width: 30%;">
+        <input id="hs_bit_size" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= bit['size'].convert(:in, company_unit) unless bit['size'].nil? %>"/></td>
+      <td style="width: 20%;">Make</td>
+      <td style="width: 30%;">
+        <input id="hs_bit_make" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= bit['make'] unless bit['make'].nil? %>"/></td>
+    </tr>
+    <tr>
+      <td>Jets</td>
+      <td><input id="hs_bit_jets" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= bit['jets'] unless bit['jets'].nil? %>"/></td>
+      <td>Nozzle Size</td>
+      <td><input id="hs_bit_nozzle_size" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= bit['nozzle_size'].convert(:in, company_unit) unless bit['nozzle_size'].nil? %>"/></td>
+    </tr>
+    <tr>
+      <td>TFA</td>
+      <td><input id="hs_bit_tfa" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= bit['tfa'].convert(:in2, company_unit).round(2) unless bit['tfa'].nil? %>"/></td>
+    </tr>
+    <tr>
+      <td>HHSI</td>
+      <td><input id="hs_bit_hhsi" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= bit['hhsi'] unless bit['hhsi'].nil? %>"/></td>
+      <td>Serial #</td>
+      <td><input id="hs_bit_serial_no" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= bit['serial_no'] unless bit['serial_no'].nil? %>"/></td>
+    </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,152 @@
+<% if warnings.empty? %>
+
+  <% if active_jobs.empty? %>
+
+    <div class="alert-box alert-info">
+      <b>No warnings history</b>
+    </div>
+
+  <% else %>
+
+    <div class="events-warnings-container">
+      <div class="chart-container" id="event_warnings_chart_container">
+        <div style="display: block; height: 100%;">
+          <span class="start-point"></span>
+
+          <div class="time-axis">
+            <span style="top: 0px;">Now</span>
+          </div>
+
+          <div style="display: block; top: -18px; position: absolute;">
+            <div class="warning-box left-side inline-block">
+              <div class="box-header color-green">
+                All rigs operating normally
+              </div>
+              <div class="box-body">
+                <p>No known issues at this time.</p>
+              </div>
+            </div>
+
+            <div class="inline-block arrow-between"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <% end %>
+
+<% else %>
+
+  <% if false %>
+
+    <div class="events-warnings-container">
+      <div class="chart-container" id="event_warnings_chart_container">
+        <div style="display: block; height: 100%;" id="event_warnings_tree">
+          <span class="start-point"></span>
+
+          <div class="time-axis">
+            <span style="top: 0px;">Now</span>
+          </div>
+
+          <% if current_user.current_warnings_list.empty? %>
+
+            <div style="display: block; top: -18px; position: absolute;">
+              <div class="warning-box left-side inline-block">
+                <div class="box-header color-green">
+                  All rigs operating normally
+                </div>
+                <div class="box-body">
+                  <p>No known issues at this time.</p>
+                </div>
+              </div>
+
+              <div class="inline-block arrow-between"></div>
+            </div>
+
+          <% else %>
+
+            <% opened_warning = current_user.current_warnings_list.first %>
+
+            <%= render 'event_warnings/warning_block', warning: opened_warning, top: -18, position: 'left' %>
+
+          <% end %>
+
+          <% prev_time = Time.now.to_i %>
+          <% prev_day = (Time.now.utc + 1.day).day %>
+          <% current_year = (Time.now.utc + 1.day).year %>
+          <% top = 0 %>
+          <% position = 'left' %>
+          <% min_offset = 0 %>
+
+          <% warnings.each_with_index do |warning, index| %>
+
+            <% if (!opened_warning.nil? && opened_warning.id == warning.id) || warning.opened_at.to_time.to_i > prev_time %>
+              <% next %>
+            <% end %>
+            <% if prev_day != warning.opened_at.to_time.end_of_day.day && warning.opened_at.to_time.end_of_day.to_i <= prev_time %>
+
+              <% offset = prev_time - warning.opened_at.to_time.end_of_day.to_i %>
+              <% offset = Math.sqrt(offset).round %>
+              <% offset = [400, offset].min %>
+              <% offset = [min_offset, offset].max %>
+              <% top = top + offset %>
+
+              <div class="time-axis">
+              <span style="top: <%= top %>px;">
+                <%= (warning.opened_at + 1.day).strftime("%a %b %e") %> <%= current_year != (warning.opened_at + 1.day).year ? (warning.opened_at + 1.day).year : '' %>
+              </span>
+              </div>
+
+              <% prev_day = warning.opened_at.to_time.day %>
+              <% prev_time = warning.opened_at.to_time.end_of_day.to_i %>
+              <% min_offset = 25 %>
+
+            <% end %>
+
+            <% offset = prev_time - warning.opened_at.to_time.to_i %>
+            <% offset = Math.sqrt(offset).round %>
+            <% offset = [400, offset].min %>
+            <% offset = [min_offset, offset].max %>
+            <% top = top + offset %>
+
+            <% position = position == 'left' ? 'right' : 'left' %>
+
+            <%= render 'event_warnings/warning_block', warning: warning, top: top, position: position %>
+
+            <% prev_time = warning.opened_at.to_time.to_i %>
+            <% min_offset = 125 %>
+
+          <% end %>
+
+        </div>
+      </div>
+
+      <div id="infinite-scrolling" style="display: none;">
+        <%= paginate warnings %>
+      </div>
+    </div>
+
+  <% end %>
+
+  <div class="events-warnings-container">
+    <div class="chart-container" id="event_warnings_chart_container">
+      <div style="display: block; height: 100%;" id="event_warnings_tree">
+
+
+        <%= render 'event_warnings/warning_blocks', warnings: warnings, prev_time: prev_time, opened_warning: (current_warnings_list.first unless current_warnings_list.empty?) %>
+
+      </div>
+    </div>
+
+    <div id="infinite-scrolling" style="display: none;">
+      <%= paginate warnings, :params => { prev_time: warnings.last.opened_at, event_warnings: true } %>
+    </div>
+  </div>
+
+<% end %>
+
+<% if !top.nil? %>
+  <script type="text/javascript">
+    //    $("#event_warnings_chart_container").css({ "height": <%= top.to_i + 150 %> });
+  </script>
+<% end %>

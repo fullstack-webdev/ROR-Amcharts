@@ -1,0 +1,18 @@
+<% names = rig_membership.user.present? ? rig_membership.user.name.split : [] %>
+<% if rig_membership.user.present? %>
+    <%= link_to rig_membership.user, id: "job_membership_icon_" + rig_membership.id.to_s,
+                class: "member-icon tooltip-info member-icon-field",
+                "data-placement" => "bottom",
+                "data-html" => true, "data-title" => "<div class='activity-tooltip'><h2 class='white-text'>" +
+                    rig_membership.user.name + "</h2><h2>" +
+                    rig_membership.user.title.to_s + "</h2><p>" +
+                    (rig_membership.user.district.present? ? rig_membership.user.district.name : "-") + "</p></div>" do %>
+        <p>
+          <% if names.any? %>
+              <%= names.count > 1 ? names.first[0, 1] + names.last[0, 1] : names.first[0, 1] %>
+          <% else %>
+              -
+          <% end %>
+        </p>
+    <% end %>
+<% end %>

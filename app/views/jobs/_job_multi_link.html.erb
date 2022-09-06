@@ -1,0 +1,61 @@
+<% if job.well.jobs.count > 1 %>
+    <div class="btn-group inline-block push-right-small">
+      <a class=" custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+        <div class='inline-block job-status job-status-no-wrap push-up' style="padding-bottom: 0px; margin-bottom: 0px; margin-top: 0px;">
+          <div class="inline-block light-blue-text align-top">
+            <b><%= job.well.rig.present? ? job.well.rig.name : '-' %></b>
+          </div>
+          &nbsp;
+
+          <h2 class="job-title job-title4 inline"><%= job.field.name %></h2>
+
+          <p class="job-title-divider2">|</p>
+
+          <h2 class="job-title job-title4 inline"><%= job.well.name %></h2>
+
+        </div>
+        &nbsp;
+      </a>
+      <ul class="dropdown-menu">
+
+        <% full_jobs = job.well.jobs.to_a %>
+        <% jobs = [] %>
+        <% full_jobs.each do |j| %>
+            <% if j.can_user_view?(current_user) %>
+                <% jobs << j %>
+            <% end %>
+        <% end %>
+        <% jobs.each_with_index do |j, index| %>
+
+            <% if index < jobs.length - 1 %>
+                <li class="divider"></li>
+            <% end %>
+        <% end %>
+      </ul>
+    </div>
+<% else %>
+    <% if job.can_user_view?(current_user) %>
+        <%= link_to job, class: "job-status job-link tooltip-info",
+                    "data-placement" => "bottom",
+                    "data-html" => "true",
+                    "data-title" => render('jobs/well_tooltip', job: job, show_summary_data: false) do %>
+            <div class='' style="padding-bottom: 0px; margin-bottom: 0px; margin-top: 0px;">
+
+              <div class="">
+                <div class="inline-block light-blue-text align-top">
+                  <b><%= job.well.rig.present? ? job.well.rig.name : '-' %></b>
+                </div>
+                &nbsp;
+
+                <h2 class="job-title job-title4 inline"><%= job.field.name %></h2>
+
+                <p class="job-title-divider2">|</p>
+
+                <h2 class="job-title job-title4 inline"><%= job.well.name %></h2>
+              </div>
+
+
+            </div>
+        <% end %>
+    <% end %>
+<% end %>

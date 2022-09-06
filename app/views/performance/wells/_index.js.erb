@@ -1,0 +1,257 @@
+/**
+ * Global variables
+ */
+var WELL_IDS = <%= raw @well_id %>,
+    WELL_HISTORY = <%= @history_id %>;
+
+<% cache("trends/wells/" + cache_key_for_wells) do %>
+var WELLS = {},
+    UPDATED_WELLS = {},
+    _COLOR_PALETTE = <%= raw @color_palette %>;
+
+
+/**
+ * Filter wells when select in dropdown.
+ */
+var wells_updated = function () {
+  UPDATED_WELLS = {};
+
+  WELL_IDS.forEach(function (well_id) {
+    UPDATED_WELLS[well_id] = WELLS[well_id];
+  });
+
+  if (WELL_HISTORY != -1) {
+    var start_from = (Date.now() || new Date().getTime()) - WELL_HISTORY * 30 * 24 * 60 * 60 * 1000;
+
+    UPDATED_WELLS = _.filter(UPDATED_WELLS, function (well) {
+      if (well.finished_at > start_from) {
+        return true;
+      } else {
+        $(".selected_well_item[data-well-id='" + well.id + "']").remove();
+        var index = WELL_IDS.indexOf(well.id.toString());
+        WELL_IDS.splice(index, 1);
+        return false;
+      }
+    });
+  }
+
+  $('#updated_wells').val(_.pluck(UPDATED_WELLS, 'id').join(','));
+  $('#updated_wells').trigger('change');
+};
+
+(function ($) {
+  var init_autocomplete = function () {
+    function split(val) {
+      return val.split(/,\s*/);
+    }
+
+    function extractLast(term) {
+      return split(term).pop();
+    }
+
+    $.widget("custom.combobox", {
+      _create: function () {
+        this.wrapper = $("<span>")
+            .addClass("single-custom-combobox")
+            .insertAfter(this.element);
+
+        this.element.hide();
+        this._createAutocomplete();
+        this._createShowAllButton();
+      },
+
+      _createAutocomplete: function () {
+        var selected = this.element.children(":selected"),
+            value = selected.val() ? selected.text() : "";
+
+        this.input = $("<input>")
+            .appendTo(this.wrapper)
+            .val("")
+            .attr("placeholder", "Type well name...")
+            .attr("style", "padding-right: 20px; width: 215px;")
+            .addClass("job-field-value-editable-performance")
+            .autocomplete({
+              delay: 0,
+              minLength: 0,
+              source: $.proxy(this, "_source"),
+              focus: function () {
+                // prevent value inserted on focus
+                return false;
+              },
+              select: function (event, ui) {
+                this.value = '';
+                var well_id = ui.item.value;
+
+                $("ul.performance_well_list.selected").append('<li class="selected_well_item" data-well-id="' + well_id + '">' +
+                    '<span class="circle" style="background-color:' + WELLS[well_id].graph_color + ';"></span><span class="text">' + ui.item.label + '</span><a href="javascript:void(0);" data-well-id="' + well_id + '" class="selected_well_delete"><span class="delete-btn"></span></a>' +
+                    '</li>');
+
+                WELL_IDS.push(well_id);
+                wells_updated();
+                return false;
+              }
+            })
+            .tooltip({
+              tooltipClass: "ui-state-highlight"
+            });
+
+        this._on(this.input, {
+          autocompletechange: "_removeIfInvalid"
+        });
+      },
+
+      _createShowAllButton: function () {
+        var input = this.input,
+            wasOpen = false;
+
+        $("<a>")
+            .attr("tabIndex", -1)
+            .attr("title", "Show All Items")
+            .tooltip()
+            .appendTo(this.wrapper)
+            .button({
+              icons: {
+                primary: "ui-icon-triangle-1-s"
+              },
+              text: false
+            })
+            .removeClass("ui-corner-all")
+            .addClass("single-custom-combobox-toggle-performance ui-corner-right")
+            .mousedown(function () {
+              wasOpen = input.autocomplete("widget").is(":visible");
+            })
+            .click(function () {
+              input.focus();
+
+              // Close if already visible
+              if (wasOpen) {
+                return;
+              }
+
+              // Pass empty string as value to search for, displaying all results
+              input.autocomplete("search", "");
+            });
+      },
+
+      _source: function (request, response) {
+        var matcher = new RegExp($.ui.autocomplete.escapeRegex(extractLast(request.term)), "i");
+        response(this.element.children("option").map(function () {
+          var text = $(this).text();
+          var index = WELL_IDS.indexOf(this.value);
+
+          if (this.value && index < 0 && ( !extractLast(request.term) || matcher.test(text) ))
+            return {
+              label: text,
+              value: this.value,
+              option: this
+            };
+        }));
+      },
+
+      _removeIfInvalid: function (event, ui) {
+        // Selected an item, nothing to do
+        if (ui.item) {
+          return;
+        }
+        this.input.val("");
+        this.element.val("");
+      },
+
+      _destroy: function () {
+        this.wrapper.remove();
+        this.element.show();
+      }
+    });
+
+    $("#well_list").combobox();
+  };
+
+  var init_wells = function () {
+    /**
+     * Load all wells
+     */
+    <% @wells.each_with_index do |well, index| %>
+    WELLS[<%= well.id %>] = {
+      id: "<%= well.id %>",
+      name: "<%= well.name %>",
+      graph_color: _COLOR_PALETTE[<%= index % 9%>],
+      job_id: "<%= well.job.id %>",
+      finished_at: <%= well.finished_at.to_i * 1000 %>,
+      depth: <%= well.hole_depth.to_f %>,
+      rop: <%= well.drilling_rop.to_f %>,
+      day_rop: <%= well.rop.to_f * 24.0 %>
+    };
+    <% end %>
+  };
+
+  /**
+   * Initialize drilling wells.
+   */
+  var init = function () {
+
+    init_wells();
+    wells_updated();
+
+    init_autocomplete();
+
+    /**
+     * Activate a button on click.
+     *
+     * Buttons: Well-Time, Cost, Warnings, Operation buttons
+     */
+    $('.btn-tray').click(function () {
+      $('.btn-tray').removeClass('active');
+      $(this).addClass('active');
+    });
+
+    /**
+     * Click event on history list item
+     */
+    $('#history_list li a').on('click', function () {
+      $('#history_selected').html($(this).html() + ' <span class="caret"></span>');
+      $('#history_selected').data('id', $(this).attr('data-id'));
+      WELL_HISTORY = $(this).attr('data-id');
+      wells_updated();
+    });
+
+    $('#history_selected').html($('#history_list li a[data-id="' + WELL_HISTORY + '"]').html() + ' <span class="caret"></span>');
+
+    /**
+     * Click event on wells list item
+     */
+    $('.selected_well_delete').live('click', function () {
+      var well_id = $(this).data('well-id');
+      $(".selected_well_item[data-well-id='" + well_id + "']").remove();
+      var index = WELL_IDS.indexOf(well_id.toString());
+      WELL_IDS.splice(index, 1);
+      wells_updated();
+    });
+
+    WELL_IDS.forEach(function (well_id) {
+      $("ul.performance_well_list.selected").append('<li class="selected_well_item" data-well-id="' + well_id + '">' +
+          '<span class="circle" style="background-color:' + WELLS[well_id].graph_color + ';"></span><span class="text">' + WELLS[well_id].name + '</span><a href="javascript:void(0);" data-well-id="' + well_id + '" class="selected_well_delete"><span class="delete-btn"></span></a>' +
+          '</li>');
+    });
+
+    /**
+     * Load child view initially.
+     */
+    if (document.location.hash == '') {
+      setTimeout(function () {
+        tray = $(".remote-tray[data-tray='wells_well_time']");
+        tray.find('.content').hide();
+        tray.find('.remote-loading').removeClass('hidden');
+        tray.find('.loading').removeClass('hidden');
+        $.ajax({
+          url: "/performance/wells?section=wells_well_time",
+          type: "GET",
+          dataType: "script"
+        });
+        $(".remote-tray-toggle[data-tray='wells']").attr("data-tray-child", "wells_well_time");
+      }, 0);
+    }
+  };
+
+  init();
+}(jQuery));
+<% end %>

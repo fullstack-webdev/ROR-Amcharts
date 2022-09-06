@@ -1,0 +1,33 @@
+<div id="activity_list">
+  <div id="job_activities" class="list">
+    <% activities.each do |activity| %>
+        <%= render 'activities/job_activity', activity: activity, inside_job: inside_job %>
+    <% end %>
+  </div>
+  <% if !inside_job %>
+      <div class="content">
+        <%= will_paginate activities %>
+      </div>
+  <% end %>
+</div>
+
+<div class="activity-loading hidden">
+  <%= render 'layouts/inline_loading', title: "Please wait, loading activity..." %>
+</div>
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+
+            if (getParam("page")) {
+                var new_position = $('#job_activities').offset();
+                window.scrollTo(new_position.left, new_position.top - 150);
+            }
+
+            function getParam(key) {
+                var value = RegExp("" + key + "[^&]+").exec(window.location.search);
+                return unescape(!!value ? value.toString().replace(/^[^=]+/, "").replace("=", "") : "");
+            }
+        });
+    }(jQuery));
+</script>

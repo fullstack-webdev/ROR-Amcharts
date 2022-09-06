@@ -1,0 +1,23 @@
+
+test:
+  AWS_ACCESS_KEY_ID: AKIAI52WBADTZOUUZTEQ
+  AWS_SECRET_ACCESS_KEY: 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
+  AWS_REGION: us-east-1
+  BUCKET: corva-data-test
+  REDIS_HOST: redis://localhost:6379/
+  REDIS_PORT: 6379
+development:
+  AWS_ACCESS_KEY_ID: AKIAI52WBADTZOUUZTEQ
+  AWS_SECRET_ACCESS_KEY: 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
+  AWS_REGION: us-east-1
+  BUCKET: corva-data-test
+  REDIS_HOST: localhost
+  REDIS_PORT: 6379
+production:
+  AWS_ACCESS_KEY_ID: AKIAI52WBADTZOUUZTEQ
+  AWS_SECRET_ACCESS_KEY: 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
+  AWS_REGION: us-east-1
+  BUCKET: corva-data
+#  REDIS_HOST: corva-data.9wxmtq.0001.use1.cache.amazonaws.com
+  REDIS_HOST: localhost
+  REDIS_PORT: 6379

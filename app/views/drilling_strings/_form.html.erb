@@ -1,0 +1,17 @@
+<%= form_for(@drilling_string) do |f| %>
+  <% if @drilling_string.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@drilling_string.errors.count, "error") %> prohibited this drilling_string from being saved:</h2>
+
+      <ul>
+      <% @drilling_string.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

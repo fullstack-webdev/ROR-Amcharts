@@ -1,0 +1,538 @@
+<% provide(:title, "Job | " + @job.well.rig.name + " | " + @job.well.name) %>
+
+<div style='height: 52px;'>
+  <div style='position: absolute; left: 0; width: 100%; height: 52px; background-color: #2d4040; border-left: 11px solid #58c9c2; box-sizing: border-box; min-width: 1024px;'>
+    <ul class="nav nav-pills alert alert-nav alert-nav-shrink parent-tray-nav" style='border-radius: 0px; border-width: 0px; float: left'>
+
+      <li class="active">
+        <a href="#well_info" class="remote-tray-toggle custom-data-toggle tooltip-info"
+           data-id="<%= @job.id %>"
+           data-tray-controller="jobs"
+           data-tray="well_info"
+           data-tray-child="overview"
+           data-placement="bottom" data-title="Well Info">Overview
+        </a>
+      </li>
+
+      <li class="">
+        <a href="#rig_overview" class="remote-tray-toggle custom-data-toggle tooltip-info rig_overview_overview rig_overview_stability rig_overview_tandd rig_overview_cleaning rig_overview_whirl rig_overview_bit rig_overview_motor rig_overview_losses rig_overview_raw"
+           data-id="<%= @job.id %>"
+           data-tray-controller="jobs"
+           data-tray="rig_overview"
+           data-tray-child="rig_overview_overview"
+           data-placement="bottom" data-title="Systems">DrillView
+        </a>
+      </li>
+
+      <li class="">
+        <a href="#analysis" class="remote-tray-toggle custom-data-toggle tooltip-info"
+           data-id="<%= @job.id %>"
+           data-tray-controller="jobs"
+           data-tray="analysis"
+           data-tray-child="well_time"
+           data-placement="bottom" data-title="Analysis">Analysis
+        </a>
+      </li>
+
+      <li class="">
+        <a href="#configurations" class="remote-tray-toggle remote-tray-sub-nav custom-data-toggle tooltip-info"
+           data-id="<%= @job.id %>"
+           data-tray-controller="jobs"
+           data-tray="configurations"
+           data-tray-child="hole_drill_string"
+           data-placement="bottom" data-title="Running Data">Configurations</a>
+      </li>
+    </ul>
+
+    <div class="settings-block">
+
+      <ul>
+        <% if @job.status == Job::ON_JOB %>
+          <li>
+            <%= image_tag "live_state.png", style: "vertical-align:middle;" %> <span class="state_label">Live</span>
+          </li>
+        <% end %>
+
+        <li class="bold-text" style="font-family: orgonboldregular;">
+          <%= link_to @job.well.rig.name, rig_path(@job.well.rig) %></a>
+        </li>
+
+        <li style="color: #fff; font-size: 13px;">
+          <%= @job.well.name %>
+        </li>
+
+        <li id="well-menu" class="dropdown menu-width">
+          <a href="#" data-toggle="dropdown"><%= image_tag "rig/icon1.png" %></a>
+
+          <ul class="dropdown-menu menu-width2" style="z-index: 1002;">
+            <li>
+              <%= link_to "Upload Historical File", "#", id: "upload-historical-file" %>
+            </li>
+            <li>
+              <%= link_to "Import Reports", "#", id: "upload-reports-file" %>
+            </li>
+            <hr>
+            <li>
+              <%= link_to "Delete Well", "#", method: "delete", id: "delete_well_button" %>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+    </div>
+
+  </div>
+</div>
+
+<div id="job_<%= @job.id %>" class="job-main-div">
+<%= render 'jobs/tray_well_info', job: @job %>
+
+<%= render 'jobs/tray_configurations', job: @job %>
+
+<%= render 'jobs/tray_analysis', job: @job %>
+
+<%#= render 'jobs/tray_rig_overview', job: @job, :locals => {:showEvents => false} %>
+
+<div class="remote-tray custom-data-closed" data-tray="rig_overview">
+  <div class="remote-loading" style="margin-top: 30px;">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading drillview..." %>
+  </div>
+  <ul class="menuList child-tray-nav" style="display: none;">
+    <li class="normal active">
+      <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+         data-id="<%= @job.id %>"
+         data-tray-controller="jobs"
+         data-tray="rig_overview_overview"
+         data-tray-parent="rig_overview"
+         data-placement="bottom"
+         unselectable='on'
+         onselectstart='return false;'
+         onmousedown='return false;'>
+        <p>Overview</p>
+      </a>
+    </li>
+    <li class="normal">
+      <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+         data-id="<%= @job.id %>"
+         data-tray-controller="jobs"
+         data-tray="rig_overview_stability"
+         data-tray-parent="rig_overview"
+         data-placement="bottom"
+         unselectable='on'
+         onselectstart='return false;'
+         onmousedown='return false;'>
+        <p>Wellbore Stability</p>
+      </a>
+    </li>
+    <li class="normal">
+      <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+         data-id="<%= @job.id %>"
+         data-tray-controller="jobs"
+         data-tray="rig_overview_tandd"
+         data-tray-parent="rig_overview"
+         data-placement="bottom"
+         unselectable='on'
+         onselectstart='return false;'
+         onmousedown='return false;'>
+        <p>Torque + Drag</p>
+      </a>
+    </li>
+    <li class="normal" id="dv_toggle_cleaning">
+      <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+         data-id="<%= @job.id %>"
+         data-tray-controller="jobs"
+         data-tray="rig_overview_cleaning"
+         data-tray-parent="rig_overview"
+         data-placement="bottom"
+         unselectable='on'
+         onselectstart='return false;'
+         onmousedown='return false;'>
+        <p>Hole Cleaning</p>
+      </a>
+    </li>
+    <li class="normal">
+      <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+         data-id="<%= @job.id %>"
+         data-tray-controller="jobs"
+         data-tray="rig_overview_whirl"
+         data-tray-parent="rig_overview"
+         data-placement="bottom"
+         unselectable='on'
+         onselectstart='return false;'
+         onmousedown='return false;'>
+        <p>Drilling Efficiency</p>
+      </a>
+    </li>
+    <li class="normal">
+      <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+         data-id="<%= @job.id %>"
+         data-tray-controller="jobs"
+         data-tray="rig_overview_bit"
+         data-tray-parent="rig_overview"
+         data-placement="bottom"
+         unselectable='on'
+         onselectstart='return false;'
+         onmousedown='return false;'>
+        <p>Vibration</p>
+      </a>
+    </li>
+    <li class="normal">
+      <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+         data-id="<%= @job.id %>"
+         data-tray-controller="jobs"
+         data-tray="rig_overview_motor"
+         data-tray-parent="rig_overview"
+         data-placement="bottom"
+         unselectable='on'
+         onselectstart='return false;'
+         onmousedown='return false;'>
+        <p>Motor</p>
+      </a>
+    </li>
+    <li class="normal">
+      <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+         data-id="<%= @job.id %>"
+         data-tray-controller="jobs"
+         data-tray="rig_overview_losses"
+         data-tray-parent="rig_overview"
+         data-placement="bottom"
+         unselectable='on'
+         onselectstart='return false;'
+         onmousedown='return false;'>
+        <p>Gain/Loss</p>
+      </a>
+    </li>
+    <li class="normal">
+      <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+         data-id="<%= @job.id %>"
+         data-tray-controller="jobs"
+         data-tray="rig_overview_raw"
+         data-tray-parent="rig_overview"
+         data-placement="bottom"
+         unselectable='on'
+         onselectstart='return false;'
+         onmousedown='return false;'>
+        <p>Raw Data</p>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<div id="set_default_conf_popup" class="modal-popup-background" style="visibility: hidden; height: 0px;">
+  <div class="modal-popup modal-popup-fixed" style="width: 100%; height: calc(100% - 55px); padding: 0; border-radius: 0; margin-top: 55px; min-width: 100%; box-sizing: border-box;">
+    <a href="#" class="modal-popup-close" id="close_default_conf_popup" style="position: absolute; right: 20px; top: 10px; font-size: 30px;"><i class="fa fa-times"></i></a>
+
+    <div class="modal-content" style="overflow-y: scroll; width: 100%; height: 100%; padding: 50px; box-sizing: border-box;">
+      <div style="max-width: 1024px; margin-left: auto; margin-right: auto; left: 0; right: 0;" id="set_default_conf_content">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="warning_detail_popup" class="modal-popup-background" style="visibility: hidden; height: 0px;"></div>
+<div id="annotation_detail_popup" class="modal-popup-background" style="visibility: hidden; height: 0px;"></div>
+<div id="config_detail_popup" class="modal-popup-background" style="visibility: hidden; height: 0px;"></div>
+
+<div id="reports-uploader-view" class="hidden">
+  <div class="backdrop" style="position: fixed; margin-top: 55px; width: 100%; min-width: 1024px; height: calc(100% + 50px); z-index: 1050; left: 0; top: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0.8;"></div>
+
+  <div class="uploader-form" style="position: fixed; z-index: 1060; border: none; margin-top: 140px; width: 968px; left: 0; right: 0; margin-left: auto; margin-right: auto; ">
+    <h3 style="font-size: 29px; font-family: orgonboldregular; margin-bottom: 5px;">Upload well report file</h3>
+
+    <p style="color: #fff; line-height: 20px;">Please select report file (PDF or Excel)...</p>
+
+    <% time = Time.now.to_f %>
+    <%= s3_uploader_form callback_url: report_upload_job_path,
+                         callback_param: "s3_url",
+                         id: "reports-uploader",
+                         key: "AAATemp/#{time}/${filename}",
+                         key_starts_with: "AAATemp/#{time}/",
+                         acl: "private" do %>
+      <a class='btn btn-primary' href='javascript:;' style="position: relative; width: 210px;">
+        Select a file
+        <%= file_field_tag :file, multiple: false, data: {url: s3_bucket_url}, id: 'reports-file',
+                           style: 'height: 34px; position:absolute;z-index:2;top:0;left:0;filter: alpha(opacity=0);-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";opacity:0;background-color:transparent;color:transparent;' %>
+      </a>
+
+      <a id='cancel-reports-upload' class='btn btn-sub' href='javascript:;' style="position: relative; float: none;">
+        Cancel
+      </a>
+    <% end %>
+  </div>
+
+  <div class="upload js-progress-bars hidden" style="position: fixed; z-index: 1060; border: none; margin-top: 140px; width: 968px; margin-left: auto; margin-right: auto; left: 0; right: 0;">
+    <h3 style="margin-bottom: 5px;">Uploading well file...</h3>
+
+    <p class="file-name" style="color: #ffffff; line-height: 20px;"></p>
+
+    <div class="progress" style="width: 968px; height: 30px;">
+      <div class="bar" style="height: 30px; background: #58c9c2;"></div>
+    </div>
+  </div>
+</div>
+
+<div id="well-uploader-view" class="hidden">
+  <div class="backdrop" style="position: fixed; margin-top: 55px; width: 100%; min-width: 1024px; height: calc(100% + 50px); z-index: 1050; left: 0; top: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0.8;"></div>
+
+  <div class="uploader-form" style="position: fixed; z-index: 1060; border: none; margin-top: 140px; width: 968px; left: 0; right: 0; margin-left: auto; margin-right: auto; ">
+    <h3 style="font-size: 29px; font-family: orgonboldregular; margin-bottom: 5px;">Upload historical well file</h3>
+
+    <p style="color: #fff; line-height: 20px;">Please select historical well file (.csv or .las)...</p>
+
+    <%= s3_uploader_form callback_url: historical_upload_job_path,
+                         callback_param: "s3_url",
+                         id: "historical-well-uploader",
+                         key: "job#{@job.id}/${filename}",
+                         key_starts_with: "job#{@job.id}/",
+                         acl: "private" do %>
+        <a class='btn btn-primary' href='javascript:;' style="position: relative; width: 210px;">
+          Select a file
+          <%= file_field_tag :file, multiple: false, data: {url: s3_bucket_url}, id: 'historical-well',
+                             style: 'height: 34px; position:absolute;z-index:2;top:0;left:0;filter: alpha(opacity=0);-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";opacity:0;background-color:transparent;color:transparent;' %>
+        </a>
+
+        <a id='cancel-historical-upload' class='btn btn-sub' href='javascript:;' style="position: relative; float: none;">
+          Cancel
+        </a>
+    <% end %>
+  </div>
+
+  <div class="upload js-progress-bars hidden" style="position: fixed; z-index: 1060; border: none; margin-top: 140px; width: 968px; margin-left: auto; margin-right: auto; left: 0; right: 0;">
+    <h3 style="margin-bottom: 5px;">Uploading historical well file...</h3>
+
+    <p class="file-name" style="color: #ffffff; line-height: 20px;"></p>
+
+    <div class="progress" style="width: 968px; height: 30px;">
+      <div class="bar" style="height: 30px; background: #58c9c2;"></div>
+    </div>
+  </div>
+</div>
+
+<div id="after-upload-view" class="hidden">
+  <div class="backdrop" style="position: fixed; margin-top: 55px; width: 100%; min-width: 1024px; height: calc(100% + 50px); z-index: 1050; left: 0; top: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0.8;"></div>
+
+  <div class="upload js-progress-bars" style="position: fixed; z-index: 1060; border: none; margin-top: 140px; width: 968px;  left: 0; right: 0; margin-left: auto; margin-right: auto; ">
+    <h3>Uploading historical well file</h3>
+
+    <p class="file-name" style="color: #fff; line-height: 20px;"></p>
+
+    <div class="divider"></div>
+
+    <p style="color: #58c9c2; font-size: 20px; line-height: 30px;">Upload is complete. Based on duration of well, it
+      can take a few hours for the results to populate...</p>
+
+    <div class="divider"></div>
+
+    <button class="btn btn-primary">Done</button>
+  </div>
+</div>
+</div>
+
+<div id="modal_popup" class="modal-popup-background">
+  <div class="modal-popup modal-popup-fixed">
+    <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal" %>
+    <div class="modal-content">
+    </div>
+    <%= render "layouts/inline_loading", title: "Loading..." %>
+  </div>
+</div>
+
+<div id="modal_popup2" class="modal-popup-background">
+  <div class="modal-popup modal-popup-fixed">
+    <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal2" %>
+    <div class="modal-content">
+    </div>
+    <%= render "layouts/inline_loading", title: "Loading..." %>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  (function ($) {
+    $(document).ready(function () {
+      $('#delete_well_button').on('click', function () {
+        return confirm('Are you sure?');
+      });
+
+      $('.job-tab').click(function () {
+        $(this).attr("href", $(this).attr("href") + window.location.hash);
+      });
+
+      // Needed in view because otherwise it conflicts with jquery menu. No idea?
+      if ($('#new_member_name').length > 0) {
+        $('#new_member_name').data("autocomplete")._renderItem = function (ul, item) {
+          return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                  "<a>" + (item.id > 0 ? "<img src='/assets/user_avatar_extrasmall.png' class='job-member-avatar pull-left'>" : "") + "<div class='job-user'><strong>" + item.value + " </strong>" + (item.id > 0 ? "<div><p class='job-user-title'>" + item.position_title + "</p><p class='job-user-district'>" + item.district + "</p></div>" : "") + "</div></a>").appendTo(ul)
+        }
+      }
+      if ($('#new_note_name').length > 0) {
+        $('#new_note_name').data("autocomplete")._renderItem = function (ul, item) {
+          return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                  "<a>" + (item.id > 0 ? "<img src='/assets/user_avatar_extrasmall.png' class='job-member-avatar pull-left'>" : "") + "<div class='job-user'><strong>" + item.value + " </strong>" + (item.id > 0 ? "<div><p class='job-user-title'>" + item.position_title + "</p><p class='job-user-district'>" + item.district + "</p></div>" : "") + "</div></a>").appendTo(ul)
+        }
+      }
+
+//      if (document.location.hash == '') {
+//        tray = $(".remote-tray[data-tray='well_info']");
+//        tray.find('.content').hide();
+//        tray.find('.remote-loading').removeClass('hidden');
+//        tray.find('.loading').removeClass('hidden');
+//        setTimeout(function () {
+//          $.ajax({
+//            url: "/jobs/<%= @job.id %>?section=well_info",
+//            type: "GET",
+//            dataType: "script"
+//          });
+//        }, 0);
+//      }
+
+    });
+  }(jQuery));
+</script>
+
+
+<script type="text/javascript">
+  (function ($) {
+    $(document).ready(function () {
+      $('.part-match').each(function (index, element) {
+        $(element).data("autocomplete")._renderItem = function (ul, item) {
+          return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                  "<a><div>" + (item.id > 0 ? "<img src='/assets/tool.png' class='job-member-avatar pull-left'>" : "") + "</div><div><div class='job-user'><strong>" + item.value + " </strong>" + (item.id > 0 ? "<div>" + (item.serial_number != null ? ("<p class='job-user-title'><span class='help-text'>Serial # </span><b class='blue-text'>" + item.serial_number + "</b><span class='help-text'>District # </span><b class='blue-text'>" + item.district_serial_number + "</b></p>") : "<p class='job-user-title'><b class='blue-text'>Master Part</b></p>") + "</div>" : "") + "</div></div></a>").appendTo(ul)
+        }
+      });
+    });
+  }(jQuery));
+</script>
+
+
+<script type='text/javascript'>
+
+  var oldHide = $.fn.popover.Constructor.prototype.hide;
+
+  $.fn.popover.Constructor.prototype.hide = function () {
+    if (this.options.trigger === "hover" && this.tip().is(":hover")) {
+      var that = this;
+      // try again after what would have been the delay
+      setTimeout(function () {
+        return that.hide.call(that, arguments);
+      }, that.options.delay.hide);
+      return;
+    }
+    oldHide.call(this, arguments);
+  };
+
+</script>
+
+
+
+<script type="text/javascript">
+  (function ($) {
+    $("#historical-well").change(function () {
+      var filepath = $(this).val();
+      if(filepath.match(/fakepath/)) {
+        filepath = filepath.replace(/C:\\fakepath\\/i, '');
+      }
+      $('#well-uploader-view .file-name').html(filepath);
+      $('#after-upload-view .file-name').html(filepath);
+    });
+
+    $("#after-upload-view .btn").click(function () {
+      $("#after-upload-view").hide();
+    });
+
+    function check_ext(file) {
+      ext = (file.name || '').split('.').last();
+      if (ext == 'las' || ext == 'csv') {
+        return true
+      } else {
+        toastr.info('Only CSV and LAS files are allowed to upload.');
+        return false;
+      }
+    }
+
+    $("#historical-well-uploader").S3Uploader({
+      progress_bar_target: $('.js-progress-bars'),
+      allow_multiple_files: false,
+      remove_completed_progress_bar: false,
+      before_add: check_ext
+    });
+
+    $('#historical-well-uploader').bind('s3_uploads_start', function (e) {
+      $('#well-uploader-view .bar').css('width', '0%');
+      $('#well-uploader-view .js-progress-bars').show();
+      $('#well-uploader-view .uploader-form').hide();
+    });
+
+    $('#historical-well-uploader').bind('s3_upload_failed', function (e) {
+      toastr.error("Failed to upload file. Please try again later.");
+      $('#well-uploader-view').hide();
+    });
+
+    $('#upload-historical-file').click(function () {
+      $('#well-uploader-view .js-progress-bars').hide();
+      $('#well-uploader-view .uploader-form').show();
+      $('#well-uploader-view').show();
+    });
+
+    $('#cancel-historical-upload').click(function () {
+      $('#well-uploader-view').hide();
+    });
+
+
+
+
+
+
+
+      $("#reports-file").change(function () {
+          var filepath = $(this).val();
+          if(filepath.match(/fakepath/)) {
+              filepath = filepath.replace(/C:\\fakepath\\/i, '');
+          }
+          $('#reports-uploader-view .file-name').html(filepath);
+          //$('#after-upload-view .file-name').html(filepath);
+      });
+
+      //$("#after-upload-view .btn").click(function () {
+      //    $("#after-upload-view").hide();
+      //});
+
+      function check_ext(file) {
+          ext = (file.name || '').split('.').last();
+          if (ext == 'pdf' || ext == 'csv' || ext == 'xls' || ext == 'xlsx') {
+              return true
+          } else {
+              toastr.info('Only PDF, XLS, XLSX, and CSV files are allowed to upload.');
+              return false;
+          }
+      }
+
+      $("#reports-uploader").S3Uploader({
+          progress_bar_target: $('.js-progress-bars'),
+          allow_multiple_files: false,
+          remove_completed_progress_bar: false,
+          before_add: check_ext
+      });
+
+      $('#reports-uploader').bind('s3_uploads_start', function (e) {
+          $('#reports-uploader-view .bar').css('width', '0%');
+          $('#reports-uploader-view .js-progress-bars').show();
+          $('#reports-uploader-view .uploader-form').hide();
+      });
+
+      $('#reports-uploader').bind('s3_upload_failed', function (e) {
+          toastr.error("Failed to upload file. Please try again later.");
+          $('#reports-uploader-view').hide();
+      });
+
+      $('#upload-reports-file').click(function () {
+          $('#reports-uploader-view .js-progress-bars').hide();
+          $('#reports-uploader-view .uploader-form').show();
+          $('#reports-uploader-view').show();
+      });
+
+      $('#cancel-reports-upload').click(function () {
+          $('#reports-uploader-view').hide();
+      });
+  })(jQuery);
+</script>

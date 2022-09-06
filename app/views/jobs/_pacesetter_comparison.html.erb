@@ -1,0 +1,271 @@
+<div class="page-header-small" style="margin-top: 15px;">
+  <h1><%= title %></h1>
+</div>
+
+<% target_rop = [*150..200].sample %>
+<% target_npt = [*150..200].sample %>
+<% target_cost = [*200000..300000].sample %>
+
+<% rop = [*100..170].sample %>
+<% npt = [*100..170].sample %>
+<% cost = [*250000..400000].sample %>
+
+<div>
+  <div class="chart-block tooltip-info"
+       data-title="Average Total Rate of Penetration.">
+    <div class="chart-title">ROP</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <div class="donut-text"><%= rop %></div>
+      <div class="percentage">ft/hr</div>
+    </div>
+  </div>
+
+
+  <div class="chart-block tooltip-info"
+       data-title="Non-Productive Time (excluding Stand-By Out-hole)">
+    <div class="chart-title">NPT</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <div class="donut-text"><%= npt %></div>
+      <div class="percentage ">hours</div>
+    </div>
+  </div>
+
+  <div class="chart-block tooltip-info"
+       data-title="Speed Rating">
+    <div class="chart-title">Cost</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <div class="donut-text">$<%= number_with_delimiter(number_with_precision(cost, :precision => 0), :delimiter => ',') %></div>
+      <div class="percentage "><%= "" %></div>
+    </div>
+  </div>
+
+
+  <div id="<%= title %>_chart1" class="amChart" style="width: 100%; height: 40px; margin-top: 10px;"></div>
+  <div id="<%= title %>_chart2" class="amChart" style="width: 100%; height: 40px; "></div>
+  <div id="<%= title %>_chart3" class="amChart" style="width: 100%; height: 40px; "></div>
+
+</div>
+
+
+<script type="text/javascript">
+
+    var chart = AmCharts.makeChart("<%= title %>_chart1", {
+        "type": "serial",
+        "startDuration": 0,
+        "pathToImages": "http://cdn.amcharts.com/lib/3/images/",
+        "categoryField": "value",
+        "rotate": true,
+        "autoMargins": false,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "marginLeft": 50,
+        "categoryAxis": {
+            "gridPosition": "start",
+            "position": "left",
+            "titleColor": "#fefefe",
+            "color": "#fefefe",
+            "axisColor": "#DADADA"
+        },
+        "trendLines": [],
+        "graphs": [
+            {
+                "balloonText": "Target:[[target]]",
+                "fillAlphas": 0.8,
+                "id": "AmGraph-1",
+                "lineAlpha": 0.2,
+                "title": "Target",
+                "type": "column",
+                "valueField": "target",
+                "lineColor": "#a3a3a3"
+            },
+            {
+                "balloonText": "Actual:[[actual]]",
+                "fillAlphas": 0.8,
+                "id": "AmGraph-2",
+                "lineAlpha": 0.2,
+                "title": "Actual",
+                "type": "column",
+                "valueField": "actual",
+                "lineColorField": "lineColor",
+                "fillColorsField": "lineColor"
+            }
+        ],
+        "guides": [],
+        "valueAxes": [
+            {
+                "id": "Axis1",
+                "position": "bottom",
+                "axisAlpha": 0,
+                minimum: 0,
+                "labelsEnabled": false,
+                "titleColor": "#fefefe",
+                "color": "#fefefe",
+                labelFunction: function (value, valueString, axis) {
+                    return '';
+                }
+
+            }
+        ],
+        "allLabels": [],
+        "balloon": {
+            "verticalPadding": 0,
+            "pointerWidth": 0
+        },
+        "titles": [],
+        "dataProvider": [
+            {
+                "value": "ROP",
+                "target": <%= target_rop %>,
+                "actual": <%= rop %>,
+                "lineColor": "<%= rop < (target_rop / 1.3) ? "#fd2400" : "#378ddd" %>"
+            }
+        ]
+    });
+
+    var chart = AmCharts.makeChart("<%= title %>_chart2", {
+        "type": "serial",
+        "startDuration": 0,
+        "pathToImages": "http://cdn.amcharts.com/lib/3/images/",
+        "categoryField": "value",
+        "rotate": true,
+        "autoMargins": false,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "marginLeft": 50,
+        "categoryAxis": {
+            "gridPosition": "start",
+            "position": "left",
+            "titleColor": "#fefefe",
+            "color": "#fefefe",
+            "axisColor": "#DADADA"
+        },
+        "trendLines": [],
+        "graphs": [
+            {
+                "balloonText": "Target:[[target]]",
+                "fillAlphas": 0.8,
+                "id": "AmGraph-1",
+                "lineAlpha": 0.2,
+                "title": "Target",
+                "type": "column",
+                "valueField": "target",
+                "lineColor": "#a3a3a3"
+            },
+            {
+                "balloonText": "Actual:[[actual]]",
+                "fillAlphas": 0.8,
+                "id": "AmGraph-2",
+                "lineAlpha": 0.2,
+                "title": "Actual",
+                "type": "column",
+                "valueField": "actual",
+                "lineColorField": "lineColor",
+                "fillColorsField": "lineColor"
+            }
+        ],
+        "guides": [],
+        "valueAxes": [
+            {
+                "id": "Axis1",
+                "position": "bottom",
+                "axisAlpha": 0,
+                minimum: 0,
+                "titleColor": "#fefefe",
+                "color": "#fefefe",
+                "labelsEnabled": false,
+                labelFunction: function (value, valueString, axis) {
+                    return '';
+                }
+
+            }
+        ],
+        "allLabels": [],
+        "balloon": {
+            "verticalPadding": 0,
+            "pointerWidth": 0
+        },
+        "titles": [],
+        "dataProvider": [
+            {
+                "value": "NPT",
+                "target": <%= target_npt %>,
+                "actual": <%= npt %>,
+                "lineColor": "<%= npt > (target_npt * 1.2) ? "#fd2400" : "#378ddd" %>"
+            }
+        ]
+    });
+
+    var chart = AmCharts.makeChart("<%= title %>_chart3", {
+        "type": "serial",
+        "startDuration": 0,
+        "pathToImages": "http://cdn.amcharts.com/lib/3/images/",
+        "categoryField": "value",
+        "rotate": true,
+        "autoMargins": false,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "marginLeft": 50,
+        "categoryAxis": {
+            "gridPosition": "start",
+            "position": "left",
+            "titleColor": "#fefefe",
+            "color": "#fefefe",
+            "axisColor": "#DADADA"
+        },
+        "trendLines": [],
+        "graphs": [
+            {
+                "balloonText": "Target:[[target]]",
+                "fillAlphas": 0.8,
+                "id": "AmGraph-1",
+                "lineAlpha": 0.2,
+                "title": "Target",
+                "type": "column",
+                "valueField": "target",
+                "lineColor": "#a3a3a3"
+            },
+            {
+                "balloonText": "Actual:[[actual]]",
+                "fillAlphas": 0.8,
+                "id": "AmGraph-2",
+                "lineAlpha": 0.2,
+                "title": "Actual",
+                "type": "column",
+                "valueField": "actual",
+                "lineColorField": "lineColor",
+                "fillColorsField": "lineColor"
+            }
+        ],
+        "guides": [],
+        "valueAxes": [
+            {
+                "id": "Axis1",
+                "position": "bottom",
+                "axisAlpha": 0,
+                minimum: 0,
+                "labelsEnabled": false,
+                "titleColor": "#fefefe",
+                "color": "#fefefe",
+                labelFunction: function (value, valueString, axis) {
+                    return '';
+                }
+
+            }
+        ],
+        "allLabels": [],
+        "balloon": {
+            "verticalPadding": 0,
+            "pointerWidth": 0
+        },
+        "titles": [],
+        "dataProvider": [
+            {
+                "value": "Cost",
+                "target": <%= target_cost %>,
+                "actual": <%= cost %>,
+                "lineColor": "<%= cost > (target_cost * 1.2) ? "#fd2400" : "#378ddd" %>"
+            }
+        ]
+    });
+
+</script>

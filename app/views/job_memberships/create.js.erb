@@ -1,0 +1,33 @@
+$('.member-loading').addClass('hidden');
+
+
+<% if @job_membership.new_record? %>
+
+$('#new_member_form').show();
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding Member", message: @job_membership.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show: true});
+
+
+<% else %>
+
+$("#job_members_list_short").append("<%= j render 'job_memberships/icon', job_membership: @job_membership %>");
+$("#job_members_list").append("<%= j render 'job_memberships/job_membership', job_membership: @job_membership %>");
+
+$('#new_member_name').val('');
+$('#new_member_id').val('');
+$('#user_name').val('');
+$('#phone_number').val('');
+$('#email').val('');
+
+$('#add_job_member').show();
+$('#new_member_form').show();
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+//$('.activity-user-link').tooltip();
+    //$('.tooltip-info').tooltip();
+}
+
+<% end %>
+

@@ -1,0 +1,62 @@
+<div style="margin-top: 30px;">
+  <div class='section-header'>
+
+    <div class='pull-right'>
+      <p class='inline help-text'>Savings&nbsp;</p> <b class='blue-text2' style="font-size: 32px;"><%= time %></b>h
+    </div>
+
+    <h1><%= title %></h1>
+
+  </div>
+  <div>
+    <p class='inline help-text'>Averages&nbsp;</p>
+    <div class='inline-block push-right'>9 5/8" - 2.51 min</div>
+    <div class='inline-block push-right'>7" - 2.83 min</div>
+    <div class='inline-block push-right'>5 7/8" - 3.34 min</div>
+  </div>
+  <div id="time_chart_<%= key %>" class="amChart" style="width: 100%; height: 200px; display: inline-block"></div>
+</div>
+
+
+<script type='text/javascript'>
+
+    var chart = AmCharts.makeChart("time_chart_<%= key %>", {
+        "type": "serial",
+        "theme": "none",
+        "plotAreaFillAlphas": 0.2,
+        "plotAreaFillColors": "#FFFF00",
+        "dataProvider": <%= raw @drilling_log.get_connection_times.to_json.html_safe %>,
+        "valueAxes": [
+            {
+                "axisAlpha": 0,
+                "gridAlpha": 0,
+                "labelsEnabled": true,
+                "position": "left"
+            }
+        ],
+        "graphs": [
+            {
+                "balloonText": "[[value]] minutes",
+                "fillAlphas": 0.9,
+                "fontSize": 11,
+                "lineThickness": 3,
+                "lineAlpha": 1.0,
+                "title": "Time",
+                "type": "column",
+                "valueField": "duration"
+            }
+        ],
+        "marginTop": 30,
+        "marginRight": 0,
+        "marginLeft": 0,
+        "marginBottom": 40,
+        "autoMargins": false,
+        "categoryField": "time",
+        "categoryAxis": {
+            "parseDates": true,
+            "minPeriod": "mm",
+            "equalSpacing": false
+        }
+    });
+
+</script>

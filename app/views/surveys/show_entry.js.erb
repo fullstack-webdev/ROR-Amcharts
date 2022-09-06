@@ -1,0 +1,21 @@
+tray = $(".remote-tray[data-tray='survey']");
+if(!tray.hasClass('custom-data-closed')) {
+<% if @survey.present? && @active_well_plan.present? %>
+<% calculated_points_survey = @survey.calculated_points(@active_well_plan.vertical_section_azimuth) %>
+$('#survey_list').replaceWith("<%= j render 'surveys/survey_list', points: calculated_points_survey %>");
+
+<% if @survey.document.job.status == Job::ON_JOB %>
+setTimeout(function() {
+    $.ajax({
+        url: "/surveys/<%= @survey.id %>",
+        type: "GET",
+        dataType: "script"
+    });
+}, 1000 * 60 * 5);
+<% end %>
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.tooltip-info').tooltip();
+}
+<% end %>
+}

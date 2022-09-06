@@ -1,0 +1,10 @@
+<% if job.closed %>
+<% elsif job.status >= Job::ON_JOB %>
+    <div class="progress progress-success progress-striped job-progress">
+      <div class="bar" style="width: <%= job.status_percentage %>%"></div>
+    </div>
+<% else %>
+    <div class="progress progress-info progress-striped job-progress">
+      <div class="bar" style="width: <%= job.status_percentage %>%"></div>
+    </div>
+<% end %>

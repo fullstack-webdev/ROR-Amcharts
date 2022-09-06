@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--<title><%= full_title(yield(:title)) %></title>-->
+  <title>Corva | Drilling Intelligence</title>
+  <meta name="description=" content="Corva | Oil Drilling Intelligence">
+  <%= stylesheet_link_tag "application", media: "all" %>
+  <%= javascript_include_tag "application" %>
+
+  <% if signed_in? || cookies[:access_code].present? %>
+
+      <% if Rails.env.dev? %>
+          <script src='assets/javascript/mapbox.js'></script>
+          <link href='assets/stylesheets/mapbox.css' rel='stylesheet'/>
+      <% else %>
+          <script src='//api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js'></script>
+          <link href='//api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.css' rel='stylesheet'/>
+      <% end %>
+
+  <% end %>
+
+
+  <%= csrf_meta_tags %>
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"></script>
+  <link href='//api.tiles.mapbox.com/mapbox.js/v1.3.1/mapbox.ie.css' rel='stylesheet'>
+  <![endif]-->
+</head>
+<% if signed_in_super_admin? %>
+    <body class="body super-admin">
+    <%= render 'layouts/super_admin_header' %>
+
+    <div id="wrong_browser_alert" class="hidden" style='position:absolute; left: 0; width: 100%; top: 54px; z-index: 100;'>
+      <div class="alert alert-error2 align-top">
+        <%= image_tag "error_white.png", class: "inline-block align-top" %>&nbsp;&nbsp;
+        <h3 class='inline-block white-text push-right-small'>Problem with Browser</h3>
+        <br>
+        <div class='inline-block align-top push-right push-down'>
+          <b>Sorry, we don't support Internet Explorer 9 or lower. Please install either Google Chrome or Firefox.</b></div>
+        <div class=''>
+          <div class='inline-block push-right'><i class="icon-download icon-white"></i><%= link_to "Download Google Chrome", "http://www.google.com/chrome/", class: "activity-user-link white-text", :target => "_blank" %></div>
+          <div class='inline-block push-right'><i class="icon-download icon-white"></i><%= link_to "Download Firefox", "http://www.mozilla.org/en-US/firefox/", class: "activity-user-link white-text", :target => "_blank" %></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="<%= request.path == insight_path ? "" : "container" %>">
+
+      <%= yield %>
+
+      <%= render 'layouts/footer' %>
+
+      <div id="logged_out" class="hidden">
+      </div>
+
+      <div id="messages_window" class="hidden" style="position: fixed; left: 0; top: 60px; width: 250px; height: 120px;">
+        <div style="position: relative; width: 100%; height: 100%;">
+          <div style="position: absolute; background: #000000; opacity: 0.91; width: 100%; height: 100%; border-radius: 6px;"></div>
+          <div style="position: absolute; padding: 18px;">
+            <h3 class='' style="color: #ffc208;">Messages</h3>
+
+            <div id="messages_content">
+
+            </div>
+            <div id="messages_loading">
+              <br><br>
+
+              <div class="inline-block ajax-loading search-loading">
+                <b class='white-text'>Loading...</b>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="message_window" class="hidden" style="position: fixed; left: 0; top: 60px; width: 400px; height: 80px;">
+        <div style="position: relative; width: 100%; height: 100%;">
+          <div style="position: absolute; background: #000000; opacity: 0.7; width: 100%; height: 100%; border-radius: 6px;"></div>
+          <div id="message_window_content" style="position: absolute; padding: 18px;">
+          </div>
+        </div>
+      </div>
+
+      <div id="working" class="curtain hidden">
+        <div class='curtain-content'>
+          <div>
+            <h1>Loading</h1>
+
+            <div class='inline-block push-right-small'>
+              <div class="inline-block ajax-loading search-loading push-right-small">
+                <b class='white-text'>Please wait...</b></div>
+            </div>
+          </div>
+          <br><br><br>
+          <%= image_tag "corva-logo.png" %>
+        </div>
+      </div>
+
+      <!--<%= debug(params) if Rails.env.development? %>-->
+
+      <br><br>
+    </div>
+
+    </body>
+<% else %>
+    <body class="body super-admin">
+
+      <div class="container">
+
+        <div class="container-reset">
+          <%= yield %>
+        </div>
+
+      </div>
+
+    </body>
+
+<% end %>
+</html>
+
+<% if signed_in? %>
+    <script type="text/javascript">
+
+
+        function showWorkingCurtain() {
+            $('#working').removeClass('hidden');
+            $('body').animate({scrollTop: 0 }, 'fast');
+            $('html, body').css({
+                'overflow': 'hidden',
+                'height': '100%'
+            });
+        }
+
+        function hideWorkingCurtain() {
+            $('#working').addClass('hidden');
+            $('html, body').css({
+                'overflow': 'auto',
+                'height': 'auto'
+            });
+        }
+
+        (function ($) {
+            $(document).ready(function () {
+
+                $('.global-alert-div').each(function() {
+                    alert = $(this);
+                    setTimeout(function() {
+                        alert.fadeOut("slow");
+                    }, 1500);
+                });
+
+                $('.show-working-curtain').live("click", function () {
+                    showWorkingCurtain();
+                });
+
+                var expire = new Date(new Date().getTime() + (1000 * 60 * 120));
+                setInterval(function () {
+                    if (new Date().getTime() >= expire.getTime()) {
+                        $.ajax({
+                            url: "/is_signed_in",
+                            type: "GET",
+                            dataType: "script"
+                        });
+                    }
+                }, 1000 * 60 * 10); // 1000 * 60 * 120
+
+
+                var isMobile = {
+                    Android: function () {
+                        return navigator.userAgent.match(/Android/i);
+                    },
+                    BlackBerry: function () {
+                        return navigator.userAgent.match(/BlackBerry/i);
+                    },
+                    iOS: function () {
+                        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+                    },
+                    Opera: function () {
+                        return navigator.userAgent.match(/Opera Mini/i);
+                    },
+                    Windows: function () {
+                        return navigator.userAgent.match(/IEMobile/i);
+                    },
+                    any: function () {
+                        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+                    }
+                };
+
+                if (isMobile.any()) {
+                    // Mobile - take any browser
+                } else {
+                    //var ie = $.browser.ielt9;
+                    if (jQuery.browser.msie == true && jQuery.browser.version < 10.0) {
+                        $('#wrong_browser_alert').removeClass('hidden');
+                    }
+
+                }
+            });
+        }(jQuery));
+    </script>
+<% end %>
+
+<!-- toastr notification -->
+<script type="text/javascript">
+
+  (function ($) {
+
+    <% flash.each do |key, value| %>
+    toastr.<%= key %>("<%= value %>");
+    <% end %>
+
+    <% flash.clear %>
+  }(jQuery));
+
+</script>
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-57461303-1', 'auto');
+    ga('send', 'pageview');
+
+</script>

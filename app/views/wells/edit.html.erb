@@ -1,0 +1,46 @@
+<div>
+  <%= form_for @well do |f| %>
+
+      <div class="page_header">
+        <h1><%= @well.name %></h1>
+        <h3 class="inline">&nbsp;Well</h3>
+
+        <div class="pull-right push-left-small push-up">
+          <%= f.submit "Save Well", class: "bluebtn pull-right" %>
+
+          <%= link_to "Cancel", :back, class: "bluebtn pull-right btnheight gray push-left-small tooltip-info",
+                      "data-title" => "Cancel well changes and go back" %>
+        </div>
+      </div>
+
+      <%= render "fields", f: f %>
+
+      <div class="content actions">
+        <%= f.submit "Save Well", class: "bluebtn pull-right" %>
+
+        <%= link_to "Cancel", :back, class: "bluebtn pull-right btnheight gray push-left-small tooltip-info",
+                    "data-title" => "Cancel well changes and go back" %>
+      </div>
+
+  <% end %>
+</div>
+
+<div id="modal_popup" class="modal-popup-background">
+  <div class="modal-popup modal-popup-fixed">
+    <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal" %>
+    <div class="modal-content">
+    </div>
+    <%= render "layouts/inline_loading", title: "Loading..." %>
+  </div>
+</div>
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+            $('#rig_name').data("autocomplete")._renderItem = function (ul, item) {
+                return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                        "<a><div>" + (item.id > 0 ? "<img src='/assets/rig_extrasmall.png' class='job-member-avatar pull-left'>" : "") + "</div><div><div class='job-user'><strong>" + item.value + " </strong></div><div><p>Rig</p></div></div></a>").appendTo(ul)
+            }
+        });
+    }(jQuery));
+</script>

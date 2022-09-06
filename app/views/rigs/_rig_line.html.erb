@@ -1,0 +1,117 @@
+<!--<div class="tooltip-info">-->
+
+<!--
+<% job = rig.current_job %>-->
+
+
+<!--<div class='inline-block'>-->
+<!--<div class="job-status-name">-->
+<!--<div class="push-down job-status-name">-->
+<!--<h2 class="job-title job-title4 inline"><%= rig.name %></h2>-->
+<!--</div>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div class="job-rig-name align-top push-up" style="min-width: 400px;">-->
+<!--<b><%= !job.nil? ? job.well_name : '-' %></b>-->
+<!--</div>-->
+<!--</div>-->
+
+
+<!--
+<% if job.present? %>-->
+  <!--<div class="inline-block align-top">-->
+
+  <!--
+  <% if job.status == Job::COMPLETE %>-->
+    <!--<div class='inline-block push-down'>-->
+    <!--<span class="label label-success" style="padding: 4px; padding-left: 10px; padding-right: 10px;">Complete</span>-->
+    <!--</div>-->
+    <!--
+  <% elsif job.status == Job::PRE_JOB %>-->
+    <!--<div class='inline-block push-down'>-->
+    <!--<span class="label label-info" style="padding: 4px; padding-left: 10px; padding-right: 10px;">Pre-Job</span>-->
+
+    <!--
+    <% if job.start_date.present? %>-->
+      <!--<p class='inline-block push-right help-text'>Begins <%= job.start_date.strftime("%A #{job.start_date.day.ordinalize}") %></p>-->
+      <!--
+    <% end %>-->
+    <!--</div>-->
+    <!--
+  <% elsif job.status == Job::POST_JOB %>-->
+    <!--<div class='inline-block push-down'>-->
+    <!--<span class="label label-success" style="padding: 4px; padding-left: 10px; padding-right: 10px;">Post-Job</span>-->
+    <!--</div>-->
+    <!--
+  <% elsif job.status == Job::ON_JOB %>-->
+
+    <!--<div class='inline-block push-down'>-->
+    <!--<span class="label label-warning" style="padding: 4px; padding-left: 10px; padding-right: 10px;">In Progress</span>-->
+    <!--</div>-->
+
+    <!--
+    <% drilling_log = job.well.drilling_log %>-->
+    <!--
+    <% if drilling_log.present? %>-->
+
+
+      <!--<p class='inline-block push-right-small push-up'>-->
+      <!--<b><%= drilling_log.nil? || drilling_log.max_depth.nil? ? "0" : number_with_delimiter(drilling_log.max_depth.to_i, :delimiter => ',') %></b>-->
+      <!-- / <%= drilling_log.nil? || drilling_log.td_depth.nil? ? "0" : number_with_delimiter(drilling_log.td_depth.to_i, :delimiter => ',') %>-->
+      <!--ft</p>-->
+
+      <!--<p class='inline-block push-right-small'>-->
+      <!--<b><%= drilling_log.below_rotary.present? && drilling_log.above_rotary.present? ? ((drilling_log.above_rotary + drilling_log.below_rotary) / 24).to_i : 0 %></b>-->
+      <!--days-->
+      <!--</p>-->
+      <!--
+      <% if false %>-->
+
+        <!--<br>-->
+
+        <!--<p class='inline-block push-right-small push-up'>-->
+        <!--<b><%= drilling_log.rop.present? ? drilling_log.rop.round(1) : 0.0 %></b> ft/hr-->
+        <!--</p>-->
+
+
+        <!--
+      <% end %>-->
+
+      <!--
+    <% end %>-->
+    <!--
+  <% else %>-->
+    <!--<div class="progress progress-info job-progress-bar">-->
+    <!--<div class="bar" style="width: <%= job.status_percentage %>%"></div>-->
+    <!--</div>-->
+    <!--
+  <% end %>-->
+  <!--</div>-->
+  <!--
+<% end %>-->
+
+<!--</div>-->
+
+<div class="tooltip-info"
+     data-placement="right"
+     data-html="true"
+     data-title="">
+
+  <div class='inline-block well-name' style="width: 38%;">
+    <%= rig.name %>
+  </div>
+
+  <div class='inline-block rig-name' style="width: 30%;">
+    <%= !job.nil? ? job.well_name : 'Offline' %>
+  </div>
+
+  <div class='inline-block drilling-program' style="width: 31%;">
+    <% if job.present? %>
+      <%= job.well.program.nil? ? '-' : job.well.program.name %>
+    <% else %>
+      -
+    <% end %>
+  </div>
+
+</div>

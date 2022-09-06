@@ -1,0 +1,10 @@
+<div class="history">
+  <%= render 'jobs/job', job: activity.job %>
+
+  <% activity.job.recent_activity(activity.created_at).includes(:job).each do |a| %>
+      <%= render 'activities/job_activity', activity: a, inside_job: true %>
+  <% end %>
+
+  <hr class="search-constraint-line">
+
+</div>

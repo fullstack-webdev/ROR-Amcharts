@@ -1,0 +1,66 @@
+<% @warnings = current_user.active_warnings_list %>
+<div data-loaded='true' class='' xmlns="http://www.w3.org/1999/html">
+  <% if @warnings.empty? %>
+    <div class="no-warnings">No warnings...</div>
+  <% else %>
+    <ul id="overview-warnings">
+      <% @warnings.each do |warning| %>
+        <li class="overview-warning">
+          <p class="rig-name"><%= warning.job.well.rig.name %></p>
+          <span><%= warning.opened_at.strftime('%k:%M') %></span>
+          <span style="margin-left: 5px;"><%= number_with_delimiter(warning.depth_from.convert(:ft, company_unit).round) %> <%= unit(:ft, company_unit) %></span>
+
+          <p class="message warning-detail-btn warning-tooltip" data-id="<%= warning.id %>"
+             data-activity_name="<%= warning.activity_name %>"
+             data-depth_from="<%= warning.depth_from.to_f %>"
+             data-severity="<%= warning.severity %>" data-name="<%= warning.name %>"
+             data-rig_name="<%= warning.job.well.rig.name %>"
+             data-duration="<%= warning.duration %>"
+             data-depth_to="<%= warning.closed_at.present? ? warning.depth_to.to_f : '' %>"
+             data-resolution="<%= warning.resolution %>"
+             data-opened_at="<%= warning.opened_at.strftime("%b %e, %Y %k:%M") %>"
+             style="cursor: pointer;">
+            <span class="overview-alert color-<%= warning.severity %>"></span> <%= warning.name %></p>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    var company_unit = "<%= company_unit %>";
+
+    // tooltip
+    $('.warning-tooltip').powerTip({
+      followMouse: true,
+      fadeInTime: 100,
+      fadeOutTime: 0
+    });
+    $('.warning-tooltip').on({
+      powerTipPreRender: function () {
+        var severity = $(this).attr('data-severity');
+        var name = $(this).attr('data-name');
+        var rig_name = $(this).attr('data-rig_name');
+        var duration = $(this).attr('data-duration');
+        var activity_name = $(this).attr('data-activity_name');
+        var depth_from = $(this).attr('data-depth_from');
+        var depth_to = $(this).attr('data-depth_to');
+        var resolution = $(this).attr('data-resolution');
+        var opened_at = $(this).attr('data-opened_at');
+        $(this).data('powertip', '<div class="warning-box">' +
+            '<div class="box-header color-' + severity + '">' +
+            rig_name + ' - ' + name +
+            (duration != '' ? '<span class="hour">' + duration + '</span>' : '') +
+            '</div>' +
+            '<div class="box-body">' +
+            '<p style="color: #ffffff;">' + parseFloat(depth_from).convert('ft', company_unit).val().round_to_decimal().with_delimiter() + ( depth_to != '' ? ' - ' + parseFloat(depth_to).convert('ft', company_unit).val().round_to_decimal().with_delimiter() : '' ) + ' ' + 'ft'.unit(company_unit) + '</p>' +
+            '<p>' + resolution + '</p>' +
+            '<div class="divider"></div>' +
+            '<p>' + opened_at + '</p>' +
+            '</div>' +
+            '</div>');
+      }
+    });
+  });
+</script>

@@ -1,0 +1,200 @@
+<% provide(:title, @user.name) %>
+
+<div class="">
+
+  <% if current_user.role == UserRole::ROLE_ADMIN %>
+      <div class="btn-group inline pull-right push-down">
+        <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+          Advanced Actions
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <%= link_to "Edit user", edit_user_path(@user),
+                        class: "dropdown-menu-link tooltip-info",
+                        "data-placement" => "left",
+                        "data-title" => "Edit User" %>
+          </li>
+        </ul>
+      </div>
+  <% end %>
+
+  <br>
+
+  <div class="avatar-box">
+    <%= image_tag "user_avatar.png" %>
+  </div>
+
+  <div class="users-info">
+
+    <h1 class="page-title users-info"><%= @user.name %></h1>
+
+    <div>
+    <h3 class="blue-text"><%= @user.phone_number %></h3>
+    </div>
+
+    <div class='push-down'>
+    <%= link_to @user.email, "mailto:" + @user.email, class: "activity-user-link tooltip-info",
+                "data-placement" => "bottom",
+                "data-title" => "Send Email to " + @user.name %>
+    </div>
+
+
+    <div class="">
+      <% if @user.district.present? %>
+          <%= image_tag "district_extrasmall.png", class: "job-status-avatar inline" %>
+          <%= link_to @user.district.name, @user.district, class: "activity-user-link" %>
+      <% end %>
+    </div>
+
+
+
+  </div>
+
+</div>
+
+<div>
+  <br><br><br>
+
+
+  <% if @user.role_id.nil? %>
+      <br><br>
+  <% end %>
+
+</div>
+
+
+<% @adjusted_today_date = Time.zone.now %>
+<% @start_date = @adjusted_today_date.beginning_of_week - 1.days - (@adjusted_today_date.beginning_of_week.day + (7 - (@adjusted_today_date.beginning_of_week.day % 7))).days %>
+<% @page = 1 %>
+
+
+
+
+<% if @user == current_user  %>
+
+    <div>
+      <div class="job-main-div">
+        <br>
+        <ul class="nav nav-pills alert alert-nav">
+
+          <li class="active">
+            <a href="#" class="job-tray-toggle custom-data-toggle tooltip-info"
+               data-tray="overview"
+               data-placement="bottom" data-title="Overview">Overview</a>
+          </li>
+
+          <li class="">
+            <a href="#" class="job-tray-toggle custom-data-toggle tooltip-info"
+               data-tray="jobs"
+               data-placement="bottom" data-title="Jobs">Jobs</a>
+          </li>
+
+          <li class="">
+            <a href="#" class="job-tray-toggle custom-data-toggle tooltip-info"
+               data-tray="user-activity"
+               data-placement="bottom" data-title="All activity of this user">Activity</a>
+          </li>
+
+          <li class="">
+            <a href="#" class="job-tray-toggle custom-data-toggle tooltip-info"
+               data-tray="time"
+               data-placement="bottom" data-title="Time/Scheduling">Time/Scheduling</a>
+          </li>
+
+        </ul>
+
+        <%= render 'users/tray_overview' %>
+
+        <div class="job-tray custom-data-closed" data-tray="jobs">
+          <div class="page_header">
+            <h1><%= t ".jobs" %></h1>
+
+            <h2>
+              <% if @user.active_jobs.count > 0 %>
+                  <% if params[:page].present? %>
+                      <%= ((Integer(params[:page]) - 1) * 10) + 1 %>
+                      - <%= [((Integer(params[:page]) - 1) * 10) + 10, @user.active_jobs.count].min %>
+                      of <%= @user.active_jobs.count.to_s %>
+                  <% else %>
+                      1 - <%= [10, @user.active_jobs.count].min %> of <%= @user.active_jobs.count.to_s %>
+                  <% end %>
+              <% end %>
+            </h2>
+          </div>
+
+          <div class="">
+            <div id="jobs" class="list">
+              <% @user.jobs.includes(:district, :dynamic_fields, :field, :well).each do |job| %>
+                  <%= render 'jobs/job_progress_link', job: job %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <div class="job-tray custom-data-closed" data-tray="user-activity">
+          <%= render 'activities/paginated_activity', activities: @activities, inside_job: false, in_form: false %>
+        </div>
+
+      </div>
+    </div>
+
+
+
+    <script>
+        $(document).ready(function () {
+
+            <% if @job_success_rate.present? %>
+            plot3 = $.jqplot('failure_rate', [
+                [
+                    ['a', <%= @job_success_rate %>],
+                    ['b', 100 - <%= @job_success_rate %>]
+                ]
+            ], {
+                animate: true,
+                background: "#FFFFFF",
+                seriesColors: [ "<%= @job_success_rate > 70 ? "#458fd2" : "#e4472e" %>", "#FFFFFF"],
+                seriesDefaults: {
+                    textColor: " #00ff0000",
+                    shadow: false,
+                    renderer: $.jqplot.DonutRenderer,
+                    rendererOptions: {
+                        padding: 0,
+                        innerDiameter: 95,
+                        sliceMargin: 0,
+                        startAngle: -90,
+                        showDataLabels: true,
+                        dataLabels: 'value'
+                    }
+                }
+            });
+            <% end %>
+
+            <% if @average_job_performance.present? %>
+            plot3 = $.jqplot('performance_rating', [
+                [
+                    ['a', <%= @average_job_performance %>],
+                    ['b', 5 - <%= @average_job_performance %>]
+                ]
+            ], {
+                animate: true,
+                background: "#FFFFFF",
+                seriesColors: [ "<%= @average_job_performance >= 3 ? "#458fd2" : "#e4472e" %>", "#FFFFFF"],
+                seriesDefaults: {
+                    textColor: " #00ff0000",
+                    shadow: false,
+                    renderer: $.jqplot.DonutRenderer,
+                    rendererOptions: {
+                        padding: 0,
+                        innerDiameter: 95,
+                        sliceMargin: 0,
+                        startAngle: -90,
+                        showDataLabels: true,
+                        dataLabels: 'value'
+                    }
+                }
+            });
+            <% end %>
+
+        });
+    </script>
+<% end %>

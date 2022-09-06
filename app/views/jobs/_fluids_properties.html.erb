@@ -1,0 +1,79 @@
+<% fluid ||= {} %>
+<div class="section-sub-header">
+  Properties
+</div>
+
+<div class="block">
+  <table class="table-normal">
+    <tbody>
+    <tr>
+      <td>Type</td>
+      <td class="text-bold">
+        <input id="fluids_form_type" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['type'] unless fluid['type'].nil? %>"/>
+      </td>
+      <td>Density</td>
+      <td>
+        <input id="fluids_form_density" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['density'] unless fluid['density'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>Funnel Viscosity</td>
+      <td>
+        <input id="fluids_form_funnel_viscosity" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['funnel_viscosity'] unless fluid['funnel_viscosity'].nil? %>"/>
+      </td>
+      <td>Filtrate</td>
+      <td>
+        <input id="fluids_form_filtrate" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['filtrate'] unless fluid['filtrate'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>pH</td>
+      <td>
+        <input id="fluids_form_ph" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['ph'] unless fluid['ph'].nil? %>"/>
+      </td>
+      <td>Mud cake thickness</td>
+      <td>
+        <input id="fluids_form_mud_cake_thickness" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['mud_cake_thickness'] unless fluid['mud_cake_thickness'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>PV</td>
+      <td>
+        <input id="fluids_form_pv" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['pv'] unless fluid['pv'].nil? %>"/>
+      </td>
+      <td>YP</td>
+      <td>
+        <input id="fluids_form_yp" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['yp'] unless fluid['yp'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>High gravity solids densities</td>
+      <td>
+        <input id="fluids_form_high_gravity_densities" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['high_gravity_densities'] unless fluid['high_gravity_densities'].nil? %>"/>
+      </td>
+      <td>Low gravity solids densities</td>
+      <td>
+        <input id="fluids_form_low_gravity_densities" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['low_gravity_densities'] unless fluid['low_gravity_densities'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>High gravity solids volume %</td>
+      <td>
+        <input id="fluids_form_high_gravity_volume" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['high_gravity_volume'] unless fluid['high_gravity_volume'].nil? %>"/>
+      </td>
+      <td>Low gravity solids volume %</td>
+      <td>
+        <input id="fluids_form_low_gravity_volume" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['low_gravity_volume'] unless fluid['low_gravity_volume'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>Drilled Solids Volume %</td>
+      <td>
+        <input id="fluids_form_drilled_solids_volume" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['drilled_solids_volume'] unless fluid['drilled_solids_volume'].nil? %>"/>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

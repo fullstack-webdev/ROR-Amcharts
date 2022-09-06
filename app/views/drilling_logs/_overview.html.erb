@@ -1,0 +1,83 @@
+<div>
+  <div>
+
+    <div class="chart-block align-top tooltip-info"
+         data-title="Average Total Rate of Penetration.">
+      <div class="chart-title">Drilling ROP</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.drilling_rop.nil? ? "0.0" : drilling_log.drilling_rop.round(1) %></div>
+        <div class="percentage ">ft/hr</div>
+      </div>
+    </div>
+
+    <% if show_drilled %>
+        <div class="chart-block align-top tooltip-info"
+             data-title="Total feet drilled.">
+          <div class="chart-title">Total Drilled</div>
+          <div class="donut-chart-div job-donut-chart-div">
+            <div class="donut-text "><%= drilling_log.nil? || drilling_log.total_drilled.nil? ? "0" : number_with_delimiter(drilling_log.total_drilled.to_i, :delimiter => ',') %></div>
+            <div class="percentage ">
+              <span class="push-right-small">ft</span>
+            </div>
+          </div>
+        </div>
+    <% else %>
+        <div class="chart-block align-top tooltip-info"
+             data-title="Current depth">
+          <div class="chart-title">Current Depth</div>
+          <div class="donut-chart-div job-donut-chart-div">
+            <div class="donut-text "><%= drilling_log.nil? || drilling_log.max_depth.nil? ? "0" : number_with_delimiter(drilling_log.max_depth.to_i, :delimiter => ',') %></div>
+            <div class="percentage ">
+              <span class="push-right-small">TD <%= drilling_log.nil? || drilling_log.td_depth.nil? ? "0" : number_with_delimiter(drilling_log.td_depth.to_i, :delimiter => ',') %>
+                ft</span></div>
+          </div>
+        </div>
+    <% end %>
+
+    <div class="chart-block align-top tooltip-info"
+         data-title="Time in hours spent rotating and sliding.">
+      <div class="chart-title">Drilling Time</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.drilling_time.nil? ? "0.0" : drilling_log.drilling_time.round(1) %></div>
+        <div class="percentage ">hours</div>
+      </div>
+    </div>
+
+    <% hex = SecureRandom.urlsafe_base64[1..7] %>
+    <div class="inline-block tooltip-info" data-title="ROP">
+      <canvas id="overview_rop_canvas_<%= hex %>" height="110" width="220"></canvas>
+    </div>
+
+    <script type='text/javascript'>
+        <% if !drilling_log_entries.nil? && drilling_log_entries.any? %>
+        <% rops = [] %>
+        <% last_entry = drilling_log_entries.first %>
+        <% drilling_log_entries.each do |dl| %>
+        <% time = (dl.entry_at - last_entry.entry_at).to_f / 60.0 / 60.0 %>
+        <% if dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING || time > 0.1 %>
+        <% rop = ((dl.depth - last_entry.depth).to_f / (dl.entry_at - last_entry.entry_at).to_f * 60.0)  %>
+        <% rops << [dl.entry_at, dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING ? rop : 0.0] %>
+        <% end %>
+        <% last_entry = dl %>
+        <% end %>
+
+        var lineChartData = {
+            labels: <%= raw rops.map { |dl| '' }.to_json.html_safe %>,
+            datasets: [
+                {
+                    fillColor: "rgba(220,220,220,0.5)",
+                    strokeColor: "rgba(220,220,220,1)",
+                    pointColor: "rgba(220,220,220,1)",
+                    pointStrokeColor: "#fff",
+                    data: <%= raw rops.map { |dl| dl[1] }.to_json.html_safe %>
+                }
+            ]
+        }
+
+        var myLine = new Chart(document.getElementById("overview_rop_canvas_<%= hex %>").getContext("2d")).Line(lineChartData, { pointDot: false, scaleShowGridLines: false, animation: false, scaleOverride: true, scaleSteps: 4, scaleStepWidth: 5, scaleStartValue: -4 });
+
+        <% end %>
+
+    </script>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+<div class="section-header">
+  <h1>Create New Rig</h1>
+</div>
+
+<div class="form" data-form="new_rig">
+  <%= form_for @rig, remote: true do |f| %>
+
+      <%= render "form", f: f %>
+
+      <div class="">
+        <%= f.submit "Create Rig",
+                     class: "btn btn-success pull-right form-loading-on-click",
+                    "data-form" => "new_rig" %>
+
+      </div>
+
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="new_rig">
+  <%= render 'layouts/inline_loading', title: "Creating Rig..." %>
+</div>

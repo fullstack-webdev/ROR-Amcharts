@@ -1,0 +1,342 @@
+(function ($) {
+  var chart,
+      warnings_depth_chart;
+  var graph_data = [],
+      warnings_graph_data = [];
+  var graphs = [];
+  var tray = $(".remote-tray[data-tray='rigs_warnings']");
+
+  var init_warnings_data = function () {
+    <% @rigs.each do |rig| %>
+    <% rig.wells.completed.each do |well| %>
+    if (RIGS[<%= rig.id %>] && RIGS[<%= rig.id %>].wells[<%= well.id %>]) {
+      RIGS[<%= rig.id %>].wells[<%= well.id %>].warnings_by_depth = <%= raw well.warnings_by_depth.to_json %>;
+    }
+    <% end %>
+    <% end %>
+  };
+
+  var filter_graph_data = function () {
+    graph_data = [];
+    graphs = [];
+    warnings_graph_data = [];
+    var agg_warnings = {};
+
+    for (var key in UPDATED_RIGS) {
+      var rig = UPDATED_RIGS[key];
+      var index = 0;
+
+      for (var k in rig.wells) {
+        var well = rig.wells[k];
+        var data = {};
+
+        if (!graph_data[index]) {
+          data = {
+            "sequence": index
+          };
+        } else {
+          data = graph_data[index];
+        }
+
+        data[key] = well.total_warnings;
+        data[key + '_well_name'] = well.name;
+        data[key + '_job_id'] = well.job_id;
+        data[key + '_rig_id'] = well.rig_id;
+        data[key + '_well_id'] = well.id;
+        data[key + '_rig_name'] = well.rig_name;
+        data[key + '_rop'] = well.rop;
+        data[key + '_total_cost'] = well.total_cost;
+        data[key + '_total_warnings'] = well.total_warnings;
+        data[key + '_total_well_time'] = well.total_well_time;
+        graph_data[index] = data;
+        index++;
+
+        well.warnings_by_depth.forEach(function (item) {
+          range = parseFloat(item.range).convert('ft', company_unit).val().round_to_decimal().with_delimiter();
+          agg_warnings[range] = agg_warnings[range] || {};
+          agg_warnings[range][item.severity] = parseInt(agg_warnings[range][item.severity] || 0) + parseInt(item.count);
+        });
+      }
+
+      graphs.push({
+        "title": rig.name,
+        "balloonFunction": function (graphDataItem, graph) {
+          var rig_name = graphDataItem.dataContext[graph.valueField + '_rig_name'];
+          var well_name = graphDataItem.dataContext[graph.valueField + '_well_name'];
+          var rop = graphDataItem.dataContext[graph.valueField + '_rop'].round_to_decimal().number_with_delimiter();
+          var total_cost = graphDataItem.dataContext[graph.valueField + '_total_cost'].round_to_decimal().number_with_delimiter();
+          var total_warnings = graphDataItem.dataContext[graph.valueField + '_total_warnings'];
+          var total_well_time = graphDataItem.dataContext[graph.valueField + '_total_well_time'].round_to_decimal().number_with_delimiter();
+          return "<div class='amChart_balloon'>" +
+              "<div class='block'>" +
+              "<div class='inline-block text-blue rig-name'>" +
+              rig_name +
+              "</div>" + "<div class='spacer'></div>" +
+              "<div class='inline-block text-white well-name'>" +
+              well_name +
+              "</div>" +
+              "</div>" +
+              "<div class='block stats-block-3'>" +
+              "<div class='inline-block text-lightblue'><b>" +
+              total_well_time +
+              "</b> <span>days</span></div>" +
+              "<div class='spacer'></div>" +
+              "<div class='inline-block text-lightblue'>$<b>" +
+              total_cost + "</b></div>" +
+              "<div class='spacer'></div>" +
+              "<div class='inline-block text-lightblue'><b>" +
+              parseFloat(rop).convert('ft', company_unit).val().round_to_decimal().with_delimiter() + "</b> " + "ft".unit(company_unit) + "/hr</div>" +
+              "<div class='spacer'></div>" +
+              "<div class='inline-block text-red' style='font-size: 13px;'>" +
+              "<span class='text-red'>*</span> <span>" + total_warnings + "</span>" +
+              "</div>" +
+              "</div>" +
+              "</div>";
+        },
+        "lineColor": rig.graph_color,
+        "lineThickness": 2,
+        "type": "smoothedLine",
+        "valueField": key,
+        "bullet": "round",
+        "bulletSize": 10
+      });
+    }
+
+    for (var key in agg_warnings) {
+      if (agg_warnings.hasOwnProperty(key)) {
+        var item = agg_warnings[key];
+        item.range = key;
+        warnings_graph_data.push(item);
+      }
+    }
+  };
+
+  var update_chart = function () {
+    if (graph_data.length == 0) {
+      tray.find('.content-view').hide();
+      tray.find('.no-content').show();
+    } else {
+      tray.find('.content-view').show();
+      tray.find('.no-content').hide();
+      chart.dataProvider = graph_data;
+      chart.graphs = graphs;
+      chart.validateData();
+      chart.validateNow();
+    }
+  };
+
+  var update_warnings_by_depth = function () {
+    if(warnings_graph_data.length == 0) {
+      tray.find('.warnings-depth-chart-container').hide();
+    } else {
+      tray.find('.warnings-depth-chart-container').show();
+      $('#warnings_depth_chart').css('height', warnings_graph_data.length * 30 + 50);
+      warnings_depth_chart.dataProvider = warnings_graph_data;
+      warnings_depth_chart.validateData();
+      warnings_depth_chart.validateNow();
+    }
+  };
+
+  var on_click_chart_bullet = function (event) {
+    UPDATE_WARNING_TOOLTIP('rigs_warnings_chart', event);
+    chart.balloon.hide();
+  };
+
+  var create_chart = function () {
+    chart = AmCharts.makeChart("rigs_warnings_chart", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#475959",
+      "backgroundAlpha": 0,
+      "marginLeft": 30,
+      "marginBottom": 60,
+      "autoMargins": false,
+      "marginLeft": 70,
+      "marginTop": 20,
+      "balloon": {
+        "adjustBorderColor": true,
+        "color": "#000000",
+        "cornerRadius": 5,
+        "fillColor": "#323a3a",
+        "borderThickness": 0,
+        "horizontalPadding": 0,
+        "cornerRadius": 0,
+        "verticalPadding": 0,
+        "borderAlpha": 0,
+        "fillAlpha": 0.8,
+        "maxWidth": 266,
+        "fadeOutDuration": 0
+      },
+      "legend": {
+        "align": "right",
+        "position": "bottom",
+        "markerType": "circle",
+        "markerSize": 8,
+        "equalWidths": false,
+        "fontSize": 11,
+        "periodValueText": "",
+        "valueAlign": "left",
+        "valueWidth": 100,
+        "valueText": "",
+        "color": "#fefefe"
+      },
+      "dataProvider": graph_data,
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "left",
+          "reversed": false,
+          "title": "Warnings",
+          "gridAlpha": 0,
+          "color": "#fefefe",
+          "titleColor": "#fefefe",
+          "guides": [
+            {
+              "fillAlpha": 0.8,
+              "fillColor": "#455657",
+              "inside": true,
+              "lineAlpha": 0,
+              "toValue": 40000,
+              "value": -10000
+            }
+          ]
+        }
+      ],
+      "graphs": graphs,
+      "chartCursor": {
+        "cursorAlpha": 0,
+        "categoryBalloonEnabled": false,
+        "oneBalloonOnly": true
+      },
+      "categoryField": "year",
+      "categoryAxis": {
+        "parseDates": false,
+        "minorGridAlpha": 0,
+        "minorGridEnabled": true,
+        "title": "Sequence",
+        "color": "#fefefe",
+        "titleColor": "#fefefe",
+        "axisColor": "#fefefe",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "gridColor": "#fefefe",
+        "labelsEnabled": false
+      },
+      "fontFamily": "orgonlightregular",
+      "fontSize": 13
+    });
+
+    chart.addListener("rollOutGraphItem", function (event) {
+      $('.warning_tooltip_container').hide();
+    });
+
+    chart.addListener("clickGraphItem", on_click_chart_bullet);
+  };
+
+  var create_warnings_by_depth_chart = function () {
+    $('#warnings_depth_chart').css('height', warnings_graph_data.length * 30 + 50);
+    warnings_depth_chart = AmCharts.makeChart("warnings_depth_chart", {
+      "type": "serial",
+      "theme": "none",
+      "marginBottom": 0,
+      "autoMargins": false,
+      "marginLeft": 100,
+      "marginTop": 0,
+      "dataProvider": warnings_graph_data,
+      "valueAxes": [
+        {
+          "stackType": "regular",
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "labelsEnabled": false
+        }
+      ],
+      "graphs": [
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "high",
+          "lineColor": "#e52909",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[high]]</bold> high warnings"
+
+        },
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "low",
+          "lineColor": "#f7e625",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[low]]</bold> low warnings"
+        },
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "moderate",
+          "lineColor": "#ef891b",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[moderate]]</bold> moderate warnings"
+        }
+      ],
+      "rotate": true,
+      "categoryField": "range",
+      "categoryAxis": {
+        "title": "Depth (MD - <%= unit('ft', company_unit) %>)",
+        "titleColor": "#fefefe",
+        "gridPosition": "start",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "position": "left",
+        "fontSize": 15,
+        "color": "#fefefe"
+      },
+      "fontFamily": "orgonlightregular"
+    });
+  };
+
+  var init = function () {
+    init_warnings_data();
+    rigs_updated();
+
+    // click event on rigs list
+    $('#rig_list li a').on('click', function () {
+      filter_graph_data();
+      update_chart();
+      update_warnings_by_depth();
+    });
+
+    // click event on history list
+    $('#history_list li a').on('click', function () {
+      filter_graph_data();
+      update_chart();
+      update_warnings_by_depth();
+    });
+
+    $(".remote-tray-toggle[data-tray='rigs_warnings']").on('click', function () {
+      setTimeout(function () {
+        update_chart();
+        update_warnings_by_depth();
+      }, 0);
+    });
+
+    filter_graph_data();
+    create_chart();
+    create_warnings_by_depth_chart();
+
+    // set active tab
+    $('.btn-tray').removeClass('active');
+    $('.remote-tray-toggle[data-tray="rigs_warnings"] .btn-tray').addClass('active');
+  };
+
+  init();
+}(jQuery));

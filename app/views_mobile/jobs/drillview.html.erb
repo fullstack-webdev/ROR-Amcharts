@@ -1,0 +1,154 @@
+<% provide(:title, "Job | " + @job.well.rig.name + " | " + @job.well.name) %>
+
+<% content_for :page_title do %>
+  <%= @job.well.rig.name + " | " + @job.well.name %>
+<% end %>
+
+<div class="main-content no-space">
+  <div class="mdv">
+    <div class="dv-main">
+      <div class="dv-subtitle"></div>
+
+      <div id="drillview-content" class="dv-content" style="overflow: auto; -webkit-overflow-scrolling: touch;">
+        <div class="remote-tray" data-tray="rig_overview_overview"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_mse"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_kicks"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_stability"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_losses"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_rop"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_tandd"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_hydraulics"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_cleaning"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_bouncing"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_whirl"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_raw"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_bit"></div>
+        <div class="remote-tray custom-data-closed" data-tray="rig_overview_motor"></div>
+      </div>
+    </div>
+
+    <div id="drillview-menu" class="dv-menu" style="overflow: auto; -webkit-overflow-scrolling: touch;">
+      <ul class="menu-list parent-tray-nav">
+        <li class="normal active">
+          <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+             data-id="<%= @job.id %>"
+             data-tray-controller="jobs"
+             data-tray="rig_overview_overview"
+             unselectable='on'
+             onselectstart='return false;'
+             onmousedown='return false;'>
+            <%= image_tag 'drillview/icon-overview.png' %>
+          </a>
+        </li>
+        <% if CompanyFeature.is_enabled(@company_features, CompanyFeature::TORQUE_AND_DRAG) %>
+          <li class="normal">
+            <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+               data-id="<%= @job.id %>"
+               data-tray-controller="jobs"
+               data-tray="rig_overview_tandd"
+               unselectable='on'
+               onselectstart='return false;'
+               onmousedown='return false;'>
+              <%= image_tag 'drillview/icon-torque.png' %>
+            </a>
+          </li>
+        <% end %>
+        <% if CompanyFeature.is_enabled(@company_features, CompanyFeature::DRILLING_OPTIMIZATION) %>
+          <li class="normal">
+            <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+               data-id="<%= @job.id %>"
+               data-tray-controller="jobs"
+               data-tray="rig_overview_whirl"
+               unselectable='on'
+               onselectstart='return false;'
+               onmousedown='return false;'>
+              <%= image_tag 'drillview/icon-efficiency.png' %>
+            </a>
+          </li>
+        <% end %>
+        <% if CompanyFeature.is_enabled(@company_features, CompanyFeature::WELLBORE_STABILITY) %>
+          <li class="normal">
+            <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+               data-id="<%= @job.id %>"
+               data-tray-controller="jobs"
+               data-tray="rig_overview_stability"
+               unselectable='on'
+               onselectstart='return false;'
+               onmousedown='return false;'>
+              <%= image_tag 'drillview/icon-wellbore.png' %>
+            </a>
+          </li>
+        <% end %>
+        <% if CompanyFeature.is_enabled(@company_features, CompanyFeature::HOLE_CLEANING) %>
+          <li class="normal" id="dv_toggle_cleaning">
+            <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+               data-id="<%= @job.id %>"
+               data-tray-controller="jobs"
+               data-tray="rig_overview_cleaning"
+               unselectable='on'
+               onselectstart='return false;'
+               onmousedown='return false;'>
+              <%= image_tag 'drillview/icon-cleaning.png' %>
+            </a>
+          </li>
+        <% end %>
+        <% if CompanyFeature.is_enabled(@company_features, CompanyFeature::VIBRATION) %>
+          <li class="normal">
+            <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+               data-id="<%= @job.id %>"
+               data-tray-controller="jobs"
+               data-tray="rig_overview_bit"
+               unselectable='on'
+               onselectstart='return false;'
+               onmousedown='return false;'>
+              <%= image_tag 'drillview/icon-vibration.png' %>
+            </a>
+          </li>
+        <% end %>
+        <% if CompanyFeature.is_enabled(@company_features, CompanyFeature::MOTOR) %>
+          <li class="normal">
+            <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+               data-id="<%= @job.id %>"
+               data-tray-controller="jobs"
+               data-tray="rig_overview_motor"
+               unselectable='on'
+               onselectstart='return false;'
+               onmousedown='return false;'>
+              <%= image_tag 'drillview/icon-motor.png' %>
+            </a>
+          </li>
+        <% end %>
+        <% if CompanyFeature.is_enabled(@company_features, CompanyFeature::GAIN_LOSS) %>
+          <li class="normal">
+            <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+               data-id="<%= @job.id %>"
+               data-tray-controller="jobs"
+               data-tray="rig_overview_losses"
+               unselectable='on'
+               onselectstart='return false;'
+               onmousedown='return false;'>
+              <%= image_tag 'drillview/icon-loss.png' %>
+            </a>
+          </li>
+        <% end %>
+        <% if CompanyFeature.is_enabled(@company_features, CompanyFeature::RAW) %>
+          <li class="normal">
+            <a href="#" class="remote-tray-toggle dv-remote-tray-toggle"
+               data-id="<%= @job.id %>"
+               data-tray-controller="jobs"
+               data-tray="rig_overview_raw"
+               unselectable='on'
+               onselectstart='return false;'
+               onmousedown='return false;'>
+              <%= image_tag 'drillview/icon-trace.png' %>
+            </a>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  <%= render 'jobs/drillview/index.js' %>
+</script>

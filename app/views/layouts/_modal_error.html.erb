@@ -1,0 +1,19 @@
+<div id="alert" class="modal hide fade" style='z-index:10000000000;'
+     tabindex="100000000" role="dialog" aria-labelledby="modal_label" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h2 id="modal_label" class="page-title"><%= title %></h2>
+  </div>
+  <div class="modal-body">
+    <p><%= message %></p>
+  </div>
+  <div class="modal-footer">
+    <button class="bluebtn btnsmall pull-right" data-dismiss="modal" aria-hidden="true">Ok</button>
+  </div>
+</div>
+
+<script type='text/javascript'>
+    if ( $.browser.msie && 10 >= $.browser.version ) {
+        $('.fade').removeClass('fade');
+    }
+</script>

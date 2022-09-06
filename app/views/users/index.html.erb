@@ -1,0 +1,36 @@
+<% provide(:title, 'Users') %>
+
+<div class="page_header">
+  <h1>Users</h1>
+
+  <h2 class="paginated-count">
+    <%= render 'layouts/paged_header', items: @users %>
+  </h2>
+
+  <% if signed_in_admin? %>
+      <%= link_to "+ Add New User", new_user_path, class: "bluebtn page_header_button tooltip-info",
+                  "data-placement" => "bottom",
+                  "data-title" => "Create new user"%>
+  <% end %>
+</div>
+
+<div class="alert alert-info">
+  <%= form_tag users_path, :method => 'get', :id => "users_search", remote: true, class: "filter-search-box" do %>
+      <%= text_field_tag :search, params[:search], placeholder: "Search users", class: "search-query tooltip-info",
+                         "data-placement" => "left",
+                         "data-title" => "Search users by name" %>
+
+      <% if params[:search].present? && !params[:search].blank? %>
+          <%= link_to "x  clear results", users_path, class: "activity-user-link push-right-small" %>
+      <% end %>
+  <% end %>
+</div>
+
+
+
+<div id="users_list">
+  <div id="users" class="list">
+    <%= render @users %>
+  </div>
+  <%= will_paginate %>
+</div>

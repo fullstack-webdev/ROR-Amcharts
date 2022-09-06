@@ -1,0 +1,48 @@
+<fieldset id="post_job_report_document_<%= post_job_report_document.id %>" class="field">
+  <div class="inline-form document-field">
+    <%= s3_uploader_form post: "/documents/" + document.id.to_s, as: "document[url]", class: "inline" do %>
+
+        <%= render 'documents/document_metadata', document: document %>
+
+
+        <div class="upload-controls inline" id="div_upload_<%= !document.job.nil? ? document.job.id : "" %>">
+          <div class="upload-document-container" id="file_uploads">
+            <div class="document-upload-button-container">
+              <% if can_upload and (document.template? or !document.read_only?) %>
+                  <% if !@job || (@job and !@job.closed) %>
+                      <div class="inline tooltip-info upload-button-div"
+                           data-placement="bottom" data-title="Upload new document">
+                        <%= file_field_tag :file, multiple: true, class: "file-input", id: "upload_document_browse" %>
+                        <%= link_to "Upload", "#", id: "upload_document", class: "document-upload-button" %>
+                      </div>
+                  <% end %>
+                  </div>
+              <% end %>
+              </div>
+
+
+          <% if editable %>
+              <%= link_to "remove", post_job_report_document, method: :delete, remote: true, data: {confirm: "Remove Document from Post Job Report?"}, class: "delete-button tooltip-info",
+                          "data-placement" => "bottom",
+                          "data-title" => "Remove document from post job report" %>
+              <%= link_to "order", post_job_report_document_path(post_job_report_document, reorder: "-1"), :method => :put, remote: true, class: "order-button tooltip-info",
+                          "data-placement" => "bottom",
+                          "data-title" => "Move document up by 1 row" %>
+          <% end %>
+        </div>
+
+    <% end %>
+
+  </div>
+
+
+  <script id="template-upload" type="text/x-tmpl">
+    <div class="upload">
+      <div class="progress progress-striped active">
+        <div class="bar" style="width: 0%"></div>
+      </div>
+    </div>
+  </script>
+
+</fieldset>
+

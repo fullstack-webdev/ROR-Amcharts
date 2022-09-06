@@ -1,0 +1,103 @@
+<% provide(:title, @user.name) %>
+
+<div class='section-header' style="margin-top: 15px;">
+
+  <h1 class='inline-block'>Profile</h1>
+
+  <% if @user == current_user %>
+      <div class='inline-block align-top pull-right'>
+        <%= link_to update_password_path(email: current_user.email), class: "btn btn-sub tooltip-info align-top",
+                    "data-placement" => "bottom",
+                    "data-title" => "Change Password" do %>
+            Change Password
+        <% end %>
+      </div>
+  <% end %>
+
+
+  <div class='inline-block align-top pull-right'>
+    <%= link_to edit_user_path(@user), class: "btn btn-sub tooltip-info align-top",
+                "data-placement" => "bottom",
+                "data-title" => "Edit User" do %>
+        Edit
+    <% end %>
+  </div>
+
+</div>
+
+<div style="margin-top: 30px;">
+  <div style="height:50px;">
+    <div class="inline-block" style="width:20%; color: #7C9B8F; font-size: 16px; margin-left: 40px;">Name</div>
+    <div class="inline-block" style="width:auto; color: #ffffff; font-size: 20px;"><%= @user.name %></div>
+  </div>
+  <div style="height:50px;">
+    <div class="inline-block" style="width:20%; color: #7C9B8F; font-size: 16px; margin-left: 40px;">E-mail</div>
+    <div class="inline-block" style="width:auto; color: #ffffff; font-size: 24px;">
+      <%= link_to @user.email, "mailto:" + @user.email,
+                  class: "activity-user-link tooltip-info",
+                  style: "color: #FFF; font-size: 14px;",
+                  "data-placement" => "bottom",
+                  "data-title" => "Send Email to " + @user.name %>
+    </div>
+  </div>
+  <div style="height:50px;">
+    <div class="inline-block" style="width:20%; color: #7C9B8F; font-size: 16px; margin-left: 40px;">Phone Number</div>
+    <div class="inline-block" style="width:auto; color: #ffffff; font-size: 16px;"><%= @user.phone_number.present? ? @user.phone_number : "-" %></div>
+  </div>
+  <div style="height:50px;">
+    <div class="inline-block" style="width:20%; color: #7C9B8F; font-size: 16px; margin-left: 40px;">Location</div>
+    <div class="inline-block" style="width:auto; color: #ffffff; font-size: 24px;">
+      <p><%=  @user.district.name %></p>
+    </div>
+  </div>
+
+  <div style="height:50px;">
+    <div class="inline-block" style="width:20%; color: #7C9B8F; font-size: 16px; margin-left: 40px;">Access</div>
+    <div class="inline-block" style="width:auto; color: #ffffff; font-size: 24px;">
+      <p>
+        <% if @user.role_id == UserRole::ROLE_FULL_ACCESS %>
+            Full Access
+        <% elsif @user.role_id == UserRole::ROLE_ADMIN %>
+            Admin
+        <% else %>
+            Restricted
+        <% end %>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!--<div class="">-->
+
+<!--<div class="avatar-box">-->
+<!--<%= image_tag "user_avatar.png" %>-->
+<!--</div>-->
+
+<!--<div class="users-info">-->
+
+<!--<div class="divider divider-md"></div>-->
+
+<!--<h1 class="page-title users-info"><%= @user.name %></h1>-->
+
+<!--<div>-->
+<!--<h3 class="blue-text"><%= @user.phone_number %></h3>-->
+<!--</div>-->
+
+<!--<div class='push-down'>
+      <%= link_to @user.email, "mailto:" + @user.email, class: "activity-user-link tooltip-info",
+                  "data-placement" => "bottom",
+                  "data-title" => "Send Email to " + @user.name %>
+    </div>-->
+
+<!--<div class="">-->
+<!--
+<% if @user.district.present? %>-->
+    <!--<%= image_tag "district_extrasmall.png", class: "job-status-avatar inline" %>-->
+    <!--<%= link_to @user.district.name, @user.district, class: "activity-user-link" %>-->
+    <!--
+<% end %>-->
+<!--</div>-->
+
+<!--</div>-->
+
+<!--</div>-->

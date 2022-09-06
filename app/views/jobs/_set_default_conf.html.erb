@@ -1,0 +1,328 @@
+<div class="section-header" style="margin-top: 0px !important;">
+  <h1><%= @conf['well_name'] %> Default Configuration</h1>
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div class="block">
+  <!--<div class="inline-block" style="width: 25%; margin-right: 5%;  ">-->
+    <!--<%= render 'jobs/hole_size', hole_sizes: @conf['hole_sizes'] %>-->
+  <!--</div>-->
+
+  <div class="inline-block" style="width: 100%; vertical-align: top;">
+    <%= render 'jobs/drilling_string', drilling_strings: @conf['drilling_strings'] %>
+
+    <div class="divider divider-lg"></div>
+
+    <%= render 'jobs/bit', bit: @conf['bit'] %>
+
+    <div class="divider divider-lg"></div>
+
+    <%= render 'jobs/casing', casings: @conf['casings'] %>
+  </div>
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div class="block">
+
+  <%= render 'jobs/fluids_properties', fluid: @conf['fluid'] %>
+
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div style="display: flex;">
+
+  <div class="inline-block" style="width: 48%; float: left;">
+
+    <%= render 'jobs/rheometer_readings', fluid: @conf['fluid'] %>
+
+  </div>
+
+  <div class="inline-block" style="width: 48%; float: left; margin-left: 4%;">
+
+    <%= render 'jobs/gel_strengths', fluid: @conf['fluid'] %>
+
+  </div>
+
+  <div class="clearfix"></div>
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div style="display: flex;">
+  <div class="inline-block" style="width: 48%; float: left;">
+
+    <%= render 'jobs/retort_test', fluid: @conf['fluid'] %>
+
+  </div>
+
+  <div class="inline-block" style="width: 48%; float: left; margin-left: 4%;">
+
+    <%= render 'jobs/methylene_blue_test', fluid: @conf['fluid'] %>
+
+  </div>
+
+  <div class="clearfix"></div>
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div class="block">
+
+  <%= render 'jobs/tiratuon_test', fluid: @conf['fluid'] %>
+
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div class="block">
+  <a id="save_conf_btn" href="javascript:void(null)" class="btn btn-primary" style="margin-left: 17px;">Save</a>
+</div>
+
+
+<script type="text/javascript">
+  (function ($) {
+    var def_no_hs = <%= @conf['hole_sizes'].length %>;
+    var def_no_ds = <%= @conf['drilling_strings'].length %>;
+    var def_no_casing = <%= @conf['casings'].length %>;
+
+    function remove_hole_size() {
+      var id = $(this).attr('data-id');
+      $('#set_default_conf_content #hs_hs_row' + id).remove();
+    }
+
+    function add_hole_size() {
+      $("#set_default_conf_content #hole_string_hs_container").append("<tr id='hs_hs_row" + def_no_hs + "' class='hs_hs_row'>" +
+          "<td><input type='text' id='hs_hs_diameter" + def_no_hs + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_hs_depth" + def_no_hs + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_hs_remove" + def_no_hs + "' class='hs_hs_remove' data-id='" + def_no_hs + "'><i class='fa fa-remove'></i></a></td>" +
+          "</tr>");
+    }
+
+    $('#set_default_conf_content .hs_hs_remove').live('click', remove_hole_size);
+    $('#set_default_conf_content .hs_hs_row').live('mouseover', function () {
+      $(this).find('.remove').show();
+    });
+    $('#set_default_conf_content .hs_hs_row').live('mouseout', function () {
+      $(this).find('.remove').hide();
+    });
+
+    function remove_drilling_string() {
+      var id = $(this).attr('data-id');
+      $('#set_default_conf_content #hs_ds_row' + id).remove();
+    }
+
+    function add_drilling_string() {
+
+      $("#set_default_conf_content #hole_string_ds_container").append("<tr id='hs_ds_row" + def_no_ds + "' class='hs_ds_row'>" +
+          "<td><input type='text' id='hs_ds_type" + def_no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_ds_od" + def_no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_ds_id" + def_no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_ds_weight" + def_no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_ds_length" + def_no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_ds_remove" + def_no_ds + "' class='hs_ds_remove' data-id='" + def_no_ds + "'><i class='fa fa-remove'></i></a></td>" +
+          "</tr>");
+    }
+
+    $('#set_default_conf_content .hs_ds_remove').live('click', remove_drilling_string);
+    $('#set_default_conf_content .hs_ds_row').live('mouseover', function () {
+      $(this).find('.remove').show();
+    });
+    $('#set_default_conf_content .hs_ds_row').live('mouseout', function () {
+      $(this).find('.remove').hide();
+    });
+
+    function remove_casing() {
+      var id = $(this).attr('data-id');
+      $('#set_default_conf_content #hs_casing_row' + id).remove();
+    }
+
+    function add_casing() {
+
+      $("#set_default_conf_content #hole_string_casing_container").append("<tr id='hs_casing_row" + def_no_casing + "' class='hs_casing_row'>" +
+          "<td><input type='text' id='hs_casing_id" + def_no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_casing_length" + def_no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_casing_depth_from" + def_no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_casing_depth_to" + def_no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_casing_remove" + def_no_casing + "' class='hs_casing_remove' data-id='" + def_no_casing + "'><i class='fa fa-remove'></i></a></td>" +
+          "</tr>");
+    }
+
+    $('#set_default_conf_content .hs_casing_remove').live('click', remove_casing);
+    $('#set_default_conf_content .hs_casing_row').live('mouseover', function () {
+      $(this).find('.remove').show();
+    });
+    $('#set_default_conf_content .hs_casing_row').live('mouseout', function () {
+      $(this).find('.remove').hide();
+    });
+
+    $("#set_default_conf_content #hole_string_ds_add_button").click(function () {
+      def_no_ds++;
+
+      add_drilling_string();
+    });
+
+    $("#set_default_conf_content #hole_string_hs_add_button").click(function () {
+      def_no_hs++;
+
+      add_hole_size();
+    });
+
+    $("#set_default_conf_content #hole_string_casing_add_button").click(function () {
+      def_no_casing++;
+
+      add_casing();
+    });
+
+    $("#set_default_conf_content #save_conf_btn").click(function () {
+
+      var data = {};
+
+      data.hole_sizes = [];
+      /*
+      for (var i = 0; i <= def_no_hs; i++) {
+        if ($('#set_default_conf_content #hs_hs_row' + i).length > 0) {
+          var item = {};
+          item.diameter = $("#set_default_conf_content #hs_hs_diameter" + i).val();
+          item.depth = $("#set_default_conf_content #hs_hs_depth" + i).val();
+          data.hole_sizes.push(item);
+        }
+      }
+      */
+
+      data.drilling_strings = [];
+      for (var i = 0; i <= def_no_ds; i++) {
+        if ($('#set_default_conf_content #hs_ds_row' + i).length > 0) {
+          var item = {};
+          item.type = $("#set_default_conf_content #hs_ds_type" + i).val();
+          item.outer_diameter = $("#set_default_conf_content #hs_ds_od" + i).val();
+          item.inner_diameter = $("#set_default_conf_content #hs_ds_id" + i).val();
+          item.weight = $("#set_default_conf_content #hs_ds_weight" + i).val();
+          item.length = $("#set_default_conf_content #hs_ds_length" + i).val();
+          data.drilling_strings.push(item);
+        }
+      }
+
+      data.casings = [];
+      for (var i = 0; i <= def_no_casing; i++) {
+        if ($('#set_default_conf_content #hs_casing_row' + i).length > 0) {
+          var item = {};
+          item.inner_diameter = $("#set_default_conf_content #hs_casing_id" + i).val();
+          item.length = $("#set_default_conf_content #hs_casing_length" + i).val();
+          item.depth_from = $("#set_default_conf_content #hs_casing_depth_from" + i).val();
+          item.depth_to = $("#set_default_conf_content #hs_casing_depth_to" + i).val();
+          data.casings.push(item);
+        }
+      }
+
+      data.bit = {};
+      data.bit.size = $("#set_default_conf_content #hs_bit_size").val();
+      data.bit.make = $("#set_default_conf_content #hs_bit_make").val();
+      data.bit.jets = $("#set_default_conf_content #hs_bit_jets").val();
+        data.bit.nozzle_size = $("#set_default_conf_content #hs_bit_nozzle_size").val();
+      data.bit.tfa = $("#set_default_conf_content #hs_bit_tfa").val();
+      data.bit.hhsi = $("#set_default_conf_content #hs_bit_hhsi").val();
+      data.bit.serial_no = $("#set_default_conf_content #hs_bit_serial_no").val();
+
+      var fluid = {};
+      fluid.type = $('#fluids_form_type').val();
+      fluid.density = $('#fluids_form_density').val();
+      fluid.funnel_viscosity = $('#fluids_form_funnel_viscosity').val();
+      fluid.filtrate = $('#fluids_form_filtrate').val();
+      fluid.pv = $('#fluids_form_pv').val();
+      fluid.yp = $('#fluids_form_yp').val();
+      fluid.ph = $('#fluids_form_ph').val();
+      fluid.mud_cake_thickness = $('#fluids_form_mud_cake_thickness').val();
+      fluid.high_gravity_densities = $('#fluids_form_high_gravity_densities').val();
+      fluid.low_gravity_densities = $('#fluids_form_low_gravity_densities').val();
+      fluid.high_gravity_volume = $('#fluids_form_high_gravity_volume').val();
+      fluid.low_gravity_volume = $('#fluids_form_low_gravity_volume').val();
+      fluid.drilled_solids_volume = $('#fluids_form_drilled_solids_volume').val();
+      fluid.rpm600 = $('#fluids_form_600rpm').val();
+      fluid.rpm300 = $('#fluids_form_300rpm').val();
+      fluid.rpm200 = $('#fluids_form_200rpm').val();
+      fluid.rpm100 = $('#fluids_form_100rpm').val();
+      fluid.rpm6 = $('#fluids_form_6rpm').val();
+      fluid.rpm3 = $('#fluids_form_3rpm').val();
+      fluid.seconds10 = $('#fluids_form_10seconds').val();
+      fluid.minutes10 = $('#fluids_form_10minutes').val();
+      fluid.water_volume = $('#fluids_form_water_volume').val();
+      fluid.oil_volume = $('#fluids_form_oil_volume').val();
+      fluid.solid_volume = $('#fluids_form_solid_volume').val();
+      fluid.methylene_blue = $('#fluids_form_methylene_blue').val();
+      fluid.drilling_fluid = $('#fluids_form_drilling_fluid').val();
+      fluid.bentonite = $('#fluids_form_bentonite').val();
+      fluid.total_cl = $('#fluids_form_total_cl').val();
+      fluid.k_acetate = $('#fluids_form_k_acetate').val();
+      fluid.potassium_bromide = $('#fluids_form_potassium_bromide').val();
+      fluid.sodium_bromide = $('#fluids_form_sodium_bromide').val();
+      fluid.calcium_bromide = $('#fluids_form_calcium_bromide').val();
+      fluid.potassium_formate = $('#fluids_form_potassium_formate').val();
+      fluid.sodium_formate = $('#fluids_form_sodium_formate').val();
+      fluid.cesium_formate = $('#fluids_form_cesium_formate').val();
+      fluid.ammonium_chloride = $('#fluids_form_ammonium_chloride').val();
+      fluid.kci = $('#fluids_form_kci').val();
+      fluid.k2so4 = $('#fluids_form_k2so4').val();
+      fluid.cacl2 = $('#fluids_form_cacl2').val();
+      fluid.mgcl2 = $('#fluids_form_mgcl2').val();
+      fluid.brine_density = $('#fluids_form_brine_density').val();
+
+      data.fluid = fluid;
+
+      $.ajaxSetup({
+        contentType: "application/json; charset=utf-8"
+      });
+
+      $('#hs_ajax_loader').show();
+      $('#hs_ajax_loader .loading').show();
+
+      $.post("<%= set_default_conf_job_path %>.json", JSON.stringify(data)).done(function (result) {
+        $('#hs_ajax_loader').hide();
+
+        if (result.valid) {
+          $('#set_default_conf_popup').css('visibility', 'hidden');
+        } else {
+          var err = [];
+          if (result.error.bit && result.error.bit.size) {
+            err.push("Bit Size can't be blank and should be numeric value.");
+          }
+          if (result.error.hole_size) {
+            err.push("Hole Size can't be blank and should contain numeric values.");
+          }
+          if (result.error.drilling_string && result.error.drilling_string.inner_diameter) {
+            result.error.drilling_string.inner_diameter.forEach(function (item) {
+              err.push("Drilling String / Inner Diameter " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.length) {
+            result.error.drilling_string.length.forEach(function (item) {
+              err.push("Drilling String / Length " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.weight) {
+            result.error.drilling_string.weight.forEach(function (item) {
+              err.push("Drilling String / Weight " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.outer_diameter) {
+            result.error.drilling_string.outer_diameter.forEach(function (item) {
+              err.push("Drilling String / Outer Diameter " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.type) {
+            result.error.drilling_string.type.forEach(function (item) {
+              err.push("Drilling String / Type " + item);
+            });
+          }
+          toastr.warning(err.join("<br>"), "Please enter valid information.<br>");
+        }
+      }).fail(function (err) {
+        $('#hs_ajax_loader').hide();
+        toastr.error("Some went wrong. Please try again later.");
+      });
+    });
+
+  }(jQuery))
+</script>

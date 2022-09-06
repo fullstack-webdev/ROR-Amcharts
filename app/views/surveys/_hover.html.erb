@@ -1,0 +1,63 @@
+<div class='survey-hover'>
+  <div>
+    <div class='survey-point-hover-label'>Measured Depth</div>
+    <div class='survey-point-hover-value'><%= number_with_delimiter(point.measured_depth.nil? ? 0 : point.measured_depth.round(2), :delimiter => ',') %></div>
+  </div>
+  <div>
+    <div class='survey-point-hover-label'>Inclination</div>
+    <div class='survey-point-hover-value'><%= point.inclination.nil? ? 0 : point.inclination.round(2) %></div>
+  </div>
+  <div>
+    <div class='survey-point-hover-label'>Azimuth</div>
+    <div class='survey-point-hover-value'><%= point.azimuth.nil? ? 0 : point.azimuth.round(2) %></div>
+  </div>
+  <div>
+    <div class='survey-point-hover-label'>Course</div>
+    <div class='survey-point-hover-value'><%= point.course_length.nil? ? 0 : point.course_length.present? ? point.course_length.round(2) : '-' %></div>
+  </div>
+
+  <div>
+    <div class='survey-point-hover-label'>True Vert. Depth</div>
+    <div class='survey-point-hover-value orange-text '>
+      <b><%= point.true_vertical_depth.present? ? number_with_delimiter(point.true_vertical_depth.round(2), :delimiter => ',') : '-' %></b></div>
+  </div>
+  <div>
+    <div class='survey-point-hover-label'>Vertical Section</div>
+    <div class='survey-point-hover-value orange-text'>
+      <b><%= point.vertical_section.present? ? number_with_delimiter(point.vertical_section.round(2), :delimiter => ',') : '-' %></b></div>
+  </div>
+  <div>
+    <div class='survey-point-hover-label'>Dog Leg Severity</div>
+    <div class='survey-point-hover-value'><span class='label label-info'><%= number_with_delimiter(point.dog_leg_severity.present? ? point.dog_leg_severity.round(2) : 0.0, :delimiter => ',') %></span></div>
+  </div>
+  <div>
+    <div class='survey-point-hover-label'>Closure Distance</div>
+    <div class='survey-point-hover-value'><%= point.closure_distance.present? ? point.closure_distance.round(2) : 0.0 %></div>
+  </div>
+  <div>
+    <div class='survey-point-hover-label'>Closure Angle</div>
+    <div class='survey-point-hover-value'><%= point.closure_angle.present? ? point.closure_angle.round(2) : 0.0 %></div>
+  </div>
+
+  <% if !point.tie_on %>
+
+      <% if !point.magnetic_field_strength.blank? %>
+          <div>
+            <div class='survey-point-hover-label'>Mag. Field</div>
+            <div class='survey-point-hover-value <%= point.valid_magnetic_field_strength? ? "" : "warning-text" %>'><%= point.magnetic_field_strength %></div>
+          </div>
+      <% end %>
+      <% if !point.magnetic_dip_angle.blank? %>
+          <div>
+            <div class='survey-point-hover-label'>Mag. Dip Angle</div>
+            <div class='survey-point-hover-value <%= point.valid_magnetic_dip_angle? ? "" : "warning-text" %>'><%= point.magnetic_dip_angle %></div>
+          </div>
+      <% end %>
+      <% if !point.gravity_total.blank? %>
+          <div>
+            <div class='survey-point-hover-label'>Gravity Total</div>
+            <div class='survey-point-hover-value <%= point.valid_gravity_total? ? "" : "warning-text" %>'><%= point.gravity_total %></div>
+          </div>
+      <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,4 @@
+
+$('#job_cost_<%= @job_cost.id %>').remove();
+$('#total_job_cost').text("<%= number_to_currency(@job.total_cost, :unit => "$") %>");
+$('#cost_totals').replaceWith("<%= j render 'job_costs/totals', job: @job %>");

@@ -1,0 +1,6 @@
+$('#modal_popup').find('.loading').addClass('hidden');
+$('#modal_popup').find('.form').show();
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding Document", message: @document.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show:true});

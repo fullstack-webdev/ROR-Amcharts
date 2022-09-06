@@ -1,0 +1,26 @@
+<fieldset class="field">
+  <%= link_to edit_district_path(district), class: "list-item-header user-header tooltip-info",
+              "data-placement" => "left",
+              "data-title" => "Click to open/edit district" do %>
+
+      <%= image_tag "district_extrasmall.png", class: "job-status-avatar align-top" %>
+
+
+      <p class="list-item-header-text list-item-column list-item-column-long">
+        <%= district.name %>
+      </p>
+
+      <% if district.country.present? %>
+          <p class="list-item-text list-item-column2">
+            <%= district.country.name %>
+          </p>
+
+          <p class="list-item-text list-item-column2">
+            <% if !district.state.nil? %>
+                <%= district.state.name %>
+            <% end %>
+          </p>
+      <% end %>
+  <% end %>
+</fieldset>
+

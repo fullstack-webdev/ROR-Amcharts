@@ -1,0 +1,26 @@
+<div id="warning_annotation">
+
+  <div style="padding-bottom: 50px;">
+
+    <% comment_count = @annotation.present? ? @annotation.annotation_comments.count : 0 %>
+    <div id="annotation_comments" style="margin: 0px; margin-top: 20px; margin-bottom: 20px;">
+      <% if comment_count > 0 %>
+          <% @annotation.annotation_comments.each_with_index do |comment, index| %>
+              <%= render 'annotations/annotation_comment', comment: comment, last: index < comment_count - 1 %>
+          <% end %>
+      <% end %>
+    </div>
+
+
+    <div id="new_annoation_comment_div" style="margin-top: 30px;  opacity: 0.5">
+      <textarea id="annotation_comment" class="align-top" type="text" placeholder="Add Comment..." style="min-height: 35px; height: 35px; width: 98%; margin: 0; margin-top:0px; border-radius: 0; padding: 10px; font-family: orgonboldregular;  color: #000000;"/>
+
+      <div style="float: right; margin-top: 20px;">
+        <a id="add_annotation_comment_button" data-annotation-id="<%= @annotation.present? ? @annotation.id : '' %>" href="#" class="btn btn-primary">Add
+          Comment</a>
+      </div>
+    </div>
+  </div>
+
+
+</div>

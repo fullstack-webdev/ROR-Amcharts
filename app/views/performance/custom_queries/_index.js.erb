@@ -1,0 +1,71 @@
+/**
+ * Global variables
+ */
+var WELL_IDS = <%= raw @well_id %>,
+        WELL_HISTORY = <%= @history_id %>;
+
+var WELLS = {},
+        UPDATED_WELLS = {},
+        _COLOR_PALETTE = <%= raw @color_palette %>;
+
+
+/**
+ * Filter wells when select in dropdown.
+ */
+var wells_updated = function () {
+    UPDATED_WELLS = {};
+
+    WELLS.forEach(function (well_id) {
+        UPDATED_WELLS[well_id] = WELLS[well_id];
+    });
+
+};
+
+(function ($) {
+
+    var init_wells = function () {
+        /**
+         * Load all wells
+         */
+        <% @wells.each_with_index do |well, index| %>
+        WELLS[<%= well.id %>] = {
+            id: "<%= well.id %>",
+            name: "<%= well.name %>",
+            graph_color: _COLOR_PALETTE[<%= index % 9%>],
+            job_id: "<%= well.job.id %>",
+            finished_at: <%= well.finished_at.to_i * 1000 %>,
+            depth: <%= well.hole_depth.to_f %>,
+            rop: <%= well.drilling_rop.to_f %>
+        };
+        <% end %>
+    };
+
+    /**
+     * Initialize drilling wells.
+     */
+    var init = function () {
+
+        init_wells();
+        wells_updated();
+
+        /**
+         * Activate a button on click.
+         *
+         * Buttons: Well-Time, Cost, Warnings, Operation buttons
+         */
+        $('.btn-tray').click(function () {
+            $('.btn-tray').removeClass('active');
+            $(this).addClass('active');
+        });
+
+
+        /**
+         * Load child view initially.
+         */
+        if (document.location.hash == '') {
+
+        }
+    };
+
+    init();
+}(jQuery));

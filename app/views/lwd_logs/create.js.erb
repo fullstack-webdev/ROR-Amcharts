@@ -1,0 +1,8 @@
+<% if !@lwd_log.new_record? %>
+toastr.error("Failed to upload log file. Please try again later.");
+<% else %>
+toastr.success("Log file has been uploaded.");
+<% end %>
+
+$('.form[data-form="new_lwd_log"]').show();
+$('.form-loading[data-form="new_lwd_log"]').hide();

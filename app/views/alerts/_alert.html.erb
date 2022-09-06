@@ -1,0 +1,108 @@
+<% if alert.alert_type != Alert::NEW_MESSAGE %>
+
+    <br>
+
+    <p class="activity-date tooltip-info pull-right"
+       data-placement="bottom"
+       data-title="<%= alert.created_at.strftime("%a %m/%d/%Y %l:%M %p") %>">
+      <%= time_ago_in_words(alert.created_at) %> ago
+    </p>
+
+    <% if alert.alert_type == Alert::ADDED_TO_JOB %>
+        <div class="alert-title">
+          <%= image_tag "add_arrow.png" %>
+          <% job_membership = alert.job.get_membership_role(alert.created_by) %>
+          <% if job_membership %>
+              <%= render 'jobs/user', job_membership: job_membership, include_icon: true %>&nbsp;<%= t ".added_to_job" %>
+          <% else %>
+              <%= image_tag "user_avatar_extrasmall.png", class: "job-status-avatar" %>
+              <%= render 'activities/user', user: alert.created_by %><%= t ".added_to_job" %>:
+          <% end %>
+        </div>
+        <%= render 'jobs/job_data_small', job: alert.job %>
+    <% end %>
+
+    <% if alert.alert_type == Alert::PRE_JOB_DATA_READY %>
+        <div class="alert alert-title">
+          <%= image_tag "approve_arrow.png" %>
+          <p class=" inline"><%= t ".waiting_to_ship" %>:</p>
+
+          <p>
+            <br>
+            <%= link_to "Review Now", alert.job, class: "bluebtn btnsmall green" %>
+          </p>
+        </div>
+        <%= render 'jobs/job_data_small', job: alert.job %>
+    <% end %>
+    <% if alert.alert_type == Alert::POST_JOB_DATA_READY %>
+        <div class="alert alert-title">
+          <%= image_tag "approve_arrow.png" %>
+          <p class=" inline"><%= t ".waiting_to_close" %>:</p>
+
+          <p>
+            <br>
+            <%= link_to "Review Now", alert.job, class: "bluebtn btnsmall green" %>
+          </p>
+        </div>
+        <%= render 'jobs/job_data_small', job: alert.job %>
+    <% end %>
+    <% if alert.alert_type == Alert::FAILURE_ADDED %>
+        <div class="">
+          <%= image_tag "error_red.png", class: "job-status-avatar" %>
+          <p class=" inline warning-text"><b>New Failure</b></p>
+        </div>
+        <br><br>
+    <% end %>
+
+    <% if alert.alert_type == Alert::TASK_ASSIGNED %>
+        <div class="alert-title">
+          <%= image_tag "assign_arrow.png" %>
+          <%= image_tag "user_avatar_extrasmall.png", class: "job-status-avatar" %>
+          <%= render 'activities/user', user: alert.created_by %><%= t ".assigned_task" %>
+          on <%= render 'activities/job_description', job: alert.job, inside_job: false %>:
+
+        </div>
+
+    <% end %>
+
+    <% if alert.alert_type == Alert::ASSET_REQUEST %>
+        <div class="alert-title">
+          <%= image_tag "tool.png" %>
+          <%= image_tag "user_avatar_extrasmall.png", class: "job-status-avatar" %>
+          <%= render 'activities/user', user: alert.created_by %>requested an asset
+          on <%= render 'activities/job_description', job: alert.job, inside_job: false %>:
+
+        </div>
+
+    <% end %>
+
+    <% if alert.alert_type == Alert::JOB_WARNING %>
+        <div class="alert alert-warning alert-title">
+          <%= image_tag "warning.png", class: "job-status-avatar" %>&nbsp;Warning
+        </div>
+        <%= render 'jobs/job_data_small', job: alert.job %>
+
+
+    <% end %>
+
+    <% if alert.alert_type == Alert::JOB_SHIPPED %>
+        <div class="
+          <% alert.expiration > 6.3.days.from_now ? 'alert alert-success' : '' %> alert-title">
+          <%= image_tag "approve_arrow.png" %>
+          <p class="inline">Job <%= render 'activities/job_description', job: alert.job, inside_job: false %> shipped to
+            location</p>
+          <hr>
+        </div>
+    <% end %>
+
+    <% if alert.alert_type == Alert::JOB_CLOSED %>
+        <div class="
+          <% alert.expiration > 6.3.days.from_now ? 'alert alert-success' : '' %> alert-title">
+          <%= image_tag "approve_arrow.png" %>
+          <p class=" inline">Job <%= render 'activities/job_description', job: alert.job, inside_job: false %> completed
+            and closed</p>
+          <hr>
+        </div>
+    <% end %>
+
+<% end %>

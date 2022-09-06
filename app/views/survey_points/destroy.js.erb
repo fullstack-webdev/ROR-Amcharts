@@ -1,0 +1,12 @@
+
+<% if @survey_point.errors.any? %>
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem With Remove", message: @survey_point.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show: true});
+
+<% else %>
+
+$('#survey_point_<%= @survey_point.id %>').remove();
+
+<% end %>
+

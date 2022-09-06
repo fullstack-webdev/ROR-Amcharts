@@ -1,0 +1,15 @@
+<div class="form" data-form="ship_form">
+<%= form_for "/job_process/" + job.id.to_s, :html => {class: " inline", id: "job_ready_to_ship", :method=>:put}, remote: true do |f| %>
+    <div class="job-process-div">
+    Job Ready to Ship to Location
+    <p class="">Make sure all Pre-Job data and documents are correct and complete</p>
+    <%= f.submit "Approve and Ship To Location", class: "bluebtn green inline form-loading-on-click",
+                 "data-title" => "ship_form" %>
+    </div>
+<% end %>
+</div>
+
+<div class="form-loading hidden" data-form="ship_form">
+  <%= render 'layouts/inline_loading', title: "Shipping job..." %>
+  <br>
+</div>

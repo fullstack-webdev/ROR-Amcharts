@@ -1,0 +1,171 @@
+<div class="section-header">
+  <% if survey_point.tie_on? %>
+      <h1>Update Tie-In</h1>
+  <% else %>
+      <h1>Update Point</h1>
+  <% end %>
+</div>
+
+<div class="form" data-form="edit_survey_point">
+  <br>
+
+  <%= form_for survey_point, remote: true do |f| %>
+
+      <div>
+
+        <% if survey_point.tie_on? %>
+        <div class='alert'>
+          <div class='survey-tie-in-label'>MFS</div>
+          <%= f.text_field "magnetic_field_strength", value: survey_point.survey.magnetic_field_strength,
+                           placeholder: "Magnetic Field Strength",
+                           class: "txtfield extra-small tooltip-info ",
+                           "data-placement" => "bottom",
+                           "data-title" => "Magnetic Field Strength" %>
+
+          <div class='survey-tie-in-label'>MDA</div>
+          <%= f.text_field "magnetic_dip_angle", value: survey_point.survey.magnetic_dip_angle,
+                           placeholder: "Magnetic Dip Angle",
+                           class: "txtfield extra-small tooltip-info ",
+                           "data-placement" => "bottom",
+                           "data-title" => "Magnetic Dip Angle" %>
+
+          <div class='survey-tie-in-label' style="width: 80px;">Correction</div>
+          <%= text_field_tag "total_correction",  "", value: survey_point.survey.total_correction,
+                             placeholder: "Total Correction",
+                           class: "txtfield extra-small tooltip-info align-top",
+                           "data-placement" => "bottom",
+                           "data-title" => "Total Correction" %>
+
+
+          <br>
+
+
+          <div class='survey-tie-in-label push-down'>North</div>
+          <%= select_tag "north_type",
+                         options_for_select([["Grid North", Survey::GRID], ["True North", Survey::TRUE], ["Magnetic North", Survey::MAGNETIC]], survey_point.survey.north_type),
+                         class: "custom-select custom-select-ajax tooltip-info align-top",
+                         "data-title" => "North Type",
+                         placeholder: "North Type" %>
+
+        </div>
+        <% end %>
+
+        <div>
+          <div class='survey-tie-in-label'>MD</div>
+          <%= f.text_field :measured_depth, value: survey_point.measured_depth.convert(:ft, company_unit), placeholder: "Measured Depth", class: "txtfield extra-small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Measured Depth" %>
+
+          <div class='survey-tie-in-label'>Inc</div>
+          <%= f.text_field :inclination, placeholder: "Inclination", class: "txtfield extra-small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Inclination" %>
+
+          <div class='survey-tie-in-label'>Azi</div>
+          <%= f.text_field :azimuth, placeholder: "Azimuth", class: "txtfield extra-small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Azimuth" %>
+        </div>
+
+        <% if survey_point.tie_on? %>
+            <div>
+              <div class='survey-tie-in-label'>TVD</div>
+              <%= f.text_field :true_vertical_depth,
+                               value: survey_point.true_vertical_depth.convert(:ft, company_unit),
+                               placeholder: "True Vertical Depth",
+                               class: "txtfield extra-small tooltip-info",
+                               "data-placement" => "bottom",
+                               "data-title" => "True Vertical Depth" %>
+
+              <div class='survey-tie-in-label'>VS</div>
+              <%= f.text_field :vertical_section,
+                               value: survey_point.vertical_section.convert(:ft, company_unit),
+                               placeholder: "Vertical Section",
+                               class: "txtfield extra-small tooltip-info",
+                               "data-placement" => "bottom",
+                               "data-title" => "Vertical Section" %>
+
+              <div class='survey-tie-in-label'>DLS</div>
+              <%= f.text_field :dog_leg_severity,
+                               placeholder: "Dogleg Severity",
+                               class: "txtfield extra-small tooltip-info ",
+                               "data-placement" => "bottom",
+                               "data-title" => "Dogleg Severity" %>
+            </div>
+
+            <div>
+              <div class='survey-tie-in-label'>+N/S-</div>
+              <%= f.text_field :north_south,
+                               placeholder: "North/South",
+                               class: "txtfield extra-small tooltip-info",
+                               "data-placement" => "bottom",
+                               "data-title" => "North/South" %>
+
+              <div class='survey-tie-in-label'>+E/W-</div>
+              <%= f.text_field :east_west,
+                               placeholder: "East/West",
+                               class: "txtfield extra-small tooltip-info",
+                               "data-placement" => "bottom",
+                               "data-title" => "East/West" %>
+
+            </div>
+        <% end %>
+
+        <div>
+          <% if !survey_point.tie_on? %>
+              <div class='survey-tie-in-label'>MFS</div>
+              <%= f.text_field :magnetic_field_strength,
+                               placeholder: "Magnetic Field Strength",
+                               class: "txtfield extra-small tooltip-info " + (!survey_point.tie_on? ? "range-validator" : ""),
+                               "data-minimum" => (survey_point.survey.magnetic_field_strength.present? ? survey_point.survey.magnetic_field_strength : 0) - 0.005,
+                               "data-maximum" => (survey_point.survey.magnetic_field_strength.present? ? survey_point.survey.magnetic_field_strength : 0) + 0.005,
+                               "data-placement" => "bottom",
+                               "data-title" => "Magnetic Field Strength" %>
+
+              <div class='survey-tie-in-label'>MDA</div>
+              <%= f.text_field :magnetic_dip_angle,
+                               placeholder: "Magnetic Dip Angle",
+                               class: "txtfield extra-small tooltip-info " + (!survey_point.tie_on? ? "range-validator" : ""),
+                               "data-minimum" => (survey_point.survey.magnetic_dip_angle.present? ? survey_point.survey.magnetic_dip_angle : 0) - 2,
+                               "data-maximum" => (survey_point.survey.magnetic_dip_angle.present? ? survey_point.survey.magnetic_dip_angle : 0) + 2,
+                               "data-placement" => "bottom",
+                               "data-title" => "Magnetic Dip Angle" %>
+
+          <% end %>
+
+          <% if !survey_point.tie_on? %>
+              <div class='survey-tie-in-label'>Grav</div>
+              <%= f.text_field :gravity_total,
+                               placeholder: "Gravity Total",
+                               class: "txtfield extra-small tooltip-info " + (!survey_point.tie_on? ? "range-validator" : ""),
+                               "data-minimum" => (survey_point.survey.gravity_total.present? ? survey_point.survey.gravity_total : 1) - 0.003,
+                               "data-maximum" => (survey_point.survey.gravity_total.present? ? survey_point.survey.gravity_total : 1) + 0.003,
+                               "data-placement" => "bottom",
+                               "data-title" => "Gravity Total" %>
+          <% end %>
+        </div>
+
+        <% if !survey_point.tie_on? %>
+            <div class='survey-tie-in-label'><i class="icon-comment"></i></div>
+            <%= f.text_field :comment,
+                             placeholder: "Comment",
+                             class: "txtfield long tooltip-info",
+                             "data-placement" => "bottom",
+                             "data-title" => "Comment" %>
+        <% end %>
+
+      </div>
+      <div class="actions">
+        <%= f.submit "Update Point",
+                     class: "btn btn-success pull-right form-loading-on-click",
+                     "data-form" => "edit_survey_point" %>
+      </div>
+  <% end %>
+</div>
+
+<div class="form-loading  center hidden" data-form="edit_survey_point">
+  <br>
+  <br>
+  <span class="ajax-loading search-loading"><b>Saving survey point...</b></span>
+  <br>
+</div>

@@ -1,0 +1,382 @@
+<div class="remote-tray" data-tray="runs">
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading runs..." %>
+</div>
+
+<div class="content tray-content content-loaded">
+
+<% runs = drilling_log.get_runs %>
+
+<div class='section-header' style="margin-top: 15px;">
+
+  <h1 class="inline-block">Runs</h1>
+
+  <% if runs.count > 5 %>
+      <div class='pull-right'>
+        <p style='margin-top: 30px;'>
+          Scroll For More Runs
+          <i class="icon-arrow-right"></i>
+        </p>
+      </div>
+  <% end %>
+</div>
+
+
+<% well_plan = Survey.includes(job: :well).where("wells.id = ?", drilling_log.job.well_id).where(:plan => true).first %>
+<% survey = Survey.includes(job: :well).where("wells.id = ?", drilling_log.job.well_id).where(:plan => false).first %>
+<% survey_points = survey.present? && well_plan.present? ? survey.calculated_points(well_plan.vertical_section_azimuth) : nil %>
+
+<% if runs.any? %>
+    <div style='white-space:nowrap; overflow-x: auto; overflow-y: hidden;'>
+    <div class='run-grid align-top' style="width: 150px;  display: inline-block;">
+      <div class='help-text' style='height: 60px;'>Run #</div>
+      <div class='grid-line'></div>
+
+      <div style='height: 30px;' class='help-text push-down'>Drilling ROP</div>
+      <div style='height: 30px;' class='help-text'>Total ROP</div>
+
+      <div class='help-text'>Total Drilled</div>
+
+      <div class='help-text'>In-Hole</div>
+      <div class='help-text'>Drilling Time</div>
+
+      <div class='help-text'>Time In</div>
+      <div class='help-text'>Time Out</div>
+      <div class='help-text push-down-small' style='height: 40px;'>BHA</div>
+
+      <div class='help-text push-down' style='height: 105px;'>Time</div>
+
+      <div class='grid-line'></div>
+
+      <div class='help-text push-down'>Start Depth</div>
+      <div class='help-text'>End Depth</div>
+
+      <% if survey_points.present? && survey_points.any? %>
+          <div class='help-text'>Max TVD</div>
+      <% end %>
+
+      <div class='help-text'>Circulation</div>
+      <div class='help-text'>Total Circulation</div>
+      <div class='help-text'>Reaming</div>
+
+      <div class='grid-line'></div>
+
+      <div class='blue-text'><b>Rotating</b></div>
+      <div class='help-text'>Time %</div>
+      <div class='help-text'>Feet %</div>
+      <div class='help-text'>ROP</div>
+      <div class='help-text'>Drilled</div>
+      <div class='help-text'>Drilling Time</div>
+
+      <div class='blue-text push-down'><b>Sliding</b></div>
+      <div class='help-text'>Time %</div>
+      <div class='help-text'>Feet %</div>
+      <div class='help-text'>ROP</div>
+      <div class='help-text'>Drilled</div>
+      <div class='help-text'>Drilling Time</div>
+
+
+      <div class='grid-line'></div>
+
+      <% DrillingLogEntry.attribute_names.each do |attribute_name| %>
+          <% if attribute_name != "id" && attribute_name != "company_id" && attribute_name != "document_id" && attribute_name != "job_id" && attribute_name != "user_id" && attribute_name != "user_name" && attribute_name != "entry_at" && attribute_name != "created_at" && attribute_name != "updated_at" && attribute_name != "activity_code" && attribute_name != "depth" && attribute_name != "comment" && attribute_name != "bha_id" && attribute_name != "usage_hours" && attribute_name != "drilling_log_id" && attribute_name != "hours" && attribute_name != "rop" && attribute_name != "course_length" %>
+              <div class='help-text'><%= attribute_name.humanize %></div>
+          <% end %>
+      <% end %>
+
+      <div class='grid-line'></div>
+
+      <div class='help-text'>Assets</div>
+
+    </div>
+
+    <% runs.each_with_index do |run, index| %>
+        <% entries = run %>
+        <% log = DrillingLog.calculate(run) %>
+        <% first_entry = run[0] %>
+        <% last_entry = run[run.length - 1] %>
+
+
+
+        <div class='run-grid align-top' style="width: 150px;  display: inline-block;">
+          <div style='height: 60px;'><h1 class='blue-text' style="text-align: left;"><%= index + 1 %></h1></div>
+          <div class='grid-line'></div>
+
+          <div class='push-down' style='height: 30px; font-size: 20px;'><%= log.drilling_rop.round(1) %>
+            <p class='units'>ft/hr</p></div>
+          <div style='height: 30px; font-size: 20px;'><%= log.rop.round(1) %>
+            <p class='units'>ft/hr</p></div>
+          <div><%= log.total_drilled.round(1) %>
+            <p class='units'>ft</p></div>
+
+          <div><%= log.below_rotary.round(1) %>
+            <p class='units'>hrs</p></div>
+          <div><%= log.drilling_time.round(1) %>
+            <p class='units'>hrs</p></div>
+
+          <div><%= first_entry.entry_at.strftime("%m/%d %l:%M %p") %></div>
+          <div><%= last_entry.entry_at.strftime("%m/%d %l:%M %p") %></div>
+          <% bha = last_entry.bha %>
+          <div class='push-down-small' style='height: 40px;'>
+            <h3 class='blue-text'><%= bha.present? ? bha.name : '-' %></h3>
+
+            <p class='blue-text'><%= bha.present? ? bha.description : '-' %></p>
+          </div>
+
+          <div class='push-down' style='height: 140px;'>
+            <div class='time-chart amChart' id="time_chart_<%= index %>" style="width: 150px; height: 150px; margin-left: -40px;"></div>
+          </div>
+
+          <div class='grid-line'></div>
+
+          <div class=' push-down'><%= log.start_depth.nil? ? '-' : number_with_delimiter(log.start_depth.to_i, :delimiter => ',') %>
+            <p class='units'>ft</p></div>
+          <div><%= log.end_depth.nil? ? '-' : number_with_delimiter(log.end_depth.to_i, :delimiter => ',') %>
+            <p class='units'>ft</p></div>
+
+          <% if survey_points.present? && survey_points.any? %>
+              <% max_tvd = 0.0 %>
+              <% vertical_section = 0.0 %>
+              <% survey_points.each do |point| %>
+                  <% if point.measured_depth >= log.start_depth && point.measured_depth <= log.end_depth %>
+                      <% max_tvd = [max_tvd, point.true_vertical_depth].max %>
+                      <% vertical_section = vertical_section + point.vertical_section %>
+                  <% end %>
+              <% end %>
+              <div><%= number_with_delimiter(max_tvd.to_i, :delimiter => ',') %>
+                <p class='units'>ft</p></div>
+          <% end %>
+
+          <div><%= log.circulation_hours.nil? ? '-' : log.circulation_hours.round(1) %>
+            <p class='units'>hrs</p></div>
+          <div><%= log.total_circulation_time.nil? ? '-' : log.total_circulation_time.round(1) %>
+            <p class='units'>hrs</p></div>
+          <div><%= log.ream_hours.nil? ? '-' : log.ream_hours.round(1) %>
+            <p class='units'>hrs</p></div>
+
+          <div class='grid-line'></div>
+
+          <div><b></b></div>
+          <div><%= log.rotary_hours_pct.nil? ? '-' : (log.rotary_hours_pct * 100).round(1) %> %</div>
+          <div><%= log.rotary_footage_pct.nil? ? '-' : (log.rotary_footage_pct * 100).round(1) %> %</div>
+          <div><%= log.rotate_rop.nil? ? '-' : log.rotate_rop.round(1) %>
+            <p class='units'>ft/hr</p></div>
+          <div><%= log.rotate_footage.nil? ? '-' : number_with_delimiter(log.rotate_footage.to_i, :delimiter => ',') %>
+            <p class='units'>ft</p></div>
+          <div><%= log.rotate_hours.nil? ? '-' : log.rotate_hours.round(1) %>
+            <p class='units'>hrs</p></div>
+
+          <div class='push-down'><b></b></div>
+          <div><%= log.slide_hours_pct.nil? ? '-' : (log.slide_hours_pct * 100).round(1) %> %</div>
+          <div><%= log.slide_footage_pct.nil? ? '-' : (log.slide_footage_pct * 100).round(1) %> %</div>
+          <div><%= log.slide_rop.nil? ? '-' : log.slide_rop.round(1) %>
+            <p class='units'>ft/hr</p></div>
+          <div><%= log.slide_footage.nil? ? '-' : number_with_delimiter(log.slide_footage.to_i, :delimiter => ',') %>
+            <p class='units'>ft</p></div>
+          <div><%= log.slide_hours.nil? ? '-' : log.slide_hours.round(1) %>
+            <p class='units'>hrs</p></div>
+
+          <div class='grid-line'></div>
+
+          <% DrillingLogEntry.attribute_names.each do |attribute_name| %>
+              <% if attribute_name != "id" && attribute_name != "company_id" && attribute_name != "document_id" && attribute_name != "job_id" && attribute_name != "well_id" && attribute_name != "user_id" && attribute_name != "user_name" && attribute_name != "entry_at" && attribute_name != "created_at" && attribute_name != "updated_at" && attribute_name != "activity_code" && attribute_name != "depth" && attribute_name != "comment" && attribute_name != "bha_id" && attribute_name != "usage_hours" && attribute_name != "drilling_log_id" && attribute_name != "hours" && attribute_name != "rop" && attribute_name != "course_length" %>
+                  <% if attribute_name == "mud_type" %>
+                      <div><%= DrillingLogEntry.get_mud_value_string(log.ranges[attribute_name + "_max"]) %> </div>
+                  <% elsif attribute_name == "mwd_type" %>
+                      <div><%= DrillingLogEntry.get_mwd_type_string(log.ranges[attribute_name + "_max"]) %> </div>
+                  <% else %>
+                      <% if log.ranges[attribute_name + "_min"] != log.ranges[attribute_name + "_max"] %>
+                          <div><%= log.ranges[attribute_name + "_min"] %>
+                            - <%= log.ranges[attribute_name + "_max"] %></div>
+                      <% else %>
+                          <div><%= log.ranges[attribute_name + "_min"] %></div>
+                      <% end %>
+                  <% end %>
+              <% end %>
+          <% end %>
+
+          <% if bha.present? %>
+              <div class='grid-line'></div>
+
+
+
+              <% if bha.tool_string.present? %>
+
+                  <% items = bha.tool_string.bha_items.select { |item| item.tool.present? } %>
+                  <div style='height: <%= items.count * 55 %>px;'>
+                    <% items.each do |item| %>
+                        <div style='height: 50px; width: 150px; margin-bottom: 5px;'>
+                          <%= render 'part_memberships/part_membership_small', part_membership: item.tool, allow_remove: false %>
+                        </div>
+                    <% end %>
+                  </div>
+              <% end %>
+          <% end %>
+
+        </div>
+
+
+        <script type="text/javascript">
+            var chart = new AmCharts.AmPieChart();
+            chart.dataProvider = <%= raw log.get_times(entries).sort.map{ |k, v| {time: v[:time].round(2), text: v[:activity_code_string], color: DrillingLogEntry.activity_code_color(k)} }.to_a.to_json.html_safe %>;
+            chart.colorField = "color";
+            chart.titleField = "activity";
+            chart.valueField = "time";
+            chart.sequencedAnimation = false;
+            chart.startDuration = 0;
+            chart.innerRadius = "30%";
+            chart.labelsEnabled = false;
+            chart.balloonText = "<b>[[text]]</b><br><span style='font-size:14px'>([[time]] hours)</span>";
+            chart.write("time_chart_<%= index %>");
+
+            var label = $("tspan:contains('chart by amcharts.com')");
+            if (label.length > 0) {
+                label.remove();
+            }
+        </script>
+
+
+
+        <% if false %>
+            <div class="page_header">
+              <h1>
+                Run <%= index + 1 %>
+              </h1>
+
+              <% if last_entry.bha.present? %>
+                  <h2 class='inline-block push-right'>BHA <%= last_entry.bha.name %>
+                    - <%= last_entry.bha.description %></h2>
+              <% end %>
+
+              <div class='inline-block help-text pull-right'>
+                <%= first_entry.entry_at.strftime("%m/%d/%Y %l:%M %p") %>
+                - <%= last_entry.entry_at.strftime("%m/%d/%Y %l:%M %p") %>
+              </div>
+            </div>
+
+            <div>
+              <div class="chart-block tooltip-info"
+                   data-title="Average Total Rate of Penetration.">
+                <div class="chart-title">Drilling ROP</div>
+                <div class="donut-chart-div job-donut-chart-div">
+                  <div class="donut-text "><%= log.nil? || log.drilling_rop.nil? ? "-" : log.drilling_rop.round(1) %></div>
+                  <div class="percentage ">ft/hr</div>
+                </div>
+              </div>
+
+              <div class="chart-block tooltip-info"
+                   data-title="Total feet drilled.">
+                <div class="chart-title">Total Drilled</div>
+                <div class="donut-chart-div job-donut-chart-div">
+                  <div class="donut-text "><%= log.nil? || log.total_drilled.nil? ? "-" : number_with_delimiter(log.total_drilled.to_i, :delimiter => ',') %></div>
+                  <div class="percentage "><span class="push-right-small">ft</span></div>
+                </div>
+              </div>
+
+              <div class="chart-block tooltip-info"
+                   data-title="Time in hours spent rotating or sliding.">
+                <div class="chart-title">Drilling Time</div>
+                <div class="donut-chart-div job-donut-chart-div">
+                  <div class="donut-text "><%= log.nil? || log.drilling_time.nil? ? "-" : log.drilling_time.round(1) %></div>
+                  <div class="percentage ">hours</div>
+                </div>
+              </div>
+
+              <div class="chart-daily tooltip-info" data-title="ROP">
+                <canvas id="canvas_<%= index %>" height="110" width="220"></canvas>
+              </div>
+
+
+              <script>
+                  <% rops = [] %>
+                  <% last_entry = entries.first %>
+                  <% entries.each do |dl| %>
+                  <% time = (dl.entry_at - last_entry.entry_at).to_f / 60.0 / 60.0 %>
+                  <% if dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING || time > 0.1 %>
+                  <% rop = ((dl.depth - last_entry.depth).to_f / (dl.entry_at - last_entry.entry_at).to_f * 60.0)  %>
+                  <% puts rop %>
+                  <% rops << [dl.entry_at, dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING ? rop : 0.0] %>
+                  <% end %>
+                  <% last_entry = dl %>
+                  <% end %>
+
+                  var lineChartData = {
+                      labels: <%= raw rops.map { |dl| '' }.to_json.html_safe %>,
+                      datasets: [
+                          {
+                              fillColor: "rgba(220,220,220,0.5)",
+                              strokeColor: "rgba(220,220,220,1)",
+                              pointColor: "rgba(220,220,220,1)",
+                              pointStrokeColor: "#fff",
+                              data: <%= raw rops.map { |dl| dl[1] }.to_json.html_safe %>
+                          }
+                      ]
+                  }
+
+                  var myLine = new Chart(document.getElementById("canvas_<%= index %>").getContext("2d")).Line(lineChartData, { pointDot: false, scaleShowGridLines: false, animation: false, scaleOverride: true, scaleSteps: 4, scaleStepWidth: 5, scaleStartValue: -4 });
+
+              </script>
+
+
+            </div>
+            <% if true %>
+                <br><br>
+
+                <div>
+
+                  <div class='inline-block'>
+                    <div class="chart-title">Time Breakdown</div>
+                    <div class='time-chart' id="time_chart_<%= index %>" style="width: 200px; height: 200px;"></div>
+                  </div>
+
+                  <div class='push-right2'>
+
+                    <div class="chart-block tooltip-info align-top"
+                         data-title="Time in hours spent in-hole">
+                      <div class="chart-title">In-Hole</div>
+                      <div class="donut-chart-div job-donut-chart-div">
+                        <div class="donut-text "><%= log.nil? || log.below_rotary.nil? ? "-" : log.below_rotary.round(1) %></div>
+                        <div class="percentage ">hours</div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <%= link_to "Show/Hide Full Run Details", "#", class: "btn btn-info white-text toggle-content-link" %>
+                      <div class='toggle-content hidden push-down'>
+                        <%= render 'drilling_logs/range_details', entries: entries, survey_points: survey_points %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <script type="text/javascript">
+                      var chart = new AmCharts.AmPieChart();
+                      chart.dataProvider = <%= raw log.get_times(entries).sort.map{ |k, v| {time: v[:time].round(2), text: v[:activity_code_string], color: DrillingLogEntry.activity_code_color(k)} }.to_a.to_json.html_safe %>;
+                      chart.colorField = "color";
+                      chart.titleField = "activity";
+                      chart.valueField = "time";
+                      chart.sequencedAnimation = false;
+                      chart.startDuration = 0;
+                      chart.innerRadius = "30%";
+                      chart.labelsEnabled = false;
+                      chart.balloonText = "<b>[[text]]</b><br><span style='font-size:14px'>([[time]] hours)</span>";
+                      chart.write("time_chart_<%= index %>");
+
+                      var label = $("tspan:contains('chart by amcharts.com')");
+                      if (label.length > 0) {
+                          label.remove();
+                      }
+                  </script>
+                </div>
+            <% end %>
+        <% end %>
+    <% end %>
+    </div>
+
+    <br><br><br>
+<% else %>
+    <p class='help-text'>No runs...</p>
+<% end %>
+</div>
+</div>

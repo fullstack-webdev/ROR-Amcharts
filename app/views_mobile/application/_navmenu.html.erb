@@ -1,0 +1,10 @@
+<div class="navmenu" style="display: none;">
+  <ul class="mobile-nav">
+    <li class="<%= controller_name=='jobs' && action_name=='index' ? 'active' : '' %>">
+      <%= link_to 'Rigs Overview', jobs_path %>
+    </li>
+    <li>
+      <%= link_to 'Logout', signout_path, :method => :delete %>
+    </li>
+  </ul>
+</div>

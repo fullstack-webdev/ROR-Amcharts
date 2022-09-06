@@ -1,0 +1,28 @@
+<% fluid ||= {} %>
+<div class="section-sub-header">
+  Retort Test
+</div>
+
+<div class="block">
+  <table class="table-normal">
+    <tbody>
+    <tr>
+      <td>Water Volume %</td>
+      <td>
+        <input id="fluids_form_water_volume" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['water_volume'] unless fluid['water_volume'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>Oil Volume %</td>
+      <td><input id="fluids_form_oil_volume" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['oil_volume'] unless fluid['oil_volume'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td class="text-bold">Solid Volume %</td>
+      <td>
+        <input id="fluids_form_solid_volume" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['solid_volume'] unless fluid['solid_volume'].nil? %>"/>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

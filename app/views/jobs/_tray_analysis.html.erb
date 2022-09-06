@@ -1,0 +1,218 @@
+<div class="remote-tray custom-data-closed" data-tray="analysis">
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading analysis..." %>
+</div>
+
+<div class='' style="height: 48px;">
+  <div class="sub-nav">
+    <!--<div style='margin-left: 20px; margin-top: 8px;'>-->
+    <!--<div class='' style='margin-top: -2px;'>-->
+    <ul class="nav nav-tabs child-tray-nav">
+      <!--<li class='active'>
+          <%= link_to "General", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "general",
+                      "data-tray-parent" => "analysis",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small'>
+          <%= link_to "Time Analysis", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "time_analysis",
+                      "data-tray-parent" => "analysis",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small'>
+          <%= link_to "Performance", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "performance_analysis",
+                      "data-tray-parent" => "analysis",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small'>
+          <%= link_to "KPIs", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "kpi",
+                      "data-tray-parent" => "analysis",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small'>
+          <%= link_to "Time Savings", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "time",
+                      "data-tray-parent" => "analysis",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small'>
+          <%= link_to "Comparison", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "comparison",
+                      "data-tray-parent" => "analysis",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>-->
+      <li class='active push-right-small'>
+        <%= link_to "Well Time", "#well_time",
+                    "data-id" => @job.id,
+                    "data-tray-controller" => "jobs",
+                    "data-tray" => "well_time",
+                    "data-tray-parent" => "analysis",
+                    class: "job-tab job-sub-tab remote-tray-toggle" %>
+      </li>
+      <li class='push-right-small'>
+        <%= link_to "Cost", "#cost",
+                    "data-id" => @job.id,
+                    "data-tray-controller" => "jobs",
+                    "data-tray" => "cost",
+                    "data-tray-parent" => "analysis",
+                    class: "job-tab job-sub-tab remote-tray-toggle" %>
+      </li>
+      <li class='push-right-small'>
+        <%= link_to "Warnings", "#",
+                    "data-id" => @job.id,
+                    "data-tray-controller" => "jobs",
+                    "data-tray" => "warnings_analysis",
+                    "data-tray-parent" => "analysis",
+                    class: "job-tab job-sub-tab remote-tray-toggle" %>
+      </li>
+      <!--<li class='push-right-small'>
+          <%= link_to "Process Time", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "process_time",
+                      "data-tray-parent" => "analysis",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>-->
+      <li class='push-right-small'>
+        <%= link_to "Activity Summary", "#",
+                    "data-id" => @job.id,
+                    "data-tray-controller" => "jobs",
+                    "data-tray" => "activity_summary",
+                    "data-tray-parent" => "analysis",
+                    class: "job-tab job-sub-tab remote-tray-toggle" %>
+      </li>
+      <li class='push-right-small'>
+        <%= link_to "Operation Efficiency", "#",
+                    "data-id" => @job.id,
+                    "data-tray-controller" => "jobs",
+                    "data-tray" => "operation_efficiency",
+                    "data-tray-parent" => "analysis",
+                    class: "job-tab job-sub-tab remote-tray-toggle" %>
+      </li>
+      <li class='push-right-small'>
+        <%= link_to "ROP", "#",
+                    "data-id" => @job.id,
+                    "data-tray-controller" => "jobs",
+                    "data-tray" => "performance_analysis",
+                    "data-tray-parent" => "analysis",
+                    class: "job-tab job-sub-tab remote-tray-toggle" %>
+      </li>
+      <li class='push-right-small'>
+        <%= link_to "Treatment", "#",
+                    "data-id" => @job.id,
+                    "data-tray-controller" => "jobs",
+                    "data-tray" => "treatment_analysis",
+                    "data-tray-parent" => "analysis",
+                    class: "job-tab job-sub-tab remote-tray-toggle" %>
+      </li>
+    </ul>
+    <!--</div>-->
+    <!--</div>-->
+  </div>
+</div>
+
+<div class='tray-content content-loaded'>
+
+  <!--<div class="remote-tray custom-data-closed" data-tray="general">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading general analysis..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="time_analysis">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading time analysis..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="performance_analysis">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading performance analysis..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="kpi">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading KPI analysis..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="time">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading time savings analysis..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="comparison">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading comparison analysis..." %>
+      </div>
+    </div>-->
+
+  <div class="remote-tray" data-tray="well_time">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading well time analysis..." %>
+    </div>
+  </div>
+
+  <div class="remote-tray custom-data-closed" data-tray="cost">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading cost analysis..." %>
+    </div>
+  </div>
+
+  <div class="remote-tray custom-data-closed" data-tray="warnings_analysis">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading warnings analysis..." %>
+    </div>
+  </div>
+
+  <!--<div class="remote-tray custom-data-closed" data-tray="process_time">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading process time analysis..." %>
+      </div>
+    </div>-->
+
+  <div class="remote-tray custom-data-closed" data-tray="activity_summary">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading activity summary..." %>
+    </div>
+  </div>
+
+  <div class="remote-tray custom-data-closed" data-tray="operation_efficiency">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading operation efficiency analysis..." %>
+    </div>
+  </div>
+
+  <div class="remote-tray custom-data-closed" data-tray="performance_analysis">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading performance analysis..." %>
+    </div>
+  </div>
+
+  <div class="remote-tray custom-data-closed" data-tray="treatment_analysis">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading treatment analysis..." %>
+    </div>
+  </div>
+
+</div>
+</div>

@@ -1,0 +1,338 @@
+// Place all the styles related to the Performance controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+div.combined-container {
+  padding-top: 10px;
+
+  .toolbar-top {
+    width: 100%;
+
+    p.title {
+      font-size: 18px;
+      float: left;
+      vertical-align: middle;
+      line-height: 41px;
+      position: absolute;
+      color: #9abeaa;
+    }
+
+    .content-block {
+      margin-left: 150px;
+    }
+  }
+
+  .block {
+    display: block;
+  }
+
+  .inline-block {
+    display: inline-block;
+  }
+
+  .stats-block {
+    .block-header {
+      font-size: 15px;
+      font-family: inherit;
+      color: #9abeaa;
+      font-style: italic;
+
+      .block-cell {
+        width: 19%;
+        display: inline-block;
+      }
+    }
+
+    .block-row {
+      font-family: inherit;
+      color: #fefefe;
+      margin-top: 5px;
+
+      .block-cell {
+        display: inline-block;
+        width: 19%;
+        font-size: 30px;
+        font-weight: bold;
+
+        span.param {
+          font-size: 15px;
+          font-weight: normal;
+        }
+
+        &.first {
+          span.square-blue {
+            width: 11px;
+            height: 23px;
+            background-color: #58c9c2;
+            float: left;
+            position: absolute;
+          }
+
+          span.square-purple {
+            width: 11px;
+            height: 23px;
+            background-color: #aa58c9;
+            float: left;
+            position: absolute;
+          }
+
+          div {
+            margin-left: 22px;
+            font-size: 20px;
+            font-weight: bold;
+          }
+
+        }
+      }
+    }
+  }
+
+  .metrics_chart {
+    padding: 0px;
+    margin-top: 50px;
+    background-color: #3d4f50;
+    width: 100%;
+    height: 350px;
+    font-family: inherit;
+    font-size: 15px;
+  }
+}
+
+ul.btn-group {
+  font-family: inherit;
+
+  li {
+    display: inline-block;
+    width: 115px;
+    height: 42px;
+    background-color: #3b4e4f;
+    line-height: 42px;
+    text-align: center;
+    margin: 3px;
+
+    a, a:visited, a:active {
+      color: #fefefe;
+      text-decoration: none;
+    }
+    a:hover {
+      color: #fefefe;
+      text-decoration: none;
+    }
+  }
+}
+
+.amChart_balloon {
+  font-size: 13px;
+  font-family: orgonlightregular;
+  color: #323a3a;
+  line-height: 22px;
+  width: 266px;
+  border: none;
+  text-align: left;
+  background: none;
+  opacity: 0.8;
+  filter: alpha(opacity=80); /* For IE8 and earlier */
+  margin: 0px;
+  box-sizing: border-box;
+
+  &.amChart_balloon_overlay {
+    opacity: 1;
+    filter: alpha(opacity=100); /* For IE8 and earlier */
+    background-color: #323a3a;
+  }
+
+  .block {
+    margin-left:10px;
+
+    .inline-block {
+      float: left;
+      margin-right: 10px;
+    }
+  }
+
+  .rig-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 80px;
+  }
+
+  .well-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 140px;
+  }
+
+  .spacer {
+    width: 10px;
+    display: inline-block;
+  }
+
+  div {
+    vertical-align: top;
+  }
+
+  .text-blue {
+    color: #58c9c2 !important;
+  }
+
+  .text-red {
+    color: #fe0000;
+  }
+  .text-green {
+    color: #00fe00;
+  }
+
+  .text-white {
+    color: #ffffff;
+  }
+
+  .text-lightblue {
+    color: #c8e6d1;
+  }
+
+  .stats-block-3 {
+    font-size: 9px;
+    color: #c8e6d1;
+  }
+
+  span.index {
+    font-size: 6px;
+    vertical-align: top;
+    line-height: 30px;
+  }
+
+  .triangle-down {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 20px solid #fe0000;
+    margin-top: 8px;
+
+    span {
+      position: absolute;
+      margin-top: -28px;
+      margin-left: -4px;
+    }
+  }
+}
+
+.chart-balloon-menu {
+  background-color: #000000;
+  opacity: 0.8;
+  filter: alpha(opacity=80); /* For IE8 and earlier */
+
+  .item {
+    width: 266px;
+    height: 30px;
+    line-height: 30px;
+    border-bottom: 1px solid #505c54;
+
+
+    .title {
+      padding-left: 20px;
+    }
+
+    .icon {
+      float: right;
+      margin-right: 17px;
+      margin-top: 8px;
+    }
+    &:hover {
+      background-color: #58c9c2;
+      text-decoration: none;
+    }
+  }
+
+}
+
+table.table-kpi {
+  font-size: 18px !important;
+  font-family: inherit;
+  width: 100%;
+
+  tr {
+    td {
+      padding: 5px;
+    }
+
+    td.key {
+      color: #fefefe;
+      width: 40%;
+      font-size: 18px !important;
+    }
+
+    td.value {
+      font-size: 21px !important;
+      color: #fefefe;
+      font-weight: bold;
+      width: 60%;
+
+      &.color-green {
+        color: #00ff24;
+      }
+
+      span {
+        color: #bfe9cf;
+        font-size: 13px !important;
+        font-weight: normal;
+      }
+    }
+  }
+}
+
+ul.performance_well_list {
+  margin: 0px;
+  width:95%;
+  color: #BEE9D0 !important;
+  overflow: auto;
+  li {
+    margin-right:8px;
+    display:inline;
+    white-space: nowrap;
+    span.circle {
+      width: 5px;
+      height: 5px;
+      vertical-align: middle;
+      background: #58c9c2;
+      display: inline-table;
+      margin-top: -2px;
+
+      border-radius: 50%;
+    }
+    span.text {
+      padding-left:6px;
+    }
+
+  }
+  li.hidden {
+    display:none;
+  }
+}
+
+.delete-btn {
+  width: 8px;
+  height: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  //  overflow: hidden;
+  text-indent: -10000px;
+  margin-top: -2px;
+  margin-left: 4px;
+  vertical-align: middle;
+  display: inline-block;
+  background: url(image_path('btn_delete.png')) no-repeat 0 0;
+
+  background-size:8px, 8px;
+  &:link, &:visited, &:active {
+    background: url(image_path('btn_delete.png')) no-repeat 0 0;
+    background-size:8px, 8px;
+  }
+  &:hover {
+    background: url(image_path('btn_delete_hover.png')) no-repeat 0 0;
+    background-size:8px, 8px;
+  }
+}

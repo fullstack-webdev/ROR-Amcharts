@@ -1,0 +1,2 @@
+module IsssuesHelper
+end

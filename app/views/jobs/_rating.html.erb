@@ -1,0 +1,42 @@
+<div class="form" data-form="failures_list">
+  <%= form_for @job, remote: true, :method => :put do |f| %>
+
+      <%= hidden_field_tag "update_field", "", name: "update_field", value: true %>
+      <%= hidden_field_tag "field", "", name: "field", value: "rating" %>
+
+      <% if current_user.role.global_edit? || @job.is_coordinator_or_creator?(current_user) %>
+          <div class="page_header failure-page-header ">
+            <h1>Performance</h1>
+
+            <p>Rate the quality and performance of the job</p>
+          </div>
+
+          <%= hidden_field_tag "value", "", name: "value", value: job.rating %>
+          <div>
+            <div class="rating-level align-top push-down-small"><p>poor &nbsp;</p></div>
+
+            <div class="inline">
+              <a href="#" class="star-button <%= !job.rating.nil? && job.rating >= 1 ? "star-button-filled" : "" %>" level="1">1</a>
+              <a href="#" class="star-button <%= !job.rating.nil? && job.rating >= 2 ? "star-button-filled" : "" %>" level="2">2</a>
+              <a href="#" class="star-button <%= !job.rating.nil? && job.rating >= 3 ? "star-button-filled" : "" %>" level="3">3</a>
+              <a href="#" class="star-button <%= !job.rating.nil? && job.rating >= 4 ? "star-button-filled" : "" %>" level="4">4</a>
+              <a href="#" class="star-button <%= !job.rating.nil? && job.rating >= 5 ? "star-button-filled" : "" %>" level="5">5</a>
+            </div>
+
+            <div class="rating-level align-top push-down-small"><p>&nbsp; excellent</p></div>
+
+          </div>
+
+          <br>
+      <% end %>
+
+      <div class="content actions">
+        <%= f.submit "Save", class: "bluebtn pull-right form-loading-on-click",
+                     "data-form" => "failures_list" %>
+      </div>
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="failures_list">
+  <%= render 'layouts/inline_loading', title: "Saving..." %>
+</div>

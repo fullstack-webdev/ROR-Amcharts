@@ -1,0 +1,51 @@
+<% provide(:title, "New Drilling Program") %>
+
+<div class="section-header" style="margin-top: 10px;">
+  <h1><%= @program.name %></h1>
+
+  <div class='inline-block align-top pull-right'>
+    <%= link_to edit_program_path(@program), class: "btn btn-sub tooltip-info align-top",
+                "data-placement" => "bottom",
+                "data-title" => "Edit program" do %>
+        Edit
+    <% end %>
+  </div>
+</div>
+
+<div id="wells_list">
+  <% wells = @program.wells %>
+  <div style="font-size: 13px; color: #7C9B8F; margin: 15px;">
+    <div class="inline-block" style="width: 45%;">Well Name</div>
+    <div class="inline-block" style="width: auto;">Rig</div>
+  </div>
+
+  <div id="jobs" class="list">
+    <% wells.each do |well| %>
+        <% job = well.jobs.first %>
+        <% if job != nil %>
+            <%= link_to job, class: "well-link tooltip-info",
+                        "data-status" => job.status,
+                        "data-member" => job.user_is_member?(current_user),
+                        "data-placement" => "left",
+                        "data-title" => "Click to open job" do %>
+
+                <div class="tooltip-info"
+                     data-placement="right"
+                     data-html="true"
+                     data-title="<%= render 'jobs/well_tooltip', job: job, show_summary_data: true %>">
+
+                  <div class='inline-block well-name' style="width: 45%;">
+                    <%= well.name %>
+                  </div>
+
+                  <div class='inline-block rig-name' style="width: auto;">
+                    <%= well.rig.name %>
+                  </div>
+
+                </div>
+
+            <% end %>
+        <% end %>
+    <% end %>
+  </div>
+</div>

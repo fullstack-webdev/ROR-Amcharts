@@ -1,0 +1,299 @@
+<% if @survey_point.new_record? %>
+
+<% if @survey_point.tie_on? %>
+$('.form[data-form=new_tie_in]').show();
+$('.form-loading[data-form=new_tie_in]').addClass('hidden');
+<% else %>
+$('.form[data-form=new_survey_point]').show();
+$('.form-loading[data-form=new_survey_point]').addClass('hidden');
+<% end %>
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Failed to add survey point", message: @survey_point.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show: true});
+<% else %>
+
+<% @drilling_log = DrillingLog.joins(:job).where("jobs.well_id = ?", @survey.job.well_id).first %>
+<% @survey_points = @survey.calculated_points(@survey.no_well_plan ? 0 : @well_plan.vertical_section_azimuth).to_a  %>
+<% if @survey_points.last == @survey_point %>
+$("#survey_list").append("<%= j render 'survey_points/survey_point', point: @survey_points.last, last_point: @survey_points.count > 1 ? @survey_points[@survey_points.count - 2] : @survey_points.last %>");
+<% else %>
+$('#survey_list').replaceWith("<%= j render 'surveys/survey_list', points: @survey_points %>");
+<% end %>
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.activity-user-link').tooltip();
+    //$('.tooltip-info').tooltip();
+}
+
+<% if @survey_point.tie_on? %>
+$('#survey_tie_in').remove();
+$('#survey_entry').replaceWith("<%= j render 'surveys/survey_entry' %>");
+$("html, body").animate({ scrollTop: $(document).height() }, "fast");
+<% else %>
+$('#survey_point_measured_depth').val('');
+$('#survey_point_inclination').val('');
+$('#survey_point_azimuth').val('');
+$('#survey_point_magnetic_field_strength').val('');
+$('#survey_point_magnetic_dip_angle').val('');
+$('#survey_point_gravity_total').val('');
+
+$('.form[data-form=new_survey_point]').show();
+$('.form-loading[data-form=new_survey_point]').addClass('hidden');
+<% end %>
+
+<% calculated_points_survey = @survey_points %>
+<% calculated_points = @survey.no_well_plan ? [] : @well_plan.survey_points %>
+
+
+var chart;
+<% combined_tvd_vs = calculated_points.map { |point| {"tvd" => point.true_vertical_depth.round(1), "vs" => point.vertical_section.round(1), "comment" => point.comment || ''} } %>
+<% calculated_points_survey.each do |p| %>
+<% combined_tvd_vs << { "tvd2" => p.true_vertical_depth.round(1), "vs2" => p.vertical_section.round(1)} %>
+<% end %>
+var chartData = <%= raw combined_tvd_vs.to_json.html_safe %>;
+var chartDataAdded = <%= calculated_points_survey.count %>;
+if(chartData.length > 0) {
+    if(chartData[0].comment == '') {
+        chartData[0].comment = "Tie In";
+    }
+    if(chartData.length < (chartData.length - chartDataAdded - 1) && chartData[chartData.length - chartDataAdded - 1].comment == '') {
+        chartData[chartData.length - chartDataAdded - 1].comment = "TD";
+    }
+}
+
+var chart2;
+<% combined_ns_ew = calculated_points.map { |point| {"ns" => point.north_south.round(1), "ew" => point.east_west.round(1), "comment" => point.comment || ''} } %>
+<% calculated_points_survey.each do |p| %>
+<% combined_ns_ew << { "ns2" => p.north_south.round(1), "ew2" => p.east_west.round(1) } %>
+<% end %>
+var chartData2 = <%= raw combined_ns_ew.to_json.html_safe %>;
+var chartData2Added = <%= calculated_points_survey.count %>;
+if(chartData2.length > 0) {
+    if(chartData2[0].comment == '') {
+        chartData2[0].comment = "Tie In";
+    }
+    if(chartData2.length < (chartData2.length - chartData2 - 1) && chartData2[chartData2.length - chartData2Added - 1].comment == '') {
+        chartData2[chartData2.length - chartData2Added - 1].comment = "TD";
+    }
+}
+
+<% ranges = Survey.get_ranges(calculated_points.any? ? calculated_points : calculated_points_survey) %>
+
+// SERIAL CHART
+chart = new AmCharts.AmXYChart();
+//chart.pathToImages = "https://www.amcharts.com/lib/3/images/";
+chart.dataProvider = chartData;
+
+
+var valueAxis = new AmCharts.ValueAxis();
+valueAxis.title = "Vertical Section";
+valueAxis.position = "bottom";
+valueAxis.dashLength = 5;
+valueAxis.axisAlpha = 0;
+valueAxis.autoGridCount = true;
+valueAxis.minimum = <%= ranges[1][0] - 1 %>;
+valueAxis.maximum = <%= ranges[1][1] + 1 %>;
+chart.addValueAxis(valueAxis);
+
+var valueAxis = new AmCharts.ValueAxis();
+valueAxis.title = "True Vertical Depth";
+valueAxis.position = "left";
+valueAxis.dashLength = 5;
+valueAxis.axisAlpha = 0;
+valueAxis.autoGridCount = true;
+valueAxis.reversed = true;
+valueAxis.minimum = <%= ranges[0][0] - 1 %>;
+valueAxis.maximum = <%= ranges[0][1] + 1 %>;
+chart.addValueAxis(valueAxis);
+
+
+// GRAPH
+var graph = new AmCharts.AmGraph();
+graph.xField = "vs";
+graph.yField = "tvd";
+graph.type = "smoothedLine";
+graph.bullet = "round";
+graph.balloonText = "<b>[[comment]]</b> TVD [[tvd]] ft, VS [[vs]] ft";
+graph.bulletColor = "#FFFFFF";
+graph.bulletBorderColor = "#cc4800";
+graph.bulletBorderAlpha = 1;
+graph.bulletBorderThickness = 2;
+graph.bulletSize = 1.2;
+graph.title = "tvd";
+graph.lineThickness = 0;
+graph.lineApha = 0.3;
+graph.lineColor = "#cc4800";
+graph.clustered = true;
+chart.addGraph(graph);
+
+// GRAPH
+var graph = new AmCharts.AmGraph();
+graph.xField = "vs2";
+graph.yField = "tvd2";
+graph.type = "smoothedLine";
+graph.bullet = "round";
+graph.balloonText = "<b>Survey</b> TVD [[tvd2]] ft, VS [[vs2]] ft";
+graph.bulletColor = "#FFFFFF";
+graph.bulletBorderColor = "#00BBCC";
+graph.bulletBorderAlpha = 1;
+graph.bulletBorderThickness = 2;
+graph.bulletSize = 0;
+graph.title = "tvd";
+graph.lineThickness = 2;
+graph.lineColor = "#00BBCC";
+graph.clustered = true;
+chart.addGraph(graph);
+
+// CURSOR
+var chartCursor = new AmCharts.ChartCursor();
+chartCursor.cursorPosition = "mouse";
+chart.addChartCursor(chartCursor);
+
+
+// WRITE
+chart.write("chartdiv");
+
+var circles = $('#chartdiv').find('circle[stroke=#cc4800]');
+circles.each(function (index) {
+    if (chartData[index].comment != '' || index == chartData.length - chartDataAdded - 1) {
+        $(this).attr('r', 4);
+    }
+});
+
+var circle = $('#chartdiv').find('circle[stroke=#00BBCC]:last');
+var increasing = true;
+var pulse = function () {
+    var radius = parseFloat(circle.attr('r'));
+    if (increasing) {
+        radius += 0.5;
+    }
+    else {
+        radius -= 0.5;
+    }
+    if (radius > 5) {
+        increasing = false;
+    }
+    if (radius < 3.5) {
+        increasing = true;
+    }
+    circle.attr('r', radius);
+    setTimeout(pulse, 120);
+};
+
+setTimeout(pulse, 120);
+
+
+// SERIAL CHART
+chart2 = new AmCharts.AmXYChart();
+//chart2.pathToImages = "https://www.amcharts.com/lib/3/images/";
+chart2.dataProvider = chartData2;
+
+
+var valueAxis = new AmCharts.ValueAxis();
+valueAxis.title = "East/West";
+valueAxis.position = "bottom";
+valueAxis.dashLength = 5;
+valueAxis.axisAlpha = 0;
+valueAxis.integersOnly = false;
+valueAxis.gridCount = 10;
+valueAxis.minimum = <%= ranges[3][0] - 1 %>;
+valueAxis.maximum = <%= ranges[3][1] + 1 %>;
+chart2.addValueAxis(valueAxis);
+
+
+var valueAxis = new AmCharts.ValueAxis();
+valueAxis.title = "North/South";
+valueAxis.position = "left";
+valueAxis.dashLength = 5;
+valueAxis.axisAlpha = 0;
+valueAxis.integersOnly = false;
+valueAxis.gridCount = 10;
+valueAxis.reversed = true;
+valueAxis.minimum = <%= ranges[2][0] - 1 %>;
+valueAxis.maximum = <%= ranges[2][1] + 1 %>;
+chart2.addValueAxis(valueAxis);
+
+
+// GRAPH
+var graph = new AmCharts.AmGraph();
+graph.xField = "ew";
+graph.yField = "ns";
+graph.type = "smoothedLine";
+graph.bullet = "round";
+graph.balloonText = "<b>[[comment]]</b> [[ns]], [[ew]]";
+graph.bulletColor = "#FFFFFF";
+graph.bulletBorderColor = "#cc4800";
+graph.bulletBorderAlpha = 1;
+graph.bulletBorderThickness = 2;
+graph.bulletSize = 1.2;
+graph.title = "tvd";
+graph.lineThickness = 0;
+graph.lineApha = 0.3;
+graph.lineColor = "#cc4800";
+graph.clustered = true;
+chart2.addGraph(graph);
+
+var graph = new AmCharts.AmGraph();
+graph.xField = "ew2";
+graph.yField = "ns2";
+graph.type = "smoothedLine";
+graph.bullet = "round";
+graph.balloonText = "<b>Survey</b> [[ns2]], [[ew2]]";
+graph.bulletColor = "#FFFFFF";
+graph.bulletBorderColor = "#00BBCC";
+graph.bulletBorderAlpha = 1;
+graph.bulletBorderThickness = 2;
+graph.bulletSize = 0;
+graph.title = "ns";
+graph.lineThickness = 2;
+graph.lineColor = "#00BBCC";
+graph.clustered = true;
+chart2.addGraph(graph);
+
+// CURSOR
+var chartCursor = new AmCharts.ChartCursor();
+chartCursor.cursorPosition = "mouse";
+chart2.addChartCursor(chartCursor);
+
+
+// WRITE
+chart2.write("chartdiv2");
+
+var label = $("tspan:contains('chart by amcharts.com')");
+if (label.length > 0) {
+    label.remove();
+}
+
+var circles = $('#chartdiv2').find('circle[stroke=#cc4800]');
+circles.each(function (index) {
+    if (chartData2[index].comment != '' || index == chartData2.length - chartData2Added - 1) {
+        $(this).attr('r', 4);
+    }
+});
+
+
+var circle2 = $('#chartdiv2').find('circle[stroke=#00BBCC]:last');
+var increasing2 = true;
+var pulse2 = function () {
+    var radius = parseFloat(circle2.attr('r'));
+    if (increasing2) {
+        radius += 0.5;
+    }
+    else {
+        radius -= 0.5;
+    }
+    if (radius > 5) {
+        increasing2 = false;
+    }
+    if (radius < 3.5) {
+        increasing2 = true;
+    }
+    circle2.attr('r', radius);
+    setTimeout(pulse2, 120);
+};
+
+setTimeout(pulse2, 120);
+
+
+<% end %>

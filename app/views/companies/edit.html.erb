@@ -1,0 +1,175 @@
+<div class="section-header" style="margin-top: 15px;">
+  <h1 class="inline-block">Company Settings</h1>
+</div>
+
+<div class="content">
+
+  <div>
+    <p class='job-field-title'>Company Name</p>
+
+    <div class="job-field-div ">
+      <%= text_field_tag "name", "", value: @company.name,
+                         placeholder: "Company Name",
+                         class: "txtfield company-update-field",
+                         data: {id: @company.id, field: "name"} %>
+    </div>
+  </div>
+
+  <hr>
+
+  <div>
+    <h3>WITSML Servers
+
+    </h3>
+  </div>
+
+  <% @witsml_servers = WitsmlServer.all %>
+
+  <% if @witsml_servers.empty? %>
+      <div id="no_servers" style="margin-top: 20px; font-style: italic;">
+        No servers added...
+      </div>
+  <% end %>
+
+  <div id="witsml_servers" style="<%= @witsml_servers.empty? ? "" : "padding-top: 20px; padding-bottom: 0px;" %>">
+    <% @witsml_servers.each do |witsml_server| %>
+        <%= render "witsml_servers/witsml_server", witsml_server: witsml_server %>
+    <% end %>
+  </div>
+
+
+  <a id="add_server" class="btn btn-primary" style="margin-top: 10px;">Add Server</a>
+
+  <div id="new_server" class="hidden">
+    <div style="margin-top: 25px;">
+      <%= form_for WitsmlServer.new, remote: true do |f| %>
+
+          <div style="margin-bottom: 10px;">
+            <h3>Add New WITSML Server</h3>
+          </div>
+
+          <div>
+            <%= f.text_field :location, placeholder: "Server URL", class: "txtfield  align-top" %>
+            <%= f.text_field :username, placeholder: "Username", class: "txtfield align-top push-right-small" %>
+            <%= f.text_field :password, placeholder: "Password", class: "txtfield  align-top push-right-small" %>
+          </div>
+
+          <div style="margin-top: 10px;">
+
+            <a id="cancel_add_server" href="#" class="btn btn-primary align-top" style="margin-right: 10px;margin-top: 0px; background-color: #757575;">Cancel</a>
+            <%= f.submit "Add", id: "confirm_add_server", class: "btn btn-primary align-top", style: "margin-top: 0px;" %>
+
+          </div>
+      <% end %>
+    </div>
+
+  </div>
+
+  <div id="server_loading" class="hidden">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading activity..." %>
+  </div>
+
+
+  <div style="margin-top: 60px;">
+    <div>
+      <h3>Units</h3>
+    </div>
+
+    <br>
+
+    <div>
+      <%= select_tag "#",
+                     options_for_select(Company.possible_units, @company.company_unit),
+                     id: "company_unit",
+                     data: {id: @company.id},
+                     class: "custom-select custom-select-ajax" %>
+    </div>
+  </div>
+
+
+  <br><br>
+
+  <div>
+    <h3>Support Contacts</h3>
+  </div>
+
+  <div>
+    <p class='job-field-title'>Support Phone #</p>
+
+    <div class="job-field-div ">
+      <%= text_field_tag "phone_number", "", value: @company.phone_number,
+                         placeholder: "Support Phone Number", class: "txtfield company-update-field",
+                         data: {id: @company.id, field: "phone_number"} %>
+    </div>
+
+
+    <p class='job-field-title push-right'>Support Email</p>
+
+    <div class="job-field-div ">
+      <%= text_field_tag "support_email", "", value: @company.support_email,
+                         placeholder: "Support Email", class: "txtfield company-update-field",
+                         data: {id: @company.id, field: "support_email"} %>
+    </div>
+  </div>
+
+
+</div>
+
+
+<script type="text/javascript">
+
+    (function ($) {
+
+        $('.company-update-field').live("change", function () {
+            if ($(this).val().length > 0) {
+                return $.ajax('/companies/' + $(this).attr("data-id"), {
+                    data: {
+                        "update_field": "true",
+                        "field": $(this).attr("data-field"),
+                        "value": $(this).val()
+                    },
+                    type: 'put',
+                    dataType: 'script'
+                });
+            }
+        });
+
+        $('#company_unit').live('change', function () {
+            $.ajax('/companies/' + $(this).attr("data-id"), {
+                data: {
+                    "company": {
+                        "company_unit": $(this).val()
+                    }
+                },
+                type: 'put',
+                dataType: 'script'
+            });
+        });
+
+        $('#add_server').live("click", function () {
+            $(this).addClass('hidden');
+            $('#new_server').removeClass('hidden');
+            $('#new_server .txtfield').each(function() {
+               $(this).val('');
+            });
+        });
+
+        $('#cancel_add_server').live("click", function () {
+            $('#new_server').addClass('hidden');
+            $('#add_server').removeClass('hidden');
+        });
+
+
+        $("form").live("submit", function() {
+            $('#server_loading').removeClass('hidden');
+            $('#new_server').addClass('hidden');
+
+        });
+
+        $('.remove-server').live("click", function () {
+            $(this).closest('.witsml-server').remove();
+        });
+
+
+    }(jQuery));
+</script>

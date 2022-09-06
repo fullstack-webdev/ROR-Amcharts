@@ -1,0 +1,11 @@
+<% if !job.nil? %>
+<%="<div class='well-tooltip' style='font-family: gothambookregular;'>" +
+           (job.well.rig.present? ? "<h2 class='light-blue-text'>#{job.well.rig.name}</h2>" : "") +
+           "<h2 class='orange-text'>" + job.field.name + "<br>" + job.well.name + "</h2>" +
+           "<div class='push-down'><div class='inline-block' style='margin-right: 4px; background: #b5b5b5; border-radius: 100px; width: 20px; height: 20px; color: #ffffff; text-align: center;'>" + jobs.count.to_s + "</div></div>" +
+           "<br><h3>" + job.client.name + "</h3>" +
+           "<h3 class='push-down-small'>" + (job.start_date.present? ? job.start_date.strftime("%m/%d/%Y") : job.created_at.strftime("%m/%d/%Y")) + "</h3>" +
+           "<h3 class='inline-block'>Job #</h3> <span>" + (job.job_number.nil? ? "-" : job.job_number) + "</span>" +
+           "</div>" %>
+
+<% end %>

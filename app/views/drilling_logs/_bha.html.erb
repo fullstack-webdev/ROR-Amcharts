@@ -1,0 +1,8 @@
+<div>
+  <% entries = drilling_log.drilling_log_entries.where("drilling_log_entries.bha_id = ?", bha.id).to_a %>
+  <% log = DrillingLog.calculate(entries) %>
+
+
+  <%= render 'drilling_logs/overview', drilling_log: log, drilling_log_entries: entries, show_drilled: true %>
+
+</div>

@@ -1,0 +1,147 @@
+param_auid = "<%= params[:auid] %>";
+
+if (param_auid == '' || (param_auid && param_auid == window.auid)) {
+
+  tray = $(".remote-tray[data-tray='<%= params[:section] %>']");
+
+  window.cb_auid = parseInt(param_auid);
+
+  <% if params[:section] == "bha" %>
+  tray.replaceWith("<%= j render 'jobs/tray_bha' %>");
+  $('.popover').popover({  delay: { show: 500, hide: 200 } });
+  <% elsif params[:section] == "hole_size" %>
+  tray.replaceWith("<%= j render 'jobs/tray_hole_size', job: @job %>");
+  <% elsif params[:section] == "casing" %>
+  tray.replaceWith("<%= j render 'jobs/tray_casing', job: @job %>");
+  <% elsif params[:section] == "well_info" %>
+  tray.replaceWith("<%= j render 'jobs/tray_well_info', job: @job %>");
+  <% elsif params[:section] == "info" %>
+  tray.replaceWith("<%= j render 'jobs/tray_info', job: @job %>");
+  <% elsif params[:section] == "documents" %>
+  tray.replaceWith("<%= j render 'jobs/tray_documents', job: @job %>");
+  <% elsif params[:section] == "costs" %>
+  tray.replaceWith("<%= j render 'jobs/tray_costs', job: @job %>");
+  <% elsif params[:section] == "well_maps" %>
+  tray.replaceWith("<%= j render 'jobs/tray_well_maps', job: @job %>");
+  <% elsif params[:section] == "analysis" %>
+  tray.replaceWith("<%= j render 'jobs/tray_analysis', job: @job %>");
+  <% elsif params[:section] == "general" %>
+  tray.replaceWith("<%= j render 'jobs/tray_general_analysis', job: @job %>");
+  <% elsif params[:section] == "time_analysis" %>
+  tray.replaceWith("<%= j render 'jobs/tray_time_analysis', job: @job %>");
+  <% elsif params[:section] == "treatment_analysis" %>
+  tray.replaceWith("<%= j render 'jobs/tray_treatment_analysis', job: @job %>");
+  <% elsif params[:section] == "performance_analysis" %>
+  tray.replaceWith("<%= j render 'jobs/tray_performance_analysis', job: @job %>");
+  <% elsif params[:section] == "kpi" %>
+  tray.replaceWith("<%= j render 'drilling_logs/tray_npt', job: @job %>");
+  <% elsif params[:section] == "time" %>
+  tray.replaceWith("<%= j render 'jobs/tray_time_savings_analysis', job: @job %>");
+  <% elsif params[:section] == "comparison" %>
+  tray.replaceWith("<%= j render 'jobs/tray_comparison_analysis', job: @job %>");
+  <% elsif params[:section] == "well_time" %>
+  tray.replaceWith("<%= j render 'jobs/tray_well_time_analysis', job: @job %>");
+  <% elsif params[:section] == "cost" %>
+  tray.replaceWith("<%= j render 'jobs/tray_cost_analysis', job: @job %>");
+  <% elsif params[:section] == "warnings_analysis" %>
+  tray.replaceWith("<%= j render 'jobs/tray_warnings_analysis', job: @job %>");
+  <% elsif params[:section] == "process_time" %>
+  tray.replaceWith("<%= j render 'jobs/tray_process_time_analysis', job: @job%>");
+  <% elsif params[:section] == "activity_summary" %>
+  tray.replaceWith("<%= j render 'jobs/tray_activity_summary_analysis', job: @job%>");
+  <% elsif params[:section] == "operation_efficiency" %>
+  tray.replaceWith("<%= j render 'jobs/tray_operation_efficiency_analysis', job: @job%>");
+  <% elsif params[:section] == "characteristics" %>
+  tray.replaceWith("<%= j render 'jobs/tray_characteristics', job: @job %>");
+  <% elsif params[:section] == "runs" %>
+  <% @drilling_log = @job.drilling_log %>
+  tray.replaceWith("<%= j render 'drilling_logs/tray_runs', job: @job, drilling_log: @drilling_log %>");
+  <% elsif params[:section] == "running_data" %>
+  tray.replaceWith("<%= j render 'jobs/tray_running_data', job: @job %>");
+  <% elsif params[:section] == "live" %>
+  tray.replaceWith("<%= j render 'drilling_logs/live', job: @job %>");
+  <% elsif params[:section] == "rig_activity" %>
+  tray.replaceWith("<%= j render 'drilling_logs/tray_drilling_activity', job: @job, drilling_log: @drilling_log %>");
+  <% elsif params[:section] == "surveys" %>
+  tray.replaceWith("<%= j render 'drilling_logs/tray_survey', job: @job %>");
+  <% elsif params[:section] == "logs" %>
+  <% @drilling_log = @job.drilling_log %>
+  tray.replaceWith("<%= j render 'drilling_logs/tray_logs', job: @job, drilling_log: @drilling_log %>");
+  <% elsif params[:section] == "fluids" %>
+  tray.replaceWith("<%= j render 'jobs/tray_fluids', job: @job %>");
+  <% elsif params[:section] == "lwd_logs" %>
+  tray.replaceWith("<%= j render 'jobs/tray_configurations_lwd', job: @job %>");
+  <% elsif params[:section] == "sensors" %>
+  tray.replaceWith("<%= j render 'jobs/tray_configurations_sensors', job: @job %>");
+  <% elsif params[:section] == "history" %>
+  tray.replaceWith("<%= j render 'jobs/tray_history', job: @job %>");
+  <% elsif params[:section] == "reports" %>
+  tray.replaceWith("<%= j render 'jobs/tray_reports', job: @job %>");
+  <% elsif params[:section] == "daily" %>
+  $('#daily').replaceWith("<%= j render 'jobs/daily', job: @job %>");
+  <% elsif params[:section] == "timesheet" %>
+  $('#timesheet').replaceWith("<%= j render 'jobs/timesheet', job: @job %>");
+  <% elsif params[:section] == "overview" %>
+  tray.replaceWith("<%= j render 'jobs/tray_overview', job: @job %>");
+  <% elsif params[:section] == "team_list" %>
+  $('#team_list').replaceWith("<%= j render 'job_memberships/job_members_list' %>");
+  <% elsif params[:section] == "full_cost" %>
+  $('#full_cost').replaceWith("<%= j render 'jobs/tray_cost' %>");
+  <% elsif params[:section] == "warnings_overview" %>
+  tray.replaceWith("<%= j render 'jobs/tray_warnings_overview' %>");
+  <% elsif params[:section] == "warnings_list" %>
+  tray.replaceWith("<%= j render 'jobs/tray_warnings_list' %>");
+  <% elsif params[:section] == "rig_overview" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview', :locals => {:showEvents => false} %>");
+  <% elsif params[:section] == "rig_overview_overview" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_overview', job: @job %>");
+  <% elsif params[:section] == "rig_overview_mse" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_mse' %>");
+  <% elsif params[:section] == "rig_overview_kicks" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_kicks' %>");
+  <% elsif params[:section] == "rig_overview_stability"  %>
+  tray.replaceWith("<%= j render "jobs/tray_rig_overview_stability" %>");
+  <% elsif params[:section] == "rig_overview_losses" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_losses' %>");
+  <% elsif params[:section] == "rig_overview_rop" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_rop' %>");
+  <% elsif params[:section] == "rig_overview_tandd" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_tandd' %>");
+  <% elsif params[:section] == "rig_overview_hydraulics" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_hydraulics' %>");
+  <% elsif params[:section] == "rig_overview_cleaning" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_cleaning' %>");
+  <% elsif params[:section] == "rig_overview_whirl" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_whirl' %>");
+  <% elsif params[:section] == "rig_overview_bouncing" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_bouncing' %>");
+  <% elsif params[:section] == "rig_overview_raw" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_raw' %>");
+  <% elsif params[:section] == "rig_overview_bit" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_bit' %>");
+  <% elsif params[:section] == "rig_overview_motor" %>
+  tray.replaceWith("<%= j render 'jobs/tray_rig_overview_motor' %>");
+  <% elsif params[:section] == "configurations" %>
+  tray.replaceWith("<%= j render 'jobs/tray_configurations' %>");
+  <% elsif params[:section] == "hole_drill_string" %>
+  tray.replaceWith("<%= j render 'jobs/tray_configurations_hole_drill_string', show_header: true, depth: nil %>");
+  <% elsif params[:section] == "pumps_fluids" %>
+  tray.replaceWith("<%= j render 'jobs/tray_configurations_pumps_fluids' %>");
+  <% elsif params[:section] == "well_plan" %>
+  tray.replaceWith("<%= j render 'jobs/tray_configurations_well_plan' %>");
+  <% elsif params[:section] == "import" %>
+  tray.replaceWith("<%= j render 'jobs/tray_configurations_import' %>");
+  <% end %>
+
+  if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.tooltip-info').tooltip();
+  }
+
+  $('.custom-select-ajax').each(function () {
+    span_tag = $(this).next('span');
+    if ($(this).prop("tagName").toLowerCase() == 'select' && span_tag.length <= 0 && !span_tag.hasClass('customSelect')) {
+      $(this).customSelect();
+    }
+  });
+
+}

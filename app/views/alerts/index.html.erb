@@ -1,0 +1,37 @@
+<% provide(:title, "Agenda") %>
+
+<div class="page_header">
+  <h1>Agenda</h1>
+
+  <h2><%= @new_alerts.count() %></h2>
+</div>
+
+
+
+
+<div id="new_alerts" class="list">
+  <%= render @new_alerts, new: true %>
+</div>
+
+
+<% if !@old_alerts.empty? %>
+
+    <div class="page_header old-alerts-div tooltip-info"
+         data-placement="bottom" data-title="Past alerts are usually not important, but exist in case they were missed when they were active.">
+      <h1>Past Notifications</h1>
+
+      <h2><%= @old_alerts.count() %></h2>
+    </div>
+
+
+    <div id="old_alerts" class="list">
+      <%= render @old_alerts, new: false %>
+    </div>
+<% end %>
+
+
+<% if @alerts.nil? || @alerts.empty? %>
+    <div class="no-alerts">
+      <p class="center"><%= t ".none" %></p>
+    </div>
+<% end %>

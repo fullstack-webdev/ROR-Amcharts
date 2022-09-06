@@ -1,0 +1,39 @@
+<% user = nil %>
+<% if document.document_type == Document::DOCUMENT %>
+    <% if document.url.present? %>
+        <% if document.user.present? %>
+            <% user = document.user %>
+        <% end %>
+    <% end %>
+<% else %>
+    <% if last_entry.present? %>
+        <% user = last_entry.user %>
+    <% elsif last_drilling_entry.present? %>
+        <% user = last_drilling_entry.user %>
+    <% elsif survey.present? && survey.survey_points.any? %>
+        <% user = survey.survey_points.last.user %>
+    <% elsif bha.present? %>
+    <% end %>
+<% end %>
+
+<% if user.present? %>
+    <% if document.job.present? %>
+        <% job_membership = document.job.job_memberships.where(:user_id => user.id).last %>
+    <% end %>
+    <% if job_membership.present? %>
+        <%= render 'job_memberships/icon', job_membership: job_membership %>
+    <% else %>
+        <%= render 'users/icon', user: document.user %>
+    <% end %>
+<% elsif !document.user_name.blank? %>
+    <div class="member-icon tooltip-info" data-title="<%= document.user_name %>">
+      <% names = document.user_name.split(" ") %>
+      <p>
+        <% if names.any? %>
+            <%= names.count > 1 ? names.first[0, 1] + names.last[0, 1] : names.first[0, 1] %>
+        <% else %>
+            -
+        <% end %>
+      </p>
+    </div>
+<% end %>

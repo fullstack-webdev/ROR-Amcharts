@@ -1,0 +1,82 @@
+<div>
+  <div class="map-container">
+    <div id='rig_map' class='dark' style='width:100%;height:300px;'></div>
+    <div class="corner tlcorner"></div>
+    <div class="corner trcorner"></div>
+    <div class="corner brcorner"></div>
+    <div class="corner blcorner"></div>
+  </div>
+</div>
+
+<br><br>
+
+<div id="rig_list">
+  <% rigs.each do |rig| %>
+      <%= render rig %>
+  <% end %>
+</div>
+
+
+<script type='text/javascript'>
+    var map = L.mapbox.map('rig_map', 'elephant.map-vum3on5g');
+    map.attributionControl = false;
+    map.scrollWheelZoom.disable();
+
+    var geoJson = [];
+
+    <% coordinates_for_zoom = [] %>
+    <% coordinates_for_lines = [] %>
+
+    <% rigs.each_with_index do |rig, index| %>
+    <% well = rig.wells.last %>
+    <% if well.present? && !well.location.blank? %>
+    <% x = well.x_location %>
+    <% y = well.y_location  %>
+    <% coordinates_for_lines << [x, y] %>
+    <% coordinates_for_zoom << [y, x] %>
+    geoJson.push({
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [<%= x %>, <%= y %>]
+        },
+        "properties": {
+            title: '<%= rig.name %>',
+            'marker-size': 'medium',
+            'marker-color': '#0058a8',
+            url: '/rigs/' + <%= rig.id %>
+            //'marker-symbol': '1'
+        }
+    });
+    <% end %>
+    <% end %>
+
+    map.markerLayer.setGeoJSON(geoJson);
+
+    map.markerLayer.on('click', function (e) {
+        map.panTo(e.layer.getLatLng());
+    });
+    map.markerLayer.on('click', function (e) {
+        e.layer.unbindPopup();
+        window.location = e.layer.feature.properties.url;
+    });
+
+    var bounds = [];
+    <% coordinates_for_zoom.each do |c| %>
+    bounds.push([<%= c[0] %>, <%= c[1] %>]);
+    <% end %>
+    map.fitBounds(bounds);
+
+
+
+
+
+    map.markerLayer.on('mouseover', function (e) {
+        e.layer.openPopup();
+    });
+    map.markerLayer.on('mouseout', function (e) {
+        e.layer.closePopup();
+    });
+
+    $('.mapbox-info-toggle').remove();
+</script>

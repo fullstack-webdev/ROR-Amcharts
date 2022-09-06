@@ -1,0 +1,9 @@
+<div class="page_header">
+  <h1>New Role</h1>
+</div>
+
+
+<%= form_for(@role) do |f| %>
+    <%= render 'fields', f: f %>
+    <%= f.submit "Create New role", class: "bluebtn pull-right" %>
+<% end %>

@@ -1,0 +1,110 @@
+<div class="remote-tray" data-tray="time">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading time savings analysis..." %>
+  </div>
+
+  <div class='tray-content content-loaded'>
+
+    <% @drilling_log = @job.drilling_log %>
+
+
+    <% entries = @drilling_log.drilling_log_entries.includes(:bha).to_a %>
+    <% dates = entries.group_by { |item| item.entry_at.in_time_zone(Time.zone).to_date } %>
+    <% filter_options = [] %>
+    <% dates.each_with_index do |d, index| %>
+        <% filter_options << [d[0].strftime("%A %m/%d/%Y"), d[0].strftime("%m/%d/%Y")] %>
+    <% end %>
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Time Savings Analysis</h1>
+
+      <div class='inline-block align-top pull-right'>
+        <%= select_tag "#",
+                       options_for_select(filter_options, 0),
+                       id: "drilling_log_filter",
+                       "data-id" => @drilling_log.id.to_s,
+                       class: "custom-select custom-select-ajax align-top push-up push-right-small" %>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <b class='blue-text2' style="font-size: 48px;">1.97</b>Days
+      - <p class='inline help-text'>Total Estimated Savings</p>
+    </div>
+
+    <div id="time_chart" class="amChart" style="width: 100%; height: 400px; display: inline-block"></div>
+
+
+    <%= render 'jobs/time_savings', time: 0.0, title: "Tripping - Slip to Slip Connection Time", key: '1' %>
+    <%= render 'jobs/time_savings', time: 0.0, title: "Casing - Slip to Slip Connection Time", key: '2' %>
+    <%= render 'jobs/time_savings', time: 0.0, title: "Tripping - Pipe Moving Time", key: '3' %>
+    <%= render 'jobs/time_savings', time: 0.0, title: "Casing - Pipe Moving Time", key: '4' %>
+    <%= render 'jobs/time_savings', time: 0.0, title: "Drilling - Weight to Weight Time", key: '5' %>
+    <%= render 'jobs/time_savings', time: 0.0, title: "Drilling - Wellbore Treatment Time per Stand", key: '6' %>
+
+    <br><br>
+
+  </div>
+</div>
+
+
+
+<script type='text/javascript'>
+
+    var graphs = [];
+
+    <% options = DrillingLogEntry.options %>
+    <% options.each do |option| %>
+    <% if option.length == 2 && option[1] != -1 %>
+    <% code = option[1] %>
+
+    graphs.push({
+        "balloonText": "<b>[[title]]</b><br><span style='font-size:14px;'>[[value]] hours ([[percents]]%)</span>",
+        "fillAlphas": 0.9,
+        "fontSize": 11,
+        "lineThickness": 0.5,
+        "lineAlpha": 1.0,
+        "lineColor": "#666",
+        "fillColors": "<%= DrillingLogEntry.activity_code_color(code) %>",
+        "title": "<%= option[0] %>",
+        "type": "column",
+        "valueField": "<%= code %>"
+    });
+
+    <% end %>
+    <% end %>
+
+    var chart = AmCharts.makeChart("time_chart", {
+        "type": "serial",
+        "theme": "none",
+        "dataProvider": <%= raw @drilling_log.get_times2[0..23].to_json.html_safe %>,
+        "valueAxes": [
+            {
+                "stackType": "100%",
+                "axisAlpha": 0,
+                "gridAlpha": 0,
+                "labelsEnabled": false,
+                "position": "left"
+            }
+        ],
+        "graphs": graphs,
+        "marginTop": 30,
+        "marginRight": 0,
+        "marginLeft": 0,
+        "marginBottom": 40,
+        "autoMargins": false,
+        "categoryField": "hour",
+        "categoryAxis": {
+            "gridPosition": "start",
+            "axisAlpha": 0,
+            "gridAlpha": 0,
+            labelFunction: function (value, valueString, axis) {
+                return value + ':00';
+            }
+        }
+    });
+
+
+</script>

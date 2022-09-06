@@ -1,0 +1,11 @@
+<% if jobs_array.count > 0 %>
+  <div class='wells-overview overview-list'>
+    <% jobs_array.each do |job| %>
+      <%= render 'overview/job_list', job: job %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="no-rigs">
+    <div>No active rigs...</div>
+  </div>
+<% end %>

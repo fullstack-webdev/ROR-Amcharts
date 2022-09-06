@@ -1,0 +1,18 @@
+if($('#loading_survey').length > 0) {
+    $('#loading_survey').addClass("hidden");
+}
+<% @well_plans = Survey.includes(job: :well).where(:plan => true).where("wells.id = ?", @survey.job.well_id).order("surveys.created_at ASC") %>
+<% if @survey.present? %>
+<% @active_well_plan = @well_plans.where("surveys.well_plan_for_survey_id = ?", @survey.id).last %>
+<% end %>
+<% if @active_well_plan.nil? %>
+<% @active_well_plan = @well_plans.last %>
+<% end %>
+<% calculated_points = @survey.no_well_plan || @active_well_plan.nil? ? [] : @active_well_plan.survey_points %>
+<% calculated_points_survey = @survey.calculated_points(@survey.no_well_plan || @active_well_plan == nil ? 0 : @active_well_plan.vertical_section_azimuth) %>
+
+<% if params[:recent_only].present? %>
+$('#survey_list').replaceWith("<%= j render 'surveys/survey_list', points: calculated_points_survey.last(15) %>");
+<% else %>
+$('#survey_list').replaceWith("<%= j render 'surveys/survey_list', points: calculated_points_survey %>");
+<% end %>

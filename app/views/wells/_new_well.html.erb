@@ -1,0 +1,35 @@
+<div class="page_header">
+  <h1>Create New Well</h1>
+</div>
+
+<div class="form" data-form="new_well_form">
+  <%= form_for @well, remote: true do |f| %>
+
+      <% @hide_info = true %>
+      <%= render "fields", f: f %>
+
+      <div class="content actions">
+        <%= f.submit "Create Well",
+                     class: "bluebtn pull-right form-loading-on-click",
+                     "data-form" => "new_well_form" %>
+      </div>
+
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="new_well_form">
+  <%= render 'layouts/inline_loading', title: "Creating..." %>
+</div>
+
+
+<% if false %>
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+            $('.unitsSelect').customSelect();
+        });
+    }(jQuery));
+</script>
+
+<% end %>

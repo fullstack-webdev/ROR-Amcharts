@@ -1,0 +1,98 @@
+<div class="section-header">
+  <h1>Update Entry</h1>
+</div>
+
+<div class="form" data-form="edit_drilling_log_entry">
+  <br>
+
+  <%= form_for drilling_log_entry, remote: true do |f| %>
+
+      <div>
+
+
+        <div class=''>
+          <input type="text" value="<%= drilling_log_entry.entry_at.strftime("%m/%d/%Y") %>"
+                 name="date"
+                 id="entry_date"
+                 class="job-field-value-editable input-small date-picker tooltip-info"
+                 data-title="Date of entry">
+
+
+          <div class="inline-block">
+            <span class="add-on push-right-small"><i class="icon-time"></i></span>
+            <input name="entry_time" type="text"
+                   value="<%= drilling_log_entry.entry_at.strftime("%k:%M") %>"
+                   class="job-field-value-editable input-small tooltip-info"
+                   placeholder="24 hr time"
+                   data-title="24 hour time">
+
+          </div>
+        </div>
+
+        <br>
+        <div>
+          <div class='push-down'>
+            <div class='list-item-column4 align-top push-down-small'><b>Measured Depth</b></div>
+            <%= f.text_field :depth, placeholder: "Measured Depth",
+                             class: "txtfield small tooltip-info submit-enter",
+                             id: "depth_log_id",
+                             "data-placement" => "bottom",
+                             "data-title" => "Depth of log entry" %>
+          </div>
+
+          <div class='push-down-small'>
+            <div class='list-item-column4 align-top push-down-small'><b>Activity</b></div>
+            <%= f.select :activity_code, options_for_select(DrillingLogEntry.options, drilling_log_entry.activity_code),
+                         {prompt: "Select Activity..."},
+                         id: "activity_code_select",
+                         class: "inline custom-select  tooltip-info align-top",
+                         "data-placement" => "right",
+                         "data-title" => "Type of log entry" %>
+
+          </div>
+
+          <div class='push-down-small'>
+            <div class='list-item-column4 align-top push-down-small'><b>BHA</b></div>
+            <% @bhas = Bha.joins(job: :well).where("bhas.master_bha_id IS NULL").where("jobs.well_id = ?", drilling_log_entry.drilling_log.job.well_id).order("bhas.name ASC") %>
+            <% options = @bhas.collect { |bha| [bha.name + (!bha.description.blank? ? " - " + bha.description : ""), bha.id] } %>
+            <% options << ["None (Out-hole)", nil] %>
+            <div class="inline-block">
+              <%= f.select :bha_id, options_for_select(options, drilling_log_entry.present? ? drilling_log_entry.bha_id : nil),
+                           {prompt: "Select BHA..."},
+                           class: "inline  custom-select tooltip-info",
+                           "data-placement" => "right",
+                           "data-title" => "Current Bottom Hole Assembly" %>
+            </div>
+
+          </div>
+
+
+          <div class='push-down-small'>
+            <div class='list-item-column4 align-top push-down-small'><b>Comment</b></div>
+            <%= f.text_field :comment, placeholder: "Comment/description",
+                             class: "txtfield tooltip-info submit-enter",
+                             id: "new_job_log_id",
+                             "data-placement" => "bottom",
+                             "data-title" => "Comment/description text of entry" %>
+          </div>
+        </div>
+
+      </div>
+      <div class="content actions">
+        <%= f.submit "Update Entry",
+                     class: "btn btn-success pull-right form-loading-on-click",
+                     "data-form" => "edit_drilling_log_entry" %>
+      </div>
+  <% end %>
+</div>
+
+<div class="form-loading center hidden" data-form="edit_drilling_log_entry">
+  <br>
+  <br>
+  <span class="ajax-loading search-loading"><b>Saving log entry...</b></span>
+  <br>
+</div>
+
+<script type="text/javascript">
+    $('.date-picker').datepicker();
+</script>

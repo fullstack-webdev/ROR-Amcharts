@@ -1,0 +1,123 @@
+<% provide(:title, @document.name) %>
+
+<div class="page_header">
+  <h1 id="part_name"><%= @document.name %></h1>
+
+  <h3 class="inline">&nbsp;Job Log</h3>
+
+  <div class="btn-group inline pull-right">
+    <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+      Export
+    </a>
+    <ul class="dropdown-menu">
+      <li>
+        <%= link_to "Export as Excel", document_path(@document, format: "xlsx"),
+                    target: "_blank",
+                    class: "dropdown-menu-link tooltip-info submit-form",
+                    "data-placement" => "left",
+                    "data-title" => "Export log as Microsoft Excel file." %>
+      </li>
+    </ul>
+  </div>
+
+  <div>
+    <%= render 'jobs/job_progress_link', job: @document.job, show_summary_data: false, job_name: false %>
+  </div>
+</div>
+
+
+
+<div class="well">
+  <%= form_for JobLog.new, remote: true do |f| %>
+      <div class="form" data-form="new-job-log">
+        <b>Add New Entry</b>
+        <%= f.hidden_field :document_id, value: @document.id %>
+
+        <%= f.text_area :comment, placeholder: "Enter comment/description of entry",
+                        class: "txtfield job-notes-text tooltip-info full-width submit-enter",
+                        autofocus: true,
+                        id: "new_job_log_id",
+                        "data-placement" => "bottom",
+                        "data-title" => "Comment/description text of entry" %>
+
+
+        <div class="pull-left">
+          <div class="inline-block push-down">
+            <%= f.check_box :override_date, checked: false,
+                            class: "regular-checkbox", id: "checkbox_override_date" %>
+            <label for="checkbox_override_date"></label>
+
+            <p class="checkbox-label">Override Date/Time</p>
+          </div>
+
+          <div class="inline-block date-fields push-right-small hidden">
+            <input type="text" value="<%= Date.today.strftime("%m/%d/%Y") %>"
+                   name="date"
+                   id="entry_date"
+                   class="job-field-value-editable job-start-date">
+
+
+            <div class="inline bootstrap-timepicker">
+              <input id="entry_time" type="text" class="job-field-value-editable input-small timepicker">
+              <span class="add-on"><i class="icon-time"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <%= f.submit "+ Add Entry", class: "bluebtn btnsmall inline pull-right tooltip-info form-loading-on-click",
+                     "data-form" => "new-job-log",
+                     "data-placement" => "bottom",
+                     "data-title" => "Add new note/action" %>
+
+        <br><br>
+
+
+      </div>
+
+      <div class="form-loading hidden" data-form="new-job-log">
+        <%= render 'layouts/inline_loading', title: "Creating entry..." %>
+        <br><br>
+      </div>
+
+  <% end %>
+</div>
+
+
+<div>
+  <div class="push-right-small">
+    <p class="help-text list-item-column">
+      Date/Time
+    </p>
+
+    <p class="help-text list-item-column long-column-text">
+      Comment/Description
+    </p>
+
+    <p class="help-text pull-right push-down-small">
+      User
+    </p>
+    <br><br>
+  </div>
+
+  <div class="" id="list">
+    <% if @job_logs.any? %>
+        <% last_time = @job_logs.first.entry_at %>
+        <h3 class='push-right-small orange-text'><%= last_time.strftime("%A %m/%d/%Y") %></h3><br><br>
+        <% @job_logs.each do |entry| %>
+            <% if entry.entry_at.day != last_time.day || entry.entry_at.month != last_time.month %>
+                <% last_time = entry.entry_at %>
+                <br><br>
+                <h3 class='push-right-small orange-text'><%= last_time.strftime("%A %m/%d/%Y") %></h3><br><br>
+            <% end %>
+            <%= render 'job_logs/job_log', entry: entry %>
+        <% end %>
+    <% end %>
+  </div>
+
+  <% if @job_logs.empty? %>
+      <p class="center help-text no-job-log-entries"><br>No log entries...</p>
+  <% end %>
+
+</div>
+
+

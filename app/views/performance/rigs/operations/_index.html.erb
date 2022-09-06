@@ -1,0 +1,26 @@
+<% cache("trends/rigs/operations/" + cache_key_for_rigs) do %>
+  <div class='remote-tray' data-tray='rigs_operations'>
+    <div class="remote-loading hidden">
+      <br><br>
+      <%= render 'layouts/inline_loading', title: "Please wait, loading..." %>
+    </div>
+
+    <div class='tray-content content-loaded'>
+      <div class="content-view">
+        <div class="block" style="position: relative;">
+          <div id="rigs_operations_chart" class="amChart block" style="float: left; width: 100%; height: 520px;"></div>
+
+          <%= render 'performance/tooltip_operations' %>
+        </div>
+
+        <%= render 'performance/histogram' %>
+      </div>
+
+      <%= render 'performance/no_content' %>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    <%= render 'performance/rigs/operations/index.js' %>
+  </script>
+<% end %>

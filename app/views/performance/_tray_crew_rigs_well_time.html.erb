@@ -1,0 +1,597 @@
+<div class='remote-tray' data-tray='crew_rigs_well_time'>
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading crew_rig well time performance..." %>
+  </div>
+
+
+  <div class='tray-content content-loaded '>
+
+    <div id="crew_rigs_view">
+      <div class="block" style=" position: relative;">
+        <div id="crew_rigs_sequence_chart" class="amChart block" style="float: left; width: 100%; height: 520px;"></div>
+
+        <div id="crew_rigs_well_time_chart_menu_outer_view" style="width: 100%; height: 100%;">
+          <div id="crew_rigs_well_time_chart_menu_view" style="float: left;
+                  display: none;
+                  position: absolute;
+                  z-index: 10000;">
+            <div class='amChart_balloon amChart_balloon_overlay' style="background-color: #323a3a; letter-spacing: 0.4px;">
+              <div class='block'>
+                <div class='inline-block text-blue' id="crew_rigs_well_time_balloon_rig_name"></div>
+                <div class='spacer'></div>
+                <div class='inline-block text-white' id="crew_rigs_well_time_balloon_well_name"></div>
+              </div>
+              <div class='block stats-block-3'>
+                <div class='inline-block text-lightblue' style='font-size: 13px;'><b id="crew_rigs_well_time_balloon_total_well_time"></b>
+                  <span>days</span></div>
+                <div class='spacer'></div>
+                <div class='inline-block text-lightblue'><b id="crew_rigs_well_time_balloon_rop"></b> ft/hr</div>
+                <div class='spacer'></div>
+                <div class='inline-block text-lightblue'>$<b id="crew_rigs_well_time_balloon_total_cost"></b></div>
+                <div class='spacer'></div>
+                <div class='text-red inline-block'><span class='text-red'>*</span>
+                  <span id="crew_rigs_well_time_balloon_total_warnings"></span></div>
+              </div>
+            </div>
+            <div class="chart-balloon-menu">
+              <a href="javascript:void(0);" class="analyze_well_link">
+                <div class="block item">
+                  <div class="inline-block title">Analyze Well</div>
+                  <div class="icon-arrow-right icon"></div>
+                </div>
+              </a>
+              <a href="javascript:void(0);" class="graph_rig_link">
+                <div class="block item">
+                  <div class="inline-block title">Graph Rig</div>
+                  <div class="icon-arrow-right icon"></div>
+                </div>
+              </a>
+              <a href="javascript:void(0);" class="graph_well_comparison_link">
+                <div class="block item">
+                  <div class="inline-block title">Graph Well Comparison</div>
+                  <div class="icon-arrow-right icon"></div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% graph_colors = {} %>
+      <% @crew_rigs.each_with_index do |crew_rig, index| %>
+          <% graph_colors[crew_rig.id] = crew_rig.gen_rand_color %>
+          <div class="crew_rigs_well_time_bottom" data-id="<%=crew_rig.id.to_s + "-0"%>">
+          <div class="block">
+              <div style="width: 10px;
+                      height:27px;
+                      background: <%= @color_palette[(index*2) % 9] %>;
+                      display: inline-block;
+                      line-height: 30px;
+              "></div>
+              <div style="vertical-align: top; line-height: 27px; height:27px; margin-left: 10px; display: inline-block; color: #fefefe; font-size: 22px;">
+                <%= crew_rig.name + " - Morning" %>
+              </div>
+            </div>
+
+          <div class="divider"></div>
+
+          <div class="block">
+            <div class="inline-block kpi-block" style="width: 30%;">
+              <div class="title">
+                Avg Depth
+              </div>
+              <div class="value">
+                <%= number_with_delimiter(number_with_precision(crew_rig.avg_depth(0), precision: 0)) %> <span>ft</span>
+              </div>
+            </div>
+
+            <div class="inline-block kpi-block" style="width: 30%;">
+              <div class="title">
+                Avg Horizontal Deviation
+              </div>
+              <div class="value">
+                <%= number_with_delimiter(number_with_precision(crew_rig.avg_lateral_depth(0), precision: 0)) %>
+                <span>ft</span>
+              </div>
+            </div>
+
+            <div class="inline-block kpi-block" style="width: 30%;">
+              <div class="title">
+                Avg ROP
+              </div>
+              <div class="value">
+                <%= number_with_delimiter(number_with_precision(crew_rig.avg_drilling_rop(0), precision: 0)) %>
+                <span>ft/hr</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider divider-lg"></div>
+          </div>
+          <div class="crew_rigs_well_time_bottom" data-id="<%=crew_rig.id.to_s + "-1"%>">
+          <div class="block">
+            <div style="width: 10px;
+                    height:27px;
+                    background: <%= @color_palette[(index * 2 + 1) % 9] %>;
+                    display: inline-block;
+                    line-height: 30px;
+            "></div>
+            <div style="vertical-align: top; line-height: 27px; height:27px; margin-left: 10px; display: inline-block; color: #fefefe; font-size: 22px;">
+              <%= crew_rig.name + " - Night" %>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="block">
+            <div class="inline-block kpi-block" style="width: 30%;">
+              <div class="title">
+                Avg Depth
+              </div>
+              <div class="value">
+                <%= number_with_delimiter(number_with_precision(crew_rig.avg_depth(1), precision: 0)) %> <span>ft</span>
+              </div>
+            </div>
+
+            <div class="inline-block kpi-block" style="width: 30%;">
+              <div class="title">
+                Avg Horizontal Deviation
+              </div>
+              <div class="value">
+                <%= number_with_delimiter(number_with_precision(crew_rig.avg_lateral_depth(1), precision: 0)) %>
+                <span>ft</span>
+              </div>
+            </div>
+
+            <div class="inline-block kpi-block" style="width: 30%;">
+              <div class="title">
+                Avg ROP
+              </div>
+              <div class="value">
+                <%= number_with_delimiter(number_with_precision(crew_rig.avg_drilling_rop(1), precision: 0)) %>
+                <span>ft/hr</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider divider-lg"></div>
+          </div>
+      <% end %>
+
+    </div>
+
+    <div id="crew_rigs_view_no_content" style="display: none; margin-top:100px">
+      <p class='help-text'>No data to show...</p><div style="margin-top:10px; text-align: center;"><%= image_tag("no_data_icon.PNG", style:"width:40px;")%></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+    (function ($) {
+        var chart;
+        var crew_rigs = {};
+        var well = {};
+        var well1 = {};
+        var graph_data = [];
+        var graphs = [];
+
+        //var current_history = -1;
+
+        <% @crew_rigs.each_with_index do |crew_rig, index| %>
+        <% wells = crew_rig.wells.to_a.sort_by { |j| "#{j.finished_at}" } %>
+        crew_rigs["<%= crew_rig.id.to_s + "-0"%>"] = {}
+        crew_rigs["<%= crew_rig.id.to_s + "-0"%>"].name = "<%= crew_rig.name + " - Morning"%>";
+        crew_rigs["<%= crew_rig.id.to_s + "-0"%>"].graph_color = color_palette[<%= (index * 2) % 9%>];
+        crew_rigs["<%= crew_rig.id.to_s + "-0"%>"].wells = [];
+        crew_rigs["<%= crew_rig.id.to_s + "-1"%>"] = {}
+        crew_rigs["<%= crew_rig.id.to_s + "-1"%>"].name = "<%= crew_rig.name + " - Night"%>";
+        crew_rigs["<%= crew_rig.id.to_s + "-1"%>"].graph_color = color_palette[<%= (index * 2 + 1) % 9%>];
+        crew_rigs["<%= crew_rig.id.to_s + "-1"%>"].wells = [];
+        <% wells.each do |well| %>
+        <%
+        total_depth0 = well.crew_total_depth(0)
+        total_well_time0 = well.total_well_time(0)
+        total_cost0 =  total_well_time0 * well.well_day_cost
+        rop0 = total_depth0.to_f / (well.crew_drilling_time(0).to_f.nonzero? || 1)
+        total_depth1 = well.crew_total_depth(1)
+        total_well_time1 = well.total_well_time(1)
+        total_cost1 =  total_well_time1 * well.well_day_cost
+        rop1 = total_depth1.to_f / (well.crew_drilling_time(1).to_f.nonzero? || 1)
+
+        %>
+        well = {
+            id: "<%= well.id %>",
+            name: "<%= well.name + " - Morning"%>",
+            job_id: "<%= well.jobs.first.id%>",
+            finished_at: <%= well.finished_at.to_i * 1000 %>,
+            depth: <%= total_depth0 %>,
+            rig_name: "<%= well.rig.name + "- Morning" %>",
+            rig_id: "<%= well.rig.id %>",
+            total_well_time: "<%= number_with_delimiter(number_with_precision(total_well_time0, precision: 1)) %>",
+            rop: "<%= number_with_delimiter(number_with_precision(rop0, precision: 0)) %>",
+            total_cost: "<%= number_with_delimiter(number_with_precision(total_cost0, precision: 0)) %>",
+            total_warnings: "<%= well.total_warnings %>",
+            hole_size: "<%= well.hole_size %>"
+        };
+        well1 = {
+            id: "<%= well.id %>",
+            name: "<%= well.name + " - Night"%>",
+            job_id: "<%= well.jobs.first.id%>",
+            finished_at: <%= well.finished_at.to_i * 1000 %>,
+            depth: <%= total_depth1%>,
+            rig_name: "<%= well.rig.name + "- Night" %>",
+            rig_id: "<%= well.rig.id %>",
+            total_well_time: "<%= number_with_delimiter(number_with_precision(total_well_time1, precision: 1)) %>",
+            rop: "<%= number_with_delimiter(number_with_precision(rop1, precision: 0)) %>",
+            total_cost: "<%= number_with_delimiter(number_with_precision(total_cost1, precision: 0)) %>",
+            total_warnings: "<%= well.total_warnings %>",
+            hole_size: "<%= well.hole_size %>"
+        };
+
+        crew_rigs["<%= crew_rig.id.to_s + "-0"%>"].wells.push(well)
+        crew_rigs["<%= crew_rig.id.to_s + "-1"%>"].wells.push(well1)
+        <% end %>
+        <% end %>
+
+        console.log('*** crew_rigs total data: ***', crew_rigs);
+
+        var crew_rigs_updated = function () {
+            var id = current_id;
+            var history = current_history;
+            var updated_crew_rigs = {};
+            graph_data = [];
+            graphs = [];
+
+            if (history != -1) {
+                var start_from = Date.now() || new Date().getTime();
+                start_from = start_from - history * 30 * 24 * 60 * 60 * 1000;
+
+                for (var key in crew_rigs) {
+                    var crew_rig = crew_rigs[key];
+                    var updated_crew_rig = {};
+
+                    updated_crew_rig.name = crew_rig.name;
+                    updated_crew_rig.graph_color = crew_rig.graph_color;
+                    updated_crew_rig.wells = [];
+
+                    crew_rig.wells.forEach(function (well) {
+                        if (well.finished_at > start_from) {
+                            updated_crew_rig.wells.push(well);
+                        }
+                    });
+
+                    updated_crew_rigs[key] = updated_crew_rig;
+                }
+            } else {
+                updated_crew_rigs = crew_rigs;
+            }
+
+            if (id == -1) {
+                for (var key in updated_crew_rigs) {
+                    var crew_rig = updated_crew_rigs[key];
+                    var index = 0;
+
+                    crew_rig.wells.forEach(function (well) {
+                        var data = {};
+
+                        if (!graph_data[index]) {
+                            data = {
+                                "sequence": index
+                            };
+                        } else {
+                            data = graph_data[index];
+                        }
+
+                        data[key] = well.total_well_time;
+                        data[key + '_well_name'] = well.name;data[key + '_job_id'] = well.job_id; data[key + '_rig_id'] = well.rig_id; data[key + '_well_id'] = well.id;
+                        data[key + '_rig_name'] = well.rig_name;
+                        data[key + '_rop'] = well.rop;
+                        data[key + '_total_cost'] = well.total_cost;
+                        data[key + '_total_warnings'] = well.total_warnings;
+                        data[key + '_hole_size'] = well.hole_size;
+                        graph_data[index] = data;
+                        index++;
+                    });
+
+                    graphs.push({
+                        "title": crew_rig.name,
+                        "balloonFunction": function (graphDataItem, graph) {
+                            var rig_name = graphDataItem.dataContext[graph.valueField + '_rig_name'];
+                            if (rig_name.length > 15) {
+                                rig_name = rig_name.substring(0, 14) + '...';
+                            }
+                            var well_name = graphDataItem.dataContext[graph.valueField + '_well_name'];
+                            if (well_name.length > 15) {
+                                well_name = well_name.substring(0, 14) + '...';
+                            }
+                            var rop = graphDataItem.dataContext[graph.valueField + '_rop'];
+                            var total_cost = graphDataItem.dataContext[graph.valueField + '_total_cost'];
+                            var total_warnings = graphDataItem.dataContext[graph.valueField + '_total_warnings'];
+                            var total_well_time = graphDataItem.values.value;
+
+                            return "<div class='amChart_balloon'><div class='block'><div class='inline-block text-blue'>" + rig_name + "</div><div class='spacer'></div><div class='inline-block text-white'>" + well_name + "</div></div><div class='block stats-block-3'><div class='inline-block text-lightblue' style='font-size: 13px;'><b>" + total_well_time + "</b> <span>days</span></div><div class='spacer'></div><div class='spacer'></div><div class='inline-block text-lightblue'>$<b>" + total_cost + "</b></div><div class='spacer'></div></div></div>";
+                        },
+                        "lineColor": crew_rig.graph_color,
+                        "lineThickness": 2,
+                        "type": "smoothedLine",
+                        "valueField": key,
+                        "bullet": "round",
+                        "bulletSize": 10,
+                    });
+                }
+            } else {
+                var index = 0;
+
+                updated_crew_rigs[id].wells.forEach(function (well) {
+                    if (!graph_data[index]) {
+                        data = {
+                            "sequence": index
+                        };
+                    } else {
+                        data = graph_data[index];
+                    }
+
+                    data[id] = well.total_well_time;
+                    data[id + '_well_name'] = well.name;data[id + '_job_id'] = well.job_id; data[id + '_rig_id'] = well.rig_id; data[id + '_well_id'] = well.id;
+                    data[id + '_rig_name'] = well.rig_name;
+                    data[id + '_rop'] = well.rop;
+                    data[id + '_total_cost'] = well.total_cost;
+                    data[id + '_total_warnings'] = well.total_warnings;
+                    data[id + '_hole_size'] = well.hole_size;
+                    graph_data[index] = data;
+                    index++;
+                });
+
+                graphs.push({
+                    "title": updated_crew_rigs[id].name,
+                    "balloonFunction": function (graphDataItem, graph) {
+                        console.log(graphDataItem);
+                        var rig_name = graphDataItem.dataContext[graph.valueField + '_rig_name'];
+                        if (rig_name.length > 15) {
+                            rig_name = rig_name.substring(0, 14) + '...';
+                        }
+                        var well_name = graphDataItem.dataContext[graph.valueField + '_well_name'];
+                        if (well_name.length > 15) {
+                            well_name = well_name.substring(0, 14) + '...';
+                        }
+                        var rop = graphDataItem.dataContext[graph.valueField + '_rop'];
+                        var total_cost = graphDataItem.dataContext[graph.valueField + '_total_cost'];
+                        var total_warnings = graphDataItem.dataContext[graph.valueField + '_total_warnings'];
+                        var total_well_time = graphDataItem.values.value;
+
+                        return "<div class='amChart_balloon'><div class='block'><div class='inline-block text-blue'>" + rig_name + "</div><div class='spacer'></div><div class='inline-block text-white'>" + well_name + "</div></div><div class='block stats-block-3'><div class='inline-block text-lightblue' style='font-size: 13px;'><b>" + total_well_time + "</b> <span>days</span></div><div class='spacer'></div><div class='spacer'></div><div class='inline-block text-lightblue'>$<b>" + total_cost + "</b></div><div class='spacer'></div></div></div>";
+                    },
+                    "lineColor": updated_crew_rigs[id].graph_color,
+                    "lineThickness": 2,
+                    "type": "smoothedLine",
+                    "valueField": id,
+                    "bullet": "round",
+                    "bulletSize": 10
+                });
+            }
+
+            console.log('*** graph_data changed: ***', graph_data);
+        };
+
+        var update_chart = function () {
+            if (graph_data.length == 0) {
+                $('#crew_rigs_view').hide();
+                $('#crew_rigs_view_no_content').show();
+            } else {
+                $('#crew_rigs_view').show();
+                $('#crew_rigs_view_no_content').hide();
+            }
+            if (current_id == -1) {
+                $(".crew_rigs_well_time_bottom").removeClass("hidden");
+//                $(".crew_rigs_well_time_bottom[data-id=]"+current_id).removeClass("hidden");
+            } else {
+                $(".crew_rigs_well_time_bottom").addClass("hidden");
+                $(".crew_rigs_well_time_bottom[data-id='" + current_id + "']").removeClass("hidden");
+            }
+            chart.dataProvider = graph_data;
+            chart.graphs = graphs;
+            chart.validateData();
+
+        };
+
+        // click event on crew_rigs list
+        $('#crew_rig_list li a').on('click', function () {
+            current_id = $(this).attr('data-id'); analysis_well_id=-1; analysis_rig_id=-1
+            console.log(current_id);
+            crew_rigs_updated();
+            update_chart();
+
+        });
+
+        // click event on history list
+        $('#history_list li a').on('click', function () {
+            current_history = $(this).attr('data-id');
+            crew_rigs_updated();
+            update_chart();
+        });
+
+        // initialize graph data
+        crew_rigs_updated();
+
+        chart = AmCharts.makeChart("crew_rigs_sequence_chart", {
+            "type": "serial",
+            "theme": "none",
+            "pathToImages": "https://www.amcharts.com/lib/3/images/",
+            "backgroundColor": "#475959",
+            "backgroundAlpha": 0,
+            "marginLeft": 30,
+            "marginBottom": 60,
+            "autoMargins": false,
+            "marginLeft": 70,
+            "marginTop": 20,
+            "balloon": {
+                "adjustBorderColor": true,
+                "color": "#000000",
+                "cornerRadius": 5,
+                "fillColor": "#323a3a",
+                "borderThickness": 0,
+                "horizontalPadding": 0,
+                "cornerRadius": 0,
+                "verticalPadding": 0,
+                "borderAlpha": 0,
+                "fillAlpha": 0.8,
+                "maxWidth": 266,
+                "fadeOutDuration": 0
+            },
+            "legend": {
+                "align": "right",
+                "position": "bottom",
+                "markerType": "circle",
+                "markerSize": 8,
+                "equalWidths": false,
+                "fontSize": 11,
+                "periodValueText": "",
+                "valueAlign": "left",
+                "valueWidth": 100,
+                "valueText": "",
+                "color": "#fefefe"
+            },
+            "dataProvider": graph_data,
+            "valueAxes": [
+                {
+                    "axisAlpha": 0,
+                    "position": "left",
+                    "reversed": false,
+                    "title": "Days",
+                    "gridAlpha": 0,
+                    "color": "#fefefe",
+                    "titleColor": "#fefefe",
+                    "guides": [
+                        {
+                            "fillAlpha": 0.8,
+                            "fillColor": "#455657",
+                            "inside": true,
+                            "lineAlpha": 0,
+                            "toValue": 40000,
+                            "value": 0
+                        }
+                    ],
+                }
+            ],
+            "graphs": graphs,
+            "chartCursor": {
+                "cursorAlpha": 0,
+                "categoryBalloonEnabled": false,
+                "oneBalloonOnly": true
+            },
+            "categoryField": "year",
+            "categoryAxis": {
+                "parseDates": false,
+                "minorGridAlpha": 0,
+                "minorGridEnabled": true,
+                "title": "Sequence",
+                "color": "#fefefe",
+                "titleColor": "#fefefe",
+                "axisColor": "#fefefe",
+                "axisAlpha": 0,
+                "gridAlpha": 0,
+                "gridColor": "#fefefe",
+                "labelsEnabled": false
+            }
+        });
+        update_chart();
+        var clickIndex = 0;
+
+        function fadeOutMenu(index) {
+            if (index == clickIndex) {
+                $('#crew_rigs_well_time_chart_menu_view').hide();
+            }
+        }
+
+        $('#crew_rigs_well_time_chart_menu_outer_view').mouseover(function() {
+            $('#crew_rigs_well_time_chart_menu_view').show();
+        });
+
+        $('#crew_rigs_well_time_chart_menu_outer_view').mouseout(function() {
+            $('#crew_rigs_well_time_chart_menu_view').hide();
+        });
+
+        chart.addListener("rollOutGraphItem", function (event) {
+            $('#crew_rigs_well_time_chart_menu_view').hide();
+        });
+
+        $('.btn-crew_rigs-perf').click(function() {
+            setTimeout(function(){
+                update_chart();
+            }, 0);
+        });
+        function handleClick(event) {
+            clickIndex++;
+
+            console.log(event);
+
+            var x, y;
+            var canvasWidth = $('#crew_rigs_sequence_chart').width();
+            var canvasHeight = 520;
+            var width = 266;
+            var height = 40;
+
+            y = 0;
+            if (canvasHeight - event.item.y <= height / 2) {
+                y += event.item.y - (height / 2 - (canvasHeight - event.item.y));
+            } else if (event.item.y < height / 2) {
+                y += event.item.y - (height / 2 - event.item.y);
+            } else {
+                y += event.item.y;
+            }
+
+            if (event.item.x < canvasWidth / 2 - 50) {
+                x = event.item.x + 79;
+            } else {
+                x = event.item.x - 201;
+            }
+
+            var value = event.graph.valueField;
+            var rig_name = event.item.dataContext[value + '_rig_name'];
+            if (rig_name.length > 15) {
+                rig_name = rig_name.substring(0, 14) + '...';
+            }
+            var well_name = event.item.dataContext[value + '_well_name'];
+            if (well_name.length > 15) {
+                well_name = well_name.substring(0, 14) + '...';
+            }
+            var rop = event.item.dataContext[value + '_rop'];
+            var job_id = event.item.dataContext[value + '_job_id'];
+            var total_cost = event.item.dataContext[value + '_total_cost'];
+            var total_warnings = event.item.dataContext[value + '_total_warnings'];
+            var total_well_time = event.item.values.value;
+
+            $("#crew_rigs_well_time_balloon_well_name").html(well_name);
+            $("#crew_rigs_well_time_balloon_rig_name").html(rig_name);
+            $("#crew_rigs_well_time_balloon_rop").html(rop);
+            $("#crew_rigs_well_time_balloon_total_cost").html(total_cost);
+            $("#crew_rigs_well_time_balloon_total_warnings").html(total_warnings);
+            $("#crew_rigs_well_time_balloon_total_well_time").html(total_well_time);
+
+            $("#crew_rigs_well_time_chart_menu_outer_view").css({top: y, left: x, position: 'absolute'});
+            $('#crew_rigs_well_time_chart_menu_view').show();
+
+            chart.balloon.hide();
+            clicked_job = job_id;
+            var rig_id = event.item.dataContext[value + '_rig_id'];
+            clicked_rig = rig_id;clicked_well = event.item.dataContext[value + '_well_id'];
+//      setTimeout(fadeOutMenu.bind(this, clickIndex), 2000);
+        }
+
+        chart.addListener("clickGraphItem", handleClick);
+        $(".analyze_well_link").on("click", function(){
+            document.location = "/jobs/"+clicked_job+"#analysis";
+        });
+        $(".graph_rig_link").on("click", function(){
+            analysis_rig_id = clicked_rig;
+            $('.remote-tray-toggle[data-title="Rigs"]').click();
+        });
+        $(".graph_well_comparison_link").on("click", function(){
+            analysis_well_id = clicked_well;
+            $('.remote-tray-toggle[data-title="Wells"]').click();
+        });
+    }(jQuery));
+
+</script>

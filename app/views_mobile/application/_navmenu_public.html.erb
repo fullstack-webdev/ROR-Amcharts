@@ -1,0 +1,16 @@
+<%
+   menu_items = [['Home', root_path, 'home'],
+                 ['Solutions', solutions_path, 'solutions'],
+                 ['About Corva', about_path, 'about'],
+                 ['Team', team_path, 'team'],
+                 ['Contact', contact_path, 'contact']]
+%>
+<div class="navmenu" style="display: none;">
+  <ul class="mobile-nav">
+    <% menu_items.each do |item| %>
+      <li class="<%= action_name==item[2] ? 'active' : '' %>">
+        <%= link_to item[0], item[1], class: 'stay' %>
+      </li>
+    <% end %>
+  </ul>
+</div>

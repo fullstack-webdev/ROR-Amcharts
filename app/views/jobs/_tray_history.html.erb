@@ -1,0 +1,31 @@
+<div class="remote-tray" data-tray="history">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading history..." %>
+  </div>
+
+  <div class='tray-content'>
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>History</h1>
+
+      <div class="btn-group inline pull-right">
+        <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+          Export
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <%= link_to "Export as Excel", "/activities/#{@job.id}?job_activity=true&format=xlsx",
+                        target: "_blank",
+                        class: "dropdown-menu-link tooltip-info submit-form",
+                        "data-placement" => "left",
+                        "data-title" => "Export activity as Microsoft Excel file." %>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <% @activities = Activity.activities_for_job(@job) %>
+    <%= render 'activities/paginated_activity', activities: @activities, inside_job: true %>
+  </div>
+</div>

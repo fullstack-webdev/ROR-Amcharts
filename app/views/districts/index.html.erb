@@ -1,0 +1,35 @@
+<% provide(:title, 'Districts') %>
+
+<div class="page_header">
+  <h1>Districts</h1>
+
+  <h2 class="paginated-count">
+    <%= render 'layouts/paged_header', items: @districts %>
+  </h2>
+
+  <% if signed_in_admin? %>
+      <%= link_to "+ Add New Master District", new_district_path(master: true), class: "bluebtn page_header_button tooltip-info",
+                  "data-placement" => "bottom",
+                  "data-title" => "Create new master district"%>
+  <% end %>
+</div>
+
+<div class="alert alert-info">
+  <%= form_tag districts_path, :method => 'get', :id => "districts_search", remote: true, class: "filter-search-box" do %>
+      <%= text_field_tag :search, params[:search], placeholder: "Search districts", class: "search-query tooltip-info",
+                         "data-placement" => "left",
+                         "data-title" => "Search districts by name" %>
+      <% if params[:search].present? && !params[:search].blank? %>
+          <%= link_to "x  clear results", districts_path, class: "activity-user-link push-right-small" %>
+      <% end %>
+  <% end %>
+</div>
+
+
+
+<div id="districts_list">
+  <div id="districts" class="list">
+    <%= render @districts %>
+  </div>
+  <%= will_paginate %>
+</div>

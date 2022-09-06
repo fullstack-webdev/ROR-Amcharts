@@ -1,0 +1,79 @@
+<div class="remote-tray" data-tray="overview">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading overview..." %>
+  </div>
+
+  <div class="tray-content content-loaded">
+
+    <div class='section-header' style="margin-top: 20px;">
+      <h1>Overview</h1>
+    </div>
+
+    <div class=''>
+
+
+      <% if false %>
+      <% if @district.present? %>
+          <div class="">
+            <b class="inline">District</b>
+            <%= link_to @district.name, @district, class: "activity-user-link" %>
+
+          </div>
+      <% else %>
+
+          <div class="alert">
+            View District Inventory
+            <br><br>
+
+            <div class="district-jump">
+              <%= hidden_field_tag "district_id", id: "district_id" %>
+            </div>
+            <%= image_tag "district_extrasmall.png", class: "job-status-avatar push-down-small" %>
+            <%= text_field_tag "", "", data: {autocomplete_source: districts_path},
+                               placeholder: "Type a district name...",
+                               id: "district_name",
+                               class: "txtfield small tooltip-info district-jump-to align-top",
+                               "data-placement" => "top",
+                               "data-title" => "District Name, select from drop down based on search results" %>
+
+            or &nbsp;
+
+            <%= select_tag "District",
+                           options_for_select(current_user.company.districts.where(:master => false).collect { |d| [d.name, d.id] }),
+                           class: "tooltip-info custom-select align-top",
+                           id: "jump_to_district_select",
+                           "data-placement" => "bottom",
+                           "data-title" => "Select a District",
+                           prompt: "Select by name..." %>
+          </div>
+      <% end %>
+
+      <% end %>
+    </div>
+
+    <%= render 'inventory/statistics', show_rentals: current_user.role.district_read?, district: @district %>
+
+    <br>
+    <div>
+      <h3>Status</h3>
+      <br>
+      <div id="part_status">
+        <span class="ajax-loading search-loading"><b>Loading...</b>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script type='text/javascript'>
+      window.auid++;
+      $.ajax('/inventory/' + <%= @district.id %> + "?section=overview_status" + "&auid=" + window.auid, {
+          type: 'get',
+          dataType: 'script'
+      });
+  </script>
+
+
+</div>

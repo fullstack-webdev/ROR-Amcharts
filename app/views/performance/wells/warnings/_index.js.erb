@@ -1,0 +1,338 @@
+(function ($) {
+  var chart,
+      warnings_depth_chart;
+  var graph_data = [],
+      warnings_graph_data = [];
+  var graphs = [];
+  var tray = $(".remote-tray[data-tray='wells_warnings']");
+
+  var init_warnings_depth_data = function () {
+    <% @wells.each do |well| %>
+    if (WELLS[<%= well.id %>]) {
+      WELLS[<%= well.id %>].depth_vs_warnings_logs = <%= raw well.depth_vs_warnings_logs.to_json %>;
+      WELLS[<%= well.id %>].warnings_by_depth = <%= raw well.warnings_by_depth.to_json %>;
+    }
+    <% end %>
+  };
+
+  var filter_graph_data = function () {
+    graph_data = [];
+    graphs = [];
+    warnings_graph_data = [];
+    var agg_warnings = {};
+
+    for (var key in UPDATED_WELLS) {
+      var well = UPDATED_WELLS[key];
+
+      for (var i = 0; i < well.depth_vs_warnings_logs.length; i++) {
+        var data = graph_data[i] || {};
+        data[key + '_warnings'] = well.depth_vs_warnings_logs[i][0];
+        data['depth'] = parseFloat(well.depth_vs_warnings_logs[i][1]).convert('ft', company_unit).val().round_to_decimal();
+        graph_data[i] = data;
+//        var data = {};
+//        data[key + '_warnings'] = well.depth_vs_warnings_logs[i][0];
+//        data[key + '_depth'] = well.depth_vs_warnings_logs[i][1];
+//        graph_data.push(data);
+      }
+
+      graphs.push({
+        "title": well.name,
+        "lineColor": well.graph_color,
+        "lineThickness": 2,
+        "type": "smoothedLine",
+        "valueField": key + '_warnings'
+      });
+
+//      graphs.push({
+//        "title": well.name,
+//        "lineColor": well.graph_color,
+//        "lineThickness": 2,
+//        "yField": key + '_depth',
+//        "xField": key + '_warnings'
+//      });
+
+      well.warnings_by_depth.forEach(function (item) {
+        var range = parseFloat(item.range).convert('ft', company_unit).val().round_to_decimal().with_delimiter();
+        agg_warnings[range] = agg_warnings[range] || {};
+        agg_warnings[range][item.severity] = parseInt(agg_warnings[range][item.severity] || 0) + parseInt(item.count);
+      });
+    }
+
+    for (var key in agg_warnings) {
+      if (agg_warnings.hasOwnProperty(key)) {
+        var item = agg_warnings[key];
+        item.range = key;
+        warnings_graph_data.push(item);
+      }
+    }
+  };
+
+  var update_chart = function () {
+    if (graph_data.length == 0) {
+      tray.find('.content-view').hide();
+      tray.find('.no-content').show();
+    } else {
+      tray.find('.content-view').show();
+      tray.find('.no-content').hide();
+      chart.dataProvider = graph_data;
+      chart.graphs = graphs;
+      chart.validateData();
+      chart.validateNow();
+    }
+  };
+
+  var update_warnings_by_depth = function () {
+    if (warnings_graph_data.length == 0) {
+      tray.find('.warnings-depth-chart-container').hide();
+    } else {
+      tray.find('.warnings-depth-chart-container').show();
+      $('#warnings_depth_chart').css('height', warnings_graph_data.length * 30 + 50);
+      warnings_depth_chart.dataProvider = warnings_graph_data;
+      warnings_depth_chart.validateData();
+      warnings_depth_chart.validateNow();
+    }
+  };
+
+  var create_chart = function () {
+    chart = AmCharts.makeChart("wells_warnings_chart", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#475959",
+      "backgroundAlpha": 0,
+      "marginBottom": 60,
+      "autoMargins": false,
+      "marginLeft": 70,
+      "marginTop": 20,
+      "rotate": true,
+      "legend": {
+        "align": "right",
+        "position": "bottom",
+        "markerType": "circle",
+        "markerSize": 8,
+        "equalWidths": false,
+        "fontSize": 11,
+        "periodValueText": "",
+        "valueAlign": "left",
+        "valueWidth": 100,
+        "valueText": "",
+        "color": "#fefefe"
+      },
+      "dataProvider": graph_data,
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "title": "Warnings",
+          "color": "#fefefe",
+          "titleColor": "#fefefe",
+          "minimum": 0,
+          "gridAlpha": 0.2,
+          "gridColor": "#fefefe",
+          "minorGridAlpha": 0.2,
+          "minorGridEnabled": true,
+          "guides": [
+            {
+              "fillAlpha": 0.8,
+              "fillColor": "#455657",
+              "inside": true,
+              "lineAlpha": 0,
+              "toValue": 10000,
+              "value": 0
+            }
+          ]
+        }
+      ],
+      "graphs": graphs,
+      "chartCursor": {
+        "enabled": false,
+        "selectWithoutZooming": true
+      },
+      "categoryField": "depth",
+      "categoryAxis": {
+        "parseDates": false,
+        "title": "Depth (MD - <%= unit('ft', company_unit) %>)",
+        "position": "left",
+        "reversed": true,
+        "color": "#fefefe",
+        "titleColor": "#fefefe",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "labelFunction": function (value, valueText, valueAxis) {
+          return parseInt(value).with_delimiter();
+        }
+      },
+      "fontFamily": "orgonlightregular",
+      "fontSize": 13
+    });
+//    chart = AmCharts.makeChart("wells_warnings_chart", {
+//      "type": "xy",
+//      "theme": "light",
+//      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+//      "backgroundColor": "#475959",
+//      "backgroundAlpha": 0,
+//      "marginLeft": 30,
+//      "marginBottom": 60,
+//      "autoMargins": false,
+//      "marginLeft": 70,
+//      "marginTop": 20,
+//      "legend": {
+//        "align": "right",
+//        "position": "bottom",
+//        "markerType": "circle",
+//        "markerSize": 8,
+//        "equalWidths": false,
+//        "fontSize": 11,
+//        "periodValueText": "",
+//        "valueAlign": "left",
+//        "valueWidth": 100,
+//        "valueText": "",
+//        "color": "#fefefe"
+//      },
+//      "dataProvider": graph_data,
+//      "valueAxes": [
+//        {
+//          "id": "y",
+//          "title": "Depth (MD - ft)",
+//          "axisAlpha": 0,
+//          "position": "left",
+//          "reversed": true,
+//          "gridAlpha": 0,
+//          "color": "#fefefe",
+//          "titleColor": "#fefefe",
+//          "minimum": 0,
+//          "guides": [
+//            {
+//              "fillAlpha": 0.8,
+//              "fillColor": "#455657",
+//              "inside": true,
+//              "lineAlpha": 0,
+//              "toValue": 40000,
+//              "value": -5000
+//            }
+//          ]
+//        },
+//        {
+//          "id": "x",
+//          "title": "Warnings",
+//          "axisAlpha": 0,
+//          "position": "bottom",
+//          "gridAlpha": 0,
+//          "color": "#fefefe",
+//          "titleColor": "#fefefe",
+//          "minimum": 0
+//        }
+//      ],
+//      "graphs": graphs,
+//      "chartCursor": {
+//        "enabled": false,
+//        "selectWithoutZooming": true
+//      },
+//      "fontFamily": "orgonlightregular",
+//      "fontSize": 13
+//    });
+  };
+
+  var create_warnings_by_depth_chart = function () {
+    $('#warnings_depth_chart').css('height', warnings_graph_data.length * 30 + 50);
+    warnings_depth_chart = AmCharts.makeChart("warnings_depth_chart", {
+      "type": "serial",
+      "theme": "none",
+      "marginBottom": 0,
+      "autoMargins": false,
+      "marginLeft": 100,
+      "marginTop": 0,
+      "dataProvider": warnings_graph_data,
+      "valueAxes": [
+        {
+          "stackType": "regular",
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "labelsEnabled": false
+        }
+      ],
+      "graphs": [
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "high",
+          "lineColor": "#e52909",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[high]]</bold> high warnings"
+
+        },
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "low",
+          "lineColor": "#f7e625",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[low]]</bold> low warnings"
+        },
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "moderate",
+          "lineColor": "#ef891b",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[moderate]]</bold> moderate warnings"
+        }
+      ],
+      "rotate": true,
+      "categoryField": "range",
+      "categoryAxis": {
+        "title": "Depth (MD - <%= unit('ft', company_unit) %>)",
+        "titleColor": "#fefefe",
+        "gridPosition": "start",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "position": "left",
+        "fontSize": 15,
+        "color": "#fefefe"
+      },
+      "fontFamily": "orgonlightregular"
+    });
+  };
+
+  var init = function () {
+    init_warnings_depth_data();
+
+    // click event on wells list
+    $('#updated_wells').change(function () {
+      filter_graph_data();
+      update_chart();
+      update_warnings_by_depth();
+    });
+
+    $(".remote-tray-toggle[data-tray='wells_warnings']").on('click', function () {
+      setTimeout(function () {
+        update_chart();
+        update_warnings_by_depth();
+      }, 0);
+    });
+
+    filter_graph_data();
+    create_chart();
+    create_warnings_by_depth_chart();
+
+    if (graph_data.length == 0) {
+      tray.find('.content-view').hide();
+      tray.find('.no-content').show();
+    }
+
+    // set active tab
+    $('.btn-tray').removeClass('active');
+    $('.remote-tray-toggle[data-tray="wells_warnings"] .btn-tray').addClass('active');
+  };
+
+  init();
+}(jQuery));

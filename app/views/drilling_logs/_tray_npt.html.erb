@@ -1,0 +1,199 @@
+<% @drilling_log = @job.drilling_log %>
+
+
+<div class="remote-tray" data-tray="kpi">
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading KPIs..." %>
+</div>
+
+<div class="content tray-content content-loaded">
+
+  <div class='section-header'>
+    <h1>Key Performance Indicators (KPIs)</h1>
+  </div>
+
+<%= render 'drilling_logs/kpis', drilling_log: @drilling_log %>
+
+<% times = @drilling_log.get_times %>
+
+<div class="section-header">
+  <h1 class='inline-block'>Averages</h1>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time in connection & Survey">
+  <div class="chart-title">Connection &amp; Survey</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::CONNECTION_SURVEY] %>
+    <div class="donut-text "><%= entry.nil? ? '-' : ((entry[:time].to_f * 60.0) / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage ">min</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time changing BHA">
+  <div class="chart-title">Change BHA</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::CHANGE_BHA] %>
+    <div class="donut-text "><%= entry.nil? ? '-' : ((entry[:time].to_f * 60.0) / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage ">min</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time Changing Mud">
+  <div class="chart-title">Change Mud</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::CHANGE_MUD] %>
+    <div class="donut-text "><%= entry.nil? ? '-' : ((entry[:time].to_f * 60.0) / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage ">min</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time in only connection">
+  <div class="chart-title">Only Connection</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::CONNECTION] %>
+    <div class="donut-text "><%= entry.nil? ? '-' : ((entry[:time].to_f * 60.0) / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage ">min</div>
+  </div>
+</div>
+
+<br><br><br>
+
+<div class="chart-block tooltip-info"
+     data-title="Time in MWD Survey">
+  <div class="chart-title">MWD Survey</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::MWD_SURVEY] %>
+    <div class="donut-text "><%= entry.nil? ? '-' : ((entry[:time].to_f * 60.0) / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage ">min</div>
+  </div>
+</div>
+
+<br><br><br><br>
+
+<div class="section-header">
+  <h1 class='inline-block'>NPT</h1>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time in Rig Repair">
+  <div class="chart-title">Rig Repair</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::RIG_REPAIR] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time in Rig Service - Inhole">
+  <div class="chart-title">Rig Service - Inhole</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::RIG_SERVICE_INHOLE] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time in Rig Service - Outhole">
+  <div class="chart-title">Rig Service - Outhole</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::RIG_SERVICE_OUTHOLE] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time in Rig Service Outhole">
+  <div class="chart-title">Rig Service - Outhole</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::RIG_SERVICE_OUTHOLE] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+<br><br><br>
+
+<div class="chart-block tooltip-info"
+     data-title="Time Tripping in Hole">
+  <div class="chart-title">TIH</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::TIH] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time Pulling Out of Hole">
+  <div class="chart-title">POOH</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::POOH] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time in Standby">
+  <div class="chart-title">Standby</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::STANDBY_OUTHOLE] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time in Standby">
+  <div class="chart-title">Wait on Weather</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::WAIT_ON_WEATHER] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+<br><br><br>
+
+<div class="chart-block tooltip-info"
+     data-title="Time Circulating">
+  <div class="chart-title">Circulating</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::CIRCULATING] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time Reaming">
+  <div class="chart-title">Reaming</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::REAMING] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+<div class="chart-block tooltip-info"
+     data-title="Time Reaming">
+  <div class="chart-title">Undefined - Other</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <% entry = times[DrillingLogEntry::OTHER] %>
+    <div class="donut-text chart-text-red"><%= entry.nil? ? '-' : (entry[:time].to_f / entry[:entries].to_f).round(2) %></div>
+    <div class="percentage chart-text-red">hours</div>
+  </div>
+</div>
+
+</div>
+</div>
+

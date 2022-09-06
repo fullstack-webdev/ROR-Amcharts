@@ -1,0 +1,47 @@
+<% if @document.post_job_report_document.present? %>
+    //Do this in case it is a for post job report document
+    var tooltip = $("#post_job_report_document_<%= @document.post_job_report_document.id %>").find('.upload-button-div').data('tooltip');
+    if(tooltip != null) {
+        tooltip.hide();
+    }
+    $("#post_job_report_document_<%= @document.post_job_report_document.id %>").find('.upload-metadata').replaceWith("<%= j render('documents/document_metadata', document: @document) %>");
+    $("#post_job_report_document_<%= @document.post_job_report_document.id %>").find('.document-info').show();
+    $("#post_job_report_document_<%= @document.post_job_report_document.id %>").find(".upload-controls").show();
+<% end %>
+
+$("#document_<%= @document.id %>").find(".document-upload-updating").addClass("hidden");
+
+$("#document_<%= @document.id %>").find('.document-info').show();
+$("#document_<%= @document.id %>").find(".upload-controls").show();
+
+var tooltip = $("#document_<%= @document.id %>").find('.upload-button-div').data('tooltip');
+if(tooltip != null) {
+    tooltip.hide();
+}
+$("#document_<%= @document.id %>").find('.upload-metadata').replaceWith("<%= j render 'documents/document_metadata', document: @document %>");
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+//$('.activity-user-link').tooltip();
+//$('.tooltip-info').tooltip();
+}
+
+<% if !signed_in_admin? && @document.job_id.present? %>
+<% if false %>
+$.ajax({
+    url:"/job_process/" + <%= @document.job_id.to_s %>,
+    type:"GET",
+    dataType:"script"
+});
+<% end %>
+
+$('#job-progress-status').find(':first').hide().remove();
+$('#job-progress-status').append('<%= j render 'jobs/job_progress_status', job: @document.job %>');
+
+<% if @document.job.pre_job_documents.all? { |d| d.url.present? } %>
+    $("#documents").prev().addClass("status-good");
+<% end %>
+<% if @document.job.post_job_documents.all? { |d| d.url.present? } %>
+    $("#documents2").prev().addClass("status-good");
+<% end %>
+
+<% end %>

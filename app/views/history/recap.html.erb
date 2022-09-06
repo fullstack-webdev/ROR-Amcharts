@@ -1,0 +1,99 @@
+<% provide(:title, "Daily Recap") %>
+
+<div class="page_header">
+  <h1>Daily Recap</h1>
+</div>
+
+
+<div class='well'>
+  <div class="chart-block">
+    <div class="chart-title">In-Progress</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <div class="donut-text"><%= @jobs.where(:status => Job::ON_JOB).count() %></div>
+      <div class="percentage ">jobs</div>
+    </div>
+  </div>
+
+  <div class="chart-block">
+    <div class="chart-title">Pre-Job</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <div class="donut-text"><%= @jobs.where(:status => Job::PRE_JOB).count() %></div>
+      <div class="percentage ">jobs</div>
+    </div>
+  </div>
+
+  <div class="chart-block">
+    <div class="chart-title">Post-Job</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <div class="donut-text"><%= @jobs.where(:status => Job::POST_JOB).count() %></div>
+      <div class="percentage ">jobs</div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class='content push-down'>
+
+  <span class="label label-warning" style="padding: 4px; padding-left: 10px; padding-right: 10px;">In Progress</span>
+
+<div id="jobs" class="list">
+  <% jobs = @jobs.where(:status => Job::ON_JOB) %>
+  <% if jobs.any? %>
+      <% jobs.each do |job| %>
+          <%= render 'user_mailer/job_report', job: job %>
+      <% end %>
+  <% else %>
+      <br>
+      <p class='help-text'>No Jobs in this phase...</p>
+  <% end %>
+</div>
+
+<br><br>
+
+  <span class="label label-info" style="padding: 4px; padding-left: 10px; padding-right: 10px;">Pre-Job</span>
+
+<div id="jobs" class="list">
+  <% jobs = @jobs.where(:status => Job::PRE_JOB) %>
+  <% if jobs.any? %>
+      <% jobs.each do |job| %>
+          <%= render 'user_mailer/job_report', job: job %>
+      <% end %>
+  <% else %>
+      <br>
+      <p class='help-text'>No Jobs in this phase...</p>
+  <% end %>
+</div>
+
+  <br><br>
+
+  <span class="label label-success" style="padding: 4px; padding-left: 10px; padding-right: 10px;">Post-Job</span>
+
+  <div id="jobs" class="list">
+    <% jobs = @jobs.where(:status => Job::POST_JOB) %>
+    <% if jobs.any? %>
+        <% jobs.each do |job| %>
+            <%= render 'user_mailer/job_report', job: job %>
+        <% end %>
+    <% else %>
+        <br>
+        <p class='help-text'>No Jobs in this phase...</p>
+    <% end %>
+  </div>
+
+  <br><br>
+
+  <span class="label label-success" style="padding: 4px; padding-left: 10px; padding-right: 10px;">Complete</span>
+
+  <div id="jobs" class="list">
+    <% jobs = @jobs.where(:status => Job::COMPLETE) %>
+    <% if jobs.any? %>
+        <% jobs.each do |job| %>
+            <%= render 'user_mailer/job_report', job: job %>
+        <% end %>
+    <% else %>
+        <br>
+        <p class='help-text'>No Jobs in this phase...</p>
+    <% end %>
+  </div>
+</div>

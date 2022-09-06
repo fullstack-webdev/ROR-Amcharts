@@ -1,0 +1,1 @@
+CorvaUrlCONFIG = YAML.load_file("#{Rails.root}/config/corva_url.yml")[Rails.env]

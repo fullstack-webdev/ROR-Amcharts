@@ -1,0 +1,115 @@
+<div class="bha-tool">
+
+  <%= hidden_field_tag "[bha_items][" + tool.id.to_s + "]", tool.id.to_s, value: "1" %>
+
+  <div class="pull-right">
+    <%= link_to "order", "#",
+                class: "push-up order-button bha-order-up tooltip-info",
+                "data-placement" => "bottom",
+                "data-title" => "Move tool up by 1 row" %>
+    <%= link_to "order", "#",
+                class: "push-up delete-button bha-remove tooltip-info",
+                "data-placement" => "bottom",
+                "data-title" => "Remove tool from BHA" %>
+  </div>
+
+
+
+  <% df = DynamicField.new %>
+  <% df.value_type = DynamicField::LENGTH_IN %>
+  <div class="inline-block bha-other-items">
+
+    <div class="inline-block push-right-small tooltip-info" data-title="Tool Type">
+      <%= image_tag "tool.png", class: "inline-block push-down-small" %>
+      <%= select_tag tool.id.to_s + "_asset_type",
+                     options_for_select(BhaItem.type_options, bha_item.asset_type || tool.asset_type),
+                     class: "custom-select-ajax bha-value2 align-top",
+                     placeholder: "Type" %>
+    </div>
+
+    <div class='inline-block push-right-small id-od-box'>
+      <p class='inline-block' style='font-size: 9px; vertical-align: top; margin-left:3px;'>ID</p>
+      <%= text_field_tag tool.id.to_s + "_id", "",
+                         value: bha_item.inner_diameter || tool.inner_diameter,
+                         placeholder: "ID",
+                         class: "txtfield bha-value id-od tooltip-info",
+                         "data-placement" => "bottom",
+                         "data-title" => "ID (Inner Diameter) of Asset" %>
+      <p class='inline-block' style='font-size: 9px; vertical-align: top;'>OD</p>
+      <%= text_field_tag tool.id.to_s + "_od", "",
+                         value: bha_item.outer_diameter || tool.outer_diameter,
+                         placeholder: "OD",
+                         class: "txtfield bha-value id-od tooltip-info",
+                         "data-placement" => "bottom",
+                         "data-title" => "OD (Outer Diameter) of Asset" %>
+      <%= text_field_tag tool.id.to_s + "_length", "",
+                         value: bha_item.length || tool.length,
+                         placeholder: "Length",
+                         class: "txtfield bha-value id-od tooltip-info",
+                         "data-placement" => "bottom",
+                         "data-title" => "Length of Asset" %>
+    </div>
+
+    <% if false %>
+    <div class="inline-block push-right-small tooltip-info"
+         data-title="Inner Diameter (ID) of Tool">
+      <b>ID</b>
+      <%= text_field_tag tool.id.to_s + "_id", "",
+                         class: "bha-value",
+                         value: bha_item.inner_diameter || tool.inner_diameter,
+                         placeholder: "ID" %>
+    </div>
+
+    <div class="inline-block push-right-small tooltip-info"
+         data-title="Outer Diameter (OD) of Tool">
+      <b>OD</b>
+      <%= text_field_tag tool.id.to_s + "_od", "",
+                         class: "bha-value",
+                         value: bha_item.outer_diameter || tool.outer_diameter,
+                         placeholder: "OD" %>
+    </div>
+
+    <div class="inline-block push-right-small tooltip-info"
+         data-title="Length of Tool">
+      <b>Length</b>
+      <%= text_field_tag tool.id.to_s + "_length", "",
+                         class: "bha-value",
+                         value: bha_item.length || tool.length,
+                         placeholder: "Length" %>
+    </div>
+    <% end %>
+
+    <div class="inline-block push-right-small tooltip-info" data-title="Upward connection">
+      <b><i class="icon-arrow-up"></i></b>
+      <%= select_tag tool.id.to_s + "_up",
+                     options_for_select(BhaItem.options, bha_item.up || tool.up),
+                     class: "custom-select-ajax bha-value2 align-top push-up",
+                     placeholder: "Up" %>
+    </div>
+
+    <div class="inline-block push-right-small tooltip-info" data-title="Downward connection">
+      <b><i class="icon-arrow-down"></i></b>
+      <%= select_tag tool.id.to_s + "_down",
+                     options_for_select(BhaItem.options, bha_item.down || tool.down),
+                     class: "custom-select-ajax bha-value2 align-top push-up",
+                     placeholder: "Down" %>
+    </div>
+
+
+  </div>
+
+
+  <div class='bit-info hidden inline-block push-right-small'>
+    <br>
+
+    <%= text_field_tag "Jets", "",
+                       class: "txtfield extra-small align-top",
+                       placeholder: "Jets..." %>
+
+    <%= text_field_tag "TFS", "",
+                       class: "txtfield extra-small align-top",
+                       placeholder: "Tool Flow Area..." %>
+  </div>
+
+  <hr>
+</div>

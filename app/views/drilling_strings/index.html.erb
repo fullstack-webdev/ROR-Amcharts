@@ -1,0 +1,21 @@
+<h1>Listing drilling_strings</h1>
+
+<table>
+  <tr>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @drilling_strings.each do |drilling_string| %>
+  <tr>
+    <td><%= link_to 'Show', drilling_string %></td>
+    <td><%= link_to 'Edit', edit_drilling_string_path(drilling_string) %></td>
+    <td><%= link_to 'Destroy', drilling_string, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Drilling string', new_drilling_string_path %>

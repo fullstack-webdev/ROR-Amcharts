@@ -1,0 +1,371 @@
+
+
+<div class="section-header" style="margin-top: 10px;">
+  <h1><%= @rig.name %></h1>
+
+  <div class='inline-block align-top pull-right'>
+    <%= link_to new_job_path(rig: @rig), class: "btn btn-sub tooltip-info align-top ",
+                style: "margin-right: 10px;",
+                "data-placement" => "bottom",
+                "data-title" => "New Well" do %>
+        New Well
+    <% end %>
+
+    <%= link_to edit_rig_path(@rig), class: "btn btn-sub tooltip-info align-top",
+                "data-placement" => "bottom",
+                "data-title" => "Edit rig" do %>
+        Edit
+    <% end %>
+  </div>
+</div>
+
+<div style="margin-bottom:50px;margin-top:20px;">
+    <div class="inline-block align-top">
+        <p class="rig-field-title">Drilling Program</p>
+        <%= hidden_field_tag "drilling_program_id", "", class: "rig-update-field", value: @rig.program_id, "data-id" => @rig.id, "data-field" => "drilling_program_id"%>
+        <div class="rig-field-div inline-block align-top">
+          <!--<input id="id" name="id" type="hidden" value="222" />-->
+
+          <select id="drilling_program_combobox">
+
+            <option value="">Select one...</option>
+            <% @programs.each do |program| %>
+                <option value="<%= program.id %>"><%= program.name %></option>
+            <% end %>
+
+          </select>
+          <!--<input class="well-update-field job-field-value-editable tooltip-info align-top" data-field="name" data-id="222" data-placement="bottom" data-title="Well name" id="well_name" name="well_name" placeholder="Well Name" type="text" value="Elaine 1 #3">-->
+        </div>
+    </div>
+
+
+    <!--<div class="inline-block">-->
+      <div class="inline-block align-top">
+        <p class='rig-field-title inline-block'>Offset Well</p>
+        <%= hidden_field_tag "offset_well_id", "", class: "rig-update-field", value: @rig.offset_well_id, "data-id" => @rig.id, "data-field" => "offset_well_id"%>
+        <div class="inline-block align-top">
+
+          <select id="offset_well_combobox">
+            <option value="">Select one...</option>
+            <% @offset_jobs_array.each do |job| %>
+                <option value="<%= job.well.id %>"><%= job.well.name %></option>
+            <% end %>
+
+          </select>
+
+        </div>
+
+
+      </div>
+
+
+    <!--</div>-->
+
+</div>
+
+<div id="wells_list">
+
+  <div style="font-size: 13px; color: #7C9B8F; margin: 15px;">
+    <div class="inline-block" style="width: 60%;">Well Name</div>
+    <div class="inline-block" style="width: auto;">Date</div>
+  </div>
+
+  <div id="jobs" class="list">
+    <% @jobs_array.each do |job| %>
+
+        <%= link_to job, class: "well-link tooltip-info",
+                    "data-status" => job.status,
+                    "data-member" => job.user_is_member?(current_user),
+                    "data-placement" => "left",
+                    "data-title" => "Click to open job" do %>
+
+            <div class="tooltip-info"
+                 data-placement="right"
+                 data-html="true"
+                 data-title="<%= render 'jobs/well_tooltip', job: job, show_summary_data: true %>">
+
+              <div class='inline-block well-name' style="width: 60%;">
+                <%= job.well.name %>
+              </div>
+
+              <div class='inline-block well-time' style="width: auto;">
+                <%= job.start_date ? job.start_date.strftime('%b %d %Y')+' - ' : '' %><%= job.end_date && job.start_date ? ((job.end_date - job.start_date) / 3600 / 24).ceil.to_s + " days" : '' %>
+              </div>
+
+            </div>
+
+        <% end %>
+    <% end %>
+  </div>
+</div>
+
+
+
+<script type="text/javascript">
+    (function ($) {
+        function log(message) {
+            $("<div>").text(message).prependTo("#log");
+            $("#log").scrollTop(0);
+        }
+
+
+        function split(val) {
+            return val.split(/,\s*/);
+        }
+
+        function extractLast(term) {
+            return split(term).pop();
+        }
+
+        $.widget("custom.combobox", {
+            _create: function () {
+                this.wrapper = $("<span>")
+                        .addClass("single-custom-combobox")
+                        .insertAfter(this.element);
+
+                this.element.hide();
+                this._createAutocomplete();
+                this._createShowAllButton();
+            },
+
+            _createAutocomplete: function () {
+                var selected = this.element.children(":selected"),
+                        value = selected.val() ? selected.text() : "";
+//                console.log(selected);
+                this.input = $("<input>")
+                        .appendTo(this.wrapper)
+                        .val("<%= @rig.offset_well.present? ? @rig.offset_well.name : "" %>")
+                        .attr("title", "")
+                        .attr("placeholder", "Type offset well name...")
+                        .attr("style", "padding-right: 20px; width: 215px;")
+                        .addClass("job-field-value-editable-performance")
+                        .autocomplete({
+                            delay: 0,
+                            minLength: 0,
+                            source: $.proxy(this, "_source"),
+                            focus: function () {
+                                // prevent value inserted on focus
+                                return false;
+                            },
+                            select: function (event, ui) {
+//                                console.log(ui);
+                                this.value = ui.item.label;
+                                $('#offset_well_id').val(ui.item.value).trigger('change');
+//                                var well_id = ui.item.value;
+//                                var selected_well_item = $(".selected_well_item[data-well-id='" + well_id +"']");
+//                                var well_item = $(".well_item[data-well-id='" + well_id +"']");
+//                                selected_well_item.removeClass("hidden");
+//                                well_item.addClass("hidden");
+//                                selected_well_ids.push(well_id);
+                                return false;
+                            }
+                        })
+                        .tooltip({
+                            tooltipClass: "ui-state-highlight"
+                        });
+
+                this._on(this.input, {
+                    autocompletechange: "_removeIfInvalid"
+                });
+            },
+
+            _createShowAllButton: function () {
+                var input = this.input,
+                        wasOpen = false;
+
+                $("<a>")
+                        .attr("tabIndex", -1)
+                        .attr("title", "Show All Items")
+                        .tooltip()
+                        .appendTo(this.wrapper)
+                        .button({
+                            icons: {
+                                primary: "ui-icon-triangle-1-s"
+                            },
+                            text: false
+                        })
+                        .removeClass("ui-corner-all")
+                        .addClass("single-custom-combobox-toggle-performance ui-corner-right")
+                        .mousedown(function () {
+                            wasOpen = input.autocomplete("widget").is(":visible");
+                        })
+                        .click(function () {
+                            input.focus();
+
+                            // Close if already visible
+                            if (wasOpen) {
+                                return;
+                            }
+
+                            // Pass empty string as value to search for, displaying all results
+                            input.autocomplete("search", "");
+                        });
+            },
+
+            _source: function (request, response) {
+                var matcher = new RegExp($.ui.autocomplete.escapeRegex(extractLast(request.term)), "i");
+                response(this.element.children("option").map(function () {
+                    var text = $(this).text();
+                    if (this.value && ( !extractLast(request.term) || matcher.test(text) ))
+                        return {
+                            label: text,
+                            value: this.value,
+                            option: this
+                        };
+                }));
+            },
+
+            _removeIfInvalid: function (event, ui) {
+
+                // Selected an item, nothing to do
+                if (ui.item) {
+                    return;
+                }
+                this.input.val("");
+                this.element.val("");
+//                $('#offset_well_id').val("").trigger('change');
+                this.input.autocomplete("instance").term = "";
+            },
+
+            _destroy: function () {
+                this.wrapper.remove();
+                this.element.show();
+            }
+        });
+        $("#offset_well_combobox").combobox();
+        $("#toggle").click(function () {
+            $("#offset_well_combobox").toggle();
+        });
+    })(jQuery);
+</script>
+
+<script type="text/javascript">
+    (function ($) {
+        function log(message) {
+            $("<div>").text(message).prependTo("#log");
+            $("#log").scrollTop(0);
+        }
+
+
+        function split(val) {
+            return val.split(/,\s*/);
+        }
+
+        function extractLast(term) {
+            return split(term).pop();
+        }
+
+        $.widget("custom.combobox", {
+            _create: function () {
+                this.wrapper = $("<span>")
+                        .addClass("single-custom-combobox")
+                        .insertAfter(this.element);
+
+//                console.log("drilling program", this);
+                this.element.hide();
+                this._createAutocomplete();
+                this._createShowAllButton();
+            },
+
+            _createAutocomplete: function () {
+                var selected = this.element.children(":selected"),
+                        value = selected.val() ? selected.text() : "";
+
+                this.input = $("<input>")
+                        .appendTo(this.wrapper)
+                        .val("<%= @rig.program.present? ? @rig.program.name : "" %>")
+                        .attr("title", "")
+                        .attr("placeholder", "Type program name...")
+                        .attr("style", "padding-right: 20px; width: 215px;")
+                        .addClass("job-field-value-editable-performance")
+                        .autocomplete({
+                            delay: 0,
+                            minLength: 0,
+                            source: $.proxy(this, "_source"),
+                            focus: function () {
+                                // prevent value inserted on focus
+                                return false;
+                            },
+                            select: function (event, ui) {
+//                                console.log("====drilling program");
+                                this.value = ui.item.label;
+                                $('#drilling_program_id').val(ui.item.value).trigger('change');
+                                return false;
+                            }
+                        })
+                        .tooltip({
+                            tooltipClass: "ui-state-highlight"
+                        });
+
+                this._on(this.input, {
+                    autocompletechange: "_removeIfInvalid"
+                });
+            },
+
+            _createShowAllButton: function () {
+                var input = this.input,
+                        wasOpen = false;
+
+                $("<a>")
+                        .attr("tabIndex", -1)
+                        .attr("title", "Show All Items")
+                        .tooltip()
+                        .appendTo(this.wrapper)
+                        .button({
+                            icons: {
+                                primary: "ui-icon-triangle-1-s"
+                            },
+                            text: false
+                        })
+                        .removeClass("ui-corner-all")
+                        .addClass("single-custom-combobox-toggle-performance ui-corner-right")
+                        .mousedown(function () {
+                            wasOpen = input.autocomplete("widget").is(":visible");
+                        })
+                        .click(function () {
+                            input.focus();
+
+                            // Close if already visible
+                            if (wasOpen) {
+                                return;
+                            }
+
+                            // Pass empty string as value to search for, displaying all results
+                            input.autocomplete("search", "");
+                        });
+            },
+
+            _source: function (request, response) {
+                var matcher = new RegExp($.ui.autocomplete.escapeRegex(extractLast(request.term)), "i");
+                response(this.element.children("option").map(function () {
+                    var text = $(this).text();
+                    if (this.value && ( !extractLast(request.term) || matcher.test(text) ))
+                        return {
+                            label: text,
+                            value: this.value,
+                            option: this
+                        };
+                }));
+            },
+
+            _removeIfInvalid: function (event, ui) {
+
+                // Selected an item, nothing to do
+                if (ui.item) {
+                    return;
+                }
+                this.input.val("");
+                this.element.val("");
+            },
+
+            _destroy: function () {
+                this.wrapper.remove();
+                this.element.show();
+            }
+        });
+        $("#drilling_program_combobox").combobox();
+        $("#toggle").click(function () {
+            $("#drilling_program_combobox").toggle();
+        });
+    })(jQuery);
+</script>

@@ -1,0 +1,35 @@
+<div class="remote-tray" data-tray="rig_overview_bouncing">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading rig Bit Bouncing..." %>
+  </div>
+
+  <div class='tray-content content-loaded' style="margin: 20px 0 15px 7%; position: relative;">
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Bit Bouncing</h1>
+    </div>
+
+    <div class="menuContentBlock">
+
+      <div style="margin-top:20px;">
+        <div class="inline-block" style="width: 30%;">
+          <p class="title">Torque</p>
+          <p class="value-white" style="font-size: 30px;">1,277 <span>ft/lb</span></p>
+        </div>
+
+        <div class="inline-block" style="width: auto;">
+          <p class="title">MSE</p>
+          <p class="value-white" style="font-size: 30px;">14.5 <span>ksi</span></p>
+        </div>
+      </div>
+
+      <div style="width: 100%; margin-top: 45px;">
+        <%= image_tag "rig/bouncing_chart.png" %>
+      </div>
+
+    </div>
+
+  </div>
+</div>

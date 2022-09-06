@@ -1,0 +1,17 @@
+<div class="dropdown dropdown-styled" style="display: inline-block">
+  <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="rig_selected" data-id="-1">
+    All Rigs <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" role="menu" id="rig_list">
+    <% if @rigs.empty? then %>
+      <li role="presentation"><a href="javascript:void(0);">No rigs</a></li>
+    <% else %>
+      <li role="presentation"><a href="javascript:void(0);" data-id="-1">All Rigs</a></li>
+      <% @rigs.each do |rig| %>
+        <li role="presentation"><%= link_to rig.name, "javascript:void(0);", "data-id" => rig.id, "tabindex" => "-1" %></li>
+      <% end %>
+    <% end %>
+  </ul>
+</div>
+
+<%= render 'performance/history' %>

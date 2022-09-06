@@ -1,0 +1,475 @@
+(function ($) {
+  var chart;
+  var graph_data = [];
+  var graphs = [];
+  var tray = $(".remote-tray[data-tray='programs_operations']");
+  var category_id = 6;
+  var histogram_data = [];
+  var histogram_charts = [];
+  var percent_id = 1;
+
+  var filter_graph_data = function () {
+    graph_data = [];
+    graphs = [];
+
+    for (var key in UPDATED_PROGRAMS) {
+      var program = UPDATED_PROGRAMS[key];
+      var index = 0;
+
+      for (var k in program.wells) {
+        var well = program.wells[k];
+        var data = {};
+
+        if (!graph_data[index]) {
+          data = {
+            "sequence": index
+          };
+        } else {
+          data = graph_data[index];
+        }
+
+        data[key] = well.savings_potential;
+        data[key + '_well_name'] = well.name;
+        data[key + '_job_id'] = well.job_id;
+        data[key + '_rig_id'] = well.rig_id;
+        data[key + '_well_id'] = well.id;
+        data[key + '_rig_name'] = well.rig_name;
+        data[key + '_rop'] = well.rop;
+        data[key + '_total_cost'] = well.total_cost;
+        data[key + '_total_warnings'] = well.total_warnings;
+        data[key + '_hole_size'] = well.hole_size;
+        graph_data[index] = data;
+        index++;
+      }
+
+      graphs.push({
+        "title": program.name,
+        "balloonFunction": function (graphDataItem, graph) {
+          var rig_name = graphDataItem.dataContext[graph.valueField + '_rig_name'];
+          var well_name = graphDataItem.dataContext[graph.valueField + '_well_name'];
+          var rop = graphDataItem.dataContext[graph.valueField + '_rop'].round_to_decimal().number_with_delimiter();
+          var total_cost = parseInt(graphDataItem.dataContext[graph.valueField + '_total_cost']).number_with_delimiter();
+          var total_warnings = graphDataItem.dataContext[graph.valueField + '_total_warnings'];
+          var total_savings = (graphDataItem.values.value * 100).round_to_decimal().number_with_delimiter();
+          return "<div class='amChart_balloon'>" +
+              "<div class='block'>" +
+              "<div class='inline-block text-blue rig-name'>" +
+              rig_name +
+              "</div>" + "<div class='spacer'></div>" +
+              "<div class='inline-block text-white well-name'>" +
+              well_name +
+              "</div>" +
+              "</div>" +
+              "<div class='block stats-block-3'>" +
+              "<div class='inline-block text-lightblue' style='font-size: 13px;'><b>" +
+              total_savings +
+              "</b> <span>%</span></div>" +
+              "<div class='spacer'></div>" +
+              "<div class='inline-block text-lightblue'>$<b>" +
+              total_cost + "</b></div>" +
+              "<div class='spacer'></div>" +
+              "<div class='inline-block text-lightblue'><b>" +
+              parseFloat(rop).convert('ft', company_unit).val().round_to_decimal().with_delimiter() + "</b> " + "ft".unit(company_unit) + "/hr</div>" +
+              "<div class='spacer'></div>" +
+              "<div class='inline-block text-red'>" +
+              "<span class='text-red'>*</span> <span>" + total_warnings + "</span>" +
+              "</div>" +
+              "</div>" +
+              "</div>";
+        },
+        "lineColor": program.graph_color,
+        "lineThickness": 2,
+        "type": "smoothedLine",
+        "valueField": key,
+        "bullet": "round",
+        "bulletSize": 10
+      });
+    }
+  };
+
+  var update_chart = function () {
+    if (graph_data.length == 0) {
+      tray.find('.content-view').hide();
+      tray.find('.no-content').show();
+    } else {
+      tray.find('.content-view').show();
+      tray.find('.no-content').hide();
+      chart.dataProvider = graph_data;
+      chart.graphs = graphs;
+      chart.validateData();
+    }
+  };
+
+  var on_click_chart_bullet = function (event) {
+    UPDATE_OPERATION_TOOLTIP('programs_operations_chart', event);
+    chart.balloon.hide();
+  };
+
+  var create_chart = function () {
+    chart = AmCharts.makeChart("programs_operations_chart", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#475959",
+      "backgroundAlpha": 0,
+      "marginLeft": 30,
+      "marginBottom": 60,
+      "autoMargins": false,
+      "marginLeft": 70,
+      "marginTop": 20,
+      "balloon": {
+        "adjustBorderColor": true,
+        "color": "#000000",
+        "cornerRadius": 5,
+        "fillColor": "#323a3a",
+        "borderThickness": 0,
+        "horizontalPadding": 0,
+        "cornerRadius": 0,
+        "verticalPadding": 0,
+        "borderAlpha": 0,
+        "fillAlpha": 0.8,
+        "maxWidth": 266,
+        "fadeOutDuration": 0
+      },
+      "legend": {
+        "align": "right",
+        "position": "bottom",
+        "markerType": "circle",
+        "markerSize": 8,
+        "equalWidths": false,
+        "fontSize": 11,
+        "periodValueText": "",
+        "valueAlign": "left",
+        "valueWidth": 100,
+        "valueText": "",
+        "color": "#fefefe"
+      },
+      "dataProvider": graph_data,
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "left",
+          "reversed": false,
+          "title": "Savings Potential(%)",
+          "gridAlpha": 0,
+          "color": "#fefefe",
+          "titleColor": "#fefefe",
+          "guides": [
+            {
+              "fillAlpha": 0.8,
+              "fillColor": "#455657",
+              "inside": true,
+              "lineAlpha": 0,
+              "toValue": 40000,
+              "value": 0
+            }
+          ],
+          "labelFunction": function (value, valueText, valueAxis) {
+            return Math.round(value * 100).toString();
+          }
+        }
+      ],
+      "graphs": graphs,
+      "chartCursor": {
+        "cursorAlpha": 0,
+        "categoryBalloonEnabled": false,
+        "oneBalloonOnly": true
+      },
+      "categoryField": "year",
+      "categoryAxis": {
+        "parseDates": false,
+        "minorGridAlpha": 0,
+        "minorGridEnabled": true,
+        "title": "Sequence",
+        "color": "#fefefe",
+        "titleColor": "#fefefe",
+        "axisColor": "#fefefe",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "gridColor": "#fefefe",
+        "labelsEnabled": false
+      },
+      "fontFamily": "orgonlightregular",
+      "fontSize": 13
+    });
+
+    chart.addListener("rollOutGraphItem", function (event) {
+      $('.operation_tooltip_container').hide();
+    });
+
+    chart.addListener("clickGraphItem", on_click_chart_bullet);
+  };
+
+  var create_histogram_chart = function (program_id, histogram) {
+    var histogram_chart = AmCharts.makeChart("programs_operation_chart_" + program_id, {
+      "type": "serial",
+      "theme": "none",
+      "dataProvider": extend_histogram_data(histogram),
+      "pathToImages": "http://cdn.amcharts.com/lib/3/images/",
+      "valueAxes": [
+        {
+          "gridColor": "#FFFFFF",
+          "gridAlpha": 0,
+          "dashLength": 0,
+          "axisAlpha": 0,
+          "labelsEnabled": false
+        }
+      ],
+      "gridAboveGraphs": true,
+      "startDuration": 1,
+      "graphs": [
+        {
+          "title": "Operation Count",
+          "balloonText": "[[op_time]]: <b>[[op_count]]</b>",
+          "fillAlphas": 0.8,
+          "lineAlpha": 0.2,
+          "type": "column",
+          "valueField": "op_count",
+          "fillColors": "#58c9c2"
+        }
+      ],
+      "chartCursor": {
+        "categoryBalloonEnabled": false,
+        "cursorAlpha": 0,
+        "zoomable": false
+      },
+      "chartScrollbar": {
+        "autoGridCount": true,
+        "graph": "histogram",
+        "scrollbarHeight": 20,
+        "backgroundAlpha": 0.2,
+        "selectedBackgroundAlpha": 0.7,
+        "selectedBackgroundColor": "#354849"
+      },
+      "mouseWheelZoomEnabled": false,
+      "categoryField": "op_time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "gridAlpha": 0,
+        "tickPosition": "middle",
+        "tickLength": 10,
+        "color": "#fefefe",
+        "axisColor": "#fefefe",
+        "guides": [
+          {
+            category: histogram_percent(histogram['ten_per']),
+            lineColor: "#00FF00",
+            lineAlpha: 1,
+            dashLength: 1,
+            lineThickness: 2,
+            inside: true,
+            position: "top",
+            labelRotation: 0,
+            label: "10%"
+          },
+          {
+            category: histogram_percent(histogram['fifty_per']),
+            lineColor: "#FFFF00",
+            lineAlpha: 1,
+            dashLength: 1,
+            lineThickness: 2,
+            inside: true,
+            position: "top",
+            labelRotation: 0,
+            label: "50%"
+          },
+          {
+            category: histogram_percent(histogram['ninety_per']),
+            lineColor: "#FF0000",
+            lineAlpha: 1,
+            dashLength: 1,
+            lineThickness: 2,
+            inside: true,
+            position: "top",
+            labelRotation: 0,
+            label: "90%"
+          }
+        ]
+      },
+      "panEventsEnabled": false
+    });
+    histogram_chart.zoomToIndexes(0, parseInt(histogram_percent(histogram['fifty_per']) / 0.25) + 1);
+    histogram_charts.push(histogram_chart);
+  };
+
+  var update_histogram = function () {
+    tray.find('.histogram-view').html('');
+    histogram_charts = [];
+    for (var key in histogram_data) {
+      if (!histogram_data[key]) { continue; }
+      var histogram = histogram_data[key][category_id];
+      var program = PROGRAMS[key];
+      tray.find('.histogram-view').append('<div class="block">' +
+          '<div class="divider divider-lg"></div>' +
+          '<div class="block">' +
+          '<div style="width: 10px; height:27px; background: ' + program.graph_color + ';display: inline-block;line-height: 30px;"></div>' +
+          '<div style="vertical-align: top; line-height: 27px; height:27px; margin-left: 10px; display: inline-block; color: #fefefe; font-size: 22px;">' +
+          program.name +
+          '</div>' +
+          '</div>' +
+          '<div class="divider"></div>' +
+          '<div class="block">' +
+          '<div class="inline-block amChart" id="programs_operation_chart_' + key + '" style="width: 45%; height: 230px; font-size: 11px; background-color:#536364;">' +
+          '</div>' +
+          '<div class="space space-lg"></div>' +
+          '<div class="inline-block" style="vertical-align: top; width: 45%;">' +
+          '<table class="table-kpi">' +
+          '<tr>' +
+          '<td class="key">Average</td>' +
+          '<td class="value">' + (histogram['avg_time'] / 60).round_to_decimal(2).number_with_delimiter() + ' <span>min</span></td>' +
+          '</tr>' +
+          '<tr>' +
+          '<td class="key">10%</td>' +
+          '<td class="value">' + (histogram['ten_per'] / 60.0).round_to_decimal(2).number_with_delimiter() + ' <span>min</span></td>' +
+          '</tr>' +
+          '<tr>' +
+          '<td class="key">50%</td>' +
+          '<td class="value">' + (histogram['fifty_per'] / 60.0).round_to_decimal(2).number_with_delimiter() + ' <span>min</span></td>' +
+          '</tr>' +
+          '<tr>' +
+          '<td class="key">90%</td>' +
+          '<td class="value">' + (histogram['ninety_per'] / 60.0).round_to_decimal(2).number_with_delimiter() + ' <span>min</span></td>' +
+          '</tr>' +
+          '<tr style="height: 25px;"></tr>' +
+          '<tr>' +
+          '<td class="key">Benchmark</td>' +
+          '<td class="value">' + (histogram['benchmark'] / 60).round_to_decimal(2).number_with_delimiter() + ' <span>min</span></td>' +
+          '</tr>' +
+          '<tr>' +
+          '<td class="key">Potential Savings</td>' +
+          '<td class="value color-green">' +
+          parseFloat(histogram['saving']).round_to_decimal(2).number_with_delimiter() + ' days' +
+          ' (' + histogram['potential_saving'].round_to_decimal(2).with_delimiter() + '%)' +
+          '</td>' +
+          '</tr>' +
+          '</table>' +
+          '</div>' +
+          '</div>' +
+          '</div>');
+      create_histogram_chart(key, histogram);
+    }
+  };
+
+  var read_histogram = function (program_id, history_id) {
+    tray.find('.histogram-remote-loading').removeClass('hidden');
+    tray.find('.histogram-container').addClass('hidden');
+
+    $.ajax({
+      url: "<%= get_histogram_performance_programs_path %>?program_id=" + program_id + "&history_id=" + history_id,
+      type: "GET",
+      dataType: "json"
+    }).then(function (data) {
+      tray.find('.histogram-remote-loading').addClass('hidden');
+      tray.find('.histogram-container').removeClass('hidden');
+      histogram_data = data;
+      update_histogram();
+      update_percent();
+    }, function (err) {
+      console.log(err);
+    });
+  };
+
+  var update_percent = function() {
+    var operation_graph_data = [];
+    var attr = ['ten_per', 'fifty_per', 'ninety_per'];
+    for (var key in histogram_data) {
+      if (!histogram_data[key]) { continue; }
+      var histogram = histogram_data[key][category_id];
+      var program = PROGRAMS[key];
+      operation_graph_data.push({
+        program: program.name,
+        value: (histogram[attr[percent_id]] / 60).round_to_decimal(2)
+      });
+    }
+    $('#operation_percent_chart').css("height" , (operation_graph_data.length * 30 + 60));
+    AmCharts.makeChart("operation_percent_chart", {
+      "type": "serial",
+      "theme": "none",
+      "dataProvider": operation_graph_data,
+      "valueAxes": [
+        {
+          "stackType": "regular",
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "labelsEnabled": false
+        }
+      ],
+      "graphs": [
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "value",
+          "lineColor": "#22CAFF",
+          "fixedColumnWidth": 25,
+          "balloonText": "<b>[[value]]</b> minutes"
+        }
+      ],
+      "rotate": true,
+      "categoryField": "program",
+      "categoryAxis": {
+        "title": "",
+        "titleColor": "#fefefe",
+        "gridPosition": "start",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "position": "left",
+        "fontSize": 15,
+        "color": "#fefefe"
+      },
+      "fontFamily": "orgonlightregular"
+    });
+  };
+
+  var init = function () {
+    // click event on programs list
+    $('#program_list li a').on('click', function () {
+      filter_graph_data();
+      update_chart();
+      read_histogram(PROGRAM_ID, PROGRAM_HISTORY);
+    });
+
+    // click event on history list
+    $('#history_list li a').on('click', function () {
+      filter_graph_data();
+      update_chart();
+      read_histogram(PROGRAM_ID, PROGRAM_HISTORY);
+    });
+
+    $('.btn-sub-wits-category').on('click', function() {
+      category_id = $(this).data('category-id');
+      update_histogram();
+      $('.btn-sub-wits-category').removeClass('active');
+      $(this).addClass('active');
+    });
+
+    $('#operation_percent_list li a').on('click', function () {
+      $('#operation_percent_selected').html($(this).html() + ' <span class="caret"></span>');
+      $('#operation_percent_selected').data('id', $(this).attr('data-id'));
+      percent_id = parseInt($(this).attr('data-id'));
+      update_percent();
+    });
+
+    $(".remote-tray-toggle[data-tray='programs_operations']").on('click', function () {
+      setTimeout(function () {
+        chart.validateNow();
+        histogram_charts.forEach(function(histogram_chart) {
+          histogram_chart.validateData();
+          histogram_chart.validateNow();
+        });
+      }, 0);
+    });
+
+    read_histogram(PROGRAM_ID, PROGRAM_HISTORY);
+    filter_graph_data();
+    create_chart();
+
+    // set active tab
+    $('.btn-programs-perf').removeClass('active');
+    $('.remote-tray-toggle[data-tray="programs_operations"] .btn-programs-perf').addClass('active');
+  };
+
+  init();
+}(jQuery));

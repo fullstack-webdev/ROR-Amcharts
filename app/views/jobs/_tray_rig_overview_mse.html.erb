@@ -1,0 +1,282 @@
+<div class="remote-tray" data-tray="rig_overview_mse">
+
+  <div class='tray-content content-loaded' style="position: relative;">
+
+    <div class="dv-spinner" id="dv_mse_spinner">
+
+      <%= render 'jobs/inline_spinner' %>
+
+    </div>
+
+    <div class="dv-sub-container" style="display: none;">
+
+      <div class="drill-view-chart" style="width: 20%; min-height: 100px;">
+        <div class="label-top">Rock Hardness
+          <div class="arrow-down"></div>
+        </div>
+        <div id="chart_formation_rock_hardness" class="amChart block chart-view"></div>
+        <div class="label-bottom" id="dv_formation_rock_hardness_axis">
+          <span class="left">8k</span><span class="right">12k</span></div>
+      </div>
+      <div class="drill-view-chart" style="width: 20%; padding-left: 2px; min-height: 100px;">
+        <div class="label-top">Gamma
+          <div class="arrow-down"></div>
+        </div>
+        <div id="chart_formation_gamma" class="amChart block chart-view"></div>
+        <div class="label-bottom" id="dv_formation_gamma_axis">
+          <span class="left">8k</span><span class="right">12k</span></div>
+      </div>
+
+      <div class="drill-view-port" style="width: 60%;" id="dv_formation">
+
+        <div class="section-header" style="margin-top: 15px;">
+          <h1>Formation</h1>
+        </div>
+
+        <div class="menuContentBlock">
+
+          <div class="offline-box" id="dv_mse_offline_box" style="display: none;">
+            <h5>System offline</h5>
+
+            <ul class="abnormal-list">
+              <li>
+                <p class="inline-block">Specify correct configurations</p>
+                <a href="#"
+                   class="show-tray inline-block" data-tray="configurations"
+                   style="cursor:hand; text-decoration: underline; padding: 0px; line-height: 10px; margin: 0px; margin-left: 15px;"
+                   style="color: #ffffff;">More details</a>
+
+              </li>
+            </ul>
+          </div>
+
+          <div class="block">
+            <div class="inline-block" style="width: 50%;vertical-align: top;">
+              <div>
+                <p class="title" id="dv_formation_rock_hardness_label">Rock Hardness</p>
+
+                <p class="value-white" style="font-size: 30px;" id="dv_formation_rock_hardness"></p>
+              </div>
+            </div>
+
+            <div class="inline-block" style="width: auto;">
+              <div>
+                <p class="title" id="dv_formation_gamma_label">Gamma</p>
+
+                <p class="value-white" style="font-size: 30px;" id="dv_formation_gamma"></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  (function ($) {
+
+    DV_CURRENT_TAB = DV_TAB_FORMATION;
+
+    function tune_dv_formation() {
+
+      var drillviewHeight = jQuery('#dv_formation').height();
+      var innerHeight = Math.max($(window).innerHeight() - 186, drillviewHeight);
+      var viewHeight = Math.max(innerHeight, DV_MENU_HEIGHT - 44);
+      $('.drillview').css({ "height": viewHeight });
+      $('#vertical-slider').css({ "height": viewHeight - 20 });
+      $('#depth-row').css({ "height": viewHeight });
+      $('#activity-row').css({ "height": viewHeight });
+      $('.menuBlock').css({ "height": viewHeight + 44 });
+      $('#chart_formation_rock_hardness').css({ "height": viewHeight });
+      $('#chart_formation_gamma').css({ "height": viewHeight });
+      $('#dv_warnings').css({ "height": viewHeight - 20 });
+      $('#dv_mse_spinner').css({ "padding-top": viewHeight / 2 - 20 });
+      $('#dv_mse_spinner').css({ "height": viewHeight });
+
+      DV_CHARTS['formation_rock_hardness'].validateNow();
+      DV_CHARTS['formation_gamma'].validateNow();
+
+      update_chart_cursor_point('dv_formation');
+
+    }
+
+    $(".remote-tray-toggle[data-tray='rig_overview_mse']").click(function () {
+      DV_CURRENT_TAB = DV_TAB_FORMATION;
+
+      $('.dv-spinner').show();
+      $('.dv-sub-container').hide();
+
+      $('#depth-row-wide').hide();
+      $('#depth-row').html("");
+      $('#depth-row').show();
+      $('#activity-row').html("");
+      $('#activity-row').show();
+
+      setTimeout(function () {
+        tune_dv_formation();
+        $slider = $('.slider');
+        $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+      }, 0);
+    });
+
+    // Tune view port height and etc..
+    $(window).resize(tune_dv_formation);
+
+    // Create chart
+    DV_CHARTS['formation_rock_hardness'] = AmCharts.makeChart("chart_formation_rock_hardness", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#2a2e2e",
+      "backgroundAlpha": 0,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "formation_rock_hardness_axis",
+          "autoGridCount": false,
+//          "minimum": 0,
+//          "maximum": 15000
+        }
+      ],
+      "graphs": [
+        {
+          "lineColor": "#ffffff",
+          "lineThickness": 3,
+          "type": "smoothedLine",
+          "valueField": "rock_hardness"
+        }
+      ],
+      "chartCursor": {
+        "zoomable": false,
+        "enabled": true,
+        "selectWithoutZooming": true,
+        "valueLineEnabled": false,
+        "valueLineBalloonEnabled": false,
+        "valueBalloonsEnabled": false,
+        "categoryBalloonEnabled": false
+      },
+      "categoryField": "time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "startOnAxis": true,
+        "labelsEnabled": false,
+        "parseDates": false,
+        "minorGridAlpha": 0.3,
+        "tickLength": 0,
+        "minorGridEnabled": true,
+        "position": "left",
+        "color": "#2a2e2e",
+        "axisColor": "#fefefe",
+        "axisAlpha": 1,
+        "gridAlpha": 1,
+        "gridColor": "#373b3b",
+        "inside": true,
+        "labelOffset": -3,
+        "fontSize": 10
+      }
+    });
+
+    DV_CHARTS['formation_gamma'] = AmCharts.makeChart("chart_formation_gamma", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#2a2e2e",
+      "backgroundAlpha": 0,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "formation_gamma_axis",
+          "autoGridCount": false,
+        }
+      ],
+      "graphs": [
+        {
+          "lineColor": "#ffffff",
+          "lineThickness": 3,
+          "type": "smoothedLine",
+          "valueField": "gamma"
+        }
+      ],
+      "chartCursor": {
+        "zoomable": false,
+        "enabled": true,
+        "selectWithoutZooming": true,
+        "valueLineEnabled": false,
+        "valueLineBalloonEnabled": false,
+        "valueBalloonsEnabled": false,
+        "categoryBalloonEnabled": false
+      },
+      "categoryField": "time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "startOnAxis": true,
+        "labelsEnabled": false,
+        "parseDates": false,
+        "minorGridAlpha": 0.3,
+        "tickLength": 0,
+        "minorGridEnabled": true,
+        "position": "left",
+        "color": "#2a2e2e",
+        "axisColor": "#fefefe",
+        "axisAlpha": 1,
+        "gridAlpha": 1,
+        "gridColor": "#373b3b",
+        "inside": true,
+        "labelOffset": -3,
+        "fontSize": 10
+      }
+    });
+
+    DV_CHARTS['formation_rock_hardness'].addListener("changed", handleChanged);
+    DV_CHARTS['formation_gamma'].addListener("changed", handleChanged);
+
+    var myCursor;
+
+    $('#chart_formation_rock_hardness, #chart_formation_gamma').click(function () {
+      DV_CURSOR_POS = myCursor;
+      update_chart_cursor('dv_formation');
+    });
+
+    $('#chart_formation_rock_hardness, #chart_formation_gamma').mouseleave(function () {
+      update_dv_formation(DV_CURSOR_POS);
+    });
+
+    function handleChanged(event) {
+      myCursor = event.index;
+      update_dv_formation(event.index);
+    }
+
+    tune_dv_formation();
+    $('#dv_formation').show();
+    $slider = $('.slider');
+    $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+
+  }(jQuery));
+</script>

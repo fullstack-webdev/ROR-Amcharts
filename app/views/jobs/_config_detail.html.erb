@@ -1,0 +1,23 @@
+<div class="modal-popup modal-popup-fixed" style="overflow: hidden; height: 500px; width: 90%; padding: 0; border-radius: 0; margin-top: 90px; max-width: 1025px; box-sizing: border-box; z-index: 1032;">
+  <div style="padding: 24px; background: #435f60;">
+    <h2 style="font-size: 20px;
+            font-family: orgonlightregular;
+            color: #ffffff;
+            text-align: left;
+            padding: 0;
+            margin: 0;"><%= title %></h2>
+    <a href="#" class="modal-popup-close" id="close_config_detail_popup" style="right: 24px;
+            font-size: 20px;
+            margin-top: 24px;
+            position: absolute;
+            top: 0;
+            float: right;"><i class="fa fa-times"></i></a>
+  </div>
+
+  <div class="modal-content" style="width: 100%; height: calc(100% - 68px); padding-bottom: 30px; box-sizing: border-box; position: relative;">
+    <div style="padding-left: 20px; padding-left: 20px; padding-top: 30px;">
+      <%= render 'jobs/tray_configurations_hole_drill_string', show_header: false, depth: @depth %>
+    </div>
+  </div>
+</div>
+<div style="position: fixed; margin-top: 55px; width: 100%; height: 100vh; z-index: 1031; left: 0; top: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0.6;"></div>

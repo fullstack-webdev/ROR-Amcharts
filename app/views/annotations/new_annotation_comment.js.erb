@@ -1,0 +1,7 @@
+$('#annotation_comment').val('');
+$('#annotation_comments').empty();
+<% comment_count = @annotation.annotation_comments.count %>
+<% @annotation.annotation_comments.each_with_index do |comment, index| %>
+    $('#annotation_comments').append('<%= j render 'annotations/annotation_comment', comment: comment, last: index < comment_count - 1 %>');
+<% end %>
+$("#config_detail_popup .comments-list").perfectScrollbar('update');

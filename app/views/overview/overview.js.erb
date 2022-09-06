@@ -1,0 +1,26 @@
+$('#overview_loading').addClass('hidden');
+$('#overview_trays').show();
+
+<% if params[:section] == "company" %>
+    $('#overview_company').replaceWith('<%= j render 'overview/tray_company' %>');
+<% elsif params[:section] == "company_failures" %>
+    $('#company_failures').replaceWith('<%= j render 'overview/company_failures' %>');
+<% elsif params[:section] == "rigs" %>
+    $('#overview_rigs').replaceWith('<%= j render 'overview/tray_rigs' %>');
+<% elsif params[:section] == "drilling" %>
+    $('#overview_drilling').replaceWith('<%= j render 'overview/tray_drilling' %>');
+<% elsif params[:section] == "failures" %>
+    $('#overview_failures').replaceWith('<%= j render 'overview/tray_failures' %>');
+<% elsif params[:section] == "insight" %>
+    $('#overview_insight').replaceWith('<%= j render 'overview/tray_insight' %>');
+<% elsif params[:section] == "jobs" %>
+    $('#overview_jobs').replaceWith('<%= j render 'overview/tray_jobs' %>');
+<% elsif params[:section] == "overview_npt" %>
+    $('#overview_npt').replaceWith('<%= j render 'overview/tray_overview_npt' %>');
+<% end %>
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.tooltip-info').tooltip();
+}
+
+$('.custom-select-ajax').customSelect();

@@ -1,0 +1,50 @@
+<div class="page_header">
+  <h1>Create New Job</h1>
+
+  <h3>Rig Skid</h3>
+
+  <p>Transfer All assets, information, and people to new job.</p>
+</div>
+
+<% @old_job = Job.find_by_id(params[:job]) %>
+
+<div class="form" data-form="rig_skid">
+  <%= form_for @job do |f| %>
+
+
+      <% if @old_job.present? %>
+        <p class='inline-block help-text'>Field</p>
+        <b class='blue-text push-right-small'><%= @old_job.field.name %></b>
+          <br>
+      <% end %>
+
+      <div class="push-down">
+        <%= hidden_field_tag "old_job", "", name: "old_job", value: @old_job.id %>
+
+        <%= text_field_tag "well_name", "", placeholder: "Well Name",
+                           id: "well_name_id",
+                           class: "txtfield tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Well Name" %>
+      </div>
+
+      <div class="alert-box alert alert-warning hidden">
+        <b>Warning!</b> Wells that already exist
+        <br><br>
+
+        <div id="similar_well"></div>
+      </div>
+
+      <div class="content">
+        <%= f.submit "Create Job",
+                     class: "bluebtn pull-right form-loading-on-click",
+                     "data-form" => "rig_skid" %>
+
+      </div>
+
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="rig_skid">
+  <%= render 'layouts/inline_loading', title: "Creating New Job..." %>
+</div>

@@ -1,0 +1,15 @@
+<div style="height: 50px;
+    position: fixed;
+    width: 100%;
+    background-color: #2c3e3d;
+    z-index: 10002;">
+  <span class="page-title"><%= yield :page_title %></span>
+
+  <button id="nav-icon" class="lines-button x" type="button" role="button" aria-label="Toggle Navigation" style="position: absolute; top: 0; left: 0;">
+    <span class="lines"></span>
+  </button>
+
+  <%= link_to image_tag('corva-icon.png'), root_path, class: 'pull-right icon-mobile' %>
+</div>
+
+<%= render 'navmenu' %>

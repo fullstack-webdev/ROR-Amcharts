@@ -1,0 +1,241 @@
+<div class="block">
+  <div class="inline-block">
+    <p class='job-field-title'>Well Name</p>
+
+    <div class='job-field-div'>
+      <%= text_field_tag "well_name", "", value: well.name,
+                         placeholder: "Well Name",
+                         class: "well-update-field job-field-value-editable tooltip-info align-top",
+                         "data-id" => well.id.to_s,
+                         "data-field" => "name",
+                         "data-placement" => "bottom",
+                         "data-title" => "Well name" %>
+    </div>
+  </div>
+
+  <div class="inline-block align-top">
+    <p class='job-field-title'>Rig</p>
+    <%= hidden_field_tag "rig_id", well.rig.id, class: "well-update-field", "data-id" => well.id.to_s, "data-field" => "rig_id" %>
+
+    <div class="inline-block align-top">
+      <select id="rig_combobox">
+        <option value="">Select one...</option>
+        <% well.company.rigs.each do |well| %>
+          <option value="<%= well.id %>"><%= well.name %></option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="block">
+  <div class="inline-block">
+    <p class='job-field-title inline-block'>Drilling Program</p>
+
+    <div class='job-field-div'>
+      <%= hidden_field_tag "program_ids", well.programs.empty? ? '' : well.programs.map { |x| x.id.to_s }.join(','), class: "well-update-field", "data-id" => well.id.to_s, "data-field" => "program_ids" %>
+
+      <div class="inline-block align-top">
+        <select id="program_combobox">
+          <option value="">Select one...</option>
+          <% @programs.each do |program| %>
+            <option value="<%= program.id %>"><%= program.name %></option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="inline-block align-top">
+    <p class='job-field-title'>Offset Well</p>
+
+    <%= hidden_field_tag "offset_well_id", well.offset_well_id, class: "well-update-field", "data-id" => well.id.to_s, "data-field" => "offset_well_id" %>
+
+    <div class="inline-block align-top">
+      <select id="offset_well_combobox">
+        <option value="">Select one...</option>
+        <% well.company.wells.each do |well| %>
+          <option value="<%= well.id %>"><%= well.name %></option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div style="border-top: 1px solid #596a67; margin-top:45px;margin-bottom:55px;"></div>
+
+<div class="block">
+  <div class="inline-block">
+    <p class='job-field-title inline-block'>Field</p>
+
+    <div class='job-field-div'>
+      <%= hidden_field_tag "field_id", well.field_id, class: "well-update-field", "data-id" => well.id.to_s, "data-field" => "field_id" %>
+
+      <div class="inline-block align-top">
+        <select id="field_combobox">
+          <option value="">Select one...</option>
+          <% well.company.fields.each do |field| %>
+            <option value="<%= field.id %>"><%= field.name %></option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <p class='job-field-title'>County</p>
+
+    <div class='job-field-div'>
+      <%= text_field_tag "county", "", value: well.county,
+                         placeholder: "County",
+                         class: "well-update-field job-field-value-editable tooltip-info align-top ",
+                         "data-id" => well.id.to_s,
+                         "data-field" => "county",
+                         "data-placement" => "bottom",
+                         "data-title" => "Well bottom hole location in 'latitude, longitude' format separated by comma" %>
+    </div>
+  </div>
+</div>
+
+<div class="block">
+  <div class="inline-block">
+    <p class='job-field-title'>Drilling Co.</p>
+
+    <div class='job-field-div'>
+      <%= text_field_tag "drilling_company", "", value: well.drilling_company,
+                         placeholder: "Drilling Company",
+                         class: "well-update-field job-field-value-editable tooltip-info align-top",
+                         "data-id" => well.id.to_s,
+                         "data-field" => "drilling_company",
+                         "data-placement" => "bottom",
+                         "data-title" => "Well surface location in 'latitude, longitude' format separated by comma" %>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <p class='job-field-title'>Fluid Co.</p>
+
+    <div class='job-field-div'>
+      <%= text_field_tag "fluid_company", "", value: well.fluid_company,
+                         placeholder: "Fluid Company",
+                         class: "well-update-field job-field-value-editable tooltip-info align-top ",
+                         "data-id" => well.id.to_s,
+                         "data-field" => "fluid_company",
+                         "data-placement" => "bottom",
+                         "data-title" => "Well bottom hole location in 'latitude, longitude' format separated by comma" %>
+    </div>
+  </div>
+</div>
+
+<div class="push-down">
+  <div class="inline-block">
+    <p class='job-field-title'>Surface Location</p>
+
+    <div class='job-field-div'>
+      <%= text_field_tag "", "", value: well.location,
+                         placeholder: "Surface Latitude, Longitude",
+                         class: "well-update-field job-field-value-editable tooltip-info map-latlong-text-entry align-top",
+                         "data-id" => well.id.to_s,
+                         "data-field" => "location",
+                         "data-placement" => "bottom",
+                         "data-title" => "Well surface location in 'latitude, longitude' format separated by comma" %>
+    </div>
+  </div>
+
+
+  <div class='inline-block'>
+    <p class='job-field-title'>Bottom Location</p>
+
+    <div class='job-field-div'>
+      <%= text_field_tag "", "", value: well.bottom_hole_location,
+                         placeholder: "Bottom Hole Latitude, Longitude",
+                         class: "well-update-field job-field-value-editable tooltip-info map-latlong-text-entry align-top ",
+                         "data-id" => well.id.to_s,
+                         "data-field" => "bottom_hole_location",
+                         "data-placement" => "bottom",
+                         "data-title" => "Well bottom hole location in 'latitude, longitude' format separated by comma" %>
+    </div>
+  </div>
+</div>
+
+<div class="push-down">
+  <div class="inline-block">
+    <p class='job-field-title'>Well Number</p>
+
+    <div class='job-field-div'>
+      <%= text_field_tag "well_number", "", value: well.well_number,
+                         placeholder: "Well Number",
+                         class: "well-update-field job-field-value-editable tooltip-info align-top",
+                         "data-id" => well.id.to_s,
+                         "data-field" => "well_number",
+                         "data-placement" => "bottom",
+                         "data-title" => "Well surface location in 'latitude, longitude' format separated by comma" %>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <p class='job-field-title'>API Number</p>
+
+    <div class='job-field-div'>
+      <%= text_field_tag "api_number", "", value: well.api_number,
+                         placeholder: "API Number",
+                         class: "well-update-field job-field-value-editable tooltip-info align-top ",
+                         "data-id" => well.id.to_s,
+                         "data-field" => "api_number",
+                         "data-placement" => "bottom",
+                         "data-title" => "Well bottom hole location in 'latitude, longitude' format separated by comma" %>
+    </div>
+  </div>
+</div>
+
+
+
+<script type="text/javascript">
+  (function ($) {
+    $("#program_combobox").autocompletecombo({
+      defaultValue: "<%= well.programs.empty? ? '' : well.programs.map { |x| x.name.to_s }.join(',') %>",
+      placeholder: "Type program name...",
+      select: function (event, data) {
+        $('#program_ids').val(data.item.value).trigger('change');
+      },
+      remove: function (event, data) {
+        $('#program_ids').val(data.ids.join(',')).trigger('change');
+      },
+      multiple: true
+    });
+
+
+    $("#offset_well_combobox").autocompletecombo({
+      defaultValue: "<%= well.offset_well.nil? ? '' : well.offset_well.name.html_safe %>",
+      placeholder: "Type offset well name...",
+      select: function (event, data) {
+        $('#offset_well_id').val(data.item.value).trigger('change');
+      },
+      remove: function (event, data) {
+        $('#offset_well_id').val("").trigger('change');
+      }
+    });
+
+    $("#rig_combobox").autocompletecombo({
+      defaultValue: "<%= well.rig.nil? ? '' : well.rig.name.html_safe %>",
+      placeholder: "Type rig name...",
+      select: function (event, data) {
+        $('#rig_id').val(data.item.value).trigger('change');
+      },
+      remove: function (event, data) {
+        $('#rig_id').val("").trigger('change');
+      }
+    });
+
+    $("#field_combobox").autocompletecombo({
+      defaultValue: "<%= well.field.nil? ? '' : well.field.name.html_safe %>",
+      placeholder: "Type field name...",
+      select: function (event, data) {
+        $('#field_id').val(data.item.value).trigger('change');
+      },
+      remove: function (event, data) {
+        $('#field_id').val("").trigger('change');
+      }
+    });
+  })(jQuery);
+</script>

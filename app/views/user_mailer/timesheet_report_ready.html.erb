@@ -1,0 +1,25 @@
+<html>
+<link rel="stylesheet" type="text/css" href="/app/assets/stylesheets/application.css.scss"/>
+<body class="email-body" style="width:850px;">
+
+<h1>Timesheets</h1>
+
+<p class="center">
+  <b class='orange-text'><%= @start_date.strftime("%A %B %d") %>
+    - <%= (@start_date + 13.days).strftime("%A %B %d") %></b>
+</p>
+<hr>
+
+<% start_date = @start_date %>
+
+<p>Timesheets have been submitted, please review and correct.</p>
+
+<% if Rails.env.production? %>
+    <br>
+
+    <div class="center"><%= image_tag "corva-logo.png" %></div>
+    <br>
+<% end %>
+
+</body>
+</html>

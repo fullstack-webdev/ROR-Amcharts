@@ -1,0 +1,102 @@
+<div id="bha" class="">
+  <div class="bha-content" id="bha_<%= bha.id %>">
+
+    <div class="page_header">
+      <h1><%= bha.name %> - <%= bha.description %></h1>
+
+      <% if signed_in? %>
+          <div class="btn-group inline pull-right">
+            <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+              Assembly Actions
+            </a>
+            <ul class="dropdown-menu">
+
+              <li>
+                <%= link_to "Edit", edit_bha_path(bha), class: "dropdown-menu-link" %>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <%= link_to "Clone", new_bha_path(clone: true, bha: bha), class: "dropdown-menu-link" %>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <%= link_to "Delete Assembly", bha, method: :delete,
+                            data: {confirm: "Delete Assembly?"},
+                            class: "dropdown-menu-link tooltip-info",
+                            "data-placement" => "left",
+                            "data-title" => "Delete assembly?" %>
+              </li>
+            </ul>
+          </div>
+      <% end %>
+    </div>
+
+    <div class='push-down'>
+      <%= render 'drilling_logs/bha', bha: bha, drilling_log: DrillingLog.includes(job: :well).where("wells.id = ?", bha.job.well.id).first %>
+    </div>
+
+    <br>
+
+    <div class='push-down'>
+      <ul class="nav nav-tabs">
+        <li class='active'>
+          <a href="#" data-toggle="tab" data-tabsection="drill-string" class='tab blue-text'><b>Drill String</b></a></li>
+        <li><a href="#" data-toggle="tab" data-tabsection="tool-string" class='tab blue-text'><b>MWD Tool String</b></a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="">
+      <p class="list-item-column list-item-column3 help-text">
+        <span class='push-right-small'>Tool</span>
+      </p>
+
+      <p class="list-item-column2 list-item-column-short  help-text">
+        ID <span class='help-text'>(in)</span>
+      </p>
+
+      <p class="list-item-column2 list-item-column-short  help-text">
+        OD <span class='help-text'>(in)</span>
+      </p>
+
+      <p class="list-item-column2 list-item-column-short  help-text">
+        Length <span class='help-text'>(in)</span>
+      </p>
+
+      <p class="list-item-column2 list-item-column-short  help-text">
+        Total <span class='help-text'>(in)</span>
+      </p>
+
+      <p class="list-item-column2 list-item-column-count  help-text tooltip-info"
+         data-title="Upward/Downward Connection">
+        <i class="icon-arrow-up"></i>
+        &nbsp;/&nbsp;
+        <i class="icon-arrow-down"></i>
+      </p>
+
+
+    </div>
+
+
+    <div class='tab-content' data-tabsection='drill-string'>
+      <%= render 'bhas/bha_tally_items', bha: bha, editable: true %>
+    </div>
+    <div class='tab-content hidden' data-tabsection='tool-string'>
+      <%= render 'bhas/bha_tally_items', bha: bha.tool_string, master_bha: bha, editable: true %>
+    </div>
+
+  </div>
+
+  <div id="bha_loader" class="push-down center hidden inline">
+    <br>
+
+    <div class="">
+      <span class="ajax-loading search-loading"><b>Loading..</b></span>
+    </div>
+
+    <br>
+    <br>
+  </div>
+
+
+</div>

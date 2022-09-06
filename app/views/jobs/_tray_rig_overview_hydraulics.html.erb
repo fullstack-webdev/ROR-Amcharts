@@ -1,0 +1,35 @@
+<div class="remote-tray" data-tray="rig_overview_hydraulics">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading rig Hydraulics..." %>
+  </div>
+
+  <div class='tray-content content-loaded' style="margin: 20px 0 15px 7%; position: relative;">
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Hydraulics</h1>
+    </div>
+
+    <div class="menuContentBlock">
+
+      <div style="margin-top:20px;">
+        <div class="inline-block" style="width: 30%;">
+          <p class="title">Pump Pressure</p>
+          <p class="value-white" style="font-size: 30px;">1,803</p>
+        </div>
+
+        <div class="inline-block" style="width: auto;">
+          <p class="title">Total Strokes</p>
+          <p class="value-white" style="font-size: 30px;">131,063</p>
+        </div>
+      </div>
+
+      <div style="width: 100%; margin-top: 45px;">
+        <%= image_tag "rig/hydraulics_chart.png" %>
+      </div>
+
+    </div>
+
+  </div>
+</div>

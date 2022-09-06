@@ -1,0 +1,34 @@
+<% provide(:title, "New Well") %>
+
+<div class="section-header" style="margin-top: 10px;">
+  <h1>New Well</h1>
+</div>
+
+
+<div class="form" data-form="new-job-form">
+  <%= form_for(@job) do |f| %>
+      <%= render 'fields', f: f %>
+
+      <br><br>
+
+      <%= link_to button_tag("Cancel", class: "btn btn-sub push-left-small tooltip-info","data-title" => "Cancel new and go back", :type => 'button'), :back %>
+
+      <%= f.submit "Create Well", class: "btn btn-primary  tooltip-info form-loading-on-click",
+                   "data-form" => "new-job-form",
+                   "data-title" => "Create new well. You edit/add more job information on next page." %>
+
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="new-job-form">
+  <%= render "layouts/inline_loading", title: "Creating well, please wait" %>
+</div>
+
+<!--<div id="modal_popup" class="modal-popup-background">-->
+  <!--<div class="modal-popup modal-popup-fixed">-->
+    <!--<%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal" %>-->
+    <!--<div class="modal-content">-->
+    <!--</div>-->
+    <!--<%= render "layouts/inline_loading", title: "Loading..." %>-->
+  <!--</div>-->
+<!--</div>-->

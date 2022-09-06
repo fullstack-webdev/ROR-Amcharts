@@ -1,0 +1,12 @@
+<div class="user-line">
+  <p class="job-well-field-title job-status-avatar blue-text"><b>Field</b></p>
+  <h3><%= field.name %>
+
+  </h3>
+
+  <div class="user-line-title"><%= field.district.country.name %></div>
+  <div class="user-line-district"><%= field.district.state.present? ? field.district.state.name : "" %></div>
+
+  <%= image_tag "district_extrasmall.png", class: "job-status-avatar" %>
+  <p class="inline"><%= field.district.name %></p>
+</div>

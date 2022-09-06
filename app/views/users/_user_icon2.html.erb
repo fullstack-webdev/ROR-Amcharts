@@ -1,0 +1,12 @@
+<% if user.present? %>
+    <% names = user.present? ? user.name.split : [] %>
+    <div class="align-top" style="width: 35px; height: 35px; background-color: #<%= user.present? ? user.color : '' %>; text-align: center; padding: 0px; line-height: 35px;">
+      <div style="margin: 0px; padding: 0px; vertical-align: top; font-family: orgonboldregular; color: #ffffff;">
+        <% if names.any? %>
+            <%= names.count > 1 ? names.first[0, 1] + names.last[0, 1] : names.first[0, 1] %>
+        <% else %>
+            -
+        <% end %>
+      </div>
+    </div>
+<% end %>

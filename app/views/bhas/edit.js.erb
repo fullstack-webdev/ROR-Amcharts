@@ -1,0 +1,6 @@
+$('#bha').replaceWith('<%= j render 'bha/bha' %>');
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+//$('.tooltip-info').tooltip();
+}
+$('.unitsSelect').customSelect();

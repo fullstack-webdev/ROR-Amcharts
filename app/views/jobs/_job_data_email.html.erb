@@ -1,0 +1,112 @@
+<table class="job-email-table" cellspacing="0" cellpadding="0">
+  <tr class="job-email-title">
+    <td colspan="4">
+      <%= link_to job.absolute_url do %>
+
+      <h2 class="job-title inline"><%= job.field.name %></h2>
+
+      <p class="job-well-field-title inline">Field</p>
+
+      <p class="job-title-divider inline">|</p>
+
+      <h2 class="job-title inline"><%= job.well.name %></h2>
+
+      <p class="job-well-field-title inline">Well</p>
+
+      <% end %>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <br>
+    </td>
+  </tr>
+
+  <tr>
+    <td colspan="4" class="job-email-title">
+        <span>
+          <% if Rails.env.production? %>
+              <%= image_tag "district_extrasmall.png", class: "email-avatar" %>
+          <% end %>
+        <b class="inline"><%= job.district.present? ? job.district.name : "" %></b>
+        </span>
+
+        <span class="push-right-small">
+          <% if Rails.env.production? %>
+              <%= image_tag "user_avatar_client_extrasmall.png", class: "email-avatar" %>
+          <% end %>
+          <b class="inline"><%= job.client.name %></b>
+        </span>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <br>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="4" class="job-email-td-title">
+      <p class="job-field-title inline"><%= t "jobs.job_data.status" %></p>
+
+      <span class="job-field-value push-right">
+        <% if job.status == Job::COMPLETE %>
+            <p class="good-text"><%= job.status_string %></p>
+        <% else %>
+            <p class=""><%= job.status_string %></p>
+        <% end %>
+      </span>
+    </td>
+
+  </tr>
+
+  <% job.dynamic_fields.select { |field| !field.dynamic_field_template.nil? and field.dynamic_field_template.priority? }.each do |dynamic_field| %>
+      <% if !dynamic_field.dynamic_field_template.nil? %>
+          <tr>
+            <td class="job-email-td-title">
+              <p class="job-field-title inline">
+                <b class="blue-text"><%= dynamic_field.dynamic_field_template.name %></b></p>
+            </td>
+
+            <td class="job-email-td">
+              <div class="job-field-div inline">
+                <p class="job-field-value2 blue-text inline"><%= !dynamic_field.value.nil? ? dynamic_field.value : "-" %></p>
+                <% if dynamic_field.value_type != 1 %>
+                    <p class="job-field-units inline">
+                      <%= dynamic_field.value_type_unit %>
+                    </p>
+                <% end %>
+              </div>
+            </td>
+            <td colspan="2"
+          </tr>
+
+      <% end %>
+  <% end %>
+
+  <tr>
+    <% if job.start_date.present? %>
+        <td class="job-email-td-title">
+          <p class="job-field-title inline"><%= t "jobs.job_data.start_date" %></p>
+        </td>
+        <td class="job-email-td">
+          <p class="job-field-value inline"><%= job.start_date.strftime("%m/%d/%Y") %></p>
+        </td>
+    <% end %>
+
+    <td class="job-email-td-title">
+      <p class="job-field-title inline"><%= t "jobs.job_data.created_date" %></p>
+    </td>
+    <td class="job-email-td">
+      <p class="job-field-value inline"><%= job.created_at.strftime("%m/%d/%Y") %></p>
+    </td>
+
+    <% if !job.start_date.present? %>
+        <td></td>
+        <td></td>
+    <% end %>
+  </tr>
+
+
+</table>

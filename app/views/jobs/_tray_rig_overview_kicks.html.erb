@@ -1,0 +1,50 @@
+<div class="remote-tray" data-tray="rig_overview_kicks">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading rig Kicks..." %>
+  </div>
+
+  <div class='tray-content content-loaded' style="position: relative;">
+
+    <div class="drill-view-chart" style="width: 35%;">
+    </div>
+
+    <div class="drill-view-port" style="min-width: 60%;" id="dv_kicks">
+
+      <div class="section-header" style="margin-top: 15px;">
+        <h1>Flowback</h1>
+      </div>
+
+      <div class="menuContentBlock">
+
+        <div class="offline-box" id="dv_kicks_offline_box">
+          <h5>System offline</h5>
+
+          <ul class="abnormal-list">
+            <li>
+              <p class="inline-block">Specify correct configurations</p>
+              <a href="#"
+                 class="show-tray inline-block" data-tray="configurations"
+                 style="cursor:hand; text-decoration: underline; padding: 0px; line-height: 10px; margin: 0px; margin-left: 15px;"
+                 style="color: #ffffff;">More details</a>
+
+            </li>
+          </ul>
+        </div>
+
+        <!--<div style="margin-top: 30px; width: 100%;">-->
+        <!--<p class="title">Current Flowback</p>-->
+        <!--<p class="value-white" style="font-size: 30px;">10 <span>bbls</span></p>-->
+        <!--</div>-->
+
+        <!--<div style="width: 100%; margin-top: 45px;">-->
+        <!--<%= image_tag "rig/kicks_chart.png" %>-->
+        <!--</div>-->
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

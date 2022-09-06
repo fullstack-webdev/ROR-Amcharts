@@ -1,0 +1,9 @@
+<% if items.count > 0 %>
+    <% if params[:page].present? %>
+        <%= ((Integer(params[:page]) - 1) * 20) + 1 %> - <%= [((Integer(params[:page]) - 1) * 20) + 20, items.count].min %> of <%= items.count %>
+    <% else %>
+        1 - <%= [20, items.count].min %> of <%= items.count %>
+    <% end %>
+<% else %>
+    <%= 0 %>
+<% end %>

@@ -1,0 +1,52 @@
+<div id="job_cost_<%= job_cost.id %>" class="job-cost-item" data-date="<%= job_cost.charge_at.strftime('%b %d') %>" data-cost="<%= (job_cost.quantity * job_cost.price).to_f %>" style="<%= index % 2 != 0 ? 'background: #375150;' : '' %>">
+
+  <% if true %>
+      <div class="btn-group inline-block align-top pull-right push-down-small" style='margin-right: 5px;'>
+        <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+        </a>
+        <ul class="dropdown-menu">
+          <% if false %>
+              <li>
+                <%= link_to "Edit", edit_job_cost_path(job_cost), remote: true, class: "dropdown-menu-link show-modal-button" %>
+              </li>
+              <li class="divider"></li>
+          <% end %>
+          <li>
+            <%= link_to "Remove", job_cost, method: :delete, remote: true,
+                        data: {confirm: "Remove?"}, class: "dropdown-menu-link tooltip-info",
+                        "data-placement" => "bottom",
+                        "data-title" => "Remove" %>
+          </li>
+        </ul>
+      </div>
+  <% end %>
+
+  <div style="margin-left: 0px;  max-height: 50px; padding-left: 5px;">
+
+    <div style='margin-bottom: 5px; padding-top: 5px; padding-bottom: 5px; font-size: 13px;'>
+      <div class='inline-block' style="width: 125px">
+        <b class=''><%= job_cost.charge_at.in_time_zone.strftime("%m/%d/%Y") %></b>
+      </div>
+      <div class='inline-block' style="width: 87px">
+        <b class=''><%= JobCost.charge_type_string(job_cost.charge_type) %></b>
+      </div>
+      <div class='inline-block' style="width: 64px">
+        <b class=''><%= job_cost.quantity.to_f == job_cost.quantity.to_i ? job_cost.quantity.to_i : job_cost.quantity.to_f %></b>
+      </div>
+      <div class='inline-block' style="width: 324px">
+        <span class=''><%= job_cost.description %></span>
+      </div>
+      <div class='inline-block' style="width: 100px">
+        <b class='white-text <%= job_cost.price < 0 ? "warning-test" : "" %>'><%= number_to_currency(job_cost.price * job_cost.quantity.to_f, :unit => "$") %></b>
+      </div>
+      <div class='inline-block' style="width: 100px">
+        <% if job_cost.quantity.to_f != 1.0 %>
+            <p class='inline-block help-text push-right-small'>
+            (<%= number_to_currency(job_cost.price, :unit => "$") %>)
+            </p>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+</div>

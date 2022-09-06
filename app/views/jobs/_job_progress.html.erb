@@ -1,0 +1,103 @@
+<div class="tooltip-info"
+     data-placement="right"
+     data-html="true"
+     data-title="<%= render 'jobs/well_tooltip', job: job, show_summary_data: show_summary_data %>">
+
+
+  <div class='inline-block'>
+    <div class="job-status-name">
+      <div class="push-down job-status-name">
+        <h2 class="job-title job-title4 inline"><%= job.field.name %></h2>
+
+        <p class="job-title-divider2">|</p>
+
+        <h2 class="job-title job-title4 inline"><%= job.well.name %></h2>
+      </div>
+    </div>
+    <br>
+
+    <div class="job-rig-name align-top push-up">
+      <b><%= job.well.rig.present? ? job.well.rig.name : '-' %></b>
+    </div>
+    <div class='inline-block align-top push-up'>
+      <b class='help-text'><%= job.job_number %></b>
+    </div>
+  </div>
+
+  <% if false %>
+      <div class="push-down-small job-progress-data-item">
+        <%= image_tag "user_avatar_extrasmall.png", class: "" %>
+        <p class='inline-block align-top push-down'><%= job.job_memberships_count %></p>
+      </div>
+  <% end %>
+
+  <% if !job_name %>
+      <div class="job-progress-data-item push-down">
+        <% if job.failures_count > 0 %>
+            <div class="job-failure-item"><%= job.failures_count %></div>
+        <% end %>
+      </div>
+  <% else %>
+      <div class='push-right'></div>
+  <% end %>
+
+
+  <div class="inline-block align-top">
+
+    <% if job.status == Job::COMPLETE %>
+        <div class='inline-block push-down'>
+          <span class="label label-success" style="padding: 4px; padding-left: 10px; padding-right: 10px;">Complete</span>
+        </div>
+    <% elsif job.status == Job::PRE_JOB %>
+        <div class='inline-block push-down'>
+          <span class="label label-info" style="padding: 4px; padding-left: 10px; padding-right: 10px;">Pre-Job</span>
+
+          <% if job.start_date.present? %>
+              <p class='inline-block push-right help-text'>Begins <%= job.start_date.strftime("%A #{job.start_date.day.ordinalize}") %></p>
+          <% end %>
+        </div>
+    <% elsif job.status == Job::POST_JOB %>
+        <div class='inline-block push-down'>
+          <span class="label label-success" style="padding: 4px; padding-left: 10px; padding-right: 10px;">Post-Job</span>
+        </div>
+    <% elsif job.status == Job::ON_JOB %>
+
+        <div class='inline-block push-down'>
+          <span class="label label-warning" style="padding: 4px; padding-left: 10px; padding-right: 10px;">In Progress</span>
+        </div>
+
+        <% drilling_log = job.well.drilling_log %>
+        <% if drilling_log.present? %>
+
+
+            <p class='inline-block push-right-small push-up'>
+              <b><%= drilling_log.nil? || drilling_log.max_depth.nil? ? "0" : number_with_delimiter(drilling_log.max_depth.to_i, :delimiter => ',') %></b>
+              / <%= drilling_log.nil? || drilling_log.td_depth.nil? ? "0" : number_with_delimiter(drilling_log.td_depth.to_i, :delimiter => ',') %>
+              ft</p>
+
+            <p class='inline-block push-right-small'>
+              <b><%= drilling_log.below_rotary.present? && drilling_log.above_rotary.present? ? ((drilling_log.above_rotary + drilling_log.below_rotary) / 24).to_i : 0 %></b>
+              days
+            </p>
+            <% if false %>
+
+                <br>
+
+                <p class='inline-block push-right-small push-up'>
+                  <b><%= drilling_log.rop.present? ? drilling_log.rop.round(1) : 0.0 %></b> ft/hr
+                </p>
+
+
+            <% end %>
+
+        <% end %>
+    <% else %>
+        <div class="progress progress-info job-progress-bar">
+          <div class="bar" style="width: <%= job.status_percentage %>%"></div>
+        </div>
+    <% end %>
+  </div>
+
+
+</div>
+

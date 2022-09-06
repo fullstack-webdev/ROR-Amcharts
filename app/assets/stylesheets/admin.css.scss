@@ -1,0 +1,23 @@
+// Place all the styles related to the SuperAdmin controller here.
+// They will automatically be included in application.css.scss.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.super-admin {
+  #logo {
+    margin-right: 10px;
+  }
+
+  .custom-select {
+    margin-top: 7px;
+  }
+
+  .company-overview {
+    margin-top: 15px;
+    .company-name {
+      font-family: orgonboldregular;
+      font-size: 35px;
+      color: #ffffff;
+      margin: 20px 0;
+    }
+  }
+}

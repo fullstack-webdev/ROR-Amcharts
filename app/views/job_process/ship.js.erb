@@ -1,0 +1,9 @@
+$("#process_actions").find('#job_ready_to_ship').remove();
+
+$("#process_actions").append("<%= j render('job_process/job_shipped', job_process: @job_process ) %>");
+$("#process_actions").removeClass("hidden");
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+//$('.activity-user-link').tooltip();
+//$('.tooltip-info').tooltip();
+}

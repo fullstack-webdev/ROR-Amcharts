@@ -1,0 +1,63 @@
+@media (max-width: 1024px) {
+  .team {
+    margin-top: 50px;
+    font-family: $main-font;
+    padding-left: 30px;
+
+    .team-member {
+      width: 200px;
+      margin-right: 30px;
+      margin-bottom: 50px;
+
+      .name {
+        color: $yellow;
+        margin-top: 10px; font-size: 18px;
+        text-transform: uppercase;
+      }
+
+      .position {
+        color: $light-blue;
+        font-size: 17px;
+        font-family: $main-font;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .team {
+    padding-left: 20px;
+
+    .team-member {
+      margin-right: 30px;
+    }
+  }
+}
+
+@media (max-width: 667px) {
+  .team {
+    padding-left: 0px;
+
+    .team-member {
+      margin: 0 50px;
+    }
+  }
+}
+
+@media (max-width: 568px) {
+  .team {
+    .team-member {
+      margin: 0 35px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .team {
+    .team-member {
+      margin: 0 auto;
+      margin-bottom: 50px;
+      display: block;
+    }
+  }
+}

@@ -1,0 +1,9 @@
+<div id="cost_totals" class='pull-right'>
+  <div class='inline-block'>Day</div>
+  &nbsp;
+  <h3 id="day_cost" class='inline-block'>-</h3>
+
+  <div class='inline-block push-right'>Total</div>
+  &nbsp;
+  <h3 class='inline-block' style='font-family: orgonlightregular ; color: #fefefe; font-size: 36px;'><%= number_to_currency(JobCost.job_total(job), :unit => "$") %></h3>
+</div>

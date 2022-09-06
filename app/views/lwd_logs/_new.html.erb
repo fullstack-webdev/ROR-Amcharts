@@ -1,0 +1,39 @@
+<div class="form" data-form="new_lwd_log">
+  <div class='alert-box alert-info'>
+    <b>Import Logs</b>
+
+    <p>Select log files (.xls)...</p>
+  </div>
+
+  <br>
+
+  <%= s3_uploader_form callback_url: lwd_logs_url,
+                       callback_param: "lwd_log[url]",
+                       id: "s3-uploader",
+                       key: "job#{job.id}/lwd_log",
+                       key_starts_with: "job#{job.id}/",
+                       acl: "private" do %>
+    <%= file_field_tag :file, multiple: false, data: {url: s3_bucket_url} %>
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="new_lwd_log">
+  <%= render 'layouts/inline_loading', text: 'Uploading LWD Logs...' %>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+    $("#s3-uploader").S3Uploader();
+
+    $('#s3-uploader').bind('s3_uploads_start', function (e) {
+      $('.form[data-form="new_lwd_log"]').hide();
+      $('.form-loading[data-form="new_lwd_log"]').show();
+    });
+
+    $('#s3-uploader').bind('s3_upload_failed', function (e) {
+      toastr.error("Failed to upload log file. Please try again later.");
+      $('.form[data-form="new_lwd_log"]').show();
+      $('.form-loading[data-form="new_lwd_log"]').hide();
+    });
+  })(jQuery);
+</script>

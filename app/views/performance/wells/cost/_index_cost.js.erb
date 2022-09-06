@@ -1,0 +1,196 @@
+(function ($) {
+  var chart;
+  var graph_data = [];
+  var graphs = [];
+  var tray = $(".remote-tray[data-tray='wells_cost']");
+
+  var init_cost_depth_data = function () {
+    <% @wells.each do |well| %>
+    if (WELLS[<%= well.id %>]) {
+      WELLS[<%= well.id %>].depth_vs_cost_logs = <%= raw well.depth_vs_cost_logs.to_json %>;
+    }
+    <% end %>
+  };
+
+  var filter_graph_data = function () {
+    graph_data = [];
+    graphs = [];
+
+    for (var key in UPDATED_WELLS) {
+      var well = UPDATED_WELLS[key];
+
+      for (var i = 0; i < well.depth_vs_cost_logs.length; i++) {
+        var data = graph_data[i] || {};
+        data['cost'] = well.depth_vs_cost_logs[i][0];
+        data[key + '_depth'] = parseFloat(well.depth_vs_cost_logs[i][1]).convert('ft', company_unit).val();
+        graph_data[i] = data;
+      }
+
+      graphs.push({
+        "title": well.name,
+        "lineColor": well.graph_color,
+        "lineThickness": 2,
+        "type": "smoothedLine",
+        "valueField": key + '_depth'
+      });
+    }
+  };
+
+  var update_wells_list = function () {
+    tray.find('.wells-list').html('');
+    for (var key in UPDATED_WELLS) {
+      var well = UPDATED_WELLS[key];
+      tray.find('.wells-list').append('<div class="programs_cost_bottom">' +
+          '<div class="block">' +
+          '<div style="width: 10px; height:27px; background: ' + well.graph_color + '; display: inline-block; line-height: 30px;"></div>' +
+          '<div style="vertical-align: top; line-height: 27px; height:27px; margin-left: 10px; display: inline-block; color: #fefefe; font-size: 22px;">' +
+          well.name +
+          '</div>' +
+          '</div>' +
+          '<div class="divider"></div>' +
+          '<div class="block">' +
+          '<div class="inline-block kpi-block" style="width: 30%;">' +
+          '<div class="title">Total Depth</div>' +
+          '<div class="value">' +
+          well.depth.convert('ft', company_unit).val().round_to_decimal().number_with_delimiter() + ' <span>' + 'ft'.unit(company_unit) + '</span>' +
+          '</div>' +
+          '</div>' +
+          '<div class="inline-block kpi-block" style="width: 30%;">' +
+          '<div class="title">Day ROP</div>' +
+          '<div class="value">' +
+          well.day_rop.convert('ft', company_unit).val().round_to_decimal(1).number_with_delimiter() + ' <span>' + 'ft'.unit(company_unit) + '/day</span>' +
+          '</div>' +
+          '</div>' +
+          '<div class="inline-block kpi-block" style="width: 30%;">' +
+          '<div class="title">Avg Drilling ROP</div>' +
+          '<div class="value">' +
+          well.rop.convert('ft', company_unit).val().round_to_decimal(1).number_with_delimiter() + ' <span>' + 'ft'.unit(company_unit) + '/hr</span>' +
+          '</div>' +
+          '</div>' +
+          '</div>' +
+          '<div class="divider divider-lg"></div>' +
+          '</div>');
+    }
+  };
+
+  var update_chart = function () {
+    if (graph_data.length == 0) {
+      tray.find('.content-view').hide();
+      tray.find('.no-content').show();
+    } else {
+      tray.find('.content-view').show();
+      tray.find('.no-content').hide();
+      chart.dataProvider = graph_data;
+      chart.graphs = graphs;
+      chart.validateData();
+      chart.validateNow();
+    }
+  };
+
+  var create_chart = function () {
+    chart = AmCharts.makeChart("wells_cost_chart", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#475959",
+      "backgroundAlpha": 0,
+      "marginLeft": 30,
+      "marginBottom": 60,
+      "autoMargins": false,
+      "marginLeft": 70,
+      "marginTop": 20,
+      "legend": {
+        "align": "right",
+        "position": "bottom",
+        "markerType": "circle",
+        "markerSize": 8,
+        "equalWidths": false,
+        "fontSize": 11,
+        "periodValueText": "",
+        "valueAlign": "left",
+        "valueWidth": 100,
+        "valueText": "",
+        "color": "#fefefe"
+      },
+      "dataProvider": graph_data,
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "left",
+          "reversed": true,
+          "title": "Depth (MD - <%= unit('ft', company_unit) %>)",
+          "gridAlpha": 0,
+          "color": "#fefefe",
+          "titleColor": "#fefefe",
+          "minimum": 0,
+          "guides": [
+            {
+              "fillAlpha": 0.8,
+              "fillColor": "#455657",
+              "inside": true,
+              "lineAlpha": 0,
+              "toValue": 40000,
+              "value": -5000
+            }
+          ]
+        }
+      ],
+      "graphs": graphs,
+      "chartCursor": {
+        "enabled": false,
+        "selectWithoutZooming": true
+      },
+      "categoryField": "cost",
+      "categoryAxis": {
+        "parseDates": false,
+        "minorGridAlpha": 0.5,
+        "minorGridEnabled": false,
+        "title": "Cost (1K)",
+        "color": "#fefefe",
+        "titleColor": "#fefefe",
+        "axisColor": "#fefefe",
+        "axisAlpha": 0,
+        "gridAlpha": 0.5,
+        "gridColor": "#fefefe",
+        "labelFunction": function (value, valueText, valueAxis) {
+          return (parseFloat(value) / 1000).round_to_decimal().with_delimiter();
+        }
+      },
+      "fontFamily": "orgonlightregular",
+      "fontSize": 13
+    });
+  };
+
+  var init = function () {
+    init_cost_depth_data();
+
+    // click event on wells list
+    $('#updated_wells').change(function () {
+      filter_graph_data();
+      update_chart();
+      update_wells_list();
+    });
+
+    $(".remote-tray-toggle[data-tray='wells_cost']").on('click', function () {
+      setTimeout(function () {
+        chart.validateData();
+        chart.validateNow();
+      }, 0);
+    });
+
+    filter_graph_data();
+    create_chart();
+    update_wells_list();
+
+    if (graph_data.length == 0) {
+      tray.find('.content-view').hide();
+      tray.find('.no-content').show();
+    }
+
+    // set active tab
+    $('.btn-tray').removeClass('active');
+    $('.remote-tray-toggle[data-tray="wells_cost"] .btn-tray').addClass('active');
+  };
+
+  init();
+}(jQuery));

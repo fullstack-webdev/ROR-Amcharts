@@ -1,0 +1,82 @@
+<div class="block">
+  <div class="inline-block" style="width: 51%;">
+    <div class="page-header-small">
+      <h1 class="header-color-darker">Drilling</h1>
+    </div>
+
+    <div class="block">
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category drilling active" data-category-id="6">
+        Treatment
+      </button>
+
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category drilling" data-category-id="5">
+        Weight to Weight
+      </button>
+
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category drilling" data-category-id="4">
+        Connection
+      </button>
+
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category drilling" data-category-id="7">
+        Drilling
+      </button>
+    </div>
+  </div>
+
+  <div class="inline-block" style="width: 24%; vertical-align: top;">
+    <div class="page-header-small">
+      <h1 class="header-color-darker">Tripping Out</h1>
+    </div>
+
+    <div class="block">
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category tripping-out" data-category-id="3">
+        Pipe Moving
+      </button>
+
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category tripping-out" data-category-id="2">
+        Connection
+      </button>
+    </div>
+  </div>
+
+  <div class="inline-block" style="width: 24%; vertical-align: top;">
+    <div class="page-header-small">
+      <h1 class="header-color-darker">Tripping In</h1>
+    </div>
+
+    <div class="block">
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category tripping-in" data-category-id="1">
+        Pipe Moving
+      </button>
+
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category tripping-in" data-category-id="0">
+        Connection
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="histogram-remote-loading hidden">
+  <%= render 'layouts/inline_loading', title: "Please wait, loading..." %>
+</div>
+
+<div class="histogram-container">
+  <div class="divider divider-sm"></div>
+
+  <div class="dropdown dropdown-no-border operation_percent_container">
+    <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="operation_percent_selected" data-id="1">
+      50% (minutes) <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu" role="menu" id="operation_percent_list">
+      <li role="presentation"><a href="javascript:void(0);" data-id="0">10% (minutes)</a></li>
+      <li role="presentation"><a href="javascript:void(0);" data-id="1">50% (minutes)</a></li>
+      <li role="presentation"><a href="javascript:void(0);" data-id="2">90% (minutes)</a></li>
+    </ul>
+  </div>
+
+  <div class="divider divider-sm"></div>
+
+  <div id="operation_percent_chart" class="amChart" style="width: 100%; background-color: #3d4f50; font-family: inherit; font-size: 15px;"></div>
+
+  <div class="block histogram-view"></div>
+</div>

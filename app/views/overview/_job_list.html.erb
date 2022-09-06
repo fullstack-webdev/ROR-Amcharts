@@ -1,0 +1,76 @@
+  <%= link_to job, class: "empty-link", style: "text-decoration: none;" do %>
+    <div class="chart-list tooltip-info"
+         data-placement="left"
+         data-html="true"
+         data-title="<%= render 'jobs/well_tooltip', job: job, show_summary_data: false %>"
+         xmlns="http://www.w3.org/1999/html">
+
+      <div class="chart-title <%= !job.current_warning.empty? ? 'border-' + job.current_warning.first.severity : '' %>">
+        <p class="well-name"><%= job.well.rig.present? ? job.well.rig.name : "-" %></p>
+
+        <p class='help-text' style="text-align: left;"><%= job.well_name %></p>
+      </div>
+
+      <div class="chart-status">
+        <div style="display: table-cell; vertical-align: middle;">
+          <% if job.status == Job::COMPLETE %>
+            <p style="color:#6fe065;">COMPLETE</p>
+          <% else %>
+            <% activity, status, *rest = job.current_category.to_s.split(/\(/) %>
+            <p><%= activity %><%= job.current_bit_depth.present? && job.current_bit_depth.to_f >= 0.0 ? ' - ' + number_with_delimiter(number_with_precision(job.current_bit_depth, precision: 0)) + ' ft' : '' %></p>
+
+            <p><%= status.nil? ? "" : status[0, status.length - 1] %></p>
+          <% end %>
+        </div>
+      </div>
+      <div class="chart-24hrs">
+        <div class="overview-bar" style="overflow: visible; display: flex; display: -webkit-flex;">
+          <% job.aggregate_activity(job.status == Job::COMPLETE ? -1 : 1).each do |activity| %>
+            <div class="powertip-overiew" data-percent="<%= activity['percentage'].round(1) %>" data-activity="<%= activity['activity_name'] %>" style="background: <%= activity['color'] %>; width: <%= activity['percentage'] %>%;"></div>
+          <% end %>
+        </div>
+        <div class="explanation">
+
+          <% if job.total_job_time != 0 %>
+            <span class="days"><%= job.total_days.to_f.round %> days</span>
+          <% end %>
+
+          <% if job.well.offset_well.present? %>
+
+            <% percent = job.get_time_diff %>
+
+            <% if percent.present? && percent.abs.floor != 0 %>
+
+              <% if percent < 0 %>
+
+                <span class="percentage decreased" style="font-size: 14px;">
+                  <i class="fa fa-sort-down" style="vertical-align: middle;
+                      font-size: 14px;
+                      margin-top: -6px;
+                  "></i>
+                  <%= number_with_precision(percent.abs, precision: 0) %>%
+                </span>
+
+              <% else %>
+
+                <span class="percentage increased" style="font-size: 14px;">
+                  <i class="fa fa-sort-up" style="vertical-align: middle;
+                      font-size: 14px;
+                      margin-top: 4px;
+                  "></i>
+                  <%= number_with_precision(percent.abs, precision: 0) %>%
+                </span>
+
+              <% end %>
+
+            <% end %>
+
+          <% end %>
+
+        </div>
+      </div>
+
+    </div>
+
+  <% end %>
+

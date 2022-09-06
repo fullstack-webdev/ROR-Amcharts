@@ -1,0 +1,9 @@
+<div class="user-line">
+  <%= image_tag "district_extrasmall.png", class: "job-status-avatar" %>
+  <h3><%= district.name %></h3>
+
+  <div class="user-line-title"><%= district.country.name %></div>
+
+  <div class="user-line-district"><%= district.state.present? ? district.state.name : "" %></div>
+
+</div>

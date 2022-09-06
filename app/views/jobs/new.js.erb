@@ -1,0 +1,16 @@
+$('#modal_popup').find('.modal-content').find('*').remove();
+$('#modal_popup').find('.modal-content').append("<%= j render 'jobs/rig_skid' %>");
+$('#modal_popup').css('visibility', 'visible');
+$('#modal_popup').find('.loading').addClass('hidden');
+
+$('#modal_popup').find('.custom-select').customSelect();
+
+$('#well_name_id').keyup(function() {
+    <% job = Job.find_by_id(params[:job]) %>
+    $.ajax({
+        url:"/wells?search=" + $(this).val() + "&field_id=<%= job.field.id %>",
+        type:"GET",
+        dataType:"script"
+    });
+});
+

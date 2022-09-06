@@ -1,0 +1,57 @@
+<% if (!df.dynamic_field_template.nil?) || (df.dynamic_field_template.nil?) %>
+    <p class="job-field-title tooltip-info" data-placement="bottom" data-title="<%= !df.dynamic_field_template.nil? ? df.dynamic_field_template.name : df.name %>">
+      <%= !df.dynamic_field_template.nil? ? df.dynamic_field_template.name : df.name %></p>
+    <% if job_editable && !df.predefined? %>
+        <div class="job-field-div">
+          <% if df.value_type == DynamicField::VALUES %>
+              <% options = [] %>
+              <% if df.values.present? %>
+                  <% df.values.split(",").each_with_index do |s, index| %>
+                      <% options << [s, index] %>
+                  <% end %>
+                  <%= select_tag "value",
+                                 options_for_select(options, df.value),
+                                 id: "dynamic_field_" + df.id.to_s,
+                                 "data-job" => df.job.id.to_s,
+                                 "data-placement" => "bottom",
+                                 "data-title" => "Field value, click to change",
+                                 class: "job-field-value-editable custom-data-input custom-select tooltip-info align-top",
+                                 placeholder: "Select Value..." %>
+              <% else %>
+                <b>-</b>
+              <% end %>
+
+          <% else %>
+              <input id="dynamic_field_<%= df.id.present? ? df.id : "0" %>" type="text"
+                     data-job="<%= df.job.id %>"
+                     data-name="<%= df.name %>"
+                     placeholder="-"
+                     class="job-field-value-editable custom-data-input tooltip-info align-top"
+                     data-placement="bottom" data-title="Field value, click to change"
+                     value="<%= (df.value_type != 1 && !df.value.nil?) ? df.value.to_f.round(3) : df.value %>">
+          <% end %>
+
+          <% if df.value_type != DynamicField::STRING && df.value_type != DynamicField::VALUES %>
+              <%= select_tag "Units",
+                             options_for_select(df.unit_options, df.value_type),
+                             id: "dynamic_field_unit_" + df.id.to_s,
+                             class: "unitsSelect unit-tooltip", "data-placement" => "bottom",
+                             "data-html" => false, "data-title" => "Units, click to change" %>
+
+              <div class="job-field-conversion">
+                <p class="inline warning-text"><%= df.get_user_conversion(@current_user, true) %></p>
+              </div>
+          <% end %>
+
+        </div>
+    <% else %>
+        <div class="job-field-div">
+
+          <p class="job-field-value2 unit-tooltip"
+             data-placement="bottom"
+             data-title="<%= df.value.present? ? df.get_user_conversion(@current_user, false, true, true) : "No value set" %>">
+            <%= df.value.present? ? df.get_user_conversion(@current_user, false, true) : "-" %>
+          </p>
+        </div>
+    <% end %>
+<% end %>

@@ -1,0 +1,13 @@
+$("#jobs").html("<div id='jobs' class='list'></div>");
+<% @jobs.each do |job| %>
+$('#jobs').append("<%= j render 'jobs/job_progress_link', job: job %>");
+<% end %>
+$('#jobs').append("<%= j will_paginate @jobs %>");
+
+$('#search_results').removeClass('hidden');
+$('#search_loading').addClass('hidden');
+$('#search_loading').find('.loading').addClass('hidden');
+$('#full_paginate').hide();
+
+$('.paginated-count').empty();
+$('.paginated-count').append('<%= @jobs.count.to_s %>');

@@ -1,0 +1,389 @@
+<div>
+<% log = DrillingLog.calculate(entries) %>
+
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Start Depth</div>
+    <div class='run-detail'><%= log.start_depth.nil? ? '-' : number_with_delimiter(log.start_depth.to_i, :delimiter => ',') %>
+      &nbsp;<span class='help-text'>ft</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>End Depth</div>
+    <div class='run-detail'><%= log.end_depth.nil? ? '-' : number_with_delimiter(log.end_depth.to_i, :delimiter => ',') %>
+      &nbsp;<span class='help-text'>ft</span>
+    </div>
+  </div>
+
+  <% if survey_points.present? && survey_points.any? %>
+      <% max_tvd = 0.0 %>
+      <% vertical_section = 0.0 %>
+      <% survey_points.each do |point| %>
+          <% if point.measured_depth >= log.start_depth && point.measured_depth <= log.end_depth %>
+              <% max_tvd = [max_tvd, point.true_vertical_depth].max %>
+              <% vertical_section = vertical_section + point.vertical_section %>
+          <% end %>
+      <% end %>
+      <div class='inline-block'>
+        <div class='run-detail help-text'>Max TVD</div>
+        <div class='run-detail'><%= max_tvd.to_i %> ft</div>
+      </div>
+  <% end %>
+</div>
+
+
+<div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Total Circulation</div>
+    <div class='run-detail'><%= log.total_circulation_time.nil? ? '-' : log.total_circulation_time.round(1) %>&nbsp;<span class='help-text'>hrs</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Reaming</div>
+    <div class='run-detail'><%= log.ream_hours.nil? ? '-' : log.ream_hours.round(1) %>&nbsp;<span class='help-text'>hrs</span>
+    </div>
+  </div>
+
+  <% if false %>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Circulation</div>
+    <div class='run-detail'><%= log.circulation_hours.nil? ? '-' : log.circulation_hours.round(1) %>&nbsp;<span class='help-text'>hrs</span>
+    </div>
+  </div>
+      <% end %>
+</div>
+
+<hr>
+
+<div class=''>
+  <div class='inline-block'>
+    <div class='run-detail'><b class='blue-text'>Rotating</b></div>
+    <div class='run-detail'></div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Time %</div>
+    <div class='run-detail'><%= log.rotary_hours_pct.nil? ? '-' : (log.rotary_hours_pct * 100).round(1) %> %</div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Feet %</div>
+    <div class='run-detail'><%= log.rotary_footage_pct.nil? ? '-' : (log.rotary_footage_pct * 100).round(1) %> %</div>
+  </div>
+</div>
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>ROP</div>
+    <div class='run-detail'><%= log.rotate_rop.nil? ? '-' : log.rotate_rop.round(1) %>&nbsp;<span class='help-text'>ft/min</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Drilled</div>
+    <div class='run-detail'><%= log.rotate_footage.nil? ? '-' : number_with_delimiter(log.rotate_footage.to_i, :delimiter => ',') %>&nbsp;<span class='help-text'>ft</span>
+    </div>
+  </div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Drilling Time</div>
+    <div class='run-detail'><%= log.rotate_hours.nil? ? '-' : log.rotate_hours.round(1) %>&nbsp;<span class='help-text'>hrs</span>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div class=''>
+  <div class='inline-block'>
+    <div class='run-detail'><b class='blue-text'>Sliding</b></div>
+    <div class='run-detail'></div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Time %</div>
+    <div class='run-detail'><%= log.slide_hours_pct.nil? ? '-' : (log.slide_hours_pct * 100).round(1) %> %</div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Foot %</div>
+    <div class='run-detail'><%= log.slide_footage_pct.nil? ? '-' : (log.slide_footage_pct * 100).round(1) %> %</div>
+  </div>
+</div>
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>ROP</div>
+    <div class='run-detail'><%= log.slide_rop.nil? ? '-' : log.slide_rop.round(1) %>&nbsp;<span class='help-text'>ft/min</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Drilled</div>
+    <div class='run-detail'><%= log.slide_footage.nil? ? '-' : number_with_delimiter(log.slide_footage.to_i, :delimiter => ',') %>
+      &nbsp;<span class='help-text'>ft</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Drilling Time</div>
+    <div class='run-detail'><%= log.slide_hours.nil? ? '-' : log.slide_hours.round(1) %>&nbsp;<span class='help-text'>hrs</span>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>WOB</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["wob_min"], max: log.ranges["wob_max"] %>&nbsp;<span class='help-text'>lbs</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Flow</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["flow_min"], max: log.ranges["flow_max"] %>&nbsp;<span class='help-text'>g/m</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>TFO</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["tfo_min"], max: log.ranges["tfo_max"] %></div>
+  </div>
+</div>
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>SPP</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["spp_min"], max: log.ranges["spp_max"] %>&nbsp;<span class='help-text'>psi</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Rotary RPM</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["rotary_rpm_min"], max: log.ranges["rotary_rpm_max"] %>&nbsp;<span class='help-text'>rpm</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Motor RPM</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["motor_rpm_min"], max: log.ranges["motor_rpm_max"] %>&nbsp;<span class='help-text'>rpm</span>
+    </div>
+  </div>
+</div>
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Rotate Weight</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["rotary_weight_min"], max: log.ranges["rotary_weight_max"] %>&nbsp;<span class='help-text'>lbs</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>P/U Weight</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["pu_weight_min"], max: log.ranges["pu_weight_max"] %>&nbsp;<span class='help-text'>lbs</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>S/O Weight</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["so_weight_min"], max: log.ranges["so_weight_max"] %>&nbsp;<span class='help-text'>lbs</span>
+    </div>
+  </div>
+</div>
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Torque</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["torque_min"], max: log.ranges["torque_max"] %>&nbsp;<span class='help-text'>lbs/in2</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Avg Diff Pressure</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["diff_pressure_min"], max: log.ranges["diff_pressure_max"] %>&nbsp;<span class='help-text'>psi</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Stall Pressure</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["stall_min"], max: log.ranges["stall_max"] %>&nbsp;<span class='help-text'>psi</span>
+    </div>
+  </div>
+</div>
+
+<br>
+
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Mud Type</div>
+    <div class='run-detail'><%= entries.last.mud_type.present? ? DrillingLogEntry.get_mud_value_string(entries.last.mud_type) : "-" %></div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Mud Weight</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["mud_weight_min"], max: log.ranges["mud_weight_max"] %>&nbsp;<span class='help-text'>lbs</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Viscosity</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["viscosity_min"], max: log.ranges["viscosity_max"] %></div>
+  </div>
+</div>
+
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Chlorides</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["chlorides_min"], max: log.ranges["chlorides_max"] %></div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>YP</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["yp_min"], max: log.ranges["yp_max"] %></div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>PV</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["pv_min"], max: log.ranges["pv_max"] %></div>
+  </div>
+</div>
+
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>PH</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["ph_min"], max: log.ranges["ph_max"] %></div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>BH Temp</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["bh_temp_min"], max: log.ranges["bh_temp_max"] %>&nbsp;<span class='help-text'>f</span>
+    </div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>FL Temp</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["fl_temp_min"], max: log.ranges["fl_temp_max"] %>&nbsp;<span class='help-text'>f</span>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Gas %</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["gas_min"], max: log.ranges["gas_max"] %></div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Sand %</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["sand_min"], max: log.ranges["sand_max"] %></div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Solids %</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["solids_min"], max: log.ranges["solids_max"] %></div>
+  </div>
+</div>
+
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Oil %</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["oil_min"], max: log.ranges["oil_max"] %></div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Water Loss</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["water_loss_min"], max: log.ranges["water_loss_max"] %></div>
+  </div>
+
+</div>
+
+<br>
+
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>MWD Type</div>
+    <div class='run-detail'><%= entries.last.mwd_type.present? && entries.last.mwd_type == 1 ? "EM" : "Pulse" %></div>
+  </div>
+
+</div>
+
+<% if entries.last.mwd_type.present? && entries.last.mwd_type == 1 %>
+    <div>
+      <div class='inline-block'>
+        <div class='run-detail help-text'>Hertz</div>
+        <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["em_hertz_min"], max: log.ranges["em_hertz_max"] %>&nbsp;<span class='help-text'>hz</span>
+        </div>
+      </div>
+
+      <div class='inline-block'>
+        <div class='run-detail help-text'>Cycles</div>
+        <div class='run-detail'><%= "#{entries.last.em_cycles}" %></div>
+      </div>
+
+      <div class='inline-block'>
+        <div class='run-detail help-text'>Amps</div>
+        <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["em_amps_min"], max: log.ranges["em_amps_max"] %>&nbsp;<span class='help-text'>A</span>
+        </div>
+      </div>
+    </div>
+
+<% else %>
+
+    <div>
+      <div class='inline-block'>
+        <div class='run-detail help-text'>Survey Sequence</div>
+        <div class=''><%= "#{entries.last.survey_sequence}" %></span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class='inline-block'>
+        <div class='run-detail help-text'>TF/Logging Sequence</div>
+        <div class=''><%= "#{entries.last.logging_sequence }" %></span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class='inline-block'>
+        <div class='run-detail help-text'>Pulse Width</div>
+        <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["pulse_width_min"], max: log.ranges["pulse_width_max"] %></span>
+        </div>
+      </div>
+
+      <div class='inline-block'>
+        <div class='run-detail help-text'>Pulse Height</div>
+        <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["pulse_height_min"], max: log.ranges["pulse_height_max"] %></span>
+        </div>
+      </div>
+      <br>
+
+      <div class='inline-block'>
+        <div class='run-detail help-text'>Poppet</div>
+        <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["poppet_min"], max: log.ranges["poppet_max"] %></span>
+        </div>
+      </div>
+
+      <div class='inline-block'>
+        <div class='run-detail help-text'>Orifice</div>
+        <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["orifice_min"], max: log.ranges["orifice_max"] %></span>
+        </div>
+      </div>
+    </div>
+
+<% end %>
+
+<div>
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Battery AHR</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["battery_ahr_max"], max: log.ranges["battery_ahr_min"] %>&nbsp;<span class='help-text'>Ahr</span></div>
+  </div>
+
+  <div class='inline-block'>
+    <div class='run-detail help-text'>Battery Volts</div>
+    <div class='run-detail'><%= render 'drilling_logs/range_span', min: log.ranges["battery_volts_min"], max: log.ranges["battery_volts_max"] %>&nbsp;<span class='help-text'>volts</span>
+    </div>
+  </div>
+
+</div>
+
+</div>

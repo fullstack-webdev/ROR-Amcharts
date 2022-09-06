@@ -1,0 +1,60 @@
+do ->
+  unitConverter = window.unitConverter
+
+  #### METRIC UNITS ####
+  METRIC_UNITS = [
+    ['lbm', 'kg', (1 / 2.2046225)]
+    ['lbm', 't', (1 / 2.2046225 / 1000)]
+    ['ft', 'm', 0.3048]
+    ['ft', 'mm', 304.8]
+    ['ft2', 'm2', 0.09290304]
+    ['ft2', 'mm2', 92903.04]
+    ['bbl', 'm3', (1 / 6.2898106)]
+    ['R', 'K', (1 / 1.8)]
+    ['psi', 'kPa', 6.894757]
+    ['psi', 'Mpa', 0.00689475728]
+    ['cp', 'mPa-s', 1]
+    ['lbm-ft3', 'kg-m3', (1000 / 62.42797)]
+    ['btu', 'kJ', 1.055056]
+    ['hp', 'ft-lbf/s', (1 / 550)]
+    ['hp', 'W', 745.700]
+    ['lbm-lbmol', 'kg-kmol', 1]
+#    ['md', 'mm2', (1 / 1013.25)]
+    ['lbm/ft', 'kg/m', (1 / 2.2046225) / 0.3048]
+    ['ppg', 'kg/m3', 99.77637]
+    ['gpm', 'm3/min', (0.00378541)]
+    ['lbf', 'daN', 0.4448221599999244]
+    ['lbf', 'KdaN', (0.4448221599999244 / 1000)]
+    ['ft-lbf', 'N-m', 1.35581795]
+    ['ft-lbf', 'kN-m', 1.35581795 / 1000]
+  ]
+
+  METRIC_CONVERSIONS = [
+    ['lbm', 'kg']
+    ['klbm', 't']
+    ['ft', 'm']
+    ['in', 'mm']
+    ['ft2', 'm2']
+    ['in2', 'mm2']
+    ['bbl', 'm3']
+    ['R', 'K']
+    ['psi', 'kPa']
+    ['ksi', 'Mpa']
+    ['cp', 'mPa-s']
+    ['lbm-ft3', 'kg-m3']
+    ['btu', 'kJ']
+    ['hp', 'ft-lbf/s']
+    ['lbm-lbmol', 'kg-kmol']
+#    ['md', 'mm2']
+    ['lbm/ft', 'kg/m']
+    ['ppg', 'kg/m3']
+    ['gpm', 'm3/min']
+    ['lbf', 'daN']
+    ['klbf', 'KdaN']
+    ['ft-lbf', 'N-m']
+    ['kft-lbf', 'kN-m']
+  ]
+
+  unitConverter.addSystem 'metric'
+  unitConverter.addUnits METRIC_UNITS
+  unitConverter.addConversions 'metric', METRIC_CONVERSIONS

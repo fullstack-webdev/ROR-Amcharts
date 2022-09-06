@@ -1,0 +1,36 @@
+<% jobs_count = well.jobs.count %>
+
+
+<%= link_to well, class: "job-status job-link job-link2 tooltip-info",
+            "data-placement" => "left",
+            "data-title" => "Click to open well" do %>
+    <div>
+      <div class='inline-block'>
+        <div class="job-status-name">
+          <div class="push-down job-status-name">
+            <h2 class="job-title job-title4 inline"><%= well.field.name %></h2>
+
+            <p class="job-title-divider2">|</p>
+
+            <h2 class="job-title job-title4 inline"><%= well.name %></h2>
+          </div>
+        </div>
+        <br>
+
+        <div class="job-rig-name align-top push-up">
+          <b><%= well.rig.present? ? well.rig.name : '-' %></b>
+        </div>
+        <div class='inline-block align-top push-up'>
+          <b class='help-text'></b>
+        </div>
+      </div>
+
+
+      <div class="inline-block align-top push-down">
+        <b class='inline-block blue-text' style='font-size: 32px; font-family: gothamlightregular;'><%= jobs_count %></b>&nbsp;
+        <p class='inline'> <%= 'job'.pluralize(jobs_count) %></p>
+      </div>
+
+
+    </div>
+<% end %>

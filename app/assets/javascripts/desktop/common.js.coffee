@@ -1,0 +1,1 @@
+window.auid = 0

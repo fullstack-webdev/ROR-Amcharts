@@ -1,0 +1,15 @@
+
+<% if @district.new_record? %>
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding District", message: @district.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show:true});
+
+<% else %>
+
+$('#new_district_link').hide();
+$('#new_district').show();
+$('#districts_list').append($("<option></option>")
+        .attr("value", '<%= @district.id %>')
+        .text('<%= @district.name %>'));
+
+<% end %>

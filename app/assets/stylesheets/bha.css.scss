@@ -1,0 +1,55 @@
+.bha-column {
+  display: block;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.bha-value {
+  min-width: 0px !important;
+  width: 60px !important;
+  height: 30px;
+  font-weight: bold;
+  text-wrap: none;
+  overflow-x: hidden;
+
+  -webkit-box-shadow: 0;
+  box-shadow: 0;
+
+  border-width: 0;
+  font-size: 14px;
+  color: #12608d;
+
+  font-family: "gothammediumregular";
+}
+
+.bha-value2 {
+  min-width: 0px !important;
+  width: 80px !important;
+  height: 20px;
+  font-weight: bold;
+  text-wrap: none;
+  overflow-x: hidden;
+
+  border-width: 0 !important;
+}
+
+.bha-units {
+  width: 30px !important;
+  font-size: 13px;
+}
+
+.bha-button {
+  margin-left: 5px !important;
+  margin-right: 0px !important;
+  margin-bottom: 5px !important;
+  margin-top: 5px !important;
+}
+
+.bha-line {
+
+  padding-top: 10px;
+
+  border-style: solid;
+  border-width: 0px 0px 1px 0px;
+  border-color: #ebebeb;
+}

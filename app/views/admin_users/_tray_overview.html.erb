@@ -1,0 +1,83 @@
+<div class="job-tray" data-tray="overview">
+
+  <div class='content'>
+  <div class='page_header'>
+    <h1>Overview</h1>
+  </div>
+
+
+  <div>
+    <div>
+      <div class="chart-block tooltip-info"
+           data-title="Total active jobs for this user right now.">
+        <div class="chart-title">Active Jobs</div>
+        <div class="donut-chart-div job-donut-chart-div">
+          <div class="donut-text "><%= @user.active_jobs.count %></div>
+          <div class="percentage ">jobs</div>
+        </div>
+      </div>
+
+      <div class="chart-block tooltip-info"
+           data-title="Total jobs this user has ever been on.">
+        <div class="chart-title">Total Jobs</div>
+        <div class="donut-chart-div job-donut-chart-div">
+          <div class="donut-text "><%= @user.jobs.count %></div>
+          <div class="percentage ">jobs</div>
+        </div>
+      </div>
+
+    </div>
+    <br><br>
+
+    <div>
+
+      <% if !current_user.role.limit_to_assigned_jobs? %>
+
+          <div class="chart-block tooltip-info align-top"
+               data-title="Failure rate For jobs assigned to">
+            <div class="chart-title">Associated Failure Rate</div>
+            <div class="donut-chart-div job-donut-chart-div">
+              <div class="donut-text chart-text-red"><%= @failure_rate.round(2) %></div>
+              <div class="percentage chart-text-red">failures/jobs</div>
+            </div>
+          </div>
+
+
+          <div class="chart-block tooltip-info align-top"
+               data-title="Performance Rating of jobs this person was assigned to.">
+            <div class="chart-title">Associated Perf. Rating</div>
+            <div class="donut-chart-div">
+              <div id="performance_rating" class="donut-chart "></div>
+              <div class="donut-inner-circle <%= @average_job_performance >= 3 ? "" : "inner-circle-red" %>"></div>
+              <div class="donut-text <%= @average_job_performance >= 3 ? "" : "chart-text-red" %>"><%= @average_job_performance %></div>
+              <div class="percentage-circle <%= @average_job_performance >= 3 ? "" : "chart-text-red" %>">of 5</div>
+            </div>
+          </div>
+
+      <% end %>
+    </div>
+
+
+
+    <div>
+      <div class="chart-block tooltip-info"
+           data-title="Total days worked during this month.">
+        <div class="chart-title">Worked This Month</div>
+        <div class="donut-chart-div job-donut-chart-div">
+          <div class="donut-text "><%= @total_this_month %></div>
+          <div class="percentage ">days</div>
+        </div>
+      </div>
+
+      <div class="chart-block tooltip-info"
+           data-title="Total days worked in the previous month.">
+        <div class="chart-title">Worked Last Month</div>
+        <div class="donut-chart-div job-donut-chart-div">
+          <div class="donut-text "><%= @total_last_month %></div>
+          <div class="percentage ">days</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>

@@ -1,0 +1,154 @@
+
+<% if @survey.new_record? %>
+
+$('#modal_popup').find('.loading').addClass('hidden');
+$('#modal_popup').find('.form').removeClass('hidden');
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding Active Well Plan", message: @survey.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show:true});
+
+<% else %>
+
+    $('#modal_popup').css('visibility', 'hidden');
+    $('#modal_popup').find(".modal-content").children().remove();
+    $('#modal_popup').height(0);
+
+
+$('#survey_charts').replaceWith("<%= j render 'survey_charts', survey: @survey %>");
+
+<% calculated_points = @survey.calculated_points %>
+
+
+var chart;
+var chartData = <%= raw calculated_points.select{ |p| !p.comment.blank? }.map { |point| {"tvd" => point.true_vertical_depth.round(1), "vs" => point.vertical_section.round(1), "comment" => point.comment} }.to_json.html_safe %>;
+var chart2;
+var chartData2 = <%= raw calculated_points.select{ |p| !p.comment.blank? }.map { |point| {"ns" => point.north_south.round(1), "ew" => point.east_west.round(1), "comment" => point.comment} }.to_json.html_safe %>;
+
+
+
+
+    // SERIAL CHART
+    chart = new AmCharts.AmSerialChart();
+    //chart.pathToImages = "https://www.amcharts.com/lib/3/images/";
+    chart.dataProvider = chartData;
+    chart.categoryField = "vs";
+    //hart.dataDateFormat = "YYYY-MM-DD";
+
+    // AXES
+    // category
+    var categoryAxis = chart.categoryAxis;
+    categoryAxis.title = "Vertical Section";
+    //categoryAxis.parseDates = false; // as our data is date-based, we set parseDates to true
+    //categoryAxis.minPeriod = "DD"; // our data is daily, so we set minPeriod to DD
+    categoryAxis.dashLength = 1;
+    categoryAxis.gridAlpha = 0.15;
+    categoryAxis.axisColor = "#DADADA";
+    categoryAxis.equalSpacing = false;
+
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "True Vertical Depth";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.integersOnly = false;
+    valueAxis.gridCount = 10;
+    valueAxis.reversed = true; // this line makes the value axis reversed
+    chart.addValueAxis(valueAxis);
+
+
+    // GRAPH
+    var graph = new AmCharts.AmGraph();
+    graph.type = "line";
+    graph.bullet = "round";
+    graph.balloonText = "<b>[[comment]]</b> [[tvd]] ft";
+    graph.bulletColor = "#FFFFFF";
+    graph.bulletBorderColor = "#00BBCC";
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSize = 7;
+    graph.title = "tvd";
+    graph.valueField = "tvd";
+    graph.lineThickness = 2;
+    graph.lineColor = "#00BBCC";
+    graph.clustered = true;
+    chart.addGraph(graph);
+
+    // CURSOR
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart.addChartCursor(chartCursor);
+
+
+    // WRITE
+    chart.write("chartdiv");
+
+    var label = $("g[cursor=pointer]");
+    if (label.length > 0) {
+        var tspan = label.find('tspan');
+        if (tspan.length > 0) {
+            label.remove();
+        }
+    }
+
+
+    // SERIAL CHART
+    chart2 = new AmCharts.AmSerialChart();
+    //chart2.pathToImages = "https://www.amcharts.com/lib/3/images/";
+    chart2.dataProvider = chartData2;
+    chart2.categoryField = "ew";
+
+    // AXES
+    // category
+    var categoryAxis = chart2.categoryAxis;
+    categoryAxis.title = "East/West";
+    categoryAxis.dashLength = 1;
+    categoryAxis.gridAlpha = 0.15;
+    categoryAxis.axisColor = "#DADADA";
+
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "North/South";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.integersOnly = false;
+    valueAxis.gridCount = 10;
+    valueAxis.reversed = true; // this line makes the value axis reversed
+    chart2.addValueAxis(valueAxis);
+
+
+    // GRAPH
+    var graph = new AmCharts.AmGraph();
+    graph.type = "line";
+    graph.bullet = "round";
+    graph.balloonText = "<b>[[comment]]</b> [[ns]], [[ew]]";
+    graph.bulletColor = "#FFFFFF";
+    graph.bulletBorderColor = "#00BBCC";
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSize = 7;
+    graph.title = "ns";
+    graph.valueField = "ns";
+    graph.lineThickness = 2;
+    graph.lineColor = "#00BBCC";
+    graph.clustered = true;
+    chart2.addGraph(graph);
+
+    // CURSOR
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart2.addChartCursor(chartCursor);
+
+
+    // WRITE
+    chart2.write("chartdiv2");
+
+    var label = $("g[cursor=pointer]");
+    if (label.length > 0) {
+        var tspan = label.find('tspan');
+        if (tspan.length > 0) {
+            label.remove();
+        }
+    }
+
+<% end %>

@@ -1,0 +1,239 @@
+<% @rops_current_year = DrillingLog.where("drilling_logs.job_id IN (#{@jobs_sql})").where("drilling_logs.created_at >= ?", Date.today - 1.year).select("date_trunc('month', drilling_logs.created_at) as DATE").group("date_trunc('month', drilling_logs.created_at)").where("drilling_logs.drilling_rop > 0").average("drilling_logs.drilling_rop").map { |k, v| {Date.strptime(k).month => v} }.reduce(:merge) %>
+<% total_rop = 0.0 %>
+<% if !@rops_current_year.nil? %>
+    <% @rops_current_year.each do |r| %>
+        <% total_rop = total_rop + r[1] %>
+    <% end %>
+<% end %>
+
+<% total_feet = DrillingLog.where("drilling_logs.job_id IN (#{@jobs_sql})").where("drilling_logs.created_at >= ?", Date.today - 1.year).sum("drilling_logs.total_drilled") %>
+
+<div id="overview_drilling" data-loaded='true'>
+
+<div>
+  <div class="chart-block tooltip-info"
+       data-title="Total number of active rigs">
+    <div class="chart-title">Active Rigs</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <div class="donut-text "><%= Job.includes(well: :rig).where("jobs.status >= 1 AND jobs.status < 50").select("DISTINCT rigs.id").count() %></div>
+      <div class="percentage ">rigs</div>
+    </div>
+  </div>
+
+  <div class="chart-block tooltip-info"
+       data-title="Total number of active rigs">
+    <div class="chart-title">Avg Drilling ROP</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <% drilling_rop = DrillingLog.where("drilling_logs.job_id IN (#{@jobs_sql})").average("drilling_logs.drilling_rop") %>
+      <div class="donut-text "><%= drilling_rop.present? ? drilling_rop.round(1) : '-' %></div>
+      <div class="percentage ">ft/hr</div>
+    </div>
+  </div>
+
+  <div class="chart-block tooltip-info"
+       data-title="Total number of active rigs">
+    <div class="chart-title">Avg Rotating ROP</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <% rotate_rop = DrillingLog.where("drilling_logs.job_id IN (#{@jobs_sql})").average("drilling_logs.rotate_rop") %>
+      <div class="donut-text "><%= rotate_rop.present? ? rotate_rop.round(1) : '-' %></div>
+      <div class="percentage ">ft/hr</div>
+    </div>
+  </div>
+
+  <div class="chart-block tooltip-info"
+       data-title="Total number of active rigs">
+    <div class="chart-title">Avg Sliding ROP</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <% slide_rop = DrillingLog.where("drilling_logs.job_id IN (#{@jobs_sql})").average("drilling_logs.slide_rop") %>
+      <div class="donut-text "><%= slide_rop.present? ? slide_rop.round(1) : '-' %></div>
+      <div class="percentage ">fr/hr</div>
+    </div>
+  </div>
+
+</div>
+
+<hr>
+
+<div class='center'>
+  <b class='blue-text'>Drilling ROP (trailing year)</b>
+  <br><br>
+</div>
+<div class="">
+  <canvas id="canvas_drilling" height="200" width="960"></canvas>
+</div>
+
+<% rigs = Rig.all.to_a %>
+
+<div class='center'>
+  <br><br>
+  <b class='blue-text'>Rotate ROP (per Rig)</b>
+  <br><br>
+</div>
+<div>
+  <div id="rotate_rop_div" class='inline-block amChart' style="width: 900px; height: 500px;"></div>
+</div>
+
+<div class='center'>
+  <br><br>
+  <b class='blue-text'>Slide ROP (per Rig)</b>
+  <br><br>
+</div>
+<div>
+  <div id="slide_rop_div" class='inline-block amChart' style="width: 900px; height: 500px;"></div>
+</div>
+
+
+<br><br>
+<div>
+  <% rigs.each do |rig| %>
+      <div class='inline-block'>
+        <div class="label inline-block push-right-small part-name tooltip-info" style="padding:3px; padding-left: 10px; padding-right: 10px; background:#<%= rig.color %>; width: 100px;"
+            data-title="<%= rig.name %>">
+          <b class='white-text'><%= rig.name %></b>
+        </div>
+      </div>
+  <% end %>
+</div>
+
+<script>
+    var lineChartData = {
+        labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        datasets: [
+            {
+                fillColor: "rgba(151,187,205,0.5)",
+                strokeColor: "rgba(151,187,205,1)",
+                pointColor: "rgba(151,187,205,1)",
+                pointStrokeColor: "#fff",
+                data: <%= raw (1..12).map { |month| (@rops_current_year && @rops_current_year[month]) || 0 }.to_json.html_safe %>
+            }
+        ]
+    }
+
+    var myLine = new Chart(document.getElementById("canvas_drilling").getContext("2d")).Line(lineChartData);
+
+</script>
+
+<script type="text/javascript">
+
+
+    <% points = [] %>
+    <% points2 = [] %>
+    <% rigs.each do |rig| %>
+    <% rops = DrillingLog.includes(job: { well: :rig }).where("drilling_logs.created_at >= ?", Date.today - 1.year).where("drilling_logs.drilling_rop > 0").where("rigs.id = ?", rig.id) %>
+    <% rops.each do |dl| %>
+    <% points << { "rig_#{rig.id}" => rig.name, "day_#{rig.id}" => dl.created_at.strftime("%W"), "rop_#{rig.id}" => dl.rotate_rop.round(1) } %>
+    <% points2 << { "rig_#{rig.id}" => rig.name, "day_#{rig.id}" => dl.created_at.strftime("%W"), "rop_#{rig.id}" => dl.slide_rop.round(1) } %>
+    <% end %>
+    <% end %>
+    var chartData = <%= raw points.to_json.html_safe %>;
+    var chartData2 = <%= raw points2.to_json.html_safe %>;
+
+    var chart = new AmCharts.AmXYChart();
+    chart.dataProvider = chartData;
+
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "Week of Year (trailing)";
+    valueAxis.position = "bottom";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.autoGridCount = true;
+    chart.addValueAxis(valueAxis);
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "Rotate ROP";
+    valueAxis.position = "left";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.autoGridCount = true;
+    chart.addValueAxis(valueAxis);
+
+
+    <% rigs.each do |rig| %>
+    var color = "#<%= "#{rig.color}" %>";
+    var graph = new AmCharts.AmGraph();
+    graph.xField = "day_<%= "#{rig.id}" %>";
+    graph.yField = "rop_<%= "#{rig.id}" %>";
+    graph.type = "smoothedLine";
+    graph.bullet = "round";
+    graph.balloonText = "<b>[[rig_<%= "#{rig.id}" %>]]</b> ROP [[rop_<%= "#{rig.id}" %>]] ft/hr";
+    graph.bulletColor = "#FFFFFF";
+    graph.bulletBorderColor = color;
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSize = 6;
+    graph.title = "rop";
+    graph.lineThickness = 1;
+    graph.lineColor = color;
+    graph.clustered = true;
+    chart.addGraph(graph);
+    <% end %>
+
+
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart.addChartCursor(chartCursor);
+
+
+    chart.write("rotate_rop_div");
+
+    var label = $("tspan:contains('chart by amcharts.com')");
+    if (label.length > 0) {
+        label.remove();
+    }
+
+
+    chart = new AmCharts.AmXYChart();
+    chart.dataProvider = chartData2;
+
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "Week of Year (trailing)";
+    valueAxis.position = "bottom";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.autoGridCount = true;
+    chart.addValueAxis(valueAxis);
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "Slide ROP";
+    valueAxis.position = "left";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.autoGridCount = true;
+    chart.addValueAxis(valueAxis);
+
+
+    <% rigs.each do |rig| %>
+    var color = "#<%= "#{rig.color}" %>";
+    var graph = new AmCharts.AmGraph();
+    graph.xField = "day_<%= "#{rig.id}" %>";
+    graph.yField = "rop_<%= "#{rig.id}" %>";
+    graph.type = "smoothedLine";
+    graph.bullet = "round";
+    graph.balloonText = "<b>[[rig_<%= "#{rig.id}" %>]]</b> ROP [[rop_<%= "#{rig.id}" %>]] ft/hr";
+    graph.bulletColor = "#FFFFFF";
+    graph.bulletBorderColor = color;
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSize = 6;
+    graph.title = "rop";
+    graph.lineThickness = 1;
+    graph.lineColor = color;
+    graph.clustered = true;
+    chart.addGraph(graph);
+    <% end %>
+
+
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart.addChartCursor(chartCursor);
+
+
+    chart.write("slide_rop_div");
+
+    var label = $("tspan:contains('chart by amcharts.com')");
+    if (label.length > 0) {
+        label.remove();
+    }
+</script>
+</div>

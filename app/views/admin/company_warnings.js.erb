@@ -1,0 +1,7 @@
+$("#event_warnings_tree").append('<%= j render 'event_warnings/warning_blocks', warnings: @warnings, prev_time: @prev_time, opened_warning: (@current_warnings_list.first unless @current_warnings_list.empty?) %>');
+<% if @warnings.next_page %>
+$('#infinite-scrolling').html('<%= j paginate @warnings, :params => {prev_time: @warnings.last.opened_at} %>');
+<% else %>
+//$(window).off('scroll');
+$('.pagination').remove();
+<% end %>

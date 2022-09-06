@@ -1,0 +1,155 @@
+<% provide(:title, 'Inventory') %>
+
+
+
+
+<div class="page_header">
+  <h1>Inventory</h1>
+
+  <% if @district.present? %>
+      <span><%= @district.name %></span>
+
+      <div class="btn-group inline pull-right push-right-small">
+        <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+          Advanced Actions
+        </a>
+        <ul class="dropdown-menu">
+          <% if !@district.nil? %>
+
+              <li>
+                <%= link_to "+ Add New Master Asset", new_part_path(template: true, district: @district),
+                            class: "dropdown-menu-link tooltip-info",
+                            "data-placement" => "bottom",
+                            "data-title" => "Create new master asset" %>
+              </li>
+          <% end %>
+        </ul>
+      </div>
+  <% end %>
+</div>
+
+
+    <div class="pull-right">
+      <div class='push-down-small'>
+        <div class="district-jump">
+          <%= hidden_field_tag "district_id", id: "district_id" %>
+        </div>
+
+        <% if false %>
+            <div class=' pull-right'>
+
+              <%= select_tag "District",
+                             options_for_select(current_user.company.districts.where(:master => true).collect { |d| [d.name, d.id] }),
+                             class: "custom-select tooltip-info",
+                             id: "jump_to_district_select",
+                             "data-placement" => "bottom",
+                             "data-title" => "Select a District",
+                             prompt: "Select district..." %>
+            </div>
+        <% end %>
+
+        <div class='pull-right'>
+          <%= image_tag "district_extrasmall.png", class: "job-status-avatar" %>
+          <%= text_field_tag "", "", data: {autocomplete_source: districts_path},
+                             placeholder: "Type a district name...",
+                             id: "district_name",
+                             class: "txtfield small tooltip-info district-jump-to",
+                             "data-placement" => "top",
+                             "data-title" => "District Name, select from drop down based on search results" %>
+
+        </div>
+
+      </div>
+    </div>
+
+
+<% if @district.present? %>
+    <div class="">
+      <b class="inline">District</b>
+      <%= link_to @district.name, @district, class: "activity-user-link" %>
+
+
+    </div>
+<% else %>
+
+    <div class="alert">
+      View District Inventory
+      <br><br>
+
+      <div class="district-jump">
+        <%= hidden_field_tag "district_id", id: "district_id" %>
+      </div>
+      <%= image_tag "district_extrasmall.png", class: "job-status-avatar push-down-small" %>
+      <%= text_field_tag "", "", data: {autocomplete_source: districts_path},
+                         placeholder: "Type a district name...",
+                         id: "district_name",
+                         class: "txtfield small tooltip-info district-jump-to align-top",
+                         "data-placement" => "top",
+                         "data-title" => "District Name, select from drop down based on search results" %>
+
+      or &nbsp;
+
+        <%= select_tag "District",
+                       options_for_select(current_user.company.districts.where(:master => false).collect { |d| [d.name, d.id] }),
+                       class: "tooltip-info custom-select align-top",
+                       id: "jump_to_district_select",
+                       "data-placement" => "bottom",
+                       "data-title" => "Select a District",
+                       prompt: "Select by name..." %>
+    </div>
+<% end %>
+
+<% if @district.present? %>
+    <div class="content">
+      <%= link_to 'View Full Inventory List (' + number_with_delimiter(@parts.count, :delimiter => ",") + ')', 'inventory/' + @district.id.to_s, class: "activity-user-link orange-text job-title job-title4" %>
+      <i class="icon-chevron-right"></i>
+      <br>
+    </div>
+<% end %>
+
+
+
+
+<br>
+
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+            setTimeout(function () {
+                window.auid++;
+                $.ajax({
+                    url: "/inventory" + "?section=overview" + "&auid=" + window.auid,
+                    type: "GET",
+                    dataType: "script"
+                });
+
+            }, 1);
+        });
+    }(jQuery));
+</script>
+
+
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+            $('.part-search').data("autocomplete")._renderItem = function (ul, item) {
+                return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                        "<a><div>" + (item.id > 0 ? "<img src='/assets/tool.png' class='job-member-avatar pull-left'>" : "") + "</div><div><div class='job-user'><strong>" + item.value + " </strong>" + (item.id > 0 ? "<p class='job-user-district pull-right'><span class='help-text'>Material # </span>" + item.material_number + "</p>" : "") + (item.id > 0 ? "<div>" + (item.serial_number != null ? ("<p class='job-user-title'><span class='help-text'>Serial # </span><b class='orange-text'>" + item.serial_number + "</b>" + (item.district_serial_number != '' ? " / <span class='help-text'>District # </span><b class='orange-text'>" + item.district_serial_number + "</b>" : "") + "</p>") : "<p class='job-user-title'><b class='blue-text'>Master Part</b></p>") + "</div>" : "") + "</div></div></a>").appendTo(ul)
+            }
+        });
+    }(jQuery));
+</script>
+
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+            $('#district_name').data("autocomplete")._renderItem = function (ul, item) {
+                return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                        "<a><div>" + (item.id > 0 ? "<img src='/assets/district_extrasmall.png' class='job-member-avatar pull-left'>" : "") + "</div><div><div class='job-user'><strong>" + item.value + " </strong>" + (item.id > 0 ? "<div><p class='job-user-title'>" + item.country + ", " + item.state + "  " + item.city + "</p><p class='job-user-district'>" + item.region + "</p></div>" : "") + "</div></div></a>").appendTo(ul)
+            }
+        });
+    }(jQuery));
+</script>

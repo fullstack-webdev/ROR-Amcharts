@@ -1,0 +1,17 @@
+<div id="alert" class="modal hide fade"style='z-index:10000000000;'
+     tabindex="100000000" role="dialog" aria-labelledby="modal_label" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h2 id="modal_label" class="page-title"><%= title %></h2>
+  </div>
+  <div class="modal-body">
+    <p><%= message %></p>
+  </div>
+  <div class="modal-footer">
+    <%= link_to "remove", job_membership, method: :delete, remote: true,
+                data: {confirm: "Remove " + job_membership.user.name + " from job?", dismiss: "modal"},
+                class: "btn btn-primary red pull-right" %>
+
+    <button class="btn btn-default pull-right" data-dismiss="modal" aria-hidden="true">Cancel</button>
+  </div>
+</div>

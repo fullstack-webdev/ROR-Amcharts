@@ -1,0 +1,67 @@
+<div>
+  <div class="section-header">
+    <h1>Add New Document</h1>
+  </div>
+
+  <div class="form" data-form="new_document">
+    <%= form_for document, remote: true do |f| %>
+
+        <%= f.hidden_field :document_type, value: "0" %>
+        <%= f.hidden_field :template, value: "false" %>
+        <% if job_id.present? %>
+            <%= f.hidden_field :job_id, value: job_id %>
+        <% end %>
+
+        <div class="well">
+          <b>New Document Name</b><br><br>
+          <%= f.text_field :name, class: "txtfield",
+                           placeholder: "Document Name..." %>
+        </div>
+
+        <% if job_id.present? %>
+            <div class="content">
+              <div class="">
+                <div class="list-item-column2">Category</div>
+                <%= f.select :category, options_for_select([["Pre-Job", Document::PRE_JOB], ["On-Job", Document::ON_JOB], ["Post-Job", Document::POST_JOB]]),
+                             {},
+                             class: "job-note-type custom-select" %>
+              </div>
+
+
+              <% if !current_user.role.limit_to_assigned_jobs? %>
+                  <br>
+
+                  <div>
+                    <div class="list-item-column2">Access
+                      Level
+                      <%= image_tag "lock_icon.png", class: "tooltip-info align-top push-right-small push-down-small",
+                                    "data-placement" => "bottom",
+                                    "data-title" => "Restricted Access" %>
+                    </div>
+                    <%= f.select :access_level, options_for_select([["Available to All", 0], ["Restricted to Corporate", 3]]),
+                                 {},
+                                 class: "job-note-type custom-select inline" %>
+                  </div>
+
+              <% end %>
+            </div>
+
+            <br>
+        <% end %>
+
+
+        <div class="custom-document-footer">
+          <%= f.submit class: "btn btn-success pull-right form-loading-on-click",
+                       "data-form" => "new_document" %>
+        </div>
+
+
+    <% end %>
+
+  </div>
+
+
+  <div class="form-loading hidden" data-form="new_document">
+    <%= render 'layouts/inline_loading', title: "Creating..." %>
+  </div>
+</div>

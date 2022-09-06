@@ -1,0 +1,139 @@
+$button-size: 20px;
+$height: 2px;
+$transition: .3s;
+
+.lines-button {
+  display: inline-block;
+  padding: $button-size/2 $button-size/4;
+  transition: .3s;
+  cursor: pointer;
+  user-select: none;
+  border-radius: $button-size/7;
+  background: none;
+  border: none;
+  height: 50px;
+  width: 50px;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:active {
+    transition: 0;
+    background: rgba(0, 0, 0, .1);
+  }
+}
+
+@mixin line {
+  display: inline-block;
+  width: $button-size;
+  height: $height;
+  background: $white;
+  border-radius: 0;
+  transition: $transition;
+  margin-top: -3px;
+}
+
+.lines {
+
+  //create middle line
+  //@include line;
+  display: inline-block;
+  width: $button-size;
+  height: $height;
+  background: #2c3e3d;
+  border-radius: 0;
+  transition: $transition;
+  position: relative;
+
+  /*create the upper and lower lines as pseudo-elements of the middle line*/
+  &:before, &:after {
+
+    @include line;
+    position: absolute;
+    left: 0;
+    content: '';
+    transform-origin: $button-size/14 center;
+  }
+  &:before {
+    top: $button-size/5;
+  }
+  &:after {
+    top: -$button-size/5;
+  }
+}
+
+.lines-button:hover {
+  opacity: 1;
+
+  .lines {
+    &:before {
+      top: $button-size/5;
+    }
+    &:after {
+      top: -$button-size/5;
+    }
+  }
+}
+
+.lines-button.x.closed {
+  transform: scale3d(.8, .8, .8);
+  -webkit-transform: scale3d(.8, .8, .8);
+}
+
+.lines-button.x.closed .lines{
+
+  /*hide the middle line*/
+  background: transparent;
+
+  /*overlay the lines by setting both their top values to 0*/
+  &:before, &:after{
+    transform-origin: 50% 50%;
+    top:0;
+    width: $button-size;
+  }
+
+  // rotate the lines to form the x shape
+  &:before{
+    transform: rotate3d(0,0,1,45deg);
+    -webkit-transform: rotate3d(0,0,1,45deg);
+  }
+  &:after{
+    transform: rotate3d(0,0,1,-45deg);
+    -webkit-transform: rotate3d(0,0,1,-45deg);
+  }
+}
+
+.navmenu {
+  position: fixed;
+  margin-top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 10001;
+  overflow: scroll;
+  background-color: $dark-green;
+}
+
+ul.mobile-nav {
+  padding: 70px 30px 20px 30px;
+  margin: 0;
+
+  li {
+    &:not(:last-child) {
+      border-bottom: 1px solid $gray;
+    }
+
+    &.active {
+      a {
+        color: $yellow !important;
+      }
+    }
+
+    a {
+      display: block;
+      color: $white;
+      font-size: 18px;
+      padding: 20px 5px;
+    }
+  }
+}

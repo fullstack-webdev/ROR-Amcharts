@@ -1,0 +1,41 @@
+<% provide(:title, I18n.t("jobs.index.title")) %>
+
+<% content_for :page_title do %>
+  Rigs Overview
+<% end %>
+
+<% jobs = current_user.jobs_list %>
+<% jobs = jobs.where("jobs.status = ? or end_date >= ?", Job::ON_JOB, DateTime.now - 24.months) %>
+<% jobs_array = jobs.to_a %>
+<% jobs_array = jobs_array.sort_by { |j| j.start_date }.reverse.uniq { |j| "#{j.well.rig.present? ? j.well.rig.name : j.well.name}" }.sort_by { |j| "#{j.well.rig.present? ? j.well.rig.name : j.well.name}" } %>
+
+<div class="main-content">
+  <% if current_user.active_jobs.present? && current_user.current_warnings_list.empty? %>
+    <div class="alert-box alert-success alert-mobile">
+      All systems are operating normally <a href="#warnings" class="remote-tray-toggle"
+                                            data-tray-controller="jobs"
+                                            data-tray="warnings" id="btn_view_warnings">View details</a>
+    </div>
+  <% else %>
+    <% current_user.current_warnings_list.each do |warning| %>
+      <div class="alert-box alert-warning color-<%= warning.severity %> alert-mobile">
+        <i class="fa fa-exclamation-triangle"></i> &nbsp;&nbsp;<%= warning.job.well.rig.name %>&nbsp;&nbsp;
+        - &nbsp;&nbsp; <%= warning.name %>
+        <%= link_to "View details", job_path(warning.job) + "#" + warning.tray_name %>
+      </div>
+    <% end %>
+  <% end %>
+  <div style="display: block; padding: 20px 0;">
+    <%= render 'overview/tray_jobs', jobs_array: jobs_array %>
+  </div>
+</div>
+
+<% content_for :javascripts do %>
+  <script type="text/javascript">
+    (function ($) {
+      $(document).ready(function () {
+        $('#outer_container').height($('#inner_container').height());
+      });
+    }(jQuery));
+  </script>
+<% end %>

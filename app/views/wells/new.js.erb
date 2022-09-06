@@ -1,0 +1,74 @@
+
+$('#modal_popup').css('visibility', 'visible');
+$('#modal_popup').find('.loading').addClass('hidden');
+
+<% if @field.nil? %>
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Creating New Well", message: "Select a field, before you can create a new well." %>");
+$('#alert').modal({show: true});
+
+
+<% else %>
+
+
+$('#modal_popup').find('.modal-content').append('<%= j render 'wells/new_well' %>');
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.job-type-description-target').tooltip();
+    //$('.tooltip-info').tooltip();
+    //$('.unit-tooltip').tooltip();
+}
+
+var focusevent, last_selected_item, rig_focused;
+
+last_selected_item = null;
+
+focusevent = function(event, ui) {
+    var selected_item;
+    if (last_selected_item !== null) {
+        $('.item_' + last_selected_item.id).removeClass('ui-state-hover');
+    }
+    selected_item = $('.item_' + ui.item.id);
+    selected_item.addClass('ui-state-hover');
+    return last_selected_item = ui.item;
+};
+
+$('#rig_name').autocomplete({
+    source: $('#rig_name').data('autocomplete-source'),
+    focus: focusevent,
+    select: function(event, ui) {
+        if (ui.item.id > 0) {
+            $("#rig_name").val(ui.item.label);
+            return $("#rig_id").val(ui.item.id);
+        }
+    }
+});
+
+rig_focused = false;
+
+$('#rig_name').focusin(function() {
+    rig_focused = true;
+    $('#rig_name').removeClass('ui-autocomplete-bad');
+    $('#rig_name').addClass('ui-autocomplete-typing');
+    $('#rig_name').val('');
+    return $('#rig_id').val('');
+});
+
+$('#rig_name').focusout(function() {
+    if (rig_focused && $('#rig_id').val() === '') {
+        $('#rig_name').addClass('ui-autocomplete-bad');
+        if ($('#rig_name').val() === '') {
+            return $('#rig_name').removeClass('ui-autocomplete-typing');
+        }
+    }
+});
+
+$('#rig_name').data("autocomplete")._renderItem = function (ul, item) {
+    return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+            "<a><div>" + (item.id > 0 ? "<img src='/assets/rig_extrasmall.png' class='job-member-avatar pull-left'>" : "") + "</div><div><div class='job-user'><strong>" + item.value + " </strong></div><div><p>Rig</p></div></div></a>").appendTo(ul)
+}
+
+
+<% end %>
+

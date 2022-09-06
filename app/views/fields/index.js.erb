@@ -1,0 +1,19 @@
+$('#job_field_id').find('option').remove();
+$('#job_well_id').find('option').remove();
+
+$('<option>').val('-1').text('Select a Field...').appendTo('#job_field_id');
+
+<% @fields.each do |f| %>
+    $('<option>').val('<%= f.id %>').text('<%= f.name %>').appendTo('#job_field_id');
+<% end %>
+
+<% if @fields.count == 0 %>
+    $('#job_field_id').attr("disabled", "disabled");
+    $('#job_field_id').css("opacity", ".3");
+
+    $('#job_well_id').attr("disabled", "disabled");
+    $('#job_well_id').css("opacity", ".3");
+<% else %>
+    $('#job_field_id').removeAttribute("disabled");
+    $('#job_field_id').css("opacity", "1");
+<% end %>

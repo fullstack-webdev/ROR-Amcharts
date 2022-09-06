@@ -1,0 +1,19 @@
+<% if @post_job_report_document.new_record? %>
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding Post Job Report Document", message: @post_job_report_document.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show:true});
+
+<% else %>
+
+$('.job-type-no-docs-post-jobs-report').hide();
+$("#post_job_documents_list").append("<%= j render 'post_job_report_documents/document',
+    post_job_report_document: @post_job_report_document,
+    document: @post_job_report_document.document,
+    editable: true,
+    can_upload: @post_job_report_document.document.category == Document::POST_JOB_REPORT_PART ? true : false %>");
+
+<% end %>
+
+
+

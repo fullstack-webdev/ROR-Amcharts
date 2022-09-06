@@ -1,0 +1,33 @@
+tray = $(".remote-tray[data-tray='<%= params[:section] %>']");
+if(!tray.hasClass('custom-data-closed')) {
+    function removeOldContent(section) {
+        $('.remote-tray').each(function() {
+            if($(this).hasClass('custom-data-closed')) {
+                generating_report = $(this).find('.generating-report:not(.hidden)');
+                download_report = $(this).find('.download-report:not(.hidden)');
+                if(generating_report.length > 0 || download_report.length > 0) {
+
+                }
+                else {
+                    $(this).find('.tray-content').remove();
+                    $(this).find('.tray-content').removeClass('content-loaded');
+                }
+            }
+        });
+    }
+
+    removeOldContent('<%= params[:section] %>');
+
+
+
+    if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+        //$('.tooltip-info').tooltip();
+    }
+
+    $('.custom-select-ajax').each(function() {
+        span_tag = $(this).next('span');
+        if($(this).prop("tagName").toLowerCase() == 'select' && span_tag.length <= 0 && !span_tag.hasClass('customSelect')) {
+            $(this).customSelect();
+        }
+    });
+}

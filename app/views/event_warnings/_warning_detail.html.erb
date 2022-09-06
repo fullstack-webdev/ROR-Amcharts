@@ -1,0 +1,224 @@
+<div class="modal-popup modal-popup-fixed" style="min-height: 500px; max-height: 500px; overflow: scroll; width: 90%; padding: 0; border-radius: 0; margin-top: 90px; max-width: 1025px; box-sizing: border-box; z-index: 1032;">
+  <div style="padding: 24px; background: #435f60;">
+    <h2 style="font-size: 20px;
+            font-family: orgonlightregular;
+            color: #ffffff;
+            text-align: left;
+            padding: 0;
+            margin: 0;"><%= warning.name.titleize %></h2>
+    <a href="#" class="modal-popup-close" id="close_warning_detail_popup" style="right: 24px;
+            font-size: 20px;
+            margin-top: 24px;
+            position: absolute;
+            top: 0;
+            float: right;"><i class="fa fa-times"></i></a>
+  </div>
+
+  <div class="modal-content" style="width: 100%; padding-bottom: 30px; box-sizing: border-box;">
+
+    <div style="border-bottom: 1px solid #667474; line-height: 64px; font-size: 14px; padding: 0 24px; color: #ffffff; background-color: #263334;">
+
+      <a href="javascript: void(0);" style="background: <%= warning.rgb_color %>; color: #FFFFFF; padding: 8px 20px; margin-right: 20px; font-family: orgonboldregular;"><%= warning.level_name.upcase %> Severity</a> <%= warning.family_name %>
+
+      <div style="float: right;  margin-left: 24px; line-height: 30px; margin-top: 15px;">
+        <div style=" font-family: orgonboldregular;   max-height: 30px; padding: 2px 15px 2px 15px; background: #517171; border-radius: 10px; vertical-align: top;">
+          <%= warning.duration(true) %>
+        </div>
+      </div>
+
+      <div style="float: right; font-family: orgonboldregular; margin-left: 24px;">
+        <%= warning.opened_at.strftime('%Y') == Date.today.strftime('%Y') ? '' : warning.opened_at.strftime('%Y') %>
+        <%= warning.opened_at.strftime('%b %e') %>
+        <div class="inline-block" style="margin-left: 10px;"></div>
+        <%= warning.opened_at.strftime('%k:%M') %>
+      </div>
+    </div>
+
+    <div class="activity-chart-vertical">
+    <div class="stacked-bar" style="padding-left: 45px; padding-right: 30px; padding-top: 10px; width: 1000px;">
+      <div class="inline-block align-top" style="color: white; font-size: 14px; margin-top: 8px; margin-right: 20px;">
+      <%= warning.opened_at.strftime('%k:%M') %><br>
+      <span id="start_activity" style="font-size: 11px; color: #c3c3c3;"></span>
+      </div>
+
+      <div class="inline-block align-top" style="background-color: white; border-radius: 100px; width: 8px; height: 8px; margin-top: 19px;">
+      </div>
+
+      <div class="inline-block align-top" style="background-color: white; width: 60px; height: 1px; margin-left: -5px; margin-top: 23px; margin-right: 0px;">
+      </div>
+
+        <div id="activity_bar" class="horizon-bar" style="display: inline-block; float: none; width: 680px; overflow: hidden; margin-left: -3px">
+        </div>
+
+      <div class="inline-block align-top" style="background-color: white; width: 60px; height: 1px; margin-right: -5px; margin-left: -15px; margin-top: 23px;">
+      </div>
+
+      <div class="inline-block align-top" style="background-color: white; border-radius: 100px; width: 8px; height: 8px; margin-top: 18px;">
+      </div>
+
+      <div class="inline-block align-top" style="color: white; font-size: 14px; margin-top: 5px; margin-left: 20px;">
+        <%= warning.closed_at.strftime('%k:%M') %><br>
+        <span id="end_activity" style="font-size: 11px; color: #c3c3c3;"></span>
+      </div>
+
+      <script type="text/javascript">
+          (function ($) {
+
+              var css_class_arr = [];
+              css_class_arr.push(["other", "Static"]);
+              css_class_arr.push(["run-in-hole", "Tripping In"]);
+              css_class_arr.push(["run-out-hole", "Tripping Out"]);
+              css_class_arr.push(["drilling-rotary", "Drilling"]);
+              css_class_arr.push(["other", "Static"]);
+              css_class_arr.push(["other", "Static"]);
+
+              var activity_chart_html = '';
+              var activity = null;
+              var act_arr = <%= warning.job.activity_summary_interval(warning.opened_at, warning.closed_at).to_json.html_safe %>;
+              var total_duration = <%= (warning.closed_at - warning.opened_at).to_i %>;
+              for (var i = 0; i < act_arr.length; i++) {
+                  activity = act_arr[i];
+                  console.log(activity);
+                  var data_attr = 'data-date="' + activity.date + '" data-activity="' + css_class_arr[activity.activity][1] + '"';
+                  if (activity.depth) {
+                      data_attr += ' data-depth="' + activity.depth + '"';
+                  }
+                  if (i == 0) {
+                      $("#start_activity").html(css_class_arr[activity.activity][1]);
+                  }
+                  if (i == act_arr.length - 1) {
+                      $("#end_activity").html(css_class_arr[activity.activity][1]);
+                  }
+                  activity_chart_html += '<div class="' + css_class_arr[activity.activity][0] + ' powertip" ' + data_attr + ' style="height: 40px; width:' + (activity.duration / total_duration * 100) + '%;"></div>';
+              }
+
+              $('#activity_bar').append(activity_chart_html);
+
+              $('.powertip').powerTip({
+                  followMouse: true,
+                  fadeInTime: 100,
+                  fadeOutTime: 0
+              });
+              $('.powertip').on({
+                  powerTipPreRender: function () {
+                      var date = $(this).attr('data-date');
+                      var depth = $u($(this).attr('data-depth'), 'ft').to(company_unit);
+                      var activity = $(this).attr('data-activity');
+                      $(this).data('powertip', '<div style="padding: 5px 10px; background-color: #333;"><p><span>' + date + '</span>&nbsp;&nbsp;&nbsp;<span>' + ( depth ? depth.value.round_to_decimal().with_delimiter() + '<span style="opacity: 0.5;">' + depth.unit + '</span>' : '') + '</span></p><p><div></div>' + activity + '</p></div>');
+                  }
+              });
+
+          }(jQuery));
+      </script>
+
+    </div>
+    </div>
+
+    <% notes = @warning.job.get_driller_notes(@warning.opened_at, @warning.closed_at) %>
+    <% notes2 = @warning.job.get_driller_notes(Time.parse("06/07/2015") - 10.hours, Time.parse("06/07/2015") + 10.hours) %>
+    <% if notes.any? %>
+      <div class="center" style="margin-top: 10px; text-wrap: normal;">
+        Driller Notes:
+        <% notes.each do |note| %>
+            <%= note["comment"] %>
+        <% end %>
+      </div>
+  <% end %>
+
+    <div class="hidden" style="margin-top: 28px; color: #ffffff; font-size: 14px; padding: 0 35px;;">
+
+      <% wits_range = warning.wits_range %>
+
+
+      <div class="inline-block">
+        <div style="color: #7c9b8f;">Depth</div>
+        <div style=" font-family: orgonlightregular; "><%= warning.depth_from.present? ? number_with_delimiter(number_with_precision(warning.depth_from.convert(:ft, company_unit), precision: 0)) : 0 %> <%= warning.depth_to.present? ? " - " + number_with_delimiter(number_with_precision(warning.depth_to.convert(:ft, company_unit), precision: 0)) : "" %>
+          <span style="font-family: orgonlightregular; font-size: 11px; color: #668d8d;"><%= unit(:ft, company_unit) %></span>
+        </div>
+      </div>
+
+
+      <div class="inline-block push-right">
+        <div style="color: #7c9b8f;">Avg WOB</div>
+        <% if wits_range != nil %>
+            <div style=" font-family: orgonlightregular; "><%= wits_range.avg_weight_on_bit.to_f.convert(:klbf, company_unit).round(1) %>
+              <span style="font-family: orgonlightregular; font-size: 11px; color: #b0c6c6;"><%= unit(:klbf, company_unit) %></span>
+            </div>
+        <% end %>
+      </div>
+
+      <div class="inline-block push-right">
+        <div style="color: #7c9b8f;">Avg RPM</div>
+        <% if wits_range != nil %>
+            <div style=" font-family: orgonlightregular; "><%= wits_range.avg_rotary_rpm.to_f.round(1) %>
+              <span style="font-family: orgonlightregular; font-size: 11px; color: #b0c6c6;">rpm</span>
+            </div>
+        <% end %>
+      </div>
+
+      <div class="inline-block push-right">
+        <div style="color: #7c9b8f;">Avg Flow Rate</div>
+        <% if wits_range != nil %>
+            <div style=" font-family: orgonlightregular; "><%= wits_range.avg_mud_flow_in.to_f.convert(:gpm, company_unit).round(1)  %>
+              <span style="font-family: orgonlightregular; font-size: 11px; color: #b0c6c6;"><%= unit(:gpm, company_unit) %></span>
+            </div>
+        <% end %>
+      </div>
+
+      <div class="inline-block push-right">
+        <div style="color: #7c9b8f;">Rig</div>
+        <div style=" font-family: orgonlightregular; "><%= warning.job.well.rig.name %>
+        </div>
+      </div>
+
+      <div class="inline-block push-right">
+        <div style="color: #7c9b8f;">Well</div>
+        <div style=" font-family: orgonlightregular; "><%= warning.job.well.name %>
+        </div>
+      </div>
+
+
+    </div>
+    <div style="margin-top: 28px; color: #ffffff; font-size: 15px; padding: 0 35px;">
+      <h2 style="color: #58c9c2; font-size: 14px; margin-bottom: 14px; text-align: left;">Description</h2>
+      <%= warning.description %>
+    </div>
+    <div style="margin-top: 28px; color: #ffffff; font-size: 15px; padding: 0 35px;">
+      <h2 style="color: #58c9c2; font-size: 14px; margin-bottom: 14px; text-align: left;">Potential Resolution</h2>
+      <b><%= warning.resolution %></b>
+
+      <div style="color: #ffffff; font-size: 13px; margin-left: 20px; color: #c5c5c5;" class="inline-block align-top">
+        Support Contact: <%= warning.contact %>
+      </div>
+    </div>
+
+
+    <div style="margin-top: 28px; color: #ffffff; font-size: 15px; padding: 0 35px;">
+      <h2 style="color: #58c9c2; font-size: 14px; margin-bottom: 14px; text-align: left;">Notes</h2>
+
+      <% @annotation = Annotation.find_by_event_warning_id(@warning.id) %>
+      <%= render 'annotations/warning_annotation' %>
+    </div>
+
+    <div style="margin-top: 28px; padding: 0 35px;">
+
+
+      <div class="inline-block hidden">
+        <%= link_to "Diagnose Warning", job_path(warning.job) + "#" + warning.tray_name,
+                    class: "btn btn-primary align-top" %>
+      </div>
+
+
+    </div>
+
+
+
+    <% if warning.deletable_by(current_user) %>
+        <div style="margin-top: 28px; padding: 0 24px; text-align: center;">
+          <%= link_to "Delete", event_warning_path(warning), method: :delete, class: "btn btn-primary" %>
+        </div>
+    <% end %>
+
+  </div>
+</div>
+<div style="position: fixed; margin-top: 55px; width: 100%; height: 100vh; z-index: 1031; left: 0; top: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0.6;"></div>

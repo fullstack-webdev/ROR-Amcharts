@@ -1,0 +1,28 @@
+tray = $(".remote-tray[data-tray='<%= params[:section] %>']");
+
+<% if params[:section] == "status" %>
+    tray.replaceWith("<%= j render 'jobs/index_status' %>");
+<% elsif params[:section] == "wells" %>
+    tray.replaceWith("<%= j render 'jobs/index_wells' %>");
+<% elsif params[:section] == "rigs" %>
+    tray.replaceWith("<%= j render 'jobs/index_rigs' %>");
+<% elsif params[:section] == "maps" %>
+    tray.replaceWith("<%= j render 'jobs/index_maps' %>");
+<% elsif params[:section] == "programs" %>
+    tray.replaceWith("<%= j render 'jobs/index_programs' %>");
+<% elsif params[:section] == "warnings" %>
+    tray.replaceWith("<%= j render 'jobs/index_warnings' %>");
+<% end %>
+
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.tooltip-info').tooltip();
+}
+
+$('.custom-select-ajax').each(function() {
+    span_tag = $(this).next('span');
+    if($(this).prop("tagName").toLowerCase() == 'select' && span_tag.length <= 0 && !span_tag.hasClass('customSelect')) {
+        $(this).customSelect();
+    }
+});
+

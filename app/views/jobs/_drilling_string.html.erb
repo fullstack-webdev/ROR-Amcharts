@@ -1,0 +1,52 @@
+<% drilling_strings ||= [] %>
+<div class="section-sub-header">
+  Drilling String
+
+  <div class='inline-block align-top pull-right'>
+    <a href="javascript:void(null)" class="btn btn-sub tooltip-info align-top hole_string_ds_add_button">Add</a>
+  </div>
+</div>
+
+<div class="block">
+  <table class="table-normal">
+    <thead>
+    <tr>
+      <th style="width: 25%;">Type</th>
+      <th style="width: 12%;">O.D.(<%= unit(:in, company_unit) %>)</th>
+      <th style="width: 12%;">I.D.(<%= unit(:in, company_unit) %>)</th>
+      <th style="width: 12%;">Weight(<%= unit(:lbm__ft, company_unit) %>)</th>
+      <th style="width: 12%;">Length(<%= unit(:ft, company_unit) %>)</th>
+      <!--<th style="width: 12%;" class="hole-string-depth-based">Start Depth</th>-->
+      <!--<th style="width: 12%;" class="hole-string-depth-based">End Depth</th>-->
+      <th style="width: 12%;"></th>
+    </tr>
+    </thead>
+    <tbody id="hole_string_ds_container">
+    <% if drilling_strings.empty? %>
+    <tr id='hs_ds_row0' class='hs_ds_row'>
+      <td><input type="text" id='hs_ds_type0' class="job-field-value-editable tooltip-info text-field"/></td>
+      <td><input type="text" id='hs_ds_od0' class="job-field-value-editable tooltip-info text-field"/></td>
+      <td><input type="text" id='hs_ds_id0' class="job-field-value-editable tooltip-info text-field"/></td>
+      <td><input type="text" id='hs_ds_weight0' class="job-field-value-editable tooltip-info text-field"/></td>
+      <td><input type="text" id='hs_ds_length0' class="job-field-value-editable tooltip-info text-field"/></td>
+      <!--<td class="hole-string-depth-based"><input type="text" id='hs_ds_depth_from0' class="job-field-value-editable tooltip-info text-field"/></td>-->
+      <!--<td class="hole-string-depth-based"><input type="text" id='hs_ds_depth_to0' class="job-field-value-editable tooltip-info text-field"/></td>-->
+      <td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_ds_remove0' class='hs_ds_remove' data-id='0'><i class='fa fa-remove'></i></a></td>
+    </tr>
+    <% else %>
+      <% drilling_strings.each_with_index do |ds, index| %>
+        <tr id='hs_ds_row<%= index %>' class='hs_ds_row'>
+          <td><input type="text" id='hs_ds_type<%= index %>' class="job-field-value-editable tooltip-info text-field" value="<%= ds.type %>" /></td>
+          <td><input type="text" id='hs_ds_od<%= index %>' class="job-field-value-editable tooltip-info text-field" value="<%= ds.outer_diameter.convert(:in, company_unit) %>" /></td>
+          <td><input type="text" id='hs_ds_id<%= index %>' class="job-field-value-editable tooltip-info text-field" value="<%= ds.inner_diameter.convert(:in, company_unit) %>" /></td>
+          <td><input type="text" id='hs_ds_weight<%= index %>' class="job-field-value-editable tooltip-info text-field" value="<%= ds.weight.convert(:lbm__ft, company_unit).round %>" /></td>
+          <td><input type="text" id='hs_ds_length<%= index %>' class="job-field-value-editable tooltip-info text-field" value="<%= ds.length.convert(:ft, company_unit).round %>" /></td>
+          <!--<td class="hole-string-depth-based"><input type="text" id='hs_ds_depth_from<%= index %>' class="job-field-value-editable tooltip-info text-field" value="<%= ds.depth_from %>" /></td>-->
+          <!--<td class="hole-string-depth-based"><input type="text" id='hs_ds_depth_to<%= index %>' class="job-field-value-editable tooltip-info text-field" value="<%= ds.depth_to %>" /></td>-->
+          <td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_ds_remove<%= index %>' class='hs_ds_remove' data-id='<%= index %>'><i class='fa fa-remove'></i></a></td>
+        </tr>
+      <% end %>
+    <% end %>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,50 @@
+<div class="content">
+  <p class="job-field-title job-members-title">
+    <b>Crew</b>
+  </p>
+
+  <div class="job-members-div">
+    <div class="member-short-list">
+
+      <div class="inline-block" id="job_members_list_short">
+        <% rig.rig_memberships.includes(user: :district).each do |rm| %>
+            <%= render 'rig_memberships/icon', rig_membership: rm %>
+        <% end %>
+      </div>
+
+      <div class="inline-block push-right-small">
+        <%= link_to "Add Member", "#",
+                    class: "inline-block add-job-member tooltip-info",
+                    id: "add_job_member",
+                    "data-placement" => "bottom",
+                    "data-title" => "Add new rig member" %>
+      </div>
+
+      <div class='inline-block push-right'>
+        <%= link_to "#", class: "activity-user-link", id: "toggle_member_names" do %>
+            <span id="toggle_member_show"><i class="icon-chevron-down"></i> view names</span>
+            <span id="toggle_member_hide" class="hidden"><i class="icon-chevron-up"></i> hide names</span>
+        <% end %>
+      </div>
+    </div>
+
+    <br>
+
+    <%= render 'rig_memberships/fields', rig: rig %>
+    <div class="member-loading hidden">
+      <span class="ajax-loading search-loading"><b>Adding rig member...</b></span>
+      <br><br>
+    </div>
+
+    <div class="member-full-list hidden">
+      <ul class="job-members-list" id="job_members_list">
+        <% rig.rig_memberships.includes(user: :district).each do |rm| %>
+            <%= render 'rig_memberships/rig_membership', rig_membership: rm %>
+        <% end %>
+      </ul>
+    </div>
+
+
+  </div>
+</div>
+

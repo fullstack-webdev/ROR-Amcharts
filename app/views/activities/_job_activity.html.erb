@@ -1,0 +1,212 @@
+<% if activity.target.present? || (activity.activity_type == Activity::ASSET_ADDED || activity.activity_type == Activity::ASSET_REMOVED) || (activity.activity_type == Activity::CREATE_BHA || activity.activity_type == Activity::UPDATE_BHA) %>
+    <div class="activity">
+
+    <div class="activity-avatar-box-small">
+      <% if activity.user.present? && activity.job.present? %>
+          <% @job_membership = activity.job.get_membership_role(activity.user) %>
+          <% names = activity.user.present? ? activity.user.name.split : activity.user_name.split %>
+          <div class="inline-block">
+            <div class="member-icon-large tooltip-info"
+                 style="background: #<%= activity.user.color %>;"
+                 data-placement="bottom" data-html="true"
+                 data-title="<div class='activity-tooltip'><h2 class='white-text'><%= activity.user.present? ? activity.user.name : activity.user_name %></h2><span class='member-tooltip <%= @job_membership.present? ? @job_membership.icon_css_style : "" %>'><%= @job_membership.present? ? @job_membership.role_title : "--" %></span><br><br><%= activity.user.title.to_s %></h2><p><%= (activity.user.district.present? ? activity.user.district.name : "-") %></p></div>">
+              <p>
+                <% if names.any? %>
+                    <%= names.count > 1 ? names.first[0, 1] + names.last[0, 1] : names.first[0, 1] %>
+                <% else %>
+                    -
+                <% end %>
+              </p>
+
+              <div class="member-icon-image member-icon-image-user"></div>
+              <div class="member-icon-image-function <%= @job_membership.present? ? @job_membership.icon_image_css_style : "" %>"></div>
+
+            </div>
+          </div>
+      <% else %>
+          <% if false %>
+              <%= image_tag "user_avatar_default.png" %>
+          <% end %>
+
+          <% names = activity.user.present? ? activity.user.name.split : activity.user_name.split %>
+          <div class="inline-block">
+            <div class="member-icon-large tooltip-info">
+              <p>
+                <% if names.any? %>
+                    <%= names.count > 1 ? names.first[0, 1] + names.last[0, 1] : names.first[0, 1] %>
+                <% else %>
+                    -
+                <% end %>
+              </p>
+
+              <div class="member-icon-image member-icon-image-user"></div>
+            </div>
+          </div>
+      <% end %>
+    </div>
+
+    <div class="activity-content">
+
+      <% if !inside_job %>
+          <div class="pull-right">
+            <%= render 'activities/job_description', job: activity.job, inside_job: false %></p>
+          </div>
+      <% end %>
+
+      <div class="activity-user-link-div">
+        <% if activity.user.present? %>
+            <% if @job_membership.present? %>
+                <%= render 'jobs/user', job_membership: @job_membership, include_icon: false %>
+            <% else %>
+                <%= render 'activities/user', user: activity.user %>
+            <% end %>
+        <% else %>
+            <p><b><%= activity.user_name %></b></p>
+        <% end %>
+
+
+      </div>
+
+      <p class="activity-date tooltip-info"
+         data-placement="bottom"
+         data-title="<%= activity.created_at.strftime("%a %m/%d/%Y %l:%M %p") %>">
+        <%= time_ago_in_words(activity.created_at) %> ago
+      </p>
+
+      <div class="">
+        <% if activity.activity_type == Activity::JOB_CREATED %>
+            <p class="activity-message"><b class='orange-text'>Created job</b></p>
+        <% end %>
+        <% if activity.activity_type == Activity::PRE_JOB_DATA_COMPLETE %>
+            <p class="activity-message">Pre-Job data and documents complete</p>
+        <% end %>
+        <% if activity.activity_type == Activity::JOB_APPROVED_TO_SHIP %>
+            <b>
+              <p class="activity-message status-good">Job approved to ship to location</p></b>
+        <% end %>
+        <% if activity.activity_type == Activity::POST_JOB_DATA_COMPLETE %>
+
+            <p class="activity-message">Post-Job documents complete</p>
+        <% end %>
+        <% if activity.activity_type == Activity::JOB_APPROVED_TO_CLOSE %>
+            <b>
+              <p class="activity-message status-good">Job completed and approved to close</p></b>
+        <% end %>
+        <% if activity.activity_type == Activity::BEGIN_ON_JOB %>
+            <b>
+              <p class="activity-message status-good">Started Job Phase</p></b>
+        <% end %>
+        <% if activity.activity_type == Activity::BEGIN_POST_JOB %>
+            <b>
+              <p class="activity-message status-good">Started Post Job Phase</p></b>
+        <% end %>
+        <% if activity.activity_type == Activity::DATA_EDITED %>
+            <p class="activity-message"><b>Job Data changed</b>: <%= activity.metadata %></p>
+        <% end %>
+        <% if activity.activity_type == Activity::ASSET_ADDED %>
+            <% if activity.target.present? %>
+                <p class="activity-message"><b>Asset</b></p>
+                <%= link_to activity.target.master_part.present? ? activity.target.master_part.name : activity.target.name, activity.target, class: "activity-user-link", target: "_blank" %>
+                <p class="activity-message">added to job</p>
+                <br>
+
+                <p class="activity-message">
+                  <b>Material
+                    #</b> <%= link_to activity.target.material_number, activity.target.master_part, class: "activty-user-link", target: "_blank" %>
+                  <br>
+                  <b>Serial
+                    #</b> <%= link_to activity.target.serial_number, activity.target, class: "activity-user-link", target: "_blank" %>
+                  <br>
+                  <% if !activity.target.district_serial_number.blank? %>
+                      <b>District #</b> <%= activity.target.district_serial_number %>
+                  <% end %>
+                </p>
+            <% else %>
+                <p class="activity-message"><b>Asset</b> added to job</p>
+                <br>
+
+                <p class="activity-message"><b>Serial #</b> <%= activity.metadata %></p>
+            <% end %>
+        <% end %>
+        <% if activity.activity_type == Activity::ASSET_REMOVED %>
+            <% if activity.target.present? %>
+                <p class="activity-message"><b>Asset</b></p>
+                <%= link_to activity.target.master_part.present? ? activity.target.master_part.name : activity.target.name, activity.target, class: "activity-user-link" %>
+                <p class="activity-message">removed from job</p>
+                <br>
+
+                <p class="activity-message">
+                  <b>Material #</b> <%= activity.target.material_number %><br>
+                  <b>Serial #</b> <%= activity.target.serial_number %><br>
+                  <% if !activity.target.district_serial_number.blank? %>
+                      <b>District #</b> <%= activity.target.district_serial_number %>
+                  <% end %>
+                </p>
+            <% else %>
+                <p class="activity-message"><b>Asset</b> removed from job</p>
+                <br>
+
+                <p class="activity-message"><b>Serial #</b> <%= activity.metadata %></p>
+            <% end %>
+        <% end %>
+        <% if activity.activity_type == Activity::START_DATE %>
+            <p class="activity-message">Job set to start
+              <b><%= Date.strptime(activity.metadata).strftime("%a %m/%d/%Y") %></b></p>
+        <% end %>
+
+        <% if activity.activity_type == Activity::JOB_RATING %>
+            <p class="activity-message">Job rating set to
+              <% activity.metadata.to_i.times do |i| %>
+                  <%= image_tag "rating_star_activity.png" %>
+              <% end %>
+              (<b><%= activity.metadata %> stars</b>)</p>
+        <% end %>
+        <% if activity.activity_type == Activity::DOCUMENT_UPLOADED %>
+
+            <%= image_tag "document_icon.png" %>
+
+            <span class="activity-document-name inline">
+                <%= link_to activity.target.name, activity.target.full_url, class: "activity-user-link",
+                            "data-placement" => "bottom",
+                            "data-title" => "Click to download document" %>
+              <div class="activity-text">
+                - Document Uploaded
+              </div>
+              </span>
+
+
+        <% end %>
+        <% if activity.activity_type == Activity::JOB_MEMBER_ADDED %>
+            <p class="activity-message">
+              <%= image_tag "added.png" %>
+              <span class="inline push-right-small">
+                  <div class="inline-block">
+                    <%= render 'jobs/user', job_membership: activity.target, include_icon: true %>
+                  </div>
+                    <div class="activity-text">
+                      - <%= activity.target.role_title %>
+                    </div>
+              </span>
+            </p>
+        <% end %>
+        <% if activity.activity_type == Activity::CREATE_BHA %>
+            <p class="activity-message">
+              <b>Created BHA</b> <%= activity.metadata %>
+            </p>
+        <% end %>
+        <% if activity.activity_type == Activity::UPDATE_BHA %>
+            <p class="activity-message">
+              <b>Updated BHA</b> <%= activity.metadata %>
+            </p>
+        <% end %>
+        <% if activity.activity_type == Activity::DELETE_BHA %>
+            <p class="activity-message">
+              <b>Deleted BHA</b> <%= activity.metadata %>
+            </p>
+        <% end %>
+      </div>
+
+    </div>
+
+    </div>
+<% end %>

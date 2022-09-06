@@ -1,0 +1,161 @@
+.chart-daily {
+  float: right;
+  display: inline-block;
+  width: 220px;
+  height: 80px;
+  margin-top: 5px;
+}
+
+.time-chart {
+  margin-top: -30px;
+  margin-left: -20px;
+}
+
+.run-detail {
+  width: 145px;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-right: 0px;
+}
+
+.run-grid {
+  div {
+    height: 20px;
+    vertical-align: top;
+    text-align: left;
+
+    p {
+      vertical-align: top;
+    }
+
+    .units {
+      margin-left: 8px;
+      display: inline-block;
+      font-size: 10px;
+      color: #bababa;
+    }
+  }
+
+  .grid-line {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    height: 1px;
+    background: #e4e4e4;
+  }
+}
+
+.live-column {
+  width: 130px;
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 20px;
+
+}
+
+.live-chart {
+  width: 145px;
+  height: 400px;
+  margin-top: 10px;
+}
+
+.live-bit-depth {
+  width: 100%;
+  text-align: left;
+  background: #f5f3f3;
+  border-radius: 7px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #dbdbdb;
+  padding: 7px;
+  padding-bottom: 0px;
+  padding-top: 0px;
+  margin-top: 5px;
+
+  height: 568px;
+
+  .mark {
+    width: 130px;
+    height: 40px;
+    padding: 0px;
+    margin: 0px;
+
+    .time {
+      margin-top: -5px;
+      width: 45px;
+      text-align: right;
+      font-size: 11px;
+      font-family: gothamlightregular;
+      vertical-align: top;
+      display: inline-block;
+    }
+
+    .depth {
+      margin-top: -5px;
+      width: 45px;
+      font-size: 13px;
+      font-family: gothammediumregular;
+      vertical-align: top;
+      display: inline-block;
+    }
+  }
+}
+
+.live-block {
+  height: 75px;
+  width: 100%;
+  text-align: left;
+  background: #f5f3f3;
+  border-radius: 7px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #dbdbdb;
+  padding: 7px;
+  padding-bottom: 0px;
+  padding-top: 0px;
+  margin-top: 5px;
+
+  .live-label {
+    font-size: 13px;
+    font-family: gothammediumregular;
+    color: #000000;
+    text-align: left;
+    height: 20px;
+
+  }
+  .live-data {
+    padding-top: 10px;
+    font-size: 30px;
+    font-family: orgonboldregular ;
+    color: #000000;
+    text-align: center;
+    height: 20px;
+    color: #000000;
+  }
+
+  .live-unit {
+    font-size: 11px;
+    font-family: gothambookregular;
+    color: #000000;
+    text-align: right;
+  }
+
+  .live-line {
+    height: 3px;
+    width: 100%;
+    background: transparent;
+  }
+}
+
+.formation {
+  border-top-color: #76855e;
+  border-top-width: 1px;
+  border-top-style: solid;
+  height: 40px;
+  vertical-align: middle;
+  font-family: 'orgonlightregular';
+  font-size: 12px;
+  color: #9cc1ae;
+}
+

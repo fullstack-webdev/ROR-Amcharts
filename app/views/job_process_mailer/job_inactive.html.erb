@@ -1,0 +1,24 @@
+<html>
+<link rel="stylesheet" type="text/css" href="/app/assets/stylesheets/application.css.scss"/>
+<body class="email-body">
+
+<h1>Job Inactive</h1>
+<hr>
+<h3>Job has had no activity in the last month.</h3>
+<p>Is this job complete or abandoned? You can also delete the job in 'advanced actions' on the job page.</p>
+<%= link_to @job.absolute_url, class: "activity-user-link" do %>View job<% end %>
+<br>
+
+<br><br>
+<%= link_to @job.absolute_url, class: "job-email-link" do %>
+    <%= render 'jobs/job_data_email', job: @job %>
+<% end %>
+
+<% if Rails.env.production? %>
+    <hr>
+    <div class="center"><%= image_tag "corva-logo.png" %></div>
+    <br>
+<% end %>
+
+</body>
+</html>

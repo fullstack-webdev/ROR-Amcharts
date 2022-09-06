@@ -1,0 +1,13 @@
+$("#process_actions").find('#job_ready_to_ship').remove();
+$("#process_actions").find('#job_ready_to_close').remove();
+
+
+<% if @sent_post_job_ready_email %>
+    $("#process_actions").append("<%= j render('job_process/job_verified_to_close', job: @job) %>");
+    $("#process_actions").removeClass("hidden");
+<% elsif @is_coordinator_or_creator %>
+    $("#process_actions").append("<%= j render('job_process/job_verified', job: @job) %>");
+    $("#process_actions").removeClass("hidden");
+<% end %>
+
+//$('.tooltip-info').tooltip();

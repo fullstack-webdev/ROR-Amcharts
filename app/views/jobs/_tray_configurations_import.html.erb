@@ -1,0 +1,48 @@
+<div class='remote-tray' data-tray='import'>
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading configuration import..." %>
+  </div>
+
+  <div class='tray-content'>
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>BHA Import</h1>
+    </div>
+
+    <div class='alert-box alert-info'>
+      <p>For only depth based data at the moment. Please select config files (.xls)...</p>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <%= form_tag import_bha_job_path, multipart: true do %>
+        <div>
+          <%= file_field_tag :file %>
+        </div>
+        <div>
+          <%= submit_tag "Import", class: "btn btn-primary btn-sm" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="section-header" style="margin-top: 70px !important;">
+      <h1>Survey Import</h1>
+    </div>
+
+    <div class='alert-box alert-info'>
+      <p>For only depth based data at the moment. Please select config files (.xls)...</p>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <%= form_tag import_survey_job_path, multipart: true do %>
+        <div>
+          <%= file_field_tag :file %>
+        </div>
+        <div>
+          <%= submit_tag "Import", class: "btn btn-primary btn-sm" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

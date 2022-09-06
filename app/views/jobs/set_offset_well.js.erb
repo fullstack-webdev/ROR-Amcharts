@@ -1,0 +1,36 @@
+$('#modal_popup').css('visibility', 'hidden');
+$('#modal_popup').find(".modal-content").children().remove();
+$('#modal_popup').height(0);
+
+<% @offset_well.job.depth_vs_time_logs.each_with_index do |log, index| %>
+if(ov_depth_graph_data[<%= index %>]) {
+  ov_depth_graph_data[<%= index %>].offset_depth = <%= log.to_i %>;
+  ov_depth_graph_data[<%= index %>].time = "<%= index %>";
+} else {
+  ov_depth_graph_data.push({
+    "time": "<%= index %>",
+    "offset_depth": <%= log.to_i %>
+  });
+}
+<% end %>
+
+ov_depth_chart.dataProvider = ov_depth_graph_data;
+ov_depth_chart.validateData();
+
+<% if @offset_well.present? %>
+  $('#set_offset_well_btn').remove();
+  $('#predicted_total_days').html('<%= number_with_delimiter(number_with_precision(@offset_well.total_well_time / 3600.0 / 24.0, precision: 1)) %> <span><%= "day".pluralize(@offset_well.total_well_time / 3600.0 / 24.0) %></span>');
+
+  $('#percentage').html('');
+  <% percent = @job.get_time_diff %>
+  <% if percent.present? && percent.abs.floor != 0 %>
+    <% if percent.present? %>
+      <% if percent < 0 %>
+        $('#percentage').append('<i class="fa fa-sort-down" style="vertical-align: middle;font-size: 20px;margin-top: -10px;"></i>');
+      <% else %>
+        $('#percentage').append('<i class="fa fa-sort-up" style="vertical-align: middle;font-size: 20px;margin-top: 8px;"></i>');
+      <% end %>
+      $('#percentage').append('<%= number_with_precision(percent.abs, precision: 0) %>%')
+    <% end %>
+  <% end %>
+<% end %>

@@ -1,0 +1,78 @@
+.timesheet {
+  .name {
+    display: inline-block;
+    width: 200px;
+    height: 20px;
+  }
+
+  .day-header {
+    display: inline-block;
+    width: 45px;
+    height: 25px;
+    padding: 0px;
+    margin: 0px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .day {
+    display: inline-block;
+    width: 45px;
+    height: 20px;
+    padding: 0px;
+    margin: 0px;
+  }
+
+  .day-button {
+    display: inline-block;
+    width: 45px !important;
+    min-width: 0px;
+    height: 36px !important;
+    padding: 0px !important;
+
+    &:hover {
+      cursor: hand !important;
+    }
+
+  }
+
+  .time-close-button {
+    float: right;
+    margin-top: -45px;
+  }
+}
+
+.disabled-user-line {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.user-calendar-day {
+  margin: 10px;
+  margin-top: -7px;
+  width: 90%;
+  height: 77px;
+
+  div {
+    p {
+      margin: 5px;
+      font-size: 10px;
+      color: #043664;
+    }
+
+    h1 {
+      color: #043664;
+    }
+  }
+}
+
+.not-in-month {
+  opacity: 0.5;
+}
+
+.user-calendar-job {
+  max-height: 20px;
+  text-wrap: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

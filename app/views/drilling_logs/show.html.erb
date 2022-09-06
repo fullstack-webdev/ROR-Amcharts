@@ -1,0 +1,319 @@
+<% provide(:title, "Drilling Report") %>
+
+<div style='height: 170px;'>
+  <% if true %>
+      <div class="map-container"
+           style='position:absolute; left: 0; top: 58px; width:100%; height:202px; box-shadow: 0px 1px 3px #979797; background: #5b5b5b;'>
+        <div id='map' class='dark'></div>
+      </div>
+
+
+      <div style='position: absolute; width: 100%; left: 0; right: 0; top: 212px; background-color:rgba(0, 0, 0, 0.4); padding-top: 10px;'>
+        <% if @drilling_log.job.well.rig.present? %>
+            <%= link_to @drilling_log.job.well.rig.name, @drilling_log.job.well.rig, class: "job-title inline job-type-description-target orange-text",
+                        style: "margin-left: 10px; font-size: 18px;",
+                        "data-placement" => "bottom",
+                        "data-html" => true,
+                        "data-title" => "<div>Rig <b>" + @drilling_log.job.well.rig.name + "</b></div>" %>
+        <% end %>
+        <%= link_to @drilling_log.job.field.name, @drilling_log.job.field, class: "job-title inline job-type-description-target white-text",
+                    style: "margin-left: 10px;",
+                    "data-placement" => "bottom",
+                    "data-html" => true,
+                    "data-title" => "<div>Field <b>" + @drilling_log.job.field.name + "</b></div>" %>
+        <p class="job-well-field-title">Field</p>
+
+
+        <p class="job-title-divider">|</p>
+
+        <div class="inline-block">
+          <%= link_to @drilling_log.job.well.name, @drilling_log.job.well, class: "job-title inline job-type-description-target white-text",
+                      "data-placement" => "bottom",
+                      "data-html" => true,
+                      "data-title" => "<div>Well <b>" + @drilling_log.job.well.name + "</b>, Click to view all jobs</div>" %>
+          <p class="job-well-field-title">Well</p>
+        </div>
+      </div>
+  <% end %>
+</div>
+
+<% if false %>
+    <% if signed_in_user? %>
+        <div class="page_header page-header-no-line">
+          <h1 id="part_name">Drilling</h1>
+
+          <div class='pull-right'>
+            <%= render 'jobs/job_multi_link', job: @drilling_log.job %>
+          </div>
+        </div>
+
+    <% else %>
+        <%= render 'jobs/job_data_header', job: @drilling_log.job %>
+        <br>
+    <% end %>
+<% end %>
+
+
+<div style='height: 52px;'>
+  <div style='position: absolute; left: 0; width: 100%; height: 52px;'>
+    <ul class="nav nav-pills alert alert-nav alert-nav-shrink" style='border-radius: 0px; border-width: 0px;'>
+
+      <div class='inline-block pull-right'>
+        <li class="">
+          <a href="<%= job_path(@return_job || @drilling_log.job) %>" class=" custom-data-toggle tooltip-info"
+             style=" background: #f4bb0d; width: 100px; margin-right: -35px;"
+             data-tray=""
+             data-placement="bottom" data-title="Job Data">Open Job
+          </a>
+        </li>
+      </div>
+
+      <li class="active">
+        <a href="#drilling-overview" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @drilling_log.id %>"
+           data-tray-controller="drilling_logs"
+           data-tray="drilling-overview">Drilling Overview</a>
+      </li>
+
+      <li class="">
+        <a href="#drilling-rop" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @drilling_log.id %>"
+           data-tray-controller="drilling_logs"
+           data-tray="drilling-rop">ROP</a>
+      </li>
+
+
+      <li class="">
+        <a href="#drilling-runs" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @drilling_log.id %>"
+           data-tray-controller="drilling_logs"
+           data-tray="drilling-runs">Runs</a>
+      </li>
+
+      <li class="">
+        <a href="#drilling-daily" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @drilling_log.id %>"
+           data-tray-controller="drilling_logs"
+           data-tray="drilling-daily">Days</a>
+      </li>
+
+      <li class="">
+        <a href="#drilling-bha" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @drilling_log.id %>"
+           data-tray-controller="drilling_logs"
+           data-tray="drilling-bha">BHAs</a>
+      </li>
+
+      <li class="">
+        <a href="#drilling-npt" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @drilling_log.id %>"
+           data-tray-controller="drilling_logs"
+           data-tray="drilling-npt">NPT</a>
+      </li>
+
+      <li class="">
+        <a href="#log" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @drilling_log.id %>"
+           data-tray-controller="drilling_logs"
+           data-tray="log">Drilling Activity</a>
+      </li>
+
+      <li class="">
+        <a href="#survey" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @drilling_log.id %>"
+           data-tray-controller="drilling_logs"
+           data-tray="survey">Survey</a>
+      </li>
+
+      <li class="">
+        <a href="#logs" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @drilling_log.id %>"
+           data-tray-controller="drilling_logs"
+           data-tray="logs">Logs</a>
+      </li>
+
+    </ul>
+  </div>
+</div>
+
+
+
+<div class="remote-tray" data-tray="drilling-overview">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading overview..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="drilling-rop">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading ROP Analysis..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="logs">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading Logs..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="drilling-runs">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading runs..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="drilling-daily">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading daily totals..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="drilling-npt">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading NPT..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="drilling-bha">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading BHA totals..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="log">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading logs..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="survey">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading survey..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="drilling-reports">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading reports..." %>
+  </div>
+</div>
+
+<div id="modal_popup" class="modal-popup-background">
+  <div class="modal-popup modal-popup-fixed">
+    <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal" %>
+    <div class="modal-content">
+    </div>
+    <%= render "layouts/inline_loading", title: "Loading..." %>
+  </div>
+</div>
+
+<script type='text/javascript'>
+    var oldHide = $.fn.popover.Constructor.prototype.hide;
+
+    $.fn.popover.Constructor.prototype.hide = function () {
+        if (this.options.trigger === "hover" && this.tip().is(":hover")) {
+            var that = this;
+            // try again after what would have been the delay
+            setTimeout(function () {
+                return that.hide.call(that, arguments);
+            }, that.options.delay.hide);
+            return;
+        }
+        oldHide.call(this, arguments);
+    };
+
+    if (document.location.hash == '') {
+        tray = $(".remote-tray[data-tray='drilling-overview']");
+        tray.find('.content').hide();
+        tray.find('.remote-loading').removeClass('hidden');
+        tray.find('.loading').removeClass('hidden');
+        setTimeout(function () {
+            window.auid++;
+            $.ajax({
+                url: "/drilling_logs/<%= @drilling_log.id %>?section=drilling-overview" + "&auid=" + window.auid,
+                type: "GET",
+                dataType: "script"
+            });
+        }, 1);
+    }
+</script>
+
+
+<% @job = @drilling_log.job %>
+<script type='text/javascript'>
+
+    var map = L.mapbox.map('map', 'elephant.map-vum3on5g');
+    map.attributionControl = false;
+    map.scrollWheelZoom.disable();
+
+    var geoJson = [];
+    geoJson.push({
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [<%= @job.well.x_location %>, <%= @job.well.y_location %>]
+        },
+        "properties": {
+            title: '<%= @job.well.field.name + ' | ' + @job.well.name %>',
+            'marker-size': 'medium',
+            'marker-color': '#0058a8'
+            //'marker-symbol': '1'
+        }
+    });
+
+    map.markerLayer.setGeoJSON(geoJson);
+
+    map.markerLayer.on('click', function (e) {
+        ///map.panTo(e.layer.getLatLng());
+    });
+
+    var bounds = [];
+    bounds.push([<%= @job.well.y_location %>, <%= @job.well.x_location %>]);
+    map.fitBounds(bounds);
+    map.setZoom(6);
+    //zoom = Math.round(map.getZoom());
+    //if (zoom > 8) {
+    //    map.setZoom(8);
+    //}
+
+
+    map.markerLayer.on('mouseover', function (e) {
+        //e.layer.openPopup();
+    });
+    map.markerLayer.on('mouseout', function (e) {
+        //e.layer.closePopup();
+    });
+
+    $('.expand-map-box').live("click", function () {
+        if ($('.expand-text').text() == 'expand') {
+            $('.expand-text').text('collapse');
+            $('.map-container').css('height', '500px');
+            $('.map-views').removeClass('hidden');
+        }
+        else {
+            $('.expand-text').text('expand');
+            $('.map-container').css('height', '80px');
+            $('.map-views').addClass('hidden');
+        }
+        map._onResize();
+        return false;
+    });
+
+    $('.map-area-view').live("click", function () {
+        layer = L.mapbox.tileLayer('elephant.map-vum3on5g');
+        layer.addTo(map);
+        map.setZoom(6);
+        map._onResize();
+        return false;
+    });
+
+    $('.map-site-view').live("click", function () {
+        layer = L.mapbox.tileLayer('elephant.map-6f5p6pfx');
+        layer.addTo(map);
+        map.setZoom(13);
+        map.fitBounds(bounds);
+        map._onResize();
+        return false;
+    });
+</script>
+

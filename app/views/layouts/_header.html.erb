@@ -1,0 +1,210 @@
+<div class="navbar navbar-fixed-top" style="z-index: 2000;">
+
+  <div class="navbar-inner">
+
+    <div class="right-menu">
+      <ul class="nav header-v-center">
+
+        <% if signed_in? %>
+            <li>
+              <p class="user-name inline-block push-down-small"><%= current_user.name %></p>
+            </li>
+
+            <li id="fat-menu" class="dropdown menu-width">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+
+                <div class="pull-left">
+                  <%= render 'users/user_icon', user: current_user, use_link: false, use_name: false, table_cell: false %>
+
+                </div>
+
+                <b class="caret pull-left"></b>
+              </a>
+              <ul class="dropdown-menu menu-width2">
+                <li>
+                  <%= link_to user_path(current_user), class: "menu-avatar" do %>
+                      <div class="inline-block" style="width: 30px;">
+                      <%= image_tag "user_avatar_extrasmall.png" %>
+                        </div>
+                      <span style="margin-left: 10px; font-family: orgonboldregular; color: #000000;">Profile</span>
+                  <% end %>
+                </li>
+
+                <% if current_user.admin_user? %>
+                <li class="divider"></li>
+
+
+                <li>
+                  <%= link_to Company.cached_find(current_user.company_id), class: "menu-avatar" do %>
+                      <div class="inline-block" style="width: 30px;">
+                      <%= image_tag "user_avatar_client_extrasmall.png" %>
+                        </div>
+                      <span style="margin-left: 10px; font-family: orgonboldregular; color: #000000;">Users</span>
+                  <% end %>
+                </li>
+                <% end %>
+
+
+                <% if current_user.admin_user? %>
+                    <li class="divider"></li>
+
+                    <li>
+                      <%= link_to edit_company_path(current_user.company), class: "menu-avatar" do %>
+                          <div class="inline-block" style="width: 30px;">
+                            <%= image_tag "settings_icon.PNG", style: "margin-top: 5px;" %>
+                          </div>
+                          <span style="margin-left: 10px; font-family: orgonboldregular; color: #000000;">Settings</span>
+                      <% end %>
+
+                    </li>
+                <% end %>
+
+                <li class="divider"></li>
+
+
+                <li>
+                  <%= link_to  signout_path, class: "menu-avatar" , method: "delete" do %>
+                      <div class="inline-block" style="width: 30px;">
+                        <%= image_tag "sign_out.PNG", style: "margin-top: 5px;" %>
+                      </div>
+                      <span style="margin-left: 10px; font-family: orgonboldregular; color: #000000;">Sign Out</span>
+                  <% end %>
+                </li>
+
+                <% if signed_in_admin? %>
+                    <li class="divider"></li>
+
+
+                    <li><%= link_to "Security", security_path %></li>
+                    <li class="divider"></li>
+                <% end %>
+
+                <% if signed_in_admin? %>
+                    <li>
+                      <%= link_to "Back to Admin Panel", "/admin/company/#{current_user.company_id}" %>
+                    </li>
+
+                <% end %>
+              </ul>
+            </li>
+
+        <% else %>
+
+        <% end %>
+
+      </ul>
+    </div>
+
+    <% if !signed_in? %>
+        <div class='inline-block pull-left push-right-small'>
+          <%= link_to "Corva", root_path, id: "logo", class: "" %>
+        </div>
+
+
+        <% if request.path == "/contact" || request.path == "/team" || request.path == "/about" || request.path == "/apps" || request.path == "/pricing" || request.path == "/developers" || request.path == "/solutions" || request.path.start_with?("/solutions/") || request.path.start_with?("/content/") %>
+            <div class='pull-left' style='margin-top: 15px; margin-right: 100px; font-size: 17px;'>
+
+              <!--
+              <div class="inline-block" style="margin-left: 10px; margin-right: 10px; color: #839898;">|</div>
+                 -->
+
+              <a href="/solutions">
+                Solutions
+              </a>
+              <div class="inline-block" style="margin-left: 10px; margin-right: 10px; color: #839898;">|</div>
+
+              <a href="/apps">
+                Apps
+              </a>
+
+              <div class="inline-block" style="margin-left: 10px; margin-right: 10px; color: #839898;">|</div>
+
+              <a href="/pricing">
+                Tiers
+              </a>
+
+
+              <div class="inline-block" style="margin-left: 10px; margin-right: 10px; color: #839898;">|</div>
+
+              <a href="/developers">
+                RigOS<span style="color: #adadad;"> / </span>Developers
+              </a>
+
+              <div class="inline-block" style="margin-left: 10px; margin-right: 10px; color: #839898;">|</div>
+
+              <a href="/about">
+                About
+              </a>
+
+
+              <div class="inline-block" style="margin-left: 10px; margin-right: 10px; color: #839898;">|</div>
+
+              <a href="/team">
+                Team
+              </a>
+
+              <div class="inline-block" style="margin-left: 10px; margin-right: 10px; color: #839898;">|</div>
+
+              <a href="/contact">
+                Contact
+              </a>
+            </div>
+        <% end %>
+
+    <% end %>
+    <div class="container container-header">
+      <% if signed_in? %>
+          <%= link_to "Corva", root_path, id: "logo" %>
+      <% end %>
+      <nav>
+        <% if signed_in? %>
+            <div class="inline-block">
+              <%= render 'layouts/user_tab' %>
+
+                  <div class="alerts-icon-container" style="margin-top: -60px;">
+                    <% new_alerts = Alert.cached_find_new_alerts(current_user.id) %>
+                    <% if new_alerts > 0 %>
+                        <div class="messages-icon-alert" style="top: 10px;">
+                          <p><%= new_alerts %></p>
+                        </div>
+                    <% end %>
+                  </div>
+            </div>
+
+            <!--<div class="messages-icon-container"
+             id="messages_icon_div"
+             data-placement="bottom"
+             data-title="Messages and conversations">
+          <%= link_to "Messages", "#", class: "messages-icon-link" %>
+
+          <% new_messages = Alert.cached_find_new_messages(current_user.id) %>
+          <div id="new_messages" class="messages-icon-alert <%= new_messages == 0 ? "hidden" : "" %>">
+            <p id="new_messages_count"><%= new_messages %></p>
+          </div>
+
+        </div>-->
+
+            <div class="search-container">
+
+              <%= form_tag search_index_path, :method => 'get', :id => "global_search_id" do %>
+                  <%= text_field_tag :search, params[:search], placeholder: "Search...", class: "search-query global-search tooltip-info",
+                                     "data-placement" => "bottom",
+                                     "data-title" => "Free-form text search, type well name, job name, district, etc..." %>
+              <% end %>
+            </div>
+
+            <% if false %>
+                <%= link_to "advanced search", new_search_path, class: "advanced-search-link tooltip-info",
+                            "data-placement" => "bottom",
+                            "data-title" => "Create complex searches for jobs based on data criteria" %>
+            <% end %>
+
+        <% elsif signed_in_admin? %>
+            <%= render 'layouts/admin_tab' %>
+
+        <% end %>
+
+      </nav>
+    </div>
+  </div>
+</div>

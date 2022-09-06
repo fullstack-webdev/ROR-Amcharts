@@ -1,0 +1,36 @@
+<div class="section-header" style="margin-top: 15px;">
+  <h1 class="inline-block">Company Directory</h1>
+
+  <% if current_user.admin_user? %>
+      <div class='inline-block pull-right align-top'>
+      <%= link_to signed_in_admin? ? new_user_path(id: session[:company_id]) : new_user_path, class: "btn btn-sub tooltip-info align-top",
+                  "data-placement" => "bottom",
+                  "data-title" => "Create new user" do %>
+          <span>New User</span>
+      <% end %>
+      </div>
+  <% end %>
+</div>
+
+<!--<div class="alert alert-info">
+  <%= form_tag users_path, :method => 'get', :id => "users_search", remote: true, class: "filter-search-box" do %>
+      <%= text_field_tag :search, params[:search], placeholder: "Search users", class: "search-query tooltip-info",
+                         "data-placement" => "left",
+                         "data-title" => "Search users by name" %>
+
+      <% if params[:search].present? && !params[:search].blank? %>
+          <%= link_to "x  clear results", users_path, class: "activity-user-link push-right-small" %>
+      <% end %>
+  <% end %>
+</div>-->
+
+<div id="users_list">
+  <div id="users" class="main_list">
+    <% @users.each do |user| %>
+        <% if !user.admin? %>
+            <%= render 'users/user', user: user %>
+        <% end %>
+    <% end %>
+  </div>
+  <%= will_paginate @users %>
+</div>

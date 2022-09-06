@@ -1,0 +1,27 @@
+
+$('.form[data-form=new_cost]').show();
+$('.form-loading[data-form=new_cost]').addClass('hidden');
+
+<% if @job_cost.new_record?  || @job_cost.errors.any?  %>
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Failed to add charge", message: @job_cost.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show: true});
+
+<% else %>
+
+if ($('.no-entries').length > 0) {
+    $('.no-entries').remove();
+}
+
+$("#list").append("<%= j render 'job_costs/job_cost', job_cost: @job_cost, index: @job_cost.job.job_costs.count - 1 %>");
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.activity-user-link').tooltip();
+    //$('.tooltip-info').tooltip();
+}
+
+<% end %>
+
+
+$('#total_job_cost').text("<%= number_to_currency(@job.total_cost, :unit => "$") %>");
+$('#cost_totals').replaceWith("<%= j render 'job_costs/totals', job: @job %>");

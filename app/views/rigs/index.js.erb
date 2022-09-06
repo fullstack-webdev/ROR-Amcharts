@@ -1,0 +1,13 @@
+if ($('#rig_name_id').length != 0) {
+    $('#similar_rig').find('*').remove();
+
+    <% @rigs.take(5).each do |rig| %>
+        $('#similar_rig').append("<p class='inline'><%= rig.name %></p><span class='push-right-small'></span>");
+    <% end %>
+
+    <% if @query.blank? || @rigs.count == 0 %>
+        $('.alert').addClass('hidden');
+    <% else %>
+        $('.alert').removeClass('hidden');
+    <% end %>
+}

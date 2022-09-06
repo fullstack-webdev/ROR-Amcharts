@@ -1,0 +1,27 @@
+<% if @document.new_record? %>
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding Document", message: @document.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show:true});
+
+<% else %>
+
+<% if @document.category.nil? %>
+    $("#documents").append("<%= j render(@document, editable: true, can_upload: true, in_job: true) %>");
+<% if @document.category == Document::PRE_JOB %>
+    $("#documents").append("<%= j render(@document, editable: true, can_upload: true) %>");
+<% elsif @document.category == Document::ON_JOB %>
+    $("#documents_on_job").append("<%= j render(@document, editable: true, can_upload: true) %>");
+<% elsif @document.category == Document::POST_JOB %>
+    $("#documents2").append("<%= j render(@document, editable: true, can_upload: true) %>");
+<% elsif @document.category == Document::NOTICES %>
+    $("#documents3").append("<%= j render(@document, editable: true, can_upload: true) %>");
+<% end %>
+
+$('[id=new_document_name]').val('').trigger('focusout');
+
+
+<% end %>
+<% end %>
+
+

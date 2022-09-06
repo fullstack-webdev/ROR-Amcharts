@@ -1,0 +1,90 @@
+
+<div class="content">
+
+  <div>
+    <p class='job-field-title'>Company Name</p>
+
+    <div class="job-field-div ">
+      <%= text_field_tag :name,
+                         placeholder: "Company Name",
+                         class: "txtfield",
+                         id: "name",
+                         data: {id: @company.id} %>
+    </div>
+  </div>
+
+  <hr>
+
+  <div style="margin-top: 60px;">
+    <div>
+      <h3>Units</h3>
+    </div>
+
+    <br>
+
+    <div>
+      <%= select_tag "#",
+                     options_for_select(Company.possible_units, @company.company_unit),
+                     id: "company_unit",
+                     data: {id: @company.id},
+                     class: "custom-select custom-select-ajax" %>
+    </div>
+  </div>
+
+
+  <br><br>
+  <div>
+    <h3>Support Contacts</h3>
+  </div>
+
+  <div>
+    <p class='job-field-title'>Support Phone #</p>
+
+    <div class="job-field-div ">
+      <%= text_field_tag :phone_number, placeholder: "Support Phone Number", class: "txtfield",
+                         id: "phone_number",
+                         data: {id: @company.id} %>
+    </div>
+
+
+    <p class='job-field-title push-right'>Support Email</p>
+    <div class="job-field-div ">
+      <%= text_field_tag :support_email, placeholder: "Support Email", class: "txtfield",
+                         id: "support_email",
+                         data: {id: @company.id} %>
+    </div>
+  </div>
+
+
+
+</div>
+
+
+<script type="text/javascript">
+
+    $('.company-update-field').live("change", function () {
+        if ($(this).val().length > 0) {
+            return $.ajax('/companies/' + $(this).attr("data-id"), {
+                data: {
+                    "update_field": "true",
+                    "field": $(this).attr("data-field"),
+                    "value": $(this).is(':checked')
+                },
+                type: 'put',
+                dataType: 'script'
+            });
+        }
+    });
+
+    $('#company_unit').live('change', function () {
+        $.ajax('/companies/' + $(this).attr("data-id"), {
+            data: {
+                "company": {
+                    "company_unit": $(this).val()
+                }
+            },
+            type: 'put',
+            dataType: 'script'
+        });
+    });
+</script>

@@ -1,0 +1,10 @@
+<div class="dropdown dropdown-styled" style="display: inline-block; margin-right: 220px;">
+  <select id="well_list">
+    <option value="">Type well name...</option>
+    <% @wells.each do |well| %>
+      <option value="<%= well.id %>" class="well_item" data-well-id="<%= well.id %>"><%= well.name %></option>
+    <% end %>
+  </select>
+</div>
+
+<input type="hidden" id="updated_wells">

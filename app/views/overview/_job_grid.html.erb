@@ -1,0 +1,76 @@
+<%= link_to job, class: "empty-link", style: "text-decoration: none;" do %>
+    <div class="chart-grid  <%= !job.current_warning.empty? ? 'border-' + job.current_warning.first.severity : '' %> tooltip-info"
+         data-placement="top"
+         data-html="true"
+         data-title="<%= render 'jobs/well_tooltip', job: job, show_summary_data: false %>">
+
+      <div class="chart-title">
+        <p class="well-name"><%= job.well.rig.present? ? job.well.rig.name : "-" %></p>
+        <p class='help-text' style="text-align: left;"><%= job.well_name %></p>
+      </div>
+
+      <div class="chart-status">
+        <% if job.status == Job::COMPLETE %>
+          <p style="color:#6fe065;">COMPLETE</p>
+        <% else %>
+          <% activity, status, *rest = job.current_category.to_s.split(/\(/) %>
+          <p><%= activity %><%= job.current_bit_depth.present? ? ' - ' + number_with_delimiter(number_with_precision(job.current_bit_depth, precision: 0)) + ' ft' : '' %>&nbsp;</p>
+
+          <p><%= status.nil? ? "" : status[0, status.length - 1] %>&nbsp;</p>
+        <% end %>
+      </div>
+
+    </div>
+
+    <% if false %>
+        <div class='overview-job'>
+          <div class='name'><%= job.field.name %> | <%= job.well.name %></div>
+          <div class='rig'>
+            <div class='inline-block align-top orange-text'><%= job.well.rig.present? ? job.well.rig.name : "-" %></div>
+            <div class='inline-block align-top push-right-small light-blue-text'><%= job.job_number.present? ? job.job_number : "-" %></div>
+          </div>
+
+          <% if drilling_log.present? %>
+
+              <div class=''>
+                <div class='stat'>
+                  <p class='warning-text'>ft/hr</p>
+
+                  <h1 class='warning-text'><%= drilling_log.drilling_rop.present? ? drilling_log.drilling_rop.round(1) : "-" %></h1>
+                </div>
+              </div>
+              <div>
+                <div class='stat'>
+                  <p>TD <%= drilling_log.td_depth.present? ? number_with_delimiter(drilling_log.td_depth.round(0).to_i, :delimiter => ',') : "-" %>
+                    ft</p>
+
+                  <h1><%= drilling_log.max_depth.present? ? number_with_delimiter(drilling_log.max_depth.round(0).to_i, :delimiter => ',') : "-" %></h1>
+                </div>
+                <div class='stat'>
+                  <p>drill hours</p>
+
+                  <h1><%= drilling_log.drilling_time.present? ? drilling_log.drilling_time.round(1) : "-" %></h1>
+                </div>
+              </div>
+              <div class='align-top'>
+                <% last_entry = drilling_log.drilling_log_entries.last %>
+                <% if last_entry.present? %>
+                    <p class='inline-block help-text'>
+                      <%= last_entry.entry_at.in_time_zone(Time.zone).strftime("%a") %>
+                    </p>
+
+                    <div class='inline-block'>
+                      <b><%= last_entry.entry_at.in_time_zone(Time.zone).strftime("%H:%M %p") %></b>
+                    </div>
+                    <br>
+
+                    <div class='inline-block blue-text'>
+                      <b><%= DrillingLogEntry.activity_code_string(last_entry.activity_code) %></b>
+                    </div>
+                <% end %>
+              </div>
+          <% end %>
+
+        </div>
+    <% end %>
+<% end %>

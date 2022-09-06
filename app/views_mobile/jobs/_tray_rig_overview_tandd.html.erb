@@ -1,0 +1,382 @@
+<div class="remote-tray" data-tray="rig_overview_tandd">
+
+<div class='tray-content content-loaded' style="position: relative;">
+<div class="mdv-spinner" id="dv_torque_spinner">
+
+  <%= render 'jobs/inline_spinner' %>
+
+</div>
+
+<div class="dv-sub-container" style="display: none;">
+
+<div class="drill-view-chart">
+  <div id="dv_torque_warning_box_chart" class="mdv-chart-warning"></div>
+  <div style="position: relative; height: 100%;">
+    <div class="depth-row-container">
+      <div class="depth-row-bg"></div>
+      <div class="depth-row">
+      </div>
+    </div>
+    <div class="label-top">Hookload
+      <div class="arrow-down"></div>
+    </div>
+    <div id="chart_drillview_torque" class="amChart block chart-view" data-id="torque" style="background: none;"></div>
+    <div class="label-bottom" id="dv_torque_hookload_axis" style="width: 100%;"></div>
+  </div>
+</div>
+
+<div class="drill-view-port" id="dv_torque">
+
+<div class="menuContentBlock" style="position: relative; height: 100%;">
+
+<div class="offline-box" id="dv_torque_offline_box" style="display: none;">
+  <h5>System offline</h5>
+
+  <ul class="abnormal-list">
+    <li>
+      <p class="inline-block">Specify correct configurations</p>
+      <a href="#"
+         class="show-tray inline-block" data-tray="configurations"
+         style="cursor:hand; text-decoration: underline; padding: 0px; line-height: 10px; margin: 0px; margin-left: 15px;"
+         style="color: #ffffff;">More details</a>
+
+    </li>
+  </ul>
+</div>
+
+<div id="dv_torque_warning_box" class="mdv-warning-box">
+</div>
+
+<div class="mdv-cell clearfix" style="vertical-align: top; float: left;">
+
+  <table id="dv-torque-broomstick-plot" class="dv-torque-plot ">
+    <thead>
+    <tr>
+      <th></th>
+      <th>HL(<%= unit('klbf', company_unit) %>)</th>
+      <th>Predict</th>
+      <th>Actual</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #58c9c2;"></div>
+      </td>
+      <td id="dv_torque_slackoff_label" style="color: #58c9c2;">Slackoff</td>
+      <td id="dv_torque_slackoff_predict">-</td>
+      <td id="dv_torque_slackoff">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #da7d1a;"></div>
+      </td>
+      <td id="dv_torque_rotating_label" style="color: #da7d1a;">Rotating</td>
+      <td id="dv_torque_rotating_predict">-</td>
+      <td id="dv_torque_rotating">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #b3ed37;"></div>
+      </td>
+      <td id="dv_torque_pickup_label" style="color: #b3ed37;">Pickup</td>
+      <td id="dv_torque_pickup_predict">-</td>
+      <td id="dv_torque_pickup">-</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table id="dv-torque-axial_load-plot" class="dv-torque-plot " style="display: none;">
+    <tbody>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #b858c9;"></div>
+      </td>
+      <td id="dv_torque_axial_load_label" style="color: #b858c9">Axial Load</td>
+      <td id="dv_torque_axial_load">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #9aea6a;"></div>
+      </td>
+      <td id="dv_torque_sin_buckling_label" style="color: #9aea6a">Sin Buckling Force</td>
+      <td id="dv_torque_sin_buckling">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #23c9ff;"></div>
+      </td>
+      <td id="dv_torque_hel_buckling_label" style="color: #23c9ff">Hel Buckling Force</td>
+      <td id="dv_torque_hel_buckling">-</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table id="dv-torque-stress-plot" class="dv-torque-plot " style="display: none;">
+    <tbody>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #f64363;"></div>
+      </td>
+      <td id="dv_torque_yield_stress_label" style="color: #f64363">Yield Stress</td>
+      <td id="dv_torque_yield_stress">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #589dc9;"></div>
+      </td>
+      <td id="dv_torque_80_yield_stress_label" style="color: #589dc9">80% Yield Stress</td>
+      <td id="dv_torque_80_yield_stress">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #b858c9;"></div>
+      </td>
+      <td id="dv_torque_60_yield_stress_label" style="color: #b858c9">60% Yield Stress</td>
+      <td id="dv_torque_60_yield_stress">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #9babee;"></div>
+      </td>
+      <td id="dv_torque_von_mises_stress_label" style="color: #9babee">Von Mises Stress</td>
+      <td id="dv_torque_von_mises_stress">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #23fcff;"></div>
+      </td>
+      <td id="dv_torque_axial_stress_label" style="color: #23fcff">Axial Stress</td>
+      <td id="dv_torque_axial_stress">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #9aea6a;"></div>
+      </td>
+      <td id="dv_torque_twist_stress_label" style="color: #9aea6a">Twist Stress</td>
+      <td id="dv_torque_twist_stress">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #9eddde;"></div>
+      </td>
+      <td id="dv_torque_bending_stress_label" style="color: #9eddde">Bending: Magnitude</td>
+      <td id="dv_torque_bending_stress">-</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table id="dv-torque-surface_torque-plot" class="dv-torque-plot " style="display: none;">
+    <tbody>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #9aea6a;"></div>
+      </td>
+      <td id="dv_torque_torque_label" style="color: #9aea6a;">Torque</td>
+      <td id="dv_torque_torque">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #b858c9;"></div>
+      </td>
+      <td id="dv_torque_torsional_yield_label" style="color: #b858c9">Torsional Yield</td>
+      <td id="dv_torque_torsional_yield">-</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table id="dv-torque-ff-plot" class="dv-torque-plot " style="display: none;">
+    <tbody>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #58c9c2;"></div>
+      </td>
+      <td id="dv_torque_ff_slackoff_label" style="color: #58c9c2;">Slackoff</td>
+      <td id="dv_torque_ff_slackoff">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #da7d1a;"></div>
+      </td>
+      <td id="dv_torque_ff_rotating_label" style="color: #da7d1a;">Rotating</td>
+      <td id="dv_torque_ff_rotating">-</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle circle-sm" style="background: #b3ed37;"></div>
+      </td>
+      <td id="dv_torque_ff_pickup_label" style="color: #b3ed37;">Pickup</td>
+      <td id="dv_torque_ff_pickup">-</td>
+    </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<div class="mdv-torque-rg clearfix" id="dv_torque_casing_chart_container" style="height: 90%; margin-top: 20px;">
+  <div class="inline-block" style="position: relative; text-align: right; width: 40px; margin-right: 0px; float: left; height: 100%;" id="dv_torque_casing_depth_container">
+  </div>
+  <div class="left_bar" style="display: inline-block; height: 100%; float: left; position: relative;">
+    <div style="width: 15px; height: 50%; background: #747777;"></div>
+    <div style="width: 5px; height: 50%; background:#747777; float: right;"></div>
+  </div>
+  <div style="display: inline-block; height: 100%; float: left;">
+    <div style="width: 7px; height: 100%; background-color: #6bd21e;"></div>
+  </div>
+  <div style="display: inline-block; margin: 0 12px; box-sizing: border-box; float: left; height: 100%; position: relative;">
+    <div style="width: 27px; height: 100%; background: #ffffff; border-radius: 0 0 3px 3px;"></div>
+    <div style="position: absolute; bottom: 0px; background-color: #85caee; border-radius: 0 0 3px 3px; width: 27px; height: 12px; margin-top: -12px;"></div>
+  </div>
+  <div style="display: inline-block; float: left; height: 100%;">
+    <div style="width: 7px; height: 100%; background-color: #6bd21e;"></div>
+  </div>
+  <div class="right_bar" style="display: inline-block; float: left; height: 100%; position: relative;">
+    <div style="width: 15px; height: 50%; background: #747777;"></div>
+    <div style="width: 5px; height: 50%; background:#747777;"></div>
+  </div>
+  <div style="clear: both;"></div>
+</div>
+
+<div class="divider" style="height: 90px;"></div>
+
+<div class="chart-legend-block" id="dv_torque_chart_legend" style="display: none;">
+  <div class="chart-legend">
+    <div class="circle" style="background: #ffffff;">
+    </div>
+    <div class="legend-label">
+      <p>Torque</p>
+    </div>
+  </div>
+
+  <div class="chart-legend">
+    <div class="circle" style="background: #da7d1a;">
+    </div>
+    <div class="legend-label">
+      <p>Rotating</p>
+    </div>
+  </div>
+
+  <div class="chart-legend">
+    <div class="circle" style="background: #58c9c2;">
+    </div>
+    <div class="legend-label">
+      <p>Slack Off</p>
+    </div>
+  </div>
+
+  <div class="chart-legend">
+    <div class="circle" style="background: #b3ed37;">
+    </div>
+    <div class="legend-label">
+      <p>Pick Up</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+
+    DV_CURRENT_TAB = DV_TAB_TORQUE;
+    DV_CURRENT_TORQUE_TAB = 'broomstick';
+
+    $('.dv-subtitle').html("Torque + Drag" +
+        "<div class='dv-subpage-actions'>" +
+        "<select id='dv-torque-current-plot' class='custom-select-ajax dv-torque-plots-list' style='text-align: right;'>" +
+        "<option value='broomstick'>Broomstick</option>" +
+        "<option value='axial_load'>Axial Load</option>" +
+        "<option value='stress'>Stress</option>" +
+        "<option value='surface_torque'>Torque</option>" +
+        "<option value='ff'>Friction Factor</option>" +
+        "</select>" +
+        "<i class='fa fa-caret-down'></i>" +
+        "</div>");
+    $('#dv-torque-current-plot').customSelect();
+    $('#dv-torque-current-plot').change(function () {
+      DV_CURRENT_TORQUE_TAB = $(this).val();
+
+      $('.dv-torque-plot').hide();
+      $('#dv-torque-' + DV_CURRENT_TORQUE_TAB + '-plot').show()
+
+      draw_dv_torque();
+    });
+
+    $(".remote-tray-toggle[data-tray='rig_overview_tandd']").click(function () {
+      DV_CURRENT_TAB = DV_TAB_TORQUE;
+      $('.dv-subtitle').html("Torque + Drag" +
+          "<div class='dv-subpage-actions'>" +
+          "<select id='dv-torque-current-plot' class='custom-select-ajax dv-torque-plots-list' style='text-align: right;'>" +
+          "<option value='broomstick'>Broomstick</option>" +
+          "<option value='axial_load'>Axial Load</option>" +
+          "<option value='stress'>Stress</option>" +
+          "<option value='surface_torque'>Torque</option>" +
+          "<option value='ff'>Friction Factor</option>" +
+          "</select>" +
+          "<i class='fa fa-caret-down'></i>" +
+          "</div>");
+      $('#dv-torque-current-plot').customSelect();
+      $('#dv-torque-current-plot').change(function () {
+        DV_CURRENT_TORQUE_TAB = $(this).val();
+
+        $('.dv-torque-plot').hide();
+        $('#dv-torque-' + DV_CURRENT_TORQUE_TAB + '-plot').show()
+
+        draw_dv_torque();
+      });
+      dv_ajax_call(null, null, null, true);
+    });
+
+    // Create chart
+//    $('#chart_drillview_torque').css({ "height": $(window).innerHeight() - 50 });
+    DV_CHARTS['torque'] = AmCharts.makeChart("chart_drillview_torque", {
+      "type": "xy",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundAlpha": 1,
+      "backgroundColor": "#2a2e2e",
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "fontFamily": "orgonlightregular",
+      "valueAxes": [
+        {
+          "position": "bottom",
+          "axisAlpha": 0,
+          "dashLength": 1,
+          "gridAlpha": 0,
+          "id": "torque_axis"
+        },
+        {
+          "axisAlpha": 0,
+          "dashLength": 1,
+          "position": "right",
+          "reversed": true,
+          "inside": false,
+          "fontSize": 13,
+          "color": "#ffffff",
+          "gridColor": "#373b3b",
+          "gridAlpha": 1,
+          "autoWrap": true,
+          "tickLength": 0,
+          "showFirstLabel": false,
+          "showLastLabel": false,
+          "labelsEnabled": false,
+          "id": "depth_axis"
+        }
+      ],
+      "graphs": [],
+      "panEventsEnabled": false
+    });
+
+    dv_ajax_call(null, null, null, true);
+  }(jQuery));
+</script>

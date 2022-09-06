@@ -1,0 +1,31 @@
+<% provide(:title, 'Users') %>
+
+<div>
+  <div class="section-header" style="margin-top: 15px;">
+    <h1 class='inline-block'>Users</h1>
+
+    <h3 class="inline-block push-right">
+      <%= render 'layouts/paged_header', items: @admin_users %>
+    </h3>
+
+
+    <div class='inline-block align-top pull-right'>
+      <%= link_to "New User", signed_in_admin? ? new_user_path(id: @company) : new_user_path, class: "btn btn-sub align-top tooltip-info",
+                  "data-placement" => "bottom",
+                  "data-title" => "Create new user" %>
+    </div>
+  </div>
+
+
+  <div id="users_list">
+    <div id="users" class="main_list">
+      <% @admin_users.each do |user| %>
+          <% if !user.admin? %>
+              <%= render 'users/user', user: user %>
+          <% end %>
+      <% end %>
+    </div>
+    <%= will_paginate @users %>
+  </div>
+
+</div>

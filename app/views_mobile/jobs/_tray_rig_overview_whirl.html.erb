@@ -1,0 +1,342 @@
+<div class="remote-tray" data-tray="rig_overview_whirl">
+
+  <div class='tray-content content-loaded' style="position: relative;">
+
+    <div class="mdv-spinner" id="dv_bit_function_spinner">
+
+      <%= render 'jobs/inline_spinner' %>
+
+    </div>
+
+    <div class="dv-sub-container" style="display: none;">
+
+      <div class="drill-view-chart">
+        <div id="dv_bit_function_warning_box_chart" class="mdv-chart-warning"></div>
+        <div style="position: relative; height: 100%;">
+          <div class="depth-row-container">
+            <div class="depth-row-bg"></div>
+            <div class="depth-row">
+            </div>
+          </div>
+          <div class="label-top">MSE
+            <div class="arrow-down"></div>
+          </div>
+          <div id="chart_drillview_bit_function" class="amChart block chart-view" data-id="bit_function"></div>
+          <div class="label-bottom" id="dv_bit_function_mse_axis"></div>
+        </div>
+      </div>
+
+      <div class="drill-view-port" id="dv_bit_function">
+
+        <div class="menuContentBlock">
+
+          <div class="offline-box" id="dv_bit_function_offline_box">
+            <h5>System offline</h5>
+
+            <ul class="abnormal-list">
+              <li>
+                <p class="inline-block">Specify correct configurations</p>
+                <a href="#"
+                   class="show-tray inline-block" data-tray="configurations"
+                   style="cursor:hand; text-decoration: underline; padding: 0px; line-height: 10px; margin: 0px; margin-left: 15px;"
+                   style="color: #ffffff;">More details</a>
+
+              </li>
+            </ul>
+          </div>
+
+          <div id="dv_bit_function_warning_box" class="mdv-warning-box">
+          </div>
+
+          <div class="block">
+            <div class="mdv-cell">
+              <div class="block clearfix">
+                <p class="title" id="dv_bit_function_mse_label">MSE</p>
+
+                <p class="value-white" style="font-size: 30px;" id="dv_bit_function_mse"><span>ksi</span></p>
+              </div>
+
+              <div class="block clearfix">
+                <p class="title" id="dv_bit_function_dse_label">DSE</p>
+
+                <p class="value-white" style="font-size: 30px;" id="dv_bit_function_dse">-<span></span></p>
+              </div>
+            </div>
+
+            <div class="mdv-cell" id="dv_bit_function_efficiency" style="position: relative;">
+              <div style="position: absolute; text-align: center; margin-top: 35px; width: 100%; color: #ffffff; font-size: 14px;">Efficiency</div>
+              <div class="circles" id="dv_bit_function_circles" style="display: flex; display: -webkit-flex;"></div>
+            </div>
+          </div>
+
+          <div class="clearfix"></div>
+
+          <div class="divider divider-lg"></div>
+
+          <div style="position: relative; margin: 0;">
+
+            <div style="position: relative; top: -5px; left: 15px;">
+              <div id="dv_drilling_optimization_data" class="block" style="position: relative; ">
+                <%= image_tag 'error_orange.png', style: 'position: absolute; left: 0px; top: 2px;' %>
+                <div style="float: left; margin-left: 30px;">
+                  <p style="color: #ef891b; margin: 0; padding: 0;">Offset well not available for accurate
+                    performance.</p>
+                  <a class="show-tray inline-block" data-tray="lwd_logs" href="#"
+                     style="color: #ffffff;">More Details</a>
+                </div>
+              </div>
+            </div>
+
+            <div id="chartdiv" class="amChart block" style="height: 270px; width: 450px; margin: 0px;"></div>
+
+          </div>
+
+          <div class="divider divider-lg"></div>
+
+          <div class="block hidden">
+            <div class="inline-block" style="width: 30%; vertical-align: middle; ">
+              <p class="value-white" style="line-height: 24px; padding: 0; margin: 0; font-size: 15px; font-weight: normal;">String
+                Whirl</p>
+            </div>
+
+            <div class="inline-block" style="line-height: 24px; width: 68%; vertical-align: middle; box-sizing: border-box; position: relative; overflow: hidden;" id="dv_bit_function_string_whirl">
+            </div>
+          </div>
+
+          <div class="block hidden">
+            <div class="inline-block" style="width: 30%;"></div>
+            <div class="inline-block" style="width: 68%; position: relative; vertical-align: top;">
+              <span style="font-size: 10px; color: #ffffff; position: absolute; margin-top: 0px;"><b style="font-family: orgonboldregular">30</b> min ago</span>
+              <span style="font-size: 10px; color: #ffffff; position: absolute; right: 0; margin-top: 0px;">Now</span>
+            </div>
+          </div>
+
+          <div class="divider" style="height: 38px;"></div>
+
+          <div class="chart-legend-block " id="dv_bit_function_chart_legend" style="display: none;">
+            <div class="chart-legend" style="margin-top: 0px;">
+              <div class="circle" style="background: #FFFFFF;">
+              </div>
+              <div class="legend-label">
+                <p>MSE</p>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <div class="circle" style="background: #51b4f9;">
+              </div>
+              <div class="legend-label">
+                <p>Erratic MSE</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script type="text/javascript">
+  $(function () {
+
+    var heatmap_data = <%= raw @job.get_contour_data().to_json.html_safe %>;
+
+    // generate random data
+    var sourceData = [];
+
+    for (var i = 0; i < heatmap_data.length; i++) {
+      var dataPoint = {
+        wob: parseFloat(heatmap_data[i][0][1]).convert('klbm', company_unit).val(),
+        rpm: heatmap_data[i][0][0]
+      };
+
+      // generate value for each hour
+      for (var h = 0; h < heatmap_data.length; h++) {
+        var value = ((heatmap_data[i][h][2]) * 5) / 250;
+        dataPoint['value' + h] = Math.min(Math.round(value), 4);
+      }
+
+      sourceData.push(dataPoint);
+    }
+
+    var colors = ['#535353', '#FF0000', '#FF9100', '#ffea00', '#00ff0c'];
+    for (var i = 0; i < sourceData.length; i++) {
+      for (var h = 0; h < heatmap_data.length; h++) {
+        sourceData[i]['color' + h] = colors[sourceData[i]['value' + h]];
+        sourceData[i]['rpm' + h] = heatmap_data[i][h][0];
+        sourceData[i]['wob' + h] = parseFloat(heatmap_data[i][h][1]).convert('klbm', company_unit).val().round_to_decimal(1);
+        sourceData[i]['rop' + h] = parseFloat(heatmap_data[i][h][2]).convert('ft', company_unit).val().round_to_decimal();
+      }
+    }
+
+    var graphs = [];
+    for (var h = 0; h < heatmap_data.length; h++) {
+      graphs.push({
+        "balloonText": "<b>WOB</b> [[wob" + h + "]]" + "klbm".unit(company_unit) + ", <b>RPM</b> [[rpm]], <b>ROP</b> [[rop" + h + "]] " + "ft".unit(company_unit) + "/hr",
+        "fillAlphas": 1,
+        "lineAlpha": 0,
+        "type": "column",
+        "colorField": "color" + h,
+        "valueField": "wob"
+      });
+    }
+
+    DV_CHARTS['bit_function_wob'] = AmCharts.makeChart("chartdiv", {
+      "type": "serial",
+      "theme": "none",
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 50,
+      "autoMargins": false,
+      "dataProvider": sourceData,
+      "valueAxes": [
+        {
+          "title": null,
+          "titleColor": "#FFFFFF",
+          "stackType": "100%",
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "color": "#FFFFFF",
+          "fontSize": "10",
+          "labelsEnabled": false
+        }
+      ],
+      "graphs": graphs,
+      "columnWidth": 1,
+      "categoryField": "rpm",
+      "categoryAxis": {
+        "title": "WOB vs RPM",
+        "titleColor": "#FFFFFF",
+        "gridPosition": "start",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "position": "left",
+        "color": "#FFFFFF",
+        "fontSize": "10",
+        "labelsEnabled": false
+      },
+      "fontFamily": "orgonlightregular"
+    });
+
+  });
+</script>
+
+<script type="text/javascript">
+  (function ($) {
+
+    DV_CURRENT_TAB = DV_TAB_BIT_FUNCTION;
+    $('.dv-subtitle').html("Drilling Efficiency");
+
+    $(".remote-tray-toggle[data-tray='rig_overview_whirl']").click(function () {
+      DV_CURRENT_TAB = DV_TAB_BIT_FUNCTION;
+      $('.dv-subtitle').html("Drilling Efficiency");
+      dv_ajax_call(null, null, null, true);
+    });
+
+    // Create chart
+    DV_CHARTS['bit_function'] = AmCharts.makeChart("chart_drillview_bit_function", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#2a2e2e",
+      "backgroundAlpha": 0,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "bit_function_mse_axis",
+          "autoGridCount": false
+        },
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "bit_function_erratic_mse_axis",
+          "autoGridCount": false
+        }
+      ],
+      "graphs": [
+        {
+          "lineColor": "#ffffff",
+          "lineThickness": 3,
+          "type": "smoothedLine",
+          "valueField": "mse",
+          "valueAxis": "bit_function_mse_axis"
+        },
+        {
+          "lineColor": "#51b4f9",
+          "lineThickness": 3,
+          "type": "smoothedLine",
+          "valueField": "erratic_mse",
+          "valueAxis": "bit_function_erratic_mse_axis"
+        }
+      ],
+//      "chartCursor": {
+//        "zoomable": false,
+//        "enabled": true,
+//        "selectWithoutZooming": true,
+//        "valueLineEnabled": false,
+//        "valueLineBalloonEnabled": false,
+//        "valueBalloonsEnabled": false,
+//        "categoryBalloonEnabled": false
+//      },
+      "categoryField": "time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "startOnAxis": true,
+        "labelsEnabled": false,
+        "parseDates": false,
+        "minorGridAlpha": 0.3,
+        "tickLength": 0,
+        "minorGridEnabled": true,
+        "position": "left",
+        "color": "#2a2e2e",
+        "axisColor": "#fefefe",
+        "axisAlpha": 1,
+        "gridAlpha": 1,
+        "gridColor": "#373b3b",
+        "inside": true,
+        "labelOffset": -3,
+        "fontSize": 10
+      },
+      "panEventsEnabled": false
+    });
+
+//    $('#dv_bit_function').perfectScrollbar();
+
+    DV_BIT_FUNCTION_CIRCLE = Circles.create({
+      id: 'dv_bit_function_circles',
+      radius: 70,
+      value: 0,
+      maxValue: 100,
+      width: 15,
+      text: function (value) {
+        return value + '%';
+      },
+      duration: 0,
+      wrpClass: 'circles-wrp',
+      styleWrapper: true,
+      styleText: true
+    });
+
+    dv_ajax_call(null, null, null, true);
+
+  }(jQuery));
+</script>

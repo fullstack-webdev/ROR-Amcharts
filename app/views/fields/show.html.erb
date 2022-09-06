@@ -1,0 +1,35 @@
+<% provide(:title, 'Field: ' + @field.name) %>
+
+<div class="page_header">
+  <h1><%= @field.name %></h1>
+
+  <h3 class="inline">&nbsp;Field</h3>
+
+  <h2 class="paginated-count">Jobs:
+    <%= render 'layouts/paged_header', items: @jobs %>
+  </h2>
+
+</div>
+
+<% if @field.wells.any? %>
+    <div class="alert alert-info">
+      <b class="push-left-small">Wells</b>
+      <% @field.wells.each_with_index do |well, i| %>
+          <%= link_to well, class: "activity-user-link inline" do %>
+              <%= i < @field.wells.count - 1 ? well.name + "," : well.name %>
+          <% end %>
+      <% end %>
+      <br><br>
+      <b><%=  @field.state.present? ? @field.state.name : "" %>&nbsp;&nbsp;<%=  !@field.county.blank? ? @field.county + " County" : "" %></b>
+    </div>
+<% end %>
+
+<div id="jobs" class="list">
+  <% @jobs.each do |job| %>
+      <%= render 'jobs/job_progress_link', job: job %>
+  <% end %>
+</div>
+
+<%= will_paginate @jobs %>
+
+

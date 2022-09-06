@@ -1,0 +1,320 @@
+<div class="remote-tray" data-tray="rig_overview_overview">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading warnings list..." %>
+  </div>
+
+  <div class='tray-content content-loaded' style="position: relative;">
+
+    <div class="dv-spinner" id="dv_overview_spinner">
+
+      <%= render 'jobs/inline_spinner' %>
+
+    </div>
+
+    <div class="dv-sub-container" style="display: none;">
+
+      <div class="drill-view-chart" style="width: 35%; min-height: 100px;">
+        <div class="label-top" style="width: 100%;">ROP
+          <div class="arrow-down"></div>
+        </div>
+        <div id="chart_drillview_overview" class="amChart block chart-view" style="font-family: orgonlightregular; width: 100%; /*background-color: #2a2e2e;*/"></div>
+        <div id="chart_drillview_overview_offline" class="amChart block chart-view" style="display: none; position: relative;">
+          <%= image_tag 'no_mud.png', style: 'width: 100%; height: 100%;' %>
+          <%= image_tag 'error_orange.png', style: 'position: absolute; left: 10px; top: 10px;'%>
+        </div>
+        <div class="label-bottom" id="dv_overview_rop_axis"></div>
+      </div>
+
+      <div class="drill-view-port" style="width: 65%;" id="dv_overview">
+
+        <div class="menuContentBlock">
+
+          <div class="section-header" style="margin-top: 15px;">
+            <h1>Overview</h1>
+          </div>
+
+          <div id="dv_overview_end_well_alert" class="block clearfix" style="position: relative; display: none; margin-bottom: 20px;">
+            <%= image_tag 'error_orange.png', style: 'position: absolute; left: 0px; top: 2px;' %>
+            <div style="float: left; margin-left: 30px;">
+              <p style="color: #ef891b; margin: 0; padding: 0;">This is the end of the well. Use the time slider on the
+                left to change the position of the current well data.</p>
+            </div>
+          </div>
+
+          <div id="dv_overview_warning_box">
+          </div>
+
+          <div class="offline-box" id="dv_overview_offline_box">
+            <h5>System offline</h5>
+
+            <ul class="abnormal-list">
+              <li>
+                <p class="inline-block">Specify correct configurations</p>
+                <a href="#"
+                   class="show-tray inline-block" data-tray="configurations"
+                   style="cursor:hand; text-decoration: underline; padding: 0px; line-height: 10px; margin: 0px; margin-left: 15px;"
+                   style="color: #ffffff;">More details</a>
+
+              </li>
+            </ul>
+          </div>
+
+          <div class="block">
+
+            <div class="inline-block" style="width: 100%; vertical-align: top;">
+              <div>
+                <p class="title" id="dv_overview_activity_notes_label" style="font-size: 13px; margin-bottom: 5px;">Driller Notes</p>
+
+                <p class="value-white" style="font-size: 16px; margin-top: 0px; margin-bottom: 10px;" id="dv_overview_activity_notes"></p>
+              </div>
+            </div>
+
+            <div class="inline-block" style="width: 50%;vertical-align: top;">
+              <div>
+                <p class="title" id="dv_overview_actual_rop_label">Actual ROP</p>
+
+                <p class="value-white" style="font-size: 30px;" id="dv_overview_actual_rop"></p>
+
+                <p class="value-red" style="font-size: 20px;" id="dv_overview_rop_behind"></p>
+              </div>
+            </div>
+
+            <div class="inline-block" style="width: auto;">
+              <div>
+                <p class="title" id="dv_overview_predicted_rop_label">Predicted ROP</p>
+
+                <p class="value-gray" style="font-size: 30px;" id="dv_overview_predicted_rop"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider divider-md"></div>
+
+          <div class="block">
+            <div class="inline-block" style="width: 50%;vertical-align: top;">
+              <div>
+                <p class="title" id="dv_overview_wob_label">WOB</p>
+
+                <p class="value-white" style="font-size: 22px;" id="dv_overview_wob"></p>
+              </div>
+            </div>
+
+            <div class="inline-block" style="width: auto;">
+              <div>
+                <p class="title" id="dv_overview_rpm_label">RPM</p>
+
+                <p class="value-white" style="font-size: 22px;" id="dv_overview_rpm"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider divider-md"></div>
+
+          <div class="block">
+            <div class="inline-block" style="width: 50%;vertical-align: top;">
+              <div>
+                <p class="title" id="dv_overview_flowrate_label">Flow Rate</p>
+
+                <p class="value-white" style="font-size: 30px;" id="dv_overview_flowrate"></p>
+
+                <!--<p style="font-size: 13px; color: #c3c4c4;"><span class="arrow-up-red"></span> 210 currently</p>-->
+              </div>
+            </div>
+
+            <div class="inline-block" style="position: relative; width: auto; vertical-align: top; margin-bottom: 20px;">
+              <div style="float: left; position: absolute;">
+                <span class="icon-rect" id="dv_overview_activity_rect" style="background: none;"></span>
+              </div>
+              <div style="margin-left: 50px; vertical-align: top; float: left;">
+                <p class="value-white" style="font-size: 12px; margin: 0;" id="dv_overview_gactivity_depth"></p>
+
+                <p class="value-white" style="font-size: 12px; margin: 0;" id="dv_overview_activity"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider divider-md"></div>
+
+          <div class="block">
+            <div class="inline-block" style="width: 50%;vertical-align: top;">
+              <div>
+                <p class="title" id="dv_info_bit_depth_label">Bit Depth</p>
+
+                <p class="value-white" style="font-size: 22px;" id="dv_info_bit_depth"></p>
+              </div>
+            </div>
+
+            <div class="inline-block" style="width: auto;">
+              <div>
+                <p class="title" id="dv_info_bit_hole_label">Hole Depth</p>
+
+                <p class="value-white" style="font-size: 22px;" id="dv_info_hole_depth"></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+    function tune_dv_overview() {
+      DV_CURRENT_TAB = DV_TAB_OVERVIEW;
+
+      var innerHeight = $(window).innerHeight() - 186;
+      var viewHeight = Math.max(innerHeight, DV_MENU_HEIGHT - 44);
+      $('.drillview').css({ "height": viewHeight });
+      $('#dv_overview').css({ "height": viewHeight });
+      $('#vertical-slider').css({ "height": viewHeight - 20 });
+      $('#depth-row').css({ "height": viewHeight });
+      $('#activity-row').css({ "height": viewHeight });
+      $('.menuBlock').css({ "height": viewHeight + 44 });
+      $('#chart_drillview_overview').css({ "height": viewHeight });
+      $('#chart_drillview_overview_offline').css({ "height": viewHeight });
+      $('#dv_warnings').css({ "height": viewHeight - 20 });
+      $('#dv_overview_spinner').css({ "padding-top": viewHeight / 2 - 20 });
+      $('#dv_overview_spinner').css({ "height": viewHeight });
+      DV_CHARTS['overview'].validateNow();
+
+      update_chart_cursor_point('dv_overview');
+    }
+
+    $(".remote-tray-toggle[data-tray='rig_overview_overview']").click(function () {
+      DV_CURRENT_TAB = DV_TAB_OVERVIEW;
+
+      $('.dv-spinner').show();
+      $('.dv-sub-container').hide();
+
+      $('#depth-row-wide').hide();
+      $('#depth-row').html("");
+      $('#depth-row').show();
+      $('#activity-row').html("");
+      $('#activity-row').show();
+
+      setTimeout(function () {
+        tune_dv_overview();
+        $('#dv_overview').perfectScrollbar('update');
+        $slider = $('.slider');
+        $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+      }, 0);
+    });
+
+    // Tune view port height and etc..
+    $(window).resize(tune_dv_overview);
+
+    // Create chart
+    DV_CHARTS['overview'] = AmCharts.makeChart("chart_drillview_overview", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+//      "backgroundColor": "#2a2e2e",
+//      "backgroundAlpha": 1,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+//      "marginLeft": 100,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "fontFamily": "orgonlightregular",
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "overview_axis",
+          "autoGridCount": false
+        }
+      ],
+      "graphs": [
+        {
+          "lineColor": "#454949",
+          "lineThickness": 3,
+          "type": "line",
+          "valueField": "rop",
+          "id": "rop"
+        },
+        {
+          "lineColor": "#57c9c2",
+          "lineThickness": 3,
+          "type": "line",
+          "valueField": "predicted_rop",
+          "fillToGraph": "rop",
+          "fillAlphas": 0.5
+        },
+        {
+          "lineColor": "#ffffff",
+          "lineThickness": 3,
+          "type": "smoothedLine",
+          "valueField": "trend"
+        },
+      ],
+      "chartCursor": {
+        "zoomable": false,
+        "enabled": true,
+        "selectWithoutZooming": true,
+        "valueLineEnabled": false,
+        "valueLineBalloonEnabled": false,
+        "valueBalloonsEnabled": false,
+        "categoryBalloonEnabled": false
+      },
+      "categoryField": "time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "startOnAxis": true,
+        "labelsEnabled": false,
+        "parseDates": false,
+        "labelFrequency": 5,
+        "minorGridAlpha": 0.3,
+        "tickLength": 0,
+        "minorGridEnabled": true,
+        "position": "left",
+        "color": "#ffffff",
+        "axisColor": "#fefefe",
+        "axisAlpha": 1,
+        "gridAlpha": 1,
+        "gridColor": "#373b3b",
+        "inside": false,
+        "labelOffset": 20,
+        "fontSize": 13,
+        "autoWrap": true,
+        "showFirstLabel": false,
+        "showLastLabel": false
+      }
+    });
+
+    DV_CHARTS['overview'].addListener("changed", handleChanged);
+
+    var myCursor;
+
+    $('#chart_drillview_overview').click(function () {
+      DV_CURSOR_POS = myCursor;
+      update_chart_cursor('dv_overview');
+    });
+
+    $('#chart_drillview_overview').mouseleave(function () {
+      update_dv_overview(DV_CURSOR_POS);
+    });
+
+    function handleChanged(event) {
+      myCursor = event.index;
+      update_dv_overview(event.index);
+    }
+
+    $('#dv_overview').perfectScrollbar();
+
+    tune_dv_overview();
+    $slider = $('.slider');
+    $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+//    draw_dv_overview();
+  }(jQuery));
+</script>

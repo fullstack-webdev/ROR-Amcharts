@@ -1,0 +1,51 @@
+<div class="remote-tray custom-data-closed" data-tray="warnings">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading warnings..." %>
+  </div>
+
+  <div class='' style="height: 48px;">
+    <div class="sub-nav">
+      <!--<div style='margin-left: 20px; margin-top: 8px;'>-->
+      <!--<div class='' style='margin-top: -2px;'>-->
+      <ul class="nav nav-tabs child-tray-nav">
+        <li class='active'>
+          <%= link_to "Warnings Overview", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "warnings_overview",
+                      "data-tray-parent" => "warnings",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small'>
+          <%= link_to "Full List", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "warnings_list",
+                      "data-tray-parent" => "warnings",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+      </ul>
+      <!--</div>-->
+      <!--</div>-->
+    </div>
+  </div>
+
+  <div class='tray-content content-loaded'>
+
+    <div class="remote-tray custom-data-closed" data-tray="warnings_overview">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading warnings overview..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="warnings_list">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading warnings list..." %>
+      </div>
+    </div>
+
+  </div>
+</div>
+

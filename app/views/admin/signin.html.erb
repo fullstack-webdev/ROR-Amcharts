@@ -1,0 +1,54 @@
+<div id="sign_in" class=''>
+  <div class="login" style='margin-top: 10px; width: 400px; margin: auto; text-align: center'>
+
+    <%= image_tag "corva-logo.png", style: "margin-bottom: 20px; height: 30px;" %>
+
+    <h1 style='color: #ffffff; font-family: orgonlightregular;'>Login</h1>
+
+    <div class="form" data-form="login" style=''>
+
+      <%= form_for(:admin, url: admin_login_url, autocomplete: "on") do |f| %>
+
+          <%= f.text_field :email, placeholder: "Type Email",
+                           value: params[:email],
+                           class: "input-controls tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Email address" %>
+
+          <%= f.password_field :password, placeholder: "Type Password",
+                               class: "input-controls tooltip-info",
+                               "data-placement" => "bottom",
+                               "data-title" => "Password" %>
+
+          <%= f.hidden_field :is_admin,
+                           value: params[:is_admin] %>
+
+          <div class="" style='width: 400px; margin-left: auto; margin-right: auto; text-align: left;'>
+
+            <%= link_to "Forgot Password?", reset_password_path, tabindex: "4",
+                        class: "tooltip-info white-text",
+                        style: "font-size: 14px;" %>
+
+            <%= f.submit "LOG IN", class: "btn-login form-loading-on-click",
+                         "data-form" => "login" %>
+          </div>
+
+          <% flash.each do |key, value| %>
+              <div class="">
+                <%= image_tag "error_red.png", style: "vertical-align: middle" %>
+                <b style='line-height: 25px; font-size: 15px;'><%= value %></b>
+              </div>
+
+          <% end %>
+
+      <% end %>
+    </div>
+
+    <div class="form-loading hidden" data-form="login">
+      <div class='' style="margin-left: 60px;">
+        <%= render 'layouts/inline_loading', title: "Signing In..." %>
+      </div>
+    </div>
+
+  </div>
+</div>

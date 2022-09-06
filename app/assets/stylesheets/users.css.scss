@@ -1,0 +1,105 @@
+
+
+.users {
+  list-style: none;
+  margin: 0px;
+}
+
+.user-header {
+  display: inline-block;
+}
+
+
+.avatar-box {
+  min-width: 360px;
+  min-height: 250px;
+  float: left;
+}
+
+.avatar-box-small {
+  min-width: 100px;
+  min-height: 60px;
+  float: left;
+}
+
+.users-info {
+  text-align: left;
+  margin: 0px;
+  margin-bottom: 6px;
+}
+
+.user-info-link {
+  height: 40px;
+  display: block;
+  color: #0058a8;
+  font-size: 20px;
+
+  &:active, &:link, &:visited {
+    color: #0058a8;
+    background: transparent;
+    text-decoration: none;
+  }
+  &:hover {
+    color: #0058a8;
+    background: transparent;
+    text-decoration: underline;
+  }
+}
+
+.message-box {
+  margin-top: 20px;
+}
+
+.user-role-name {
+  color: #0058a8;
+  font-weight: bold;
+}
+
+.user-role-type {
+  display: inline-block;
+  margin-left: 20px;
+  color: #666666;
+  font-size: 12px;
+  font-style: italic;
+  font-weight: lighter;
+}
+
+
+.user-password {
+  background: yellow;
+}
+
+#user_time_zone {
+  width: 370px !important;
+}
+
+.user-line {
+
+  h3 {
+    display: inline-block;
+    width: 200px;
+    margin-left: 15px;
+  }
+
+  .user-line-title {
+    display: inline-block;
+    width: 200px;
+  }
+
+  .user-line-district {
+    display: inline-block;
+    width: 200px;
+  }
+
+  .user-line-email {
+    width: 240px;
+    color: #878787;
+    font-family: "gothamlightregular";
+    display: inline-block;
+    font-style: italic;
+    font-weight: lighter;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: none;
+  }
+}

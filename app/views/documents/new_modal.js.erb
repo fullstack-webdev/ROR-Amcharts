@@ -1,0 +1,8 @@
+
+
+$('#modal_popup').find('.modal-content').append('<%= j render 'documents/modal_new_document', document: @document, job_id: @job_id%>');
+$('#modal_popup').css('visibility', 'visible');
+$('#modal_popup').find('.loading').addClass('hidden');
+
+$('#modal_popup').find('.custom-select').customSelect();
+

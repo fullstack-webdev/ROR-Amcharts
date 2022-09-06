@@ -1,0 +1,51 @@
+<div class="page_header">
+  <h1><%= @district.name %></h1>
+  <h3 class="inline push-right-small">Master District</h3>
+
+  <div class="btn-group inline pull-right">
+    <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+      Advanced Actions
+    </a>
+    <ul class="dropdown-menu">
+
+      <li>
+        <%= link_to "Change Name", edit_district_path(@district, :master => true, :edit => true) %>
+        <%= link_to "Delete District", @district, method: :delete,
+                    data: {confirm: "Delete district " + @district.name + "?"},
+                    class: "dropdown-menu-link tooltip-info",
+                    "data-placement" => "left",
+                    "data-title" => "Permanently delete district. Warning, the can't be undone. This will cause any user associated with this district to may not work properly." %>
+      </li>
+
+
+    </ul>
+  </div>
+</div>
+
+
+
+<% if @district.districts.empty? %>
+    <p class="district-no-districts"><br>No districts have been added yet</p>
+<% end %>
+
+<div id="districts_list">
+  <% @district.districts.each do |district| %>
+      <%= render 'districts/sub_district', district: district %>
+  <% end %>
+</div>
+
+<hr>
+
+<br>
+<%= link_to "+ Add New District", new_district_path(:master_district => @district.id),
+            class: "bluebtn",
+            "data-placement" => "bottom",
+            "data-title" => "Add new district to master district" %>
+
+<%= link_to "Back to All Districts", districts_path,
+            class: "bluebtn gray pull-right",
+            "data-placement" => "bottom",
+            "data-title" => "Go back to all districts" %>
+
+
+

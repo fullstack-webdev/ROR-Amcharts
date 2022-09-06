@@ -1,0 +1,82 @@
+
+.survey-comment {
+  font-family: "gothamlightregular";
+  margin-left: 10px;
+  font-size: 19px;
+  text-transform: uppercase;
+}
+
+
+.well-plan {
+  display: inline-block;
+  background: #cc4800;
+  width: 10px;
+  height: 10px;
+  corner-radius: 250px;
+}
+
+.active-survey {
+  display: inline-block;
+  background: #00BBCC;
+  width: 10px;
+  height: 10px;
+  corner-radius: 250px;
+}
+
+
+.survey-point {
+
+  height: 25px;
+
+  &:active, &:link, &:visited {
+    background: transparent;
+    text-decoration: none;
+  }
+  &:hover {
+    background: transparent;
+    border-width: 0px 0px 1px 0px;
+    border-style: dashed;
+    border-bottom-color: #63cbed;
+  }
+}
+
+.hr-underline {
+  border-width: 0px;
+  border-bottom-width: 1px;
+  border-style: solid;
+  border-color: #d2d2d2;
+  padding-bottom: 5px;
+}
+
+.survey-hover {
+  width: 170px;
+}
+
+.survey-point-hover-label {
+  float: left;
+  display: inline-block;
+  text-align: left;
+  width: 110px;
+  margin: 0px;
+  padding: 0px;
+  text-wrap: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.survey-point-hover-value {
+  display: inline-block;
+  text-align: left;
+  width: 60px;
+  text-wrap: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.survey-tie-in-label {
+  display: inline-block;
+  color: #7C9B8F;
+  margin-left: 30px;
+  width: 35px;
+  font-family: orgonboldregular;
+}

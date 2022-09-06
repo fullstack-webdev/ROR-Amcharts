@@ -1,0 +1,394 @@
+<% histogram = @job.wits_category_histogram %>
+
+<div class="remote-tray" data-tray="operation_efficiency">
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading time analysis..." %>
+</div>
+
+<div class='tray-content'>
+
+<div class="section-header" style="margin-top: 15px;">
+  <h1>Operation Efficiency</h1>
+</div>
+
+<div class="block">
+  <div class="inline-block" style="width: 51%;">
+    <div class="page-header-small">
+      <h1 class="header-color-darker">Drilling</h1>
+    </div>
+
+    <div class="block">
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category drilling active" data-category-id="6">
+        Treatment
+      </button>
+
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category drilling" data-category-id="5">
+        Weight to Weight
+      </button>
+
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category drilling" data-category-id="4">
+        Connection
+      </button>
+
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category drilling" data-category-id="7">
+        Drilling
+      </button>
+    </div>
+  </div>
+
+  <div class="inline-block" style="width: 24%; vertical-align: top;">
+    <div class="page-header-small">
+      <h1 class="header-color-darker">Tripping Out</h1>
+    </div>
+
+    <div class="block">
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category tripping-out" data-category-id="3">
+        Pipe Moving
+      </button>
+
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category tripping-out" data-category-id="2">
+        Connection
+      </button>
+    </div>
+  </div>
+
+  <div class="inline-block" style="width: 24%; vertical-align: top;">
+    <div class="page-header-small">
+      <h1 class="header-color-darker">Tripping In</h1>
+    </div>
+
+    <div class="block">
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category tripping-in" data-category-id="1">
+        Pipe Moving
+      </button>
+
+      <button type="button" class="btn-sub btn-group-xs btn-sub-wits-category tripping-in" data-category-id="0.00">
+        Connection
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="histogram_graph">
+
+  <div class="divider divider-lg"></div>
+
+  <div class="block">
+
+    <div class="inline-block amChart" id="operation_chart" style="width: 100%; height: 320px; font-size: 11px; background-color:#536364;">
+    </div>
+
+    <div class="divider divider-lg"></div>
+
+    <div class="inline-block" style="vertical-align: top; max-width: 550px; width: 45%;">
+      <table class="table-kpi">
+        <tr>
+          <td class="key">Average</td>
+          <td class="value" id="avg_time">
+            <%= number_with_delimiter(number_with_precision((histogram[6]['avg_time'] / 60.0), precision: 2)) %>
+            <span>min</span></td>
+        </tr>
+
+        <tr>
+          <td class="key">Benchmark</td>
+          <td class="value" id="benchmark">
+            <%= number_with_delimiter(number_with_precision((histogram[6]['benchmark'] / 60.0), precision: 2)) %>
+            <span>min</span></td>
+        </tr>
+
+        <tr>
+          <td class="key">Potential Savings</td>
+          <td class="value color-green" id="potential_saving">
+            <%= number_with_delimiter(number_with_precision((histogram[6]['saving']), precision: 2)) %>
+            days (<%= number_with_delimiter(number_with_precision((histogram[6]['potential_saving']), precision: 1)) %>%)
+          </td>
+        </tr>
+
+      </table>
+    </div>
+
+    <div class="space space-lg"></div>
+
+    <div class="inline-block" style="vertical-align: top; max-width: 550px; width: 45%;">
+      <table class="table-kpi">
+        <tr>
+          <td class="key">10%</td>
+          <td class="value" id="ten_per">
+            <%= number_with_delimiter(number_with_precision((histogram[6]['ten_per'] / 60.0), precision: 2)) %>
+            <span>min</span></td>
+        </tr>
+        <tr>
+          <td class="key">50%</td>
+          <td class="value" id="fifty_per">
+            <%= number_with_delimiter(number_with_precision((histogram[6]['fifty_per'] / 60.0), precision: 2)) %>
+            <span>min</span></td>
+        </tr>
+        <tr>
+          <td class="key">90%</td>
+          <td class="value" id="ninety_per">
+            <%= number_with_delimiter(number_with_precision((histogram[6]['ninety_per'] / 60.0), precision: 2)) %>
+            <span>min</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="divider divider-sm"></div>
+
+    <hr>
+
+    <div class="divider divider-md"></div>
+
+    <div class="dropdown dropdown-no-border" style="display: inline-block">
+      <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="rig_percent_selected" data-id="2">
+        50% (minutes) <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu" id="rig_percent_id">
+        <li role="presentation"><a href="javascript:void(0);" data-id="2">50% (minutes)</a></li>
+      </ul>
+    </div>
+
+    <div class="divider divider-sm"></div>
+
+    <h3 class="header-color-darker">Crews</h3>
+
+    <div id="rigs_operation_graph" class="amChart" style="width: 100%; font-family: inherit; font-size: 15px;"></div>
+
+    <div class="divider divider-md"></div>
+
+    <h3 class="header-color-darker">Sections</h3>
+
+    <div id="rigs_operation_graph2" class="amChart" style="width: 100%; font-family: inherit; font-size: 15px;"></div>
+
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  (function ($) {
+    var histogram_data = <%= histogram.to_json.html_safe%>;
+
+    var chart3 = AmCharts.makeChart("operation_chart", {
+      "type": "serial",
+      "theme": "none",
+      "dataProvider": extend_histogram_data(histogram_data[6]),
+      "pathToImages": "http://cdn.amcharts.com/lib/3/images/",
+      "valueAxes": [
+        {
+          "gridColor": "#FFFFFF",
+          "gridAlpha": 0,
+          "dashLength": 0,
+          "axisAlpha": 0,
+          "labelsEnabled": false
+        }
+      ],
+      "gridAboveGraphs": true,
+      "startDuration": 1,
+      "graphs": [
+        {
+          "id": "histogram",
+          "title": "Operation Count",
+          "balloonText": "[[op_time]] min: <b>[[op_count]]</b> instances",
+          "fillAlphas": 0.8,
+          "lineAlpha": 0.2,
+          "type": "column",
+          "valueField": "op_count",
+          "fillColors": "#58c9c2"
+        }
+      ],
+      "chartCursor": {
+        "categoryBalloonEnabled": false,
+        "cursorAlpha": 0,
+        "zoomable": false
+      },
+      "chartScrollbar": {
+        "autoGridCount": true,
+        "graph": "histogram",
+        "scrollbarHeight": 40,
+        "backgroundAlpha": 0.2,
+        "selectedBackgroundAlpha": 0.7,
+        "selectedBackgroundColor": "#354849",
+        "updateOnReleaseOnly": true
+      },
+      "mouseWheelZoomEnabled": false,
+      "categoryField": "op_time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "gridAlpha": 0,
+        "tickPosition": "middle",
+        "tickLength": 10,
+        "color": "#fefefe",
+        "axisColor": "#fefefe",
+        "guides": [
+          {
+            category: histogram_percent(histogram_data[6]['ten_per']),
+            lineColor: "#00FF00",
+            lineAlpha: 1,
+            dashLength: 1,
+            lineThickness: 2,
+            inside: true,
+            position: "top",
+            labelRotation: 0,
+            label: "10%"
+          },
+          {
+            category: histogram_percent(histogram_data[6]['fifty_per']),
+            lineColor: "#FFFF00",
+            lineAlpha: 1,
+            dashLength: 1,
+            lineThickness: 2,
+            inside: true,
+            position: "top",
+            labelRotation: 0,
+            label: "50%"
+          },
+          {
+            category: histogram_percent(histogram_data[6]['ninety_per']),
+            lineColor: "#FF0000",
+            lineAlpha: 1,
+            dashLength: 1,
+            lineThickness: 2,
+            inside: true,
+            position: "top",
+            labelRotation: 0,
+            label: "90%"
+          }
+        ]
+      },
+      "panEventsEnabled": false,
+      "fontFamily": "orgonlightregular"
+    });
+    chart3.zoomToIndexes(0, parseInt(histogram_percent(histogram_data[6]['ninety_per']) / 0.25) + 1);
+
+    var operation_graph_data = [];
+    operation_graph_data.push({"well": "Morning Crew", "value": (histogram_data[6]['morning_crew_fifty'] / 60).round_to_decimal(2)});
+    operation_graph_data.push({"well": "Night Crew", "value": (histogram_data[6]['night_crew_fifty'] / 60).round_to_decimal(2)});
+    $('#rigs_operation_graph').css("height", (operation_graph_data.length * 30 + 60));
+    var operation_chart = AmCharts.makeChart("rigs_operation_graph", {
+      "type": "serial",
+      "theme": "none",
+      "dataProvider": operation_graph_data,
+      "valueAxes": [
+        {
+          "stackType": "regular",
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "labelsEnabled": false
+        }
+      ],
+      "graphs": [
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "value",
+          "lineColor": "#22CAFF",
+          "fixedColumnWidth": 25,
+          "balloonText": "<b>[[value]]</b> minutes"
+        }
+      ],
+      "rotate": true,
+      "categoryField": "well",
+      "categoryAxis": {
+        "title": "",
+        "titleColor": "#fefefe",
+        "gridPosition": "start",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "position": "left",
+        "fontSize": 15,
+        "color": "#fefefe"
+      },
+      "fontFamily": "orgonlightregular"
+    });
+
+    var operation_graph_data2 = [];
+    operation_graph_data2.push({"well": "Intermediate", "value": (histogram_data[6]['intermediate_fifty'] / 60).round_to_decimal(2)});
+    operation_graph_data2.push({"well": "Curve", "value": (histogram_data[6]['curve_fifty'] / 60).round_to_decimal(2)});
+    operation_graph_data2.push({"well": "Tangent", "value": (histogram_data[6]['lateral_fifty'] / 60).round_to_decimal(2)});
+    $('#rigs_operation_graph2').css("height", (operation_graph_data2.length * 30 + 60));
+    var operation_chart2 = AmCharts.makeChart("rigs_operation_graph2", {
+      "type": "serial",
+      "theme": "none",
+      "dataProvider": operation_graph_data2,
+      "valueAxes": [
+        {
+          "stackType": "regular",
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "labelsEnabled": false
+        }
+      ],
+      "graphs": [
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "value",
+          "lineColor": "#22CAFF",
+          "fixedColumnWidth": 25,
+          "balloonText": "<b>[[value]]</b> minutes"
+        }
+      ],
+      "rotate": true,
+      "categoryField": "well",
+      "categoryAxis": {
+        "title": "",
+        "titleColor": "#fefefe",
+        "gridPosition": "start",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "position": "left",
+        "fontSize": 15,
+        "color": "#fefefe"
+      },
+      "fontFamily": "orgonlightregular"
+    });
+
+
+    $('.btn-sub-wits-category').on('click', function () {
+      data_id = parseInt($(this).attr("data-category-id"));
+      $('.btn-sub-wits-category').removeClass("active");
+      $(this).addClass("active");
+      $("#histogram_graph").show();
+
+      $('#avg_time').html((histogram_data[data_id]['avg_time'] / 60).round_to_decimal(2) + " <span>min</span>");
+      $('#ten_per').html((histogram_data[data_id]['ten_per'] / 60).round_to_decimal(2) + " <span>min</span>");
+      $('#fifty_per').html((histogram_data[data_id]['fifty_per'] / 60).round_to_decimal(2) + " <span>min</span>");
+      $('#ninety_per').html((histogram_data[data_id]['ninety_per'] / 60).round_to_decimal(2) + " <span>min</span>");
+      $('#benchmark').html((histogram_data[data_id]['benchmark'] / 60).round_to_decimal(2) + " <span>min</span>");
+      $('#time_saving').html(histogram_data[data_id]['saving'].round_to_decimal(2) + " days");
+      $('#potential_saving').html(histogram_data[data_id]['saving'].round_to_decimal(2) + " days (" + histogram_data[data_id]['potential_saving'].round_to_decimal(2) + "%)");
+
+      chart3.dataProvider = extend_histogram_data(histogram_data[data_id]);
+      chart3.categoryAxis.guides[0]['category'] = histogram_percent(histogram_data[data_id]['ten_per']);
+      chart3.categoryAxis.guides[1]['category'] = histogram_percent(histogram_data[data_id]['fifty_per']);
+      chart3.categoryAxis.guides[2]['category'] = histogram_percent(histogram_data[data_id]['ninety_per']);
+      chart3.validateData();
+      chart3.animateAgain();
+      chart3.zoomToIndexes(0, parseInt(histogram_percent(histogram_data[data_id]['ninety_per']) / 0.25) + 1);
+
+      operation_graph_data = [];
+      operation_graph_data.push({"well": "Morning Crew", "value": (histogram_data[data_id]['morning_crew_fifty'] / 60).round_to_decimal(2)});
+      operation_graph_data.push({"well": "Night Crew", "value": (histogram_data[data_id]['night_crew_fifty'] / 60).round_to_decimal(2)});
+      $('#rigs_operation_graph').css("height", (operation_graph_data.length * 30 + 60) + "px");
+      operation_chart.dataProvider = operation_graph_data;
+      operation_chart.validateData();
+      operation_chart.animateAgain();
+
+      operation_graph_data2 = [];
+      operation_graph_data2.push({"well": "Intermediate", "value": (histogram_data[data_id]['intermediate_fifty'] / 60).round_to_decimal(2)});
+      operation_graph_data2.push({"well": "Curve", "value": (histogram_data[data_id]['curve_fifty'] / 60).round_to_decimal(2)});
+      operation_graph_data2.push({"well": "Tangent", "value": (histogram_data[data_id]['lateral_fifty'] / 60).round_to_decimal(2)});
+      $('#rigs_operation_graph2').css("height", (operation_graph_data2.length * 30 + 60) + "px");
+      operation_chart2.dataProvider = operation_graph_data2;
+      operation_chart2.validateData();
+      operation_chart2.animateAgain();
+    });
+  }(jQuery));
+</script>

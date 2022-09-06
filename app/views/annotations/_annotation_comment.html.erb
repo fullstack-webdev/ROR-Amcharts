@@ -1,0 +1,32 @@
+<div style="margin-bottom: 20px;">
+
+  <% if last %>
+    <div style="position: absolute; z-index: -1; margin: 0px; float: left; margin-left: 15px; margin-top: 20px; border-left-width: 1px; border-style: solid; border-color: #596d6d; height: 88px;" ></div>
+  <% end %>
+
+
+  <div style="margin: 0px; float: left; z-index: 1000;">
+    <%= render 'users/user_icon2', user: comment.user %>
+  </div>
+
+
+  <div style="color: #ffffff; margin-left: 55px; margin-right: 20px; margin-top: 10px; padding-top: 10px;">
+    <div style="">
+      <div class="inline-block" style="font-family: orgonboldregular; font-size: 15px;">
+          <%= comment.user.name %>
+      </div>
+
+      <div class="inline-block" style="margin-left: 30px;">
+        <%= comment.created_at.strftime('%b %d %H:%M') %>
+      </div>
+    </div>
+
+
+    <div style="margin-top: 15px;">
+      <div style="text-wrap: normal;">
+        <%= comment.text %>
+      </div>
+    </div>
+  </div>
+
+</div>

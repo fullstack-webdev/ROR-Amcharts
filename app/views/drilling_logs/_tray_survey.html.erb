@@ -1,0 +1,229 @@
+<div class="remote-tray" data-tray="surveys">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading well plan..." %>
+  </div>
+
+  <div class='tray-content content-loaded'>
+
+    <% @surveys = Survey.includes(job: :well).where(:plan => false).where("wells.id = ?", job.well_id).order("surveys.created_at ASC") %>
+    <% query = URI.parse(request.referrer).query %>
+    <% if !query.blank? %>
+      <% p = CGI.parse(query) %>
+      <% if p["survey"].present? %>
+        <% @survey = @surveys.where("surveys.id = ?", p["survey"]).first %>
+      <% end %>
+    <% end %>
+    <% if @survey.nil? %>
+      <% @survey = @surveys.last %>
+    <% end %>
+    <% @well_plans = Survey.includes(job: :well).where(:plan => true).where("wells.id = ?", job.well_id).order("surveys.created_at ASC") %>
+    <% if @survey.present? %>
+      <% @active_well_plan = @well_plans.where("surveys.well_plan_for_survey_id = ?", @survey.id).last %>
+    <% end %>
+    <% if @active_well_plan.nil? %>
+      <% @active_well_plan = @well_plans.last %>
+    <% end %>
+
+    <% if @survey.nil? %>
+      <% @survey = Survey.new(name: "1", plan: false) %>
+      <% @survey.company = current_user.company %>
+      <% @survey.job = @job %>
+      <% @survey.save %>
+    <% end %>
+
+
+    <% if (@active_well_plan.nil? || @active_well_plan.survey_points.empty?) && !@survey.no_well_plan %>
+
+      <div class='section-header' style='margin-top: 15px;'>
+        <h1>Well Plan</h1>
+      </div>
+
+      <div class='alert-box alert-info'>
+        <b>No Well Plan</b>
+
+        <p>Update or continue without a well plan.</p>
+      </div>
+
+      <br>
+      <%= link_to "Update Well Plan", "/surveys/new?job_id=" + @job.id.to_s, class: "btn btn-primary" %>
+
+      <div class='inline-block push-right-small'>
+        <%= link_to "Continue Without Well Plan", job_path(job, update_field: true, field: "no_well_plan", value: true),
+                    :method => :put,
+                    class: "btn btn-default" %>
+      </div>
+    <% else %>
+
+      <% calculated_points = @survey.no_well_plan ? [] : @active_well_plan.survey_points %>
+      <% calculated_points_survey = @survey.calculated_points(@survey.no_well_plan ? 0 : @active_well_plan.vertical_section_azimuth) %>
+
+
+      <div class='section-header' style='margin-top: 15px;'>
+
+        <h1>Well Trajectory</h1>
+
+
+        <div class='pull-right'>
+          <% if @survey.no_well_plan %>
+            <!--<b>No Well Plan</b>-->
+            <%= link_to "Add Well Plan", "/surveys/new?job_id=" + @job.id.to_s, class: "btn btn-sub align-top push-right-small" %>
+          <% else %>
+            <% if false %>
+              <p class='inline-block help-text align-top'>plan <%= @survey.name %></p>
+            <% end %>
+
+            <%= link_to "View Well Plan", "#surveys",
+                        "data-id" => @survey.job.id,
+                        "data-tray-controller" => "jobs",
+                        "data-tray" => "well_plan",
+                        "data-tray-parent" => "configurations",
+                        class: "btn btn-sub align-top push-right-small remote-tray-toggle"%>
+              <% if false %>
+            <%= link_to "New Sidetrack", new_survey_path(new_side_track: true), class: "btn btn-sub align-top push-right-small" %>
+                  <% end %>
+          <% end %>
+        </div>
+        <div class='inline-block push-right-small'>
+          <% if @active_well_plan.present? %>
+            <span><div class='well-plan'></div> Well Plan</span>
+          <% end %>
+          <span class='push-right-small'><div class='active-survey'></div> Survey</span>
+        </div>
+      </div>
+
+      <% if @survey.survey_points.empty? %>
+        <%= render 'surveys/tie_in' %>
+      <% end %>
+
+      <% if @surveys.count > 1 %>
+        <hr>
+        <div class="block">
+          <b class='blue-text'>Tracks</b>
+          <% @surveys.each do |s| %>
+            <%= link_to s.name, drilling_log_path(anchor: "survey", survey: s.id), class: "btn  align-top push-up-small push-right-small " + (s == @survey ? "btn-primary white-text" : "btn-default") %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div id="chartdiv_survey" class='inline-block amChart' style="width: 50%; float: left; height: 400px; background-color: #475959;"></div>
+      <div id="chartdiv2_survey" class='inline-block amChart' style="width: 50%; height: 400px; background-color: #475959;"></div>
+
+
+      <div class='push-down'>
+        <div class="list-item-column list-item-column-short">M. Depth</div>
+        <div class="list-item-column list-item-column-short3">Inc</div>
+        <div class="list-item-column list-item-column-short3">Azi</div>
+        <div class="list-item-column list-item-column-short">TVD</div>
+        <div class="list-item-column list-item-column-short">V Sect</div>
+        <div class="list-item-column list-item-column-short">+N/S-</div>
+        <div class="list-item-column list-item-column-short">+E/W-</div>
+        <div class="list-item-column list-item-column-count">DLS</div>
+        <div class="list-item-column list-item-column-count">MFS</div>
+        <div class="list-item-column list-item-column-count">Dip</div>
+        <div class="list-item-column list-item-column-count">Grav</div>
+      </div>
+      <hr>
+
+      <% omitted = calculated_points_survey.count - 15 %>
+      <% if !@complete_survey && omitted > 0 %>
+        <div id="short_survey" class='center' style='font-family: gothambookregular;'>
+          <b class='warning-text'><%= omitted %></b> surveys
+          omitted...&nbsp;&nbsp; <%= link_to "Load All", @survey, remote: true, class: "activity-user-link", id: "load_full_survey" %>
+          <br>
+          <br>
+        </div>
+        <div id="loading_survey" class='center hidden' style='font-family: gothambookregular;'>
+              <span class='ajax-loading'>
+                Loading...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </span>
+          <br>
+          <br>
+        </div>
+      <% end %>
+
+
+
+      <%= render 'surveys/survey_list', points: calculated_points_survey.last(15) %>
+
+      <br>
+
+      <% if false %>
+      <div class='center'>
+        <%= link_to "New Projection", new_survey_projection_path(survey: @survey), remote: true, class: "btn btn-primary align-top show-modal-button" %>
+      </div>
+      <% end %>
+
+      <br>
+
+      <% if @survey.survey_points.empty? %>
+        <div id="survey_entry" class="hidden">
+        </div>
+      <% else %>
+        <%= render 'surveys/survey_entry' %>
+      <% end %>
+
+      <% if @survey.present? || @active_well_plan.present? %>
+        <%= render 'surveys/charting', calculated_points_survey: calculated_points_survey, calculated_points: calculated_points, section: "survey" %>
+      <% end %>
+
+
+      <div class=''>
+        <div class='inline-block'>
+          <p class='job-field-title' style="">KOP</p>
+          <div class='job-field-div'>
+            <%= text_field_tag "section_curve_start", "", value: @survey.job.section_curve_start,
+                               placeholder: "KOP",
+                               class: "well-update-field job-field-value-editable tooltip-info align-top ",
+                               "data-id" => @survey.job.well_id.to_s,
+                               "data-field" => "section_curve_start",
+                               "data-placement" => "bottom",
+                               "data-title" => "Curve Kick-off point" %>
+          </div>
+        </div>
+
+        <div class='inline-block push-right'>
+          <p class='job-field-title' style="">Landing</p>
+          <div class='job-field-div'>
+            <%= text_field_tag "section_curve_start", "", value: @survey.job.section_tangent_start,
+                               placeholder: "Landing",
+                               class: "well-update-field job-field-value-editable tooltip-info align-top ",
+                               "data-id" => @survey.job.well_id.to_s,
+                               "data-field" => "section_tangent_start",
+                               "data-placement" => "bottom",
+                               "data-title" => "Lateral Landing point" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+
+
+
+
+
+    <script type='text/javascript'>
+      <% if @survey.present? && @survey.job.status == Job::ON_JOB %>
+      setInterval(function () {
+        $.ajax({
+          url: "/surveys/<%= @survey.id %>?recent_only=true",
+          type: "GET",
+          dataType: "script"
+        });
+      }, 1000 * 60 * 5);
+      <% end %>
+
+      $('#load_full_survey').click(function () {
+        $('#short_survey').addClass('hidden');
+        $('#loading_survey').removeClass('hidden');
+      });
+    </script>
+
+
+
+
+
+
+  </div>
+</div>

@@ -1,0 +1,6 @@
+<%= tabs_tag :builder => ApplicationHelper::MenuTabBuilder, open_tabs: {class: "admin_tab non-signed-in-header-link"} do |tab| %>
+    <%= tab.home 'Home', root_path %>
+    <%= tab.features 'Features', features_path %>
+    <%= tab.contact 'Contact', contact_path %>
+    <%= tab.about 'Company', about_path %>
+<% end %>

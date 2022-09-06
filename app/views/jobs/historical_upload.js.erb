@@ -1,0 +1,7 @@
+<% if @err %>
+toastr.error("Something went wrong. Please try again later");
+$('#well-uploader-view').hide();
+<% else %>
+$('#well-uploader-view').hide();
+$('#after-upload-view').show();
+<% end %>

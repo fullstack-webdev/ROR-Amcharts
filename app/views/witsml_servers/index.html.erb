@@ -1,0 +1,77 @@
+<% provide(:title, "Import Well") %>
+
+<div class="section-header" style="margin-top: 10px;">
+  <h1>Import Well</h1>
+</div>
+
+<% if @show_servers %>
+
+    <div style="margin-top: 20px;">
+      <h3>Select WITSML Server</h3>
+
+      <div style="margin-top: 20px;" class="">
+        <% @witsml_servers.each do |witsml_server| %>
+            <div style="margin-bottom: 5px;">
+              <a href="/witsml_servers?witsml_server=<%= witsml_server.id %>" class="btn btn-sub" style="width: 200px; float: none;">
+                <div style="font-size: 20px;"><%= witsml_server.name %></div>
+              </a>
+            </div>
+        <% end %>
+      </div>
+
+      <div style="margin-top: 30px;" class="align-top">
+        <% if @witsml_servers.empty? %>
+            <div>No WITSML servers configured...</div>
+            <% if current_user.admin_user? %>
+                <a href="<%= edit_company_path(current_user.company) %>" class="btn btn-primary" style="margin-top: 10px;">Add
+                  Now</a>
+            <% else %>
+                <div>Contact your admin to add...</div>
+            <% end %>
+        <% end %>
+      </div>
+    </div>
+
+<% else %>
+
+    <div style="font-size: 13px; color: #7C9B8F; margin: 15px; margin-left: 40px;">
+      <div class="inline-block" style="width: 30%;">Rig</div>
+      <div class="inline-block" style="width: 50%;">Well Name</div>
+      <div class="inline-block" style="width: 10%;">Date</div>
+    </div>
+     <div id="wells_list" style="margin-top: 20px;">
+
+     </div>
+
+    <div id="well_list_loading" class="form-loading">
+      <%= render "layouts/inline_loading", title: "Loading wells..." %>
+      <p class="center" style="margin-top: 20px; color: #d8e476;">Loading server well list...</p>
+    </div>
+
+    <script type="text/javascript">
+        RESULTS = {};
+
+        (function ($) {
+            $.ajax('/witsml_servers/<%= @witsml_server.id %>/wells', {
+                type: 'get',
+                dataType: 'script',
+                complete: function (response) {
+                    var wells = JSON.parse(response.responseText);
+                }
+            });
+
+
+            $('.import-well-item').live("click", function() {
+                var item = $(this);
+                var well_id = item.attr('data-well-id');
+                var wellbore_id = item.attr('data-wellbore-id');
+                var well_log_id = item.attr('data-log-id');
+                var rig_name = item.attr('data-rig-name');
+                var well_name = item.attr('data-well-name');
+
+                item.attr('href', '/witsml_servers/<%= @witsml_server.id %>/import?well_id=' + well_id + '&wellbore_id=' + wellbore_id + '&well_log_id=' + well_log_id + '&rig_name=' + rig_name + '&well_name=' + well_name);
+                return true;
+            });
+        }(jQuery));
+    </script>
+<% end %>

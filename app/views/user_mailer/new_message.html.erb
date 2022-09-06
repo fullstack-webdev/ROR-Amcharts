@@ -1,0 +1,22 @@
+<html>
+<link rel="stylesheet" type="text/css" href="/app/assets/stylesheets/application.css.scss"/>
+<body class="email-body">
+
+<h1>New Message</h1>
+<h3 class="center"><%= @message.user.name %> sent you a message</h3>
+<hr>
+<br>
+<p><b>"</b><%= @message.text %><b>"</b></p>
+
+<br>
+<!--<p><%= #link_to "View Message Now", "www.corva.ai/conversations", class: "activity-user-link" %></p>-->
+
+
+<% if Rails.env.production? %>
+    <hr>
+    <div class="center"><%= image_tag "corva-logo.png" %></div>
+    <br>
+<% end %>
+
+</body>
+</html>

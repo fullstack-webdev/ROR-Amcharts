@@ -1,0 +1,6 @@
+$('#job_membership_<%= @job_membership.id %>').hide().after('<%= j render 'job_memberships/edit_fields', job_membership: @job_membership  %>');
+
+$('#cancel_role_<%= @job_membership.id %>').click( function () {
+    $('#job_membership_<%= @job_membership.id %>').show().next().remove();
+    return false;
+});

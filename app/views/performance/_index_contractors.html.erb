@@ -1,0 +1,183 @@
+<div class='remote-tray' data-tray='contractors'>
+
+  <div class='tray-content content-loaded '>
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Drilling Contractors</h1>
+    </div>
+
+    <div class="block">
+
+      <div class="inline-block">
+        <div class="dropdown dropdown-styled" style="display: inline-block">
+          <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="contractor_selected" data-id="-1">
+            All contractors <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="contractor_list">
+            <% if @contractors.empty? then %>
+              <li role="presentation"><a href="javascript:void(0);">No Contractors</a></li>
+            <% else %>
+              <li role="presentation"><a href="javascript:void(0);" data-id="-1">All Contractors</a></li>
+              <% @contractors.each do |contractor| %>
+                <li role="presentation"><%= link_to contractor.name, "javascript:void(0);", "data-id" => contractor.id, "tabindex" => "-1" %></li>
+              <% end %>
+            <% end %>
+          </ul>
+        </div>
+
+        <div class="dropdown dropdown-styled" style="display: inline-block; margin-left: 20px;">
+          <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="history_selected" data-id="-1">
+            Full History <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="history_list">
+            <li role="presentation">
+              <a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="-1">Full History</a></li>
+            <li role="presentation">
+              <a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="3">Last 3 months</a></li>
+            <li role="presentation">
+              <a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="6">Last 6 months</a></li>
+            <li role="presentation">
+              <a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="12">Last year</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!--<ul class="btn-group inline-block">-->
+      <!--<li>
+          <%= link_to "Well Time", "#",
+                      #                       "data-tray-controller" => "performance",
+                      #                       "data-tray" => "contractors_well_time",
+                      #                       "data-tray-parent" => "contractors",
+                      class: "remote-tray-toggle" %>
+              <button type="button" class="btn-sub" style=" display: inline-block; float: none; margin-left: 10px; vertical-align: top;">-->
+      <!--Well Time-->
+      <!--</button>-->
+      <!--</li>-->
+
+      <!--<li>
+          <%= link_to "Cost", "#",
+                      #                       "data-tray-controller" => "performance",
+                      #                       "data-tray" => "contractors_cost",
+                      #                       "data-tray-parent" => "contractors",
+                      class: "remote-tray-toggle" %>
+        </li>-->
+
+      <!--</ul>-->
+
+      <div class="inline-block" style="margin-left: 30px; vertical-align: top;">
+        <a href="#" data-tray-controller="performance" data-tray="contractors_well_time" data-tray-parent="contractors" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-contractors-perf active">
+            Well Time
+          </button>
+        </a>
+
+        <a href="#" data-tray-controller="performance" data-tray="contractors_cost" data-tray-parent="contractors" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-contractors-perf  ">
+            Cost
+          </button>
+        </a>
+
+        <a href="#" data-tray-controller="performance" data-tray="contractors_warnings" data-tray-parent="contractors" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-contractors-perf  ">
+            Warnings
+          </button>
+        </a>
+
+        <a href="#" data-tray-controller="performance" data-tray="contractors_process_time" data-tray-parent="contractors" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-contractors-perf  ">
+            Operations
+          </button>
+        </a>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="tray-content content-loaded">
+
+      <!--<div class="remote-tray" data-tray="contractors_well_time">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </div>
+
+      <div class="remote-tray custom-data-closed" data-tray="contractors_cost">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </div>
+
+      <div class="remote-tray custom-data-closed" data-tray="contractors_warnings">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </div>
+
+      <div class="remote-tray custom-data-closed" data-tray="contractors_process_time">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </di>-->
+      <div style="margin-top:100px;">
+        <p class='help-text'>No data to show...</p>
+
+        <div style="margin-top:10px; text-align: center;"><%= image_tag("no_data_icon.PNG", style: "width:40px;") %></div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script type="text/javascript">
+  var current_id = -1;
+  var current_history = -1;
+
+  (function ($) {
+    $(document).ready(function () {
+      $('.btn-contractors-perf').click(function () {
+        console.log('button clicked');
+        $('.btn-contractors-perf').removeClass('active');
+        $(this).addClass('active');
+
+      });
+
+      // click even on contractors list
+      $('#contractor_list li a').on('click', function () {
+        $('#contractor_selected').html($(this).html() + ' <span class="caret"></span>');
+        $('#contractor_selected').data('id', $(this).attr('data-id'));
+      });
+
+      // click event on history list
+      $('#history_list li a').on('click', function () {
+        $('#history_selected').html($(this).html() + ' <span class="caret"></span>');
+        $('#history_selected').data('id', $(this).attr('data-id'));
+      });
+    }(jQuery));
+</script>
+<script type="text/javascript">
+  //    var color_palette = ["#58c9c2", "#b858c9", "#589dc9", "#9babee", "#23c9ff", "#9aea6a", "#9eddde", "#987cf4", "#23fcff" ];
+  (function ($) {
+    $(document).ready(function () {
+      setTimeout(function () {
+        tray = $(".remote-tray[data-tray='contractors_well_time']");
+        console.log(tray);
+        tray.find('.content').hide();
+        tray.find('.remote-loading').removeClass('hidden');
+        tray.find('.loading').removeClass('hidden');
+
+
+        window.auid++;
+        $.ajax({
+          url: "/performance?section=contractors_well_time" + "&auid=" + window.auid,
+          type: "GET",
+          dataType: "script"
+        });
+        $(".remote-tray-toggle[data-tray='contractors']").attr("data-tray-child", "contractors_well_time");
+      }, 0);
+
+    });
+  }(jQuery));
+</script>

@@ -1,0 +1,10 @@
+<% if form_editable %>
+
+    <% if user.present? %>
+        <p class="job-field-value"><%= user.name %></p>
+    <% else %>
+        <p class="job-field-value">-</p>
+    <% end %>
+
+
+<% end %>

@@ -1,0 +1,1275 @@
+<%
+    #Analysis - Process Time Page
+    @last_wits_cat_alloc = @job.wits_category_allocs.first
+    if @job.wits_activity_lists.present?
+      @wits_act_start_date = @job.wits_activity_lists.first.start_time
+      # @wits_act_end_date = @job.wits_activity_lists.first.start_time
+      @wits_act_end_date = @job.wits_activity_lists.last.start_time
+    else
+      @wits_act_start_date = DateTime.now
+      # @wits_act_end_date = @job.wits_activity_lists.first.start_time
+      @wits_act_end_date = DateTime.now + 1.hours
+    end
+      @obj = @job.wits_analysis_data(@wits_act_end_date)
+   if @obj.present?
+      @wits_act_total_time = @obj['total_time']
+      @well_time_arr = @obj['well_time']
+      @wits_act_arr = @obj['act_arr']
+      @wits_act_alloc = @obj['act_alloc']
+
+   end
+   @disp_start_date = @wits_act_end_date.beginning_of_day
+   @disp_end_date = @wits_act_end_date.end_of_day
+      # @wits_act_total_time = @wits_act_total_time - (@wits_act_end_date.beginning_of_day.to_datetime - @wits_activity_list.first.start_time.to_datetime) * 24 * 3600 - (@wits_activity_list.last.end_time.to_datetime - @wits_act_end_date.end_of_day.to_datetime) * 24 * 3600
+      #debug(@wits_activity_list.first.start_time.to_datetime - @wits_act_end_date.beginning_of_day.to_datetime)
+    # if !@last_wits_cat_alloc.present?
+    #   @last_wits_cat_alloc = nil
+    #   @last_wits_cat_alloc = WitsCategoryAlloc.new
+    # end
+
+%>
+
+
+
+
+<div class="remote-tray" data-tray="process_time">
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading time analysis..." %>
+</div>
+
+<div class='tray-content content-loaded'>
+
+<% @drilling_log = @job.drilling_log %>
+
+<% entries = @drilling_log.drilling_log_entries.includes(:bha).to_a %>
+<% dates = entries.group_by { |item| item.entry_at.in_time_zone(Time.zone).to_date } %>
+<% filter_options = [] %>
+<%
+
+   date = @wits_act_start_date.to_datetime
+   begin
+     filter_options << [date.strftime("%A %m/%d/%Y"), date.strftime("%Y/%m/%d %H:%M:%S %z")]
+     date = date + 1.days
+   end while (date <= @wits_act_end_date.to_datetime)
+
+%>
+
+<% filter_timeframe = [] %>
+<% filter_crew = [] %>
+
+<div class="section-header" style="margin-top: 15px;">
+  <h1>Process Time</h1>
+</div>
+
+<div class="time-analysis analysis-subtab">
+
+<div class="block">
+  <div class="analysis-filter">
+    <p style="font-size: 18px;">Timeframe</p>
+    <%= select_tag "#",
+                   options_for_select(filter_options, 0),
+                   id: "drilling_log_filter",
+                   "data-id" => @drilling_log.id.to_s,
+                   class: "custom-select custom-select-ajax align-top push-right-small" %>
+
+  </div>
+
+</div>
+
+<div class="block" id="productive_well_time">
+  <p style="font-size: 14px; margin-bottom: 12px;">Productive Well Time</p>
+
+  <div class="overview-bar" style="height: 32px;">
+    <div style="background: #5dd94a; width: <%= @well_time_arr.present? ? (@well_time_arr['productive_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100):"0:00"%>%;"></div>
+    <div style="background: #efd34a; width: <%= @well_time_arr.present? ? (@well_time_arr['invisible_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100):"0:00"%>%;"></div>
+    <div style="background: #f70000; width: <%= @well_time_arr.present? ? (@well_time_arr['down_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100):"0:00"%>%;"></div>
+  </div>
+  <div class="overview-bar" style="height: 32px;">
+    <div style="width: 66%;"><p style="margin-top: 7px; color: #fefefe;">Productive Time
+      - <%= @well_time_arr.present? ? (@well_time_arr['productive_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100).round(2):"0.00"%>
+      %</p></div>
+    <div style="width: 18%;"><p style="margin-top: 7px; color: #fefefe;">Invisible Lost Time
+      - <%= @well_time_arr.present? ? (@well_time_arr['invisible_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100).round(2):"0.00" %>
+      %</p></div>
+    <div style="width: 16%;"><p style="margin-top: 7px; color: #fefefe;">Down Time
+      - <%= @well_time_arr.present? ? (@well_time_arr['down_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100).round(2):"0.00" %>
+      %</p></div>
+  </div>
+</div>
+
+<div class="block">
+  <p style="font-size: 14px; margin-bottom: 12px;">Activity Well Time</p>
+  <!--<div class="overview-bar">-->
+  <!--<div style="background: #c2c2c2; width: 3%;"></div>-->
+  <!--<div style="background: #f781a8; width: 6%;"></div>-->
+  <!--<div style="background: #dd1759; width: 9%;"></div>-->
+  <!--<div style="background: #58e80a; width: 9%;"></div>-->
+  <!--<div style="background: #3e940f; width: 15%;"></div>-->
+  <!--<div style="background: #af7bf5; width: 15%;"></div>-->
+  <!--<div style="background: #203fe0; width: 43%;"></div>-->
+  <!--</div>-->
+
+
+  <div id="activityChart" class="activity-chart">
+    <div class="min-axis">
+      <% 12.downto(0) do |i| %>
+        <div>
+          <%= i*5 %> <span></span>
+        </div>
+      <% end %>
+    </div>
+    <% css_class_arr = Hash.new
+       css_class_arr['Drilling Rotary'] = "drilling-rotary"
+       css_class_arr['Drilling Slide'] = "drilling-sliding"
+       css_class_arr['Connection'] = "connection"
+       css_class_arr['Circulating'] = "circulation"
+       css_class_arr['Run in Hole'] = "run-in-hole"
+       css_class_arr['Run out of Hole'] = "run-out-hole"
+       css_class_arr['Washing Upwards'] = "wash-upwards"
+       css_class_arr['Washing Downwards'] = "wash-downwards"
+       css_class_arr['Reaming Upwards'] = "ream-upwards"
+       css_class_arr['Reaming Downwards'] = "ream-downwards"
+       css_class_arr['Other'] = "other"
+       css_class_arr['No Activity'] = "no-activity"
+       date_iterator = @disp_start_date.to_datetime
+       flag = false
+       if @wits_act_arr.present?
+       @wits_act_arr.each do |activity|
+    %>
+      <% if activity["start_time"].to_datetime == date_iterator && flag == false
+           date_iterator = date_iterator + 1.hours
+           flag = true
+      %>
+        <div class="stacked-bar">
+      <% end %>
+
+      <% if activity["start_time"].to_datetime == date_iterator && flag == true
+           date_iterator = date_iterator + 1.hours
+      %>
+        </div>
+        <div class="stacked-bar">
+      <% end %>
+      <div class="<%= css_class_arr[activity['activity']] %>" style="height:<%=(activity['duration']  / 10).to_i%>px;"></div>
+    <% end
+    %>
+    </div>
+        <%end%>
+  </div>
+  <div class="hour-axis">
+    <% (0..24).each do |i| %>
+      <div>
+        <span class="tick"></span>
+        <span class="axis-label"><%= i %></span>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% if @wits_act_alloc.present? %>
+  <div class="notes block" id="act_alloc">
+
+    <div class="color-note">
+      <div class="color-bar" style="background: #4840d1"></div>
+      <div class="name">Drilling Rotary</div>
+      <div class="percentage"><%= @wits_act_alloc['Drilling Rotary'].to_f ? (@wits_act_alloc['Drilling Rotary'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Drilling Rotary'] ? (@wits_act_alloc['Drilling Rotary'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #38732e"></div>
+      <div class="name">Ream Upwards</div>
+      <div class="percentage"><%= @wits_act_alloc['Reaming Upwards'] ? (@wits_act_alloc['Reaming Upwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Reaming Upwards'] ? (@wits_act_alloc['Reaming Upwards'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #0085e3"></div>
+      <div class="name">Drilling Sliding</div>
+      <div class="percentage"><%= @wits_act_alloc['Drilling Slide'] ? (@wits_act_alloc['Drilling Slide'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Drilling Slide'] ? (@wits_act_alloc['Drilling Slide'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #5dd94b"></div>
+      <div class="name">Ream Downwards</div>
+      <div class="percentage"><%= @wits_act_alloc['Reaming Downwards'] ? (@wits_act_alloc['Reaming Downwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Reaming Downwards'] ? (@wits_act_alloc['Reaming Downwards'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #9500b7"></div>
+      <div class="name">Circulation</div>
+      <div class="percentage"><%= @wits_act_alloc['Circulating'] ? (@wits_act_alloc['Circulating'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Circulating'] ? (@wits_act_alloc['Circulating'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #efd34b"></div>
+      <div class="name">Wash Upwards</div>
+      <div class="percentage"><%= @wits_act_alloc['Washing Upwards'] ? (@wits_act_alloc['Washing Upwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Washing Upwards'] ? (@wits_act_alloc['Washing Upwards'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #909f98"></div>
+      <div class="name">Connection</div>
+      <div class="percentage"><%= @wits_act_alloc['Connection'] ? (@wits_act_alloc['Connection'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Connection'] ? (@wits_act_alloc['Connection'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #e99100"></div>
+      <div class="name">Wash Downwards</div>
+      <div class="percentage"><%= @wits_act_alloc['Washing Downwards'] ? (@wits_act_alloc['Washing Downwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Washing Downwards'] ? (@wits_act_alloc['Washing Downwards'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #f70000"></div>
+      <div class="name">Run in Hole</div>
+      <div class="percentage"><%= @wits_act_alloc['Run in Hole'] ? (@wits_act_alloc['Run in Hole'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Run in Hole'] ? (@wits_act_alloc['Run in Hole'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #d2dfd8"></div>
+      <div class="name">Other</div>
+      <div class="percentage"><%= @wits_act_alloc['Other'].to_f ? (@wits_act_alloc['Other'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Other'].to_f ? (@wits_act_alloc['Other'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #940000"></div>
+      <div class="name">Run out of Hole</div>
+      <div class="percentage"><%= @wits_act_alloc['Run out of Hole'].to_f ? (@wits_act_alloc['Run out of Hole'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+        <span>%</span></div>
+      <div class="hours"><%= @wits_act_alloc['Run out of Hole'].to_f ? (@wits_act_alloc['Run out of Hole'].to_f / 3600).round(1) : "0.00" %>
+        <span>hrs</span></div>
+    </div>
+  </div>
+<% else %>
+  <div class="notes block" id="act_alloc">
+    <div class="color-note">
+      <div class="color-bar" style="background: #4840d1"></div>
+      <div class="name">Drilling Rotary</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #38732e"></div>
+      <div class="name">Ream Upwards</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #0085e3"></div>
+      <div class="name">Drilling Sliding</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #5dd94b"></div>
+      <div class="name">Ream Downwards</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #9500b7"></div>
+      <div class="name">Circulation</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #efd34b"></div>
+      <div class="name">Wash Upwards</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #909f98"></div>
+      <div class="name">Connection</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #e99100"></div>
+      <div class="name">Wash Downwards</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #f70000"></div>
+      <div class="name">Run in Hole</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #d2dfd8"></div>
+      <div class="name">Other</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+    <div class="color-note">
+      <div class="color-bar" style="background: #940000"></div>
+      <div class="name">Run out of Hole</div>
+      <div class="percentage">0.0 <span>%</span></div>
+      <div class="hours">0.0 <span>hrs</span></div>
+    </div>
+  </div>
+<% end %>
+
+</div>
+
+<!--<div class="section-header" style="margin-top: 15px;">-->
+<!--<h1>Invisible Lost Time (ILT)</h1>-->
+<!--</div>-->
+
+<!--<div class="invisible-lost-time">-->
+<!--<div class="inline-block" style="width: 30%;">-->
+<!--<p class="title" style="font-size: 20px;">Total Lost Time</p>-->
+
+<!--<p class="value">1.8 <span>days</span></p>-->
+<!--</div>-->
+
+<!--<div class="inline-block" style="width: 70%;">-->
+<!--<div class="inline-block" style="width: 25%;">-->
+<!--<p class="title">Slip to Slip</p>-->
+
+<!--<p class="value">0.4 <span>days</span></p>-->
+<!--</div>-->
+<!--<div class="inline-block" style="width: 25%;">-->
+<!--<p class="title">Pipe Moving</p>-->
+
+<!--<p class="value">0.8 <span>days</span></p>-->
+<!--</div>-->
+<!--<div class="inline-block" style="width: 25%;">-->
+<!--<p class="title">Weight to Weight</p>-->
+
+<!--<p class="value">0.6 <span>days</span></p>-->
+<!--</div>-->
+<!--<div class="inline-block" style="width: 25%;">-->
+<!--<p class="title">Drilling</p>-->
+
+<!--<p class="value">0.6 <span>days</span></p>-->
+<!--</div>-->
+<!--</div>-->
+
+<!--</div>-->
+
+<div class="divider divider-md"></div>
+
+<div class="inline-block" style="width: 50%;">
+
+  <div class="sub-header">
+    <h3>Drilling(Connection)</h3>
+  </div>
+
+  <div class="block">
+    <div class="kpi-block-inline inline-block">
+      <div class="title">Total</div>
+      <div class="value" id = "drilling_connection_total"><%=@obj.nil? ? "0":(@obj['category_histogram'][4]['total_time'].to_f / 3600).round(2)%> <span>hrs</span></div>
+    </div>
+
+    <div class="space space-md"></div>
+
+    <div class="kpi-block-inline inline-block">
+      <div class="title">Average</div>
+      <div class="value" id = "drilling_connection_avg"><%=@obj.nil? ? "0":@obj['category_histogram'][4]['avg_time']%> <span>sec</span></div>
+    </div>
+
+    <div class="space space-md"></div>
+
+    <div class="kpi-block-inline inline-block">
+      <div class="title">NPT</div>
+      <div class="value text-red" id = "drilling_connection_npt">4.34<span class="text-red">%</span></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="block amChart" id="drilling_connection_chart" style="width: 80%; height: 230px; font-size: 11px; background-color:#536364;">
+  </div>
+
+</div>
+
+<div class="inline-block" style="width: 49%; vertical-align: top;">
+
+  <div class="sub-header">
+    <h3>Drilling(Weight to weight)</h3>
+  </div>
+
+  <div class="block">
+    <div class="kpi-block-inline inline-block">
+      <div class="title">Total</div>
+      <div class="value" id = "drilling_wtw_total"><%=@obj.nil? ? "0":(@obj['category_histogram'][5]['total_time'].to_f / 3600).round(2)%> <span>hrs</span></div>
+    </div>
+
+    <div class="space space-md"></div>
+
+    <div class="kpi-block-inline inline-block">
+      <div class="title">Average</div>
+      <div class="value" id = "drilling_wtw_avg"><%=@obj.nil? ? "0":@obj['category_histogram'][5]['avg_time']%> <span>sec</span></div>
+    </div>
+
+    <div class="space space-md"></div>
+
+    <div class="kpi-block-inline inline-block">
+      <div class="title">NPT</div>
+      <div class="value text-red" id = "drilling_wtw_npt">4.34<span class="text-red">%</span></div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+
+  <div class="block amChart" id="drilling_wtw_chart" style="width: 80%; height: 230px; font-size: 11px; background-color:#536364;">
+  </div>
+
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div class="inline-block" style="width: 50%;">
+
+  <div class="sub-header">
+    <h3>Drilling(Treatment)</h3>
+  </div>
+
+  <div class="block">
+    <div class="kpi-block-inline inline-block">
+      <div class="title">Total</div>
+      <div class="value" id = "drilling_treatment_total"><%=@obj.nil? ? "0":(@obj['category_histogram'][6]['total_time'].to_f / 3600).round(2)%> <span>hrs</span></div>
+    </div>
+
+    <div class="space space-md"></div>
+
+    <div class="kpi-block-inline inline-block">
+      <div class="title">Average</div>
+      <div class="value" id = "drilling_treatment_avg"><%=@obj.nil? ? "0":@obj['category_histogram'][6]['avg_time']%> <span>sec</span></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="block amChart" id="drilling_treatment_chart" style="width: 80%; height: 230px; font-size: 11px; background-color:#536364;">
+  </div>
+
+</div>
+
+<div class="inline-block" style="width: 49%; vertical-align: top;">
+
+  <div class="sub-header">
+    <h3>Drilling(On Bottom)</h3>
+  </div>
+
+  <div class="block">
+    <div class="kpi-block-inline inline-block">
+      <div class="title">Total</div>
+      <div class="value" id = "drilling_bottom_total"><%=@obj.nil? ? "0":(@obj['category_histogram'][7]['total_time'].to_f / 3600).round(2)%> <span>hrs</span></div>
+    </div>
+
+    <div class="space space-md"></div>
+
+    <div class="kpi-block-inline inline-block">
+      <div class="title">Average</div>
+      <div class="value" id = "drilling_bottom_avg"><%=@obj.nil? ? "0":@obj['category_histogram'][7]['avg_time']%> <span>sec</span></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+
+  <div class="block amChart" id="drilling_bottom_chart" style="width: 80%; height: 230px; font-size: 11px; background-color:#536364;">
+  </div>
+
+</div>
+
+</div>
+</div>
+<script type="text/javascript">
+  var clicked = false;
+  (function ($) {
+    $(document).ready(function () {
+      $('#drilling_log_filter').click(function () {
+        clicked = true;
+      });
+      $("#drilling_log_filter option:last").attr("selected", "selected");
+      $('#drilling_log_filter').change(function () {
+        if (clicked == true) {
+          window.auid++;
+          $.ajax({
+            url: "<%= job_path(@job)%>?section=process_time&query_time=" + $(this).val() + "&auid=" + window.auid,
+            type: "GET",
+            dataType: "json"
+          }).done(function (data) {
+            var productive_well_time_html = '<div class="block" id = "productive_well_time">';
+            productive_well_time_html += '<p style="font-size: 14px; margin-bottom: 12px;">Productive Well Time</p>';
+            productive_well_time_html += '<div class="overview-bar" style="height: 32px;">';
+
+            productive_well_time_html += '<div style="background: #5dd94a; width: ' + data.well_time.productive_per + '%;"></div>';
+            productive_well_time_html += '<div style="background: #efd34a; width: ' + data.well_time.invisible_per + '%;"></div>';
+            productive_well_time_html += '<div style="background: #f70000; width: ' + data.well_time.down_per + '%;"></div>';
+            productive_well_time_html += '</div>';
+            productive_well_time_html += '<div class="overview-bar" style="height: 32px;">';
+            productive_well_time_html += '<div style="width: 66%;"><p style="margin-top: 7px; color: #fefefe;">Productive Time - ' + data.well_time.productive_per + '%</p></div>';
+            productive_well_time_html += '<div style="width: 18%;"><p style="margin-top: 7px; color: #fefefe;">Invisible Lost Time - ' + data.well_time.invisible_per + '%</p></div>';
+            productive_well_time_html += '<div style="width: 16%;"><p style="margin-top: 7px; color: #fefefe;">Down Time - ' + data.well_time.down_per + '%</p></div>';
+            productive_well_time_html += '</div>';
+            productive_well_time_html += '</div>';
+
+            var activity_chart_html = '<div id="activityChart" class="activity-chart">';
+            activity_chart_html += '<div class="min-axis">';
+            for (var i = 12; i >= 0; i--) {
+              activity_chart_html += '<div> ' + i * 5 + ' <span></span> </div>';
+            }
+            activity_chart_html += '</div>';
+            var css_class_arr = {}
+            css_class_arr['Drilling Rotary'] = "drilling-rotary";
+            css_class_arr['Drilling Slide'] = "drilling-sliding";
+            css_class_arr['Connection'] = "connection";
+            css_class_arr['Circulating'] = "circulation";
+            css_class_arr['Run in Hole'] = "run-in-hole";
+            css_class_arr['Run out of Hole'] = "run-out-hole";
+            css_class_arr['Washing Upwards'] = "wash-upwards";
+            css_class_arr['Washing Downwards'] = "wash-downwards";
+            css_class_arr['Reaming Upwards'] = "ream-upwards";
+            css_class_arr['Reaming Downwards'] = "ream-downwards";
+            css_class_arr['Other'] = "other";
+            css_class_arr['No Activity'] = "no-activity";
+            var date_iterator = Date.parse(data.start_time);
+
+
+            var flag = false;
+            for (var index in data.act_arr) {
+              activity = data.act_arr[index];
+              if (Date.parse(activity.start_time) == date_iterator && flag == false) {
+                date_iterator += 3600000;
+
+                flag = true;
+                activity_chart_html += ' <div class="stacked-bar">';
+              }
+              if (Date.parse(activity.start_time) == date_iterator && flag == true) {
+                date_iterator += 3600000;
+                activity_chart_html += ' </div>';
+                activity_chart_html += ' <div class="stacked-bar">';
+              }
+              activity_chart_html += '<div class="' + css_class_arr[activity.activity] + '" style="height:' + (activity.duration / 10.0) + 'px;"></div>';
+
+            }
+            activity_chart_html += ' </div>';
+//            activity_chart_html += '<div class="hour-axis">';
+//            for (var i = 0; i <= 24; i++) {
+//              activity_chart_html += '<div> ' +
+//                  '<span class="tick"></span> ' +
+//                  '<span class="axis-label">' + i + '</span> ' +
+//                  '</div>';
+//            }
+//            activity_chart_html += '</div>';
+            activity_chart_html += '</div>';
+//                        $('#productive_well_time').innerHTML = productive_well_time_html;
+            $('#productive_well_time').replaceWith(productive_well_time_html);
+            $('#activityChart').replaceWith(activity_chart_html);
+            var act_alloc_html = '<div class="notes block" id = "act_alloc">';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #4840d1"></div>';
+            act_alloc_html += '<div class="name">Drilling Rotary</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Drilling Rotary']) ? "0.00" : (data.act_alloc['Drilling Rotary'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Drilling Rotary']) ? "0.00" : (data.act_alloc['Drilling Rotary'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #38732e"></div>';
+            act_alloc_html += '<div class="name">Ream Upwards</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Reaming Upwards']) ? "0.00" : (data.act_alloc['Reaming Upwards'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Reaming Upwards']) ? "0.00" : (data.act_alloc['Reaming Upwards'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #0085e3"></div>';
+            act_alloc_html += '<div class="name">Drilling Sliding</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Reaming Upwards']) ? "0.00" : (data.act_alloc['Drilling Slide'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Reaming Upwards']) ? "0.00" : (data.act_alloc['Drilling Slide'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #5dd94b"></div>';
+            act_alloc_html += '<div class="name">Ream Downwards</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Reaming Downwards']) ? "0.00" : (data.act_alloc['Reaming Downwards'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Reaming Downwards']) ? "0.00" : (data.act_alloc['Reaming Downwards'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #9500b7"></div>';
+            act_alloc_html += '<div class="name">Circulation</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Circulating']) ? "0.00" : (data.act_alloc['Circulating'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Circulating']) ? "0.00" : (data.act_alloc['Circulating'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #efd34b"></div>';
+            act_alloc_html += '<div class="name">Wash Upwards</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Washing Upwards']) ? "0.00" : (data.act_alloc['Washing Upwards'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Washing Upwards']) ? "0.00" : (data.act_alloc['Washing Upwards'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #909f98"></div>';
+            act_alloc_html += '<div class="name">Connection</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Connection']) ? "0.00" : (data.act_alloc['Connection'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Connection']) ? "0.00" : (data.act_alloc['Connection'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #e99100"></div>';
+            act_alloc_html += '<div class="name">Wash Downwards</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Washing Downwards']) ? "0.00" : (data.act_alloc['Washing Downwards'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Washing Downwards']) ? "0.00" : (data.act_alloc['Washing Downwards'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #f70000"></div>';
+            act_alloc_html += '<div class="name">Run in Hole</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Run in Hole']) ? "0.00" : (data.act_alloc['Run in Hole'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Run in Hole']) ? "0.00" : (data.act_alloc['Run in Hole'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #d2dfd8"></div>';
+            act_alloc_html += '<div class="name">Other</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Other']) ? "0.00" : (data.act_alloc['Other'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Other']) ? "0.00" : (data.act_alloc['Other'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note">';
+            act_alloc_html += '<div class="color-bar" style="background: #940000"></div>';
+            act_alloc_html += '<div class="name">Run out of Hole</div>';
+            act_alloc_html += '<div class="percentage">' + (isNaN(data.act_alloc['Run out of Hole'])?"0.00":(data.act_alloc['Run out of Hole'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Run out of Hole']) ? "0.00" : (data.act_alloc['Run out of Hole'] / 3600).toFixed(2)) + ' <span>hrs</span></div>';
+            act_alloc_html += '</div>';
+            act_alloc_html += '</div>';
+            $("#act_alloc").replaceWith(act_alloc_html);
+          var chart = AmCharts.makeChart("drilling_connection_chart", {
+              "type": "serial",
+              "theme": "none",
+              "legend": {
+                  "useGraphSettings": true,
+                  "position": "top",
+                  "align": "right",
+                  "valueText": "",
+                  "markerSize": 10,
+                  "color": "#fefefe"
+              },
+
+              "dataProvider": data.category_histogram[4].data,
+              "valueAxes": [
+                  {
+                      "gridColor": "#FFFFFF",
+                      "gridAlpha": 0,
+                      "dashLength": 0,
+                      "axisAlpha": 0,
+                      "labelsEnabled": false
+                  }
+              ],
+              "gridAboveGraphs": true,
+              "startDuration": 1,
+              "graphs": [
+                  {
+                      "title": "Operation Count",
+                      "balloonText": "[[op_time]]: <b>[[op_count]]</b>",
+                      "fillAlphas": 0.8,
+                      "lineAlpha": 0.2,
+                      "type": "column",
+                      "valueField": "op_count",
+                      "fillColors": "#58c9c2"
+                  }
+              ],
+              "chartCursor": {
+                  "categoryBalloonEnabled": false,
+                  "cursorAlpha": 0,
+                  "zoomable": false
+              },
+              "categoryField": "op_time",
+              "categoryAxis": {
+                  "gridPosition": "start",
+                  "gridAlpha": 0,
+                  "tickPosition": "middle",
+                  "tickLength": 10,
+                  "color": "#fefefe",
+                  "axisColor": "#fefefe"
+              },
+              "exportConfig": {
+                  "menuTop": 0,
+                  "menuItems": [
+                      {
+                          "icon": '/lib/3/images/export.png',
+                          "format": 'png'
+                      }
+                  ]
+              },
+              "trendLines": [
+                  {
+                      "initialValue": 0,
+                      "initialXValue": 0,
+                      "finalValue": 11,
+                      "finalXValue": 0.6
+                  }
+              ]
+          });
+              var chart2 = AmCharts.makeChart("drilling_wtw_chart", {
+                  "type": "serial",
+                  "theme": "none",
+                  "legend": {
+                      "useGraphSettings": true,
+                      "position": "top",
+                      "align": "right",
+                      "valueText": "",
+                      "markerSize": 10,
+                      "color": "#fefefe"
+                  },
+                  "dataProvider": data.category_histogram[5].data,
+                  "valueAxes": [
+                      {
+                          "gridColor": "#FFFFFF",
+                          "gridAlpha": 0,
+                          "dashLength": 0,
+                          "axisAlpha": 0,
+                          "labelsEnabled": false
+                      }
+                  ],
+                  "gridAboveGraphs": true,
+                  "startDuration": 1,
+                  "graphs": [
+                      {
+                          "title": "Operation Count",
+                          "balloonText": "[[op_time]]: <b>[[op_count]]</b>",
+                          "fillAlphas": 0.8,
+                          "lineAlpha": 0.2,
+                          "type": "column",
+                          "valueField": "op_count",
+                          "fillColors": "#58c9c2"
+                      }
+                  ],
+                  "chartCursor": {
+                      "categoryBalloonEnabled": false,
+                      "cursorAlpha": 0,
+                      "zoomable": false
+                  },
+                  "categoryField": "op_time",
+                  "categoryAxis": {
+                      "gridPosition": "start",
+                      "gridAlpha": 0,
+                      "tickPosition": "middle",
+                      "tickLength": 10,
+                      "color": "#fefefe",
+                      "axisColor": "#fefefe"
+                  },
+                  "exportConfig": {
+                      "menuTop": 0,
+                      "menuItems": [
+                          {
+                              "icon": '/lib/3/images/export.png',
+                              "format": 'png'
+                          }
+                      ]
+                  }
+              });
+              var chart3 = AmCharts.makeChart("drilling_treatment_chart", {
+                  "type": "serial",
+                  "theme": "none",
+                  "legend": {
+                      "useGraphSettings": true,
+                      "position": "top",
+                      "align": "right",
+                      "valueText": "",
+                      "markerSize": 10,
+                      "color": "#fefefe"
+                  },
+                  "dataProvider": data.category_histogram[6].data,
+                  "valueAxes": [
+                      {
+                          "gridColor": "#FFFFFF",
+                          "gridAlpha": 0,
+                          "dashLength": 0,
+                          "axisAlpha": 0,
+                          "labelsEnabled": false
+                      }
+                  ],
+                  "gridAboveGraphs": true,
+                  "startDuration": 1,
+                  "graphs": [
+                      {
+                          "title": "Operation Count",
+                          "balloonText": "[[op_time]]: <b>[[op_count]]</b>",
+                          "fillAlphas": 0.8,
+                          "lineAlpha": 0.2,
+                          "type": "column",
+                          "valueField": "op_count",
+                          "fillColors": "#58c9c2"
+                      }
+                  ],
+                  "chartCursor": {
+                      "categoryBalloonEnabled": false,
+                      "cursorAlpha": 0,
+                      "zoomable": false
+                  },
+                  "categoryField": "op_time",
+                  "categoryAxis": {
+                      "gridPosition": "start",
+                      "gridAlpha": 0,
+                      "tickPosition": "middle",
+                      "tickLength": 10,
+                      "color": "#fefefe",
+                      "axisColor": "#fefefe"
+                  },
+                  "exportConfig": {
+                      "menuTop": 0,
+                      "menuItems": [
+                          {
+                              "icon": '/lib/3/images/export.png',
+                              "format": 'png'
+                          }
+                      ]
+                  }
+              });
+              var chart4 = AmCharts.makeChart("drilling_bottom_chart", {
+                  "type": "serial",
+                  "theme": "none",
+                  "legend": {
+                      "useGraphSettings": true,
+                      "position": "top",
+                      "align": "right",
+                      "valueText": "",
+                      "markerSize": 10,
+                      "color": "#fefefe"
+                  },
+                  "dataProvider": data.category_histogram[7].data,
+                  "valueAxes": [
+                      {
+                          "gridColor": "#FFFFFF",
+                          "gridAlpha": 0,
+                          "dashLength": 0,
+                          "axisAlpha": 0,
+                          "labelsEnabled": false
+                      }
+                  ],
+                  "gridAboveGraphs": true,
+                  "startDuration": 1,
+                  "graphs": [
+                      {
+                          "title": "Operation Count",
+                          "balloonText": "[[op_time]]: <b>[[op_count]]</b>",
+                          "fillAlphas": 0.8,
+                          "lineAlpha": 0.2,
+                          "type": "column",
+                          "valueField": "op_count",
+                          "fillColors": "#58c9c2"
+                      }
+                  ],
+                  "chartCursor": {
+                      "categoryBalloonEnabled": false,
+                      "cursorAlpha": 0,
+                      "zoomable": false
+                  },
+                  "categoryField": "op_time",
+                  "categoryAxis": {
+                      "gridPosition": "start",
+                      "gridAlpha": 0,
+                      "tickPosition": "middle",
+                      "tickLength": 10,
+                      "color": "#fefefe",
+                      "axisColor": "#fefefe"
+                  },
+                  "exportConfig": {
+                      "menuTop": 0,
+                      "menuItems": [
+                          {
+                              "icon": '/lib/3/images/export.png',
+                              "format": 'png'
+                          }
+                      ]
+                  }
+              });
+              $("#drilling_connection_total").replaceWith('<div class="value" id = "drilling_connection_total">' + (data.category_histogram[4].total_time / 3600.0).toFixed(2) + '<span> hrs</span></div>');
+              $("#drilling_connection_avg").replaceWith('<div class="value" id = "drilling_connection_avg">'+data.category_histogram[4].avg_time.toFixed(2)+'<span>sec</span></div>')
+              $("#drilling_wtw_total").replaceWith('<div class="value" id = "drilling_wtw_total">' + (data.category_histogram[5].total_time / 3600.0).toFixed(2) + '<span>hrs</span></div>');
+              $("#drilling_wtw_avg").replaceWith('<div class="value" id = "drilling_wtw_avg">'+data.category_histogram[5].avg_time.toFixed(2)+'<span>sec</span></div>')
+              $("#drilling_treatment_total").replaceWith('<div class="value" id = "drilling_treatment_total">' + (data.category_histogram[6].total_time / 3600.0).toFixed(2) + '<span>hrs</span></div>');
+              $("#drilling_treatment_avg").replaceWith('<div class="value" id = "drilling_treatment_avg">'+data.category_histogram[6].avg_time.toFixed(2)+'<span>sec</span></div>')
+              $("#drilling_bottom_total").replaceWith('<div class="value" id = "drilling_bottom_total">' + (data.category_histogram[7].total_time / 3600.0).toFixed(2) + '<span>hrs</span></div>');
+              $("#drilling_bottom_avg").replaceWith('<div class="value" id = "drilling_bottom_avg">'+data.category_histogram[7].avg_time.toFixed(2)+'<span>sec</span></div>')
+//
+//
+
+          });
+        }
+      });
+    });
+  }(jQuery));
+</script>
+<script type="text/javascript">
+  //    var chart = AmCharts.makeChart("activityChart", {
+  //        "type": "serial",
+  //        "theme": "none",
+  //        "dataProvider": [{
+  //            "hour": "0",
+  //            "drillingRotaryTo": 25,
+  //            "drillingRotaryFrom": 20,
+  //            "drillingRotaryTo": 35,
+  //            "drillingRotaryFrom": 40
+  //        }],
+  //        "valueAxes": [{
+  //            //"stackType": "regular",
+  //            //"axisAlpha": 0,
+  //            "gridAlpha": 0,
+  //            "position": "left",
+  //            //"reversed": true,
+  //            "color": "#FEFEFE",
+  //            "fontSize": 14,
+  //            "boldLabels": false,
+  //            "minimum": 0,
+  //            "maximum": 60,
+  //            "autoGridCount": false,
+  //            "gridCount": 12,
+  //            //"labelFrequency":10,
+  //            //"offset": -80,
+  //            "labelFunction": function (value, valueString, axis) {
+  //                return value;
+  //            }
+  //        }],
+  //        "graphs": [{
+  //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+  //            "fillAlphas": 0.9,
+  //            "fontSize": 11,
+  //            "fillColor": "#4840d1",
+  //            //"labelText": "[[percents]]%",
+  //            "lineAlpha": 1,
+  //            "title": "Drilling Rotary",
+  //            "type": "column",
+  //            "valueField": "drillingRotaryTo",
+  //            "openField":"drillingRotaryFrom"
+  //        }, {
+  //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+  //            "fillAlphas": 0.9,
+  //            "fontSize": 11,
+  //            "fillColor": "#4840d1",
+  //            //"labelText": "[[percents]]%",
+  //            "lineAlpha": 1,
+  //            "title": "Drilling Rotary",
+  //            "type": "column",
+  //            "valueField": "drillingRotaryTo",
+  //            "openField":"drillingRotaryFrom"
+  //        }, {
+  //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+  //            "fillAlphas": 0.9,
+  //            "fontSize": 11,
+  //            "fillColor": "#0085e3",
+  //            //"labelText": "[[percents]]%",
+  //            "lineAlpha": 1,
+  //            "title": "Drilling Sliding",
+  //            "type": "column",
+  //            "valueField": "drillingSliding"
+  //        }, {
+  //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+  //            "fillAlphas": 0.9,
+  //            "fontSize": 11,
+  //            "fillColor": "#9500b7",
+  //            //"labelText": "[[percents]]%",
+  //            "lineAlpha": 1,
+  //            "title": "Circulation",
+  //            "type": "column",
+  //            "valueField": "circulation"
+  //        }, {
+  //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+  //            "fillAlphas": 0.9,
+  //            "fontSize": 11,
+  //            "fillColor": "#909f98",
+  //            //"labelText": "[[percents]]%",
+  //            "lineAlpha": 1,
+  //            "title": "Connection",
+  //            "type": "column",
+  //            "valueField": "connection"
+  //        }, {
+  //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+  //            "fillAlphas": 0.9,
+  //            "fontSize": 11,
+  //            "fillColor": "#f70000",
+  //            //"labelText": "[[percents]]%",
+  //            "lineAlpha": 1,
+  //            "title": "Run in Hole",
+  //            "type": "column",
+  //            "valueField": "runInHole"
+  //        }, {
+  //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+  //            "fillAlphas": 0.9,
+  //            "fontSize": 11,
+  //            "fillColor": "#940000",
+  //            //"labelText": "[[percents]]%",
+  //            "lineAlpha": 1,
+  //            "title": "Run 0ut of Hole",
+  //            "type": "column",
+  //            "valueField": "runOutHole"
+  //        }],
+  //        "marginTop": 30,
+  //        "marginRight": 0,
+  //        "marginLeft": 50,
+  //        "marginBottom": 40,
+  //        "autoMargins": false,
+  //        "categoryField": "hour",
+  //        "categoryAxis": {
+  //            "gridPosition": "start",
+  //            //"axisAlpha": 0,
+  //            "gridAlpha": 0,
+  //            "tickPosition": "start",
+  //            //"tickLength": "10",
+  //            "color": "#FEFEFE",
+  //            "fillColor": "#fffff",
+  //            "fontSize": 13,
+  //            "labelRotation": 90
+  //        },
+  //        "columnWidth": 0.99
+  //    });
+
+
+  var chart = AmCharts.makeChart("drilling_connection_chart", {
+      "type": "serial",
+      "theme": "none",
+      "legend": {
+          "useGraphSettings": true,
+          "position": "top",
+          "align": "right",
+          "valueText": "",
+          "markerSize": 10,
+          "color": "#fefefe"
+      },
+
+      "dataProvider": <%=@obj.nil? ? [{}].to_json.html_safe : @obj['category_histogram'][4]['data'].to_json.html_safe%>,
+      "valueAxes": [
+          {
+              "gridColor": "#FFFFFF",
+              "gridAlpha": 0,
+              "dashLength": 0,
+              "axisAlpha": 0,
+              "labelsEnabled": false
+          }
+      ],
+      "gridAboveGraphs": true,
+      "startDuration": 1,
+      "graphs": [
+          {
+              "title": "Operation Count",
+              "balloonText": "[[op_time]]: <b>[[op_count]]</b>",
+              "fillAlphas": 0.8,
+              "lineAlpha": 0.2,
+              "type": "column",
+              "valueField": "op_count",
+              "fillColors": "#58c9c2"
+          }
+      ],
+      "chartCursor": {
+          "categoryBalloonEnabled": false,
+          "cursorAlpha": 0,
+          "zoomable": false
+      },
+      "categoryField": "op_time",
+      "categoryAxis": {
+          "gridPosition": "start",
+          "gridAlpha": 0,
+          "tickPosition": "middle",
+          "tickLength": 10,
+          "color": "#fefefe",
+          "axisColor": "#fefefe"
+      },
+      "exportConfig": {
+          "menuTop": 0,
+          "menuItems": [
+              {
+                  "icon": '/lib/3/images/export.png',
+                  "format": 'png'
+              }
+          ]
+      }
+  });
+  var chart = AmCharts.makeChart("drilling_wtw_chart", {
+      "type": "serial",
+      "theme": "none",
+      "legend": {
+          "useGraphSettings": true,
+          "position": "top",
+          "align": "right",
+          "valueText": "",
+          "markerSize": 10,
+          "color": "#fefefe"
+      },
+
+      "dataProvider": <%=@obj.nil? ? [{}].to_json.html_safe : @obj['category_histogram'][5]['data'].to_json.html_safe%>,
+      "valueAxes": [
+          {
+              "gridColor": "#FFFFFF",
+              "gridAlpha": 0,
+              "dashLength": 0,
+              "axisAlpha": 0,
+              "labelsEnabled": false
+          }
+      ],
+      "gridAboveGraphs": true,
+      "startDuration": 1,
+      "graphs": [
+          {
+              "title": "Operation Count",
+              "balloonText": "[[op_time]]: <b>[[op_count]]</b>",
+              "fillAlphas": 0.8,
+              "lineAlpha": 0.2,
+              "type": "column",
+              "valueField": "op_count",
+              "fillColors": "#58c9c2"
+          }
+      ],
+      "chartCursor": {
+          "categoryBalloonEnabled": false,
+          "cursorAlpha": 0,
+          "zoomable": false
+      },
+      "categoryField": "op_time",
+      "categoryAxis": {
+          "gridPosition": "start",
+          "gridAlpha": 0,
+          "tickPosition": "middle",
+          "tickLength": 10,
+          "color": "#fefefe",
+          "axisColor": "#fefefe"
+      },
+      "exportConfig": {
+          "menuTop": 0,
+          "menuItems": [
+              {
+                  "icon": '/lib/3/images/export.png',
+                  "format": 'png'
+              }
+          ]
+      }
+  });
+  var chart = AmCharts.makeChart("drilling_treatment_chart", {
+      "type": "serial",
+      "theme": "none",
+      "legend": {
+          "useGraphSettings": true,
+          "position": "top",
+          "align": "right",
+          "valueText": "",
+          "markerSize": 10,
+          "color": "#fefefe"
+      },
+
+      "dataProvider": <%=@obj.nil? ? [{}].to_json.html_safe : @obj['category_histogram'][6]['data'].to_json.html_safe%>,
+      "valueAxes": [
+          {
+              "gridColor": "#FFFFFF",
+              "gridAlpha": 0,
+              "dashLength": 0,
+              "axisAlpha": 0,
+              "labelsEnabled": false
+          }
+      ],
+      "gridAboveGraphs": true,
+      "startDuration": 1,
+      "graphs": [
+          {
+              "title": "Operation Count",
+              "balloonText": "[[op_time]]: <b>[[op_count]]</b>",
+              "fillAlphas": 0.8,
+              "lineAlpha": 0.2,
+              "type": "column",
+              "valueField": "op_count",
+              "fillColors": "#58c9c2"
+          }
+      ],
+      "chartCursor": {
+          "categoryBalloonEnabled": false,
+          "cursorAlpha": 0,
+          "zoomable": false
+      },
+      "categoryField": "op_time",
+      "categoryAxis": {
+          "gridPosition": "start",
+          "gridAlpha": 0,
+          "tickPosition": "middle",
+          "tickLength": 10,
+          "color": "#fefefe",
+          "axisColor": "#fefefe"
+      },
+      "exportConfig": {
+          "menuTop": 0,
+          "menuItems": [
+              {
+                  "icon": '/lib/3/images/export.png',
+                  "format": 'png'
+              }
+          ]
+      }
+  });
+  var chart = AmCharts.makeChart("drilling_bottom_chart", {
+      "type": "serial",
+      "theme": "none",
+      "legend": {
+          "useGraphSettings": true,
+          "position": "top",
+          "align": "right",
+          "valueText": "",
+          "markerSize": 10,
+          "color": "#fefefe"
+      },
+
+      "dataProvider": <%=@obj.nil? ? [{}].to_json.html_safe : @obj['category_histogram'][7]['data'].to_json.html_safe%>,
+      "valueAxes": [
+          {
+              "gridColor": "#FFFFFF",
+              "gridAlpha": 0,
+              "dashLength": 0,
+              "axisAlpha": 0,
+              "labelsEnabled": false
+          }
+      ],
+      "gridAboveGraphs": true,
+      "startDuration": 1,
+      "graphs": [
+          {
+              "title": "Operation Count",
+              "balloonText": "[[op_time]]: <b>[[op_count]]</b>",
+              "fillAlphas": 0.8,
+              "lineAlpha": 0.2,
+              "type": "column",
+              "valueField": "op_count",
+              "fillColors": "#58c9c2"
+          }
+      ],
+      "chartCursor": {
+          "categoryBalloonEnabled": false,
+          "cursorAlpha": 0,
+          "zoomable": false
+      },
+      "categoryField": "op_time",
+      "categoryAxis": {
+          "gridPosition": "start",
+          "gridAlpha": 0,
+          "tickPosition": "middle",
+          "tickLength": 10,
+          "color": "#fefefe",
+          "axisColor": "#fefefe"
+      },
+      "exportConfig": {
+          "menuTop": 0,
+          "menuItems": [
+              {
+                  "icon": '/lib/3/images/export.png',
+                  "format": 'png'
+              }
+          ]
+      }
+  });
+
+
+
+
+</script>

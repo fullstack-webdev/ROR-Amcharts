@@ -1,0 +1,280 @@
+<div class="remote-tray" data-tray="rig_overview_cleaning">
+
+  <div class='tray-content content-loaded' style="position: relative;">
+    <div class="mdv-spinner" id="dv_cleaning_spinner">
+
+      <%= render 'jobs/inline_spinner' %>
+
+    </div>
+
+    <div class="dv-sub-container" style="display: none;">
+
+      <div class="drill-view-chart">
+        <div id="dv_cleaning_warning_box_chart" class="mdv-chart-warning"></div>
+        <div style="position: relative; height: 100%;">
+          <div class="depth-row-container">
+            <div class="depth-row-bg"></div>
+            <div class="depth-row">
+            </div>
+          </div>
+          <div class="label-top">Transport Ratio</div>
+          <div id="chart_drillview_cleaning" class="amChart block chart-view" style="background: none;" data-id="cleaning"></div>
+          <div class="label-bottom" id="dv_cleaning_transport_ratio_axis"></div>
+        </div>
+      </div>
+
+      <div class="drill-view-port" id="dv_cleaning">
+
+        <div class="menuContentBlock">
+
+          <div class="offline-box" id="dv_cleaning_offline_box">
+            <h5>No circulation - Static condition</h5>
+          </div>
+
+          <div id="dv_cleaning_warning_box" class="mdv-warning-box">
+          </div>
+
+          <!--<div class="abnormal-box" id="dv_cleaning_abnormal_box" style="display: none;">-->
+          <!--<h5>Abnormal cuttings transport</h5>-->
+
+          <!--<ul class="abnormal-list">-->
+          <!--<li>-->
+          <!--<p id="dv_cleaning_alert_depth">4,349 ft</p>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<p id="dv_cleaning_alert_date">Jan 19 16:34</p>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<p id="dv_cleaning_alert_duration">20 minutes</p>-->
+          <!--</li>-->
+          <!--</ul>-->
+          <!--</div>-->
+
+
+          <div id="dv_cleaning_stale" class="block clearfix" style="position: relative; display: none; margin-bottom: 20px;">
+            <%= image_tag 'error_orange.png', style: 'position: absolute; left: 0px; top: 2px;' %>
+            <div style="float: left; margin-left: 30px;">
+              <p style="color: #ef891b; margin: 0; padding: 0;">These values do not reflect current conditions, but last
+                non-static values - <span class="time-diff"></span>.</p>
+            </div>
+          </div>
+
+          <div class="block clearfix">
+            <div class="mdv-cell">
+              <p class="title" id="dv_cleaning_net_cuttings_velocity_label">Net Cuttings Velocity</p>
+
+              <p class="value-white" id="dv_cleaning_net_cuttings_velocity">274.9 <span>ft/min</span></p>
+            </div>
+
+            <div class="mdv-cell">
+              <p class="title" id="dv_cleaning_annular_velocity_label">Annular Velocity</p>
+
+              <p class="value-white" id="dv_cleaning_annular_velocity">310.3 <span>ft/min</span></p>
+            </div>
+          </div>
+
+          <div class="block clearfix">
+            <div class="mdv-cell">
+              <p class="title" id="dv_cleaning_cuttings_transport_ratio_label">Cuttings Transport Ratio</p>
+
+              <p class="value-white" id="dv_cleaning_cuttings_transport_ratio">0.65</p>
+            </div>
+          </div>
+
+          <div class="divider divider-md" style="height: 90px;"></div>
+
+          <div class="chart-legend-block" id="dv_cleaning_chart_legend" style="display: none;">
+            <div class="chart-legend">
+              <div class="circle">
+              </div>
+              <div class="legend-label">
+                <p>Transport Ratio</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #da421a;">
+              </div>
+              <div class="legend-label">
+                <p>Poor</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #dac61a;">
+              </div>
+              <div class="legend-label">
+                <p>Moderate</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #62da1a;">
+              </div>
+              <div class="legend-label">
+                <p>Good</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+
+    DV_CURRENT_TAB = DV_TAB_CLEANING;
+    $('.dv-subtitle').html("Hole Cleaning");
+
+    $(".remote-tray-toggle[data-tray='rig_overview_cleaning']").click(function () {
+      DV_CURRENT_TAB = DV_TAB_CLEANING;
+      $('.dv-subtitle').html("Hole Cleaning");
+      dv_ajax_call(null, null, null, true);
+    });
+
+    // Create chart
+    DV_CHARTS['cleaning'] = AmCharts.makeChart("chart_drillview_cleaning", {
+      "type": "xy",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundAlpha": 0,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [
+        {
+          depth: undefined,
+          actual: undefined
+        }
+      ],
+      "fontFamily": "orgonlightregular",
+      "valueAxes": [
+        {
+          "position": "bottom",
+          "axisAlpha": 0,
+          "dashLength": 1,
+          "gridAlpha": 0,
+          "id": "cleaning_axis",
+          "reversed": false,
+          "labelsEnabled": false,
+          "id": "cleaning_axis",
+          "autoGridCount": false,
+          "minimum": 0,
+          "maximum": 1,
+          "guides": [
+            {
+              "fillAlpha": 0.9,
+              "value": 0,
+              "toValue": 0.5,
+              "lineAlpha": 0,
+              "fillColor": "#da421a",
+              "lineThickness": 0
+            },
+            {
+              "fillAlpha": 0.9,
+              "value": 0.5,
+              "toValue": 0.8,
+              "lineAlpha": 0,
+              "fillColor": "#dac61a",
+              "lineThickness": 0
+            },
+            {
+              "fillAlpha": 0.9,
+              "value": 0.8,
+              "toValue": 1,
+              "lineAlpha": 0,
+              "fillColor": "#62da1a",
+              "lineThickness": 0
+            }
+          ]
+        },
+        {
+          "axisAlpha": 0,
+          "dashLength": 1,
+          "position": "right",
+          "reversed": true,
+          "inside": false,
+          "fontSize": 13,
+          "color": "#ffffff",
+          "gridColor": "#ffffff",
+          "gridAlpha": 0.5,
+          "autoWrap": true,
+          "tickLength": 0,
+          "showFirstLabel": false,
+          "showLastLabel": false,
+          "id": "depth_axis",
+          "minHorizontalGap": 0.5,
+          "minVerticalGap": 0.5,
+          "minorGridEnabled": true,
+          "autoGridCount": false,
+          "labelsEnabled": false,
+          "minimum": 0,
+          "maximum": 20000
+        }
+//        {
+//          "axisAlpha": 0,
+//          "position": "bottom",
+//          "reversed": false,
+//          "gridAlpha": 0,
+//          "labelsEnabled": false,
+//          "id": "cleaning_axis",
+//          "autoGridCount": false,
+//          "minimum": 0,
+//          "maximum": 1,
+//          "guides": [{
+//            "fillAlpha": 0.9,
+//            "value": 0,
+//            "toValue": 0.5,
+//            "lineAlpha": 0,
+//            "fillColor": "#da421a",
+//            "lineThickness": 0
+//          }, {
+//            "fillAlpha": 0.9,
+//            "value": 0.5,
+//            "toValue": 0.8,
+//            "lineAlpha": 0,
+//            "fillColor": "#dac61a",
+//            "lineThickness": 0
+//          }, {
+//            "fillAlpha": 0.9,
+//            "value": 0.8,
+//            "toValue": 1,
+//            "lineAlpha": 0,
+//            "fillColor": "#62da1a",
+//            "lineThickness": 0
+//          }]
+//        }
+      ],
+      "graphs": [
+        {
+          "xField": "actual",
+          "yField": "depth",
+          "lineColor": "#ffffff",
+          "lineThickness": 4,
+          "valueAxis": "depth_axis"
+        }
+      ],
+//      "chartCursor": {
+//        "zoomable": false,
+//        "enabled": true,
+//        "selectWithoutZooming": true,
+//        "valueLineEnabled": false,
+//        "valueLineBalloonEnabled": false,
+//        "valueBalloonsEnabled": false,
+//        "categoryBalloonEnabled": false,
+//        "cursorAlpha": 0
+//      },
+      "panEventsEnabled": false
+    });
+
+    dv_ajax_call(null, null, null, true);
+
+  }(jQuery));
+</script>

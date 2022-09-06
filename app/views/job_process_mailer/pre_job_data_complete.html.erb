@@ -1,0 +1,28 @@
+<html>
+<link rel="stylesheet" type="text/css" href="/app/assets/stylesheets/application.css.scss"/>
+<body class="email-body">
+
+<h1>Pre-Job Complete</h1>
+<p class="center">Job is ready to ship</p>
+
+<hr>
+
+<p>Please <%= link_to @job.absolute_url, class: "activity-user-link" do %>Click here
+  <% end %> to review the data and documents and make sure everything is correct and complete. Then, approve the job to ship by clicking the
+  button
+  'Ship Job To Field'.</p>
+
+<br><br>
+
+<%= link_to @job.absolute_url, class: "job-email-link" do %>
+    <%= render 'jobs/job_data_email', job: @job %>
+<% end %>
+
+<% if Rails.env.production? %>
+    <hr>
+    <div class="center"><%= image_tag "corva-logo.png" %></div>
+    <br>
+<% end %>
+
+</body>
+</html>

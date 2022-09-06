@@ -1,0 +1,28 @@
+<div>
+  <div class="page_header">
+    <h1>Update Active Well Plan</h1>
+  </div>
+
+  <div class="form" data-form="new_survey">
+    <%= form_for @survey, remote: true do |f| %>
+
+        <%= hidden_field_tag "document_id", "document_id", value: @document.id %>
+        <%= hidden_field_tag "active_well", "active_well", value: "true" %>
+
+        <%= render "fields", f: f, show_name: false %>
+
+        <div class="custom-document-footer">
+          <%= f.submit "Update", class: "bluebtn pull-right form-loading-on-click",
+                       "data-form" => "new_survey" %>
+        </div>
+
+
+    <% end %>
+
+  </div>
+
+
+  <div class="form-loading hidden" data-form="new_survey">
+    <%= render 'layouts/inline_loading', title: "Saving..." %>
+  </div>
+</div>

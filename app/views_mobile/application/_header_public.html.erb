@@ -1,0 +1,29 @@
+<div style="height: 50px;
+    position: fixed;
+    width: 100%;
+    background-color: #2c3e3d;
+    z-index: 10002;">
+
+  <span class="page-title" style="padding-right: 110px;"><%= yield :page_title %></span>
+
+  <button id="nav-icon" class="lines-button x" type="button" role="button" aria-label="Toggle Navigation" style="position: absolute; top: 0; left: 0;">
+    <span class="lines"></span>
+  </button>
+
+  <div class='pull-right' style="margin-top: 15px; margin-right: 5px; position: absolute; top: 0; right: 0;">
+    <%= link_to "Log In", "#",
+                id: "show_sign_in",
+                class: "sign-in-button m-signin-button align-top",
+                style: "margin: 0" %>
+  </div>
+
+  <div class="pull-right">
+    <button id="close-signin" class="lines-button x closed" type="button" role="button" aria-label="Toggle Navigation" style="display: none;">
+      <span class="lines"></span>
+    </button>
+  </div>
+</div>
+
+<%= render 'navmenu_public' %>
+
+<%= render 'login' %>

@@ -1,0 +1,13 @@
+<div class="company-overview">
+  <div class="section-header">
+    <h1>Overview</h1>
+  </div>
+
+  <div>
+    <div class="company-name"><%= @company.name%></div>
+    <%= link_to 'Launch Site', '/admin/impersonate/'+@company.id.to_s,
+                class: "tooltip-info",
+                "data-placement" => "right",
+                "data-title" => "Click to launch company site" %>
+  </div>
+</div>

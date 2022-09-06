@@ -1,0 +1,8 @@
+$('#dynamic_field_<%= @dynamic_field.id %>').find('div:first').hide();
+$('#dynamic_field_<%= @dynamic_field.id %>').append('<%= j render 'dynamic_fields/edit', dynamic_field: @dynamic_field %>');
+
+$('#cancel_edit_<%= @dynamic_field.id %>').click( function () {
+    $('#edit_dynamic_field_<%= @dynamic_field.id %>').remove();
+    $('#dynamic_field_<%= @dynamic_field.id %>').find('div:first').show();
+    return false;
+});

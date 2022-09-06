@@ -1,0 +1,180 @@
+<% @combined_costs = JobCost.get_costs_per_day(@job) %>
+
+<div class="remote-tray" data-tray="costs">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading costs..." %>
+  </div>
+
+  <div class=' tray-content'>
+
+
+    <% job = @job %>
+    <div>
+      <div class='section-header' style="margin-top: 15px;">
+
+        <!--<div class='pull-right'>
+          <div>
+            <%#= link_to "Export As Excel", job_costs_path(job: @job, format: "xlsx"), class: "activity-user-link pull-left", target: "_blank" %>
+          </div>
+        </div>-->
+
+        <h1>Costs</h1>
+
+        <div class='inline-block align-top pull-right'>
+          <%= link_to "#",
+                      class: "btn btn-sub align-top",
+                      id: "add_new_cost_button" do %>
+              <i class="icon-plus-sign icon-white"></i>
+              <span>Add Cost</span>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="well hidden" id="add_new_cost" style="background-color: #3D4E50;">
+        <div class='pull-right'>
+          <a id="close_add_cost" class='delete-button-small time-close-button'>x</a>
+        </div>
+        <h3 style="margin-bottom: 20px;">Add Cost</h3>
+        <%= render 'job_costs/new' %>
+      </div>
+
+      <div id="cost_chart" class="amChart" style="width: 100%; height: 140px; display: inline-block;"></div>
+
+      <br>
+      <hr>
+
+      <% if @job.job_costs.empty? %>
+          <p class="center help-text no-entries"><br>No costs...</p>
+      <% else %>
+
+      <% end %>
+
+
+      <div class="" id="list">
+        <% if @job.job_costs.any? %>
+            <% @job.job_costs.each_with_index do |job_cost, index| %>
+                <%= render 'job_costs/job_cost', job_cost: job_cost, index: index %>
+            <% end %>
+        <% end %>
+      </div>
+
+      <div>
+
+
+      </div>
+
+      <hr>
+
+
+      <% if @job.job_costs.any? %>
+          <div class="inline-block" style="margin: 3px 0 0 10px; float:left;">
+            <%= select_tag "costs_selector",
+                           options_for_select(@combined_costs.map { |obj| [obj[:time_string], obj[:time_string]] }, @combined_costs.any? ? @combined_costs.last[:time_string] : nil),
+                           style: "background-color: #354849 !important;",
+                           class: "custom-select custom-select-ajax" %>
+          </div>
+      <% end %>
+
+      <%= render 'job_costs/totals', job: job %>
+
+      <br>
+
+    </div>
+
+
+  </div>
+
+</div>
+
+
+<script type='text/javascript'>
+
+    $('#add_new_cost_button').live("click", function (e) {
+        $(this).hide();
+        $('#add_new_cost').removeClass('hidden');
+        e.preventDefault();
+    });
+
+    $('#close_add_cost').live("click", function (e) {
+        $('#add_new_cost_button').show();
+        $('#add_new_cost').addClass('hidden');
+        e.preventDefault();
+    });
+
+    var chart = AmCharts.makeChart("cost_chart", {
+        "type": "serial",
+        "theme": "none",
+        "backgroundColor": "#3b4e4f",
+        "backgroundAlpha": 1,
+        "dataProvider": <%= raw @combined_costs.to_json.html_safe %>,
+        "valueAxes": [
+            {
+                "axisAlpha": 0,
+                "gridAlpha": 0,
+                "labelsEnabled": false,
+                "position": "left"
+            }
+        ],
+        "graphs": [
+            {
+                "balloonText": "<b>$[[cost]]</b><br>[[time_string]]",
+                "lineColor": "#b858c9",
+                "lineThickness": 2,
+                "type": "smoothedLine",
+                "title": "Time",
+                "valueField": "cost",
+                "bullet": "round",
+                "bulletSize": "8"
+            }
+        ],
+        "autoMargins": false,
+        "categoryField": "time",
+        "categoryAxis": {
+            "parseDates": true,
+            "minorGridAlpha": 0.2,
+            "minorGridEnabled": true,
+            "title": "Day",
+            "color": "#fefefe",
+            "titleColor": "#fefefe",
+            "axisColor": "#fefefe",
+            "axisAlpha": 0,
+            "gridAlpha": 0.2,
+            "gridColor": "#fefefe"
+        },
+    });
+
+</script>
+
+
+<script type='text/javascript'>
+
+    $(document).ready(function ($) {
+
+        var update_date = function (date) {
+            var day_cost = 0.0;
+            $('.job-cost-item').each(function () {
+                if ($(this).attr('data-date') == date) {
+                    day_cost += parseFloat($(this).attr('data-cost'));
+                    $(this).removeClass('hidden');
+                }
+                else {
+                    $(this).addClass('hidden');
+                }
+            });
+
+            $('#day_cost').text('$' + day_cost.round_to_decimal().number_with_delimiter());
+        }
+
+        $("#costs_selector").change(function () {
+            var date = $(this).val();
+            update_date(date);
+        });
+
+        $('.custom-select').customSelect();
+
+
+    }(jQuery));
+
+</script>

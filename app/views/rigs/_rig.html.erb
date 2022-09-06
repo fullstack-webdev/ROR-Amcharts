@@ -1,0 +1,11 @@
+<div class="inline-block align-top">
+  <% job = Job.includes(:well).where("jobs.status >= 1 AND jobs.status < 50").where("wells.rig_id = ?", rig.id).first %>
+  <%= link_to rig, class: "part-box part-name tooltip-info " + (job.present? ? "part-box-job" : ""),
+                    style: "font-family: 'gothammediumregular'; font-size: 15px;",
+                  "data-placement" => "right", "data-html" => "true",
+                  "data-title" => job.present? ? render('jobs/well_tooltip', job: job, show_summary_data: true) : "Not Active - #{rig.name}" do %>
+            <span style="padding: 7px;">
+          <%= rig.name %>
+                </span>
+      <% end %>
+</div>

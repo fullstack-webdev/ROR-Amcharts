@@ -1,0 +1,34 @@
+<% job = @job %>
+<div>
+  <div>
+    <div class='pull-right'>
+      <a id="close_members" class='delete-button-small time-close-button'>x</a>
+    </div>
+    <h3 class='orange-text'>Team Members</h3>
+  </div>
+  <br>
+  <ul class="job-members-list" id="job_members_list">
+    <% job.job_memberships.includes(user: :district).each do |jm| %>
+        <% if jm.shift_type == 0 && jm.job_role_id != 6 %>
+            <%= render 'job_memberships/job_membership', job_membership: jm %>
+        <% end %>
+    <% end %>
+    <% on_location = job.job_memberships.reorder('').includes(user: :district).where("job_memberships.shift_type > 0 AND job_memberships.shift_type != 6").order("job_memberships.shift_type ASC") %>
+    <% if on_location.any? %>
+
+        <% on_location.each do |jm| %>
+            <% if jm.shift_type > 0 && jm.job_role_id != 6 %>
+                <%= render 'job_memberships/job_membership', job_membership: jm %>
+            <% end %>
+        <% end %>
+    <% end %>
+  </ul>
+
+  <hr>
+
+  <%= render 'job_memberships/fields', job: job %>
+  <div class="member-loading hidden">
+    <span class="ajax-loading search-loading"><b>Adding project member</b></span>
+    <br><br>
+  </div>
+</div>

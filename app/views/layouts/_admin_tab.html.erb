@@ -1,0 +1,4 @@
+<%= tabs_tag :builder => ApplicationHelper::MenuTabBuilder, open_tabs: {class: "admin_tab"} do |tab| %>
+    <%= tab.users 'Users', users_path %>
+    <%= tab.districts 'Districts', districts_path %>
+<% end %>

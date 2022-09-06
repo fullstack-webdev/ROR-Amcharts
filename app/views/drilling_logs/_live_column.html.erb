@@ -1,0 +1,134 @@
+<div id='column_<%= column_name %>' class='live-column'>
+  <div id='<%= data[0][:id] %>' class='live-block'>
+    <div class='live-label'><%= data[0][:name] %></div>
+    <div class='live-line' style='background: #238fda;'></div>
+    <div class='live-data' style="color: #238fda;"><%= data[0][:value] %></div>
+    <div class='live-unit'><%= data[0][:units] %></div>
+  </div>
+
+  <div id='<%= data[1][:id] %>' class='live-block'>
+    <div class='live-label'><%= data[1][:name] %></div>
+    <div class='live-line' style='background: #e77813;'></div>
+    <div class='live-data' style="color: #e77813;"><%= data[1][:value] %></div>
+    <div class='live-unit'><%= data[1][:units] %></div>
+  </div>
+
+  <div id='<%= data[2][:id] %>' class='live-block'>
+    <div class='live-label'><%= data[2][:name] %></div>
+    <div class='live-line' style='background: #449f72;'></div>
+    <div class='live-data' style="color: #449f72;"><%= data[2][:value] %></div>
+    <div class='live-unit'><%= data[2][:units] %></div>
+  </div>
+
+
+  <div class='live-chart'>
+    <div id="chart_<%= column_name %>" class="amChart" style="width: 100%; height: 400px;"></div>
+
+  </div>
+
+
+</div>
+
+
+<script type="text/javascript">
+
+    (function ($) {
+        $(document).ready(function () {
+
+            <% chart_data = [] %>
+            <% 40.times do |i| %>
+            <% chart_data << { data[0][:id].to_s => 20, data[1][:id].to_s => 22, data[2][:id].to_s => 24,  } %>
+            <% end %>
+            var data = <%= raw chart_data.to_json %>;
+            var chart = AmCharts.makeChart("chart_<%= column_name %>",
+                    {
+                        "type": "serial",
+                        "pathToImages": "http://cdn.amcharts.com/lib/3/images/",
+                        "categoryField": "category",
+                        "rotate": true,
+                        "autoMarginOffset": 0,
+                        "autoMargins": false,
+                        "marginBottom": 0,
+                        "marginLeft": 0,
+                        "marginRight": 0,
+                        "marginTop": 0,
+                        "sequencedAnimation": false,
+                        "categoryAxis": {
+                            "gridPosition": "start",
+                            "axisColor": "#D7E0E0",
+                            "fillAlpha": 0.21,
+                            "fontSize": -3,
+                            "gridAlpha": 0.07,
+                            "labelsEnabled": false,
+                            "minorGridAlpha": 0,
+                            "showFirstLabel": false,
+                            "showLastLabel": false,
+                            "tickLength": 0,
+                            "titleBold": false
+                        },
+                        "trendLines": [],
+                        "graphs": [
+                            {
+                                "balloonText": "[[title]] of [[category]]:[[value]]",
+                                "id": "AmGraph-1",
+                                "title": "graph 1",
+                                "valueField": "<%= data[0][:id] %>",
+                                "lineColor": "#238fda",
+                                "lineThickness": "1.5"
+                            },
+                            {
+                                "balloonText": "[[title]] of [[category]]:[[value]]",
+                                "bulletBorderThickness": -14,
+                                "id": "AmGraph-2",
+                                "title": "graph 2",
+                                "valueField": "<%= data[1][:id] %>",
+                                "lineColor": "#e77813",
+                                "lineThickness": "1.5"
+                            },
+                            {
+                                "balloonText": "[[title]] of [[category]]:[[value]]",
+                                "bulletBorderThickness": -14,
+                                "id": "AmGraph-3",
+                                "title": "graph 3",
+                                "valueField": "<%= data[2][:id] %>",
+                                "lineColor": "#449f72",
+                                "lineThickness": "1.5"
+                            }
+                        ],
+                        "guides": [],
+                        "valueAxes": [
+                            {
+                                "id": "ValueAxis-1",
+                                "autoGridCount": false,
+                                "axisAlpha": 0,
+                                "labelsEnabled": false,
+                                "titleFontSize": -6
+                            }
+                        ],
+                        "allLabels": [],
+                        "balloon": {},
+                        "titles": [],
+                        "dataProvider": data
+                    }
+            );
+
+            function randomIntFromInterval(min,max)
+            {
+                return Math.floor(Math.random()*(max-min+1)+min);
+            }
+
+            /*
+            setInterval(function () {
+                chart.dataProvider.shift();
+                chart.dataProvider.push({
+                    "<%= data[0][:id].to_s %>":  randomIntFromInterval(15, 20),
+                    "<%= data[1][:id].to_s %>":  randomIntFromInterval(20, 25),
+                    "<%= data[2][:id].to_s %>":  randomIntFromInterval(25, 35)
+                });
+                chart.validateData();
+            }, 1000);
+            */
+
+        });
+    }(jQuery));
+</script>

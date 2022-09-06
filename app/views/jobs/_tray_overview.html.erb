@@ -1,0 +1,851 @@
+<div class="remote-tray" data-tray="overview">
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading overview..." %>
+</div>
+
+<div class='tray-content'>
+
+<div class="section-header" style="margin-top: 15px;">
+  <h1>Well Overview</h1>
+
+  <% if @job.status == Job::PRE_JOB %>
+    <div class="align-top pull-right">
+      <div style="position: relative; display: inline-block; float: left; margin-top: -5px; margin-right: 20px;">
+        <%= image_tag 'error_orange.png', style: 'position: absolute; left: 0px; top: 2px;' %>
+        <div style="float: left; margin-left: 30px;">
+          <p style="color: #ef891b; margin: 0; padding: 0; line-height: 24px;">Well has not started or no well data</p>
+        </div>
+      </div>
+      <a id="upload-historical-file1" class='btn btn-sub align-top' href='javascript:;' style="position: relative;">
+        <i class="fa fa-cloud-upload"></i> Upload Historical Well
+      </a>
+    </div>
+  <% end %>
+</div>
+
+<div class="well-overview">
+<div class="well-info">
+  <div>
+    <span class="well-name color-white"><%= job.well.rig.present? ? job.well.rig.name : "-" %></span>
+    <span class="" style="color: #bfe9cf; font-size: 17px;"><%= job.well_name %></span>
+          <span class="color-white" style="float: right; font-size: 28px;">
+            <% actual_cost = JobCost.job_total(job) %>
+            <%= number_to_currency(actual_cost.present? && actual_cost > 0 ? actual_cost : job.total_cost, :unit => "$ ") %>
+          </span>
+  </div>
+
+  <% if job.current_warning.empty? && job.status == Job::ON_JOB %>
+    <div class="alert-box alert-success">
+      All systems are operating normally
+      <%= link_to "View details", "#",
+                  "data-id" => job.id,
+                  "data-tray-controller" => "jobs",
+                  "data-tray" => "warnings_analysis",
+                  "data-tray-parent" => "analysis",
+                  class: "remote-tray-toggle" %>
+    </div>
+  <% elsif job.active %>
+    <% job.current_warning.each do |warning| %>
+      <div class="alert-box alert-warning color-<%= warning.event_warning_type.severity %>">
+        <i class="fa fa-exclamation-triangle"></i> &nbsp;&nbsp;<%= warning.job.well.rig.name %>&nbsp;&nbsp;
+        - &nbsp;&nbsp; <%= warning.name %>
+        <%= link_to "View details", "#",
+                    "data-id" => job.id,
+                    "data-tray-controller" => "jobs",
+                    "data-tray" => warning.tray_name,
+                    "data-tray-parent" => "rig_overview",
+                    class: "remote-tray-toggle" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<div class="block">
+  <div class="inline-block" style="width: 23%; float: left;">
+    <div id="warnings_bar_block" style="display: block; margin-top: 20px; height: 550px;">
+      <div style="width: 100%; text-align: left; color: #ffffff; margin-left: 50px; ">
+        <p>Events & Warnings</p>
+      </div>
+
+      <div style="position: relative; display: block; margin-top: 20px;">
+        <div id="warnings_bar_line" style="position: absolute; right: 40%; margin-top: 7px; border-right: 6px solid #ffffff; height: 500px;"></div>
+        <!--<div style="position: absolute; top: 0; right: 30%; margin-top: -7px; color: #ffffff;">0</div>-->
+        <div id="warnings_bar_top_axis" style="position: absolute; top: 0; right: 0; width: 35%; margin-top: 0px; color: #ffffff;">
+          <%= @job.start_date.strftime("%b %d") %>
+        </div>
+        <div style="position: absolute; right: 0%; width: 35%; margin-top: 0px; color: #ffffff;">
+          <div id="warnings_bar_bottom_axis">
+            <%= @job.last_date().strftime("%b %d") %>
+          </div>
+        </div>
+        <div id="warnings_bar_current_pos" style="position: absolute;
+            display: none;
+            margin-top: -11px;
+            margin-left: 92px;
+            z-index: 100;">
+          <div class="circle" style="cursor: default;"></div>
+        </div>
+        <!-- do not remove this code -->
+        <!--
+        <div id="warnings_bar_up" style="position: absolute;
+            display: none;
+            margin-top: -20px;
+            margin-left: 92px;
+            z-index: 100;">
+          <div class="circle">
+            <i class="fa fa-sort-up" style="color: #384749; font-size: 15px; margin-top: 6px;"></i></div>
+        </div>
+        <div id="warnings_bar_down" style="position: absolute;
+            display: block;
+            margin-top: 490px;
+            z-index: 100;
+            margin-left: 92px;">
+          <div class="circle"><i class="fa fa-sort-down" style="color: #384749; font-size: 15px;"></i></div>
+        </div>
+        -->
+      </div>
+      <div id="ov_warnings" class="inline-block drill-view-warnings" style="float: right; position: relative; margin: 0; margin-right: 42%; width: 60%;">
+        <div class="group-warning-popup" style="display: none;" data-sid="0"></div>
+        <div class="warnings-container"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="inline-block" style="width: 77%; float: left;">
+
+    <div class="block datestatus-block">
+      <div class="inline-block cell" style="width: 170px;">
+        <p class="title">Start</p>
+
+        <p class="value">
+          <span><%= job.start_date.strftime("%b %d %Y") %></span></p>
+      </div>
+
+      <div class="inline-block cell" style="width: 170px;">
+        <p class="title">Days</p>
+
+        <p class="value"><%= number_with_delimiter(number_with_precision(job.total_days, precision: 1)) %>
+          <span><%= "day".pluralize(job.total_days) %></span></p>
+      </div>
+
+      <div class="inline-block cell">
+        <p class="title">Predicted Total Days</p>
+
+        <% if job.well.offset_well.present? %>
+          <p class="value" id="predicted_total_days"><%= number_with_delimiter(number_with_precision(job.well.offset_well.job.total_days, precision: 1)) %>
+            <span><%= "day".pluralize(job.well.offset_well.job.total_days) %></span></p>
+        <% else %>
+          <p class="value" id="predicted_total_days"> - </p>
+        <% end %>
+      </div>
+
+      <div class="inline-block cell" style="float: right;
+          text-align: right;
+          width: auto;
+          margin-right: 20px;">
+
+        <% if job.well.offset_well.present? %>
+
+          <% percent = job.get_time_diff %>
+          <% if percent.present? && percent.abs.floor != 0 %>
+
+                <p class="title">Time Difference</p>
+
+                <% if percent < 0 %>
+
+              <p class="value value-red" id="percentage" style="vertical-align: top;
+                  font-size: 30px;
+                  line-height: 30px; margin: 0px;">
+                <i class="fa fa-sort-down" style="vertical-align: top;
+                    font-size: 20px;
+                    margin-top: -10px;
+                "></i>
+                <%= number_with_precision(percent.abs, precision: 0) %>%
+              </p>
+
+            <% else %>
+
+              <p class="value value-green" id="percentage" style="vertical-align: top;
+                  font-size: 30px;
+                  line-height: 30px; margin: 0px;">
+                <i class="fa fa-sort-up" style="vertical-align: top;
+                    font-size: 20px;
+                    margin-top: 8px;
+                "></i>
+                <%= number_with_precision(percent.abs, precision: 0) %>%
+              </p>
+
+            <% end %>
+
+
+          <% else %>
+
+            <p class="value value-red" id="percentage" style="vertical-align: top;
+                font-size: 30px;
+                line-height: 61px;"></p>
+
+          <% end %>
+
+        <% else %>
+
+          <p class="value value-red" id="percentage" style="vertical-align: top;
+              font-size: 30px;
+              line-height: 61px;"></p>
+
+        <% end %>
+
+      </div>
+
+      <% if !job.well.offset_well.present? %>
+        <div id="set_offset_well_btn" class="inline-block cell" style="width: auto; float: right;">
+          <%= link_to offset_well_job_path, remote: true, class: "btn btn-sub tooltip-info align-top",
+                      "data-placement" => "bottom",
+                      style: "float: right; margin-top: 10px;",
+                      "data-title" => "Set Offset Well" do %>
+            Set Offset Well
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div id="depth_chart" class="amChart block" style="width: 100%;height: 180px;font-size: 11px;/*background-color: #475959;*/"></div>
+
+    <div class="overview-block" style="margin-top: 30px;">
+      <p class="block-title">Entire Well</p>
+
+      <div class="overview-bar">
+        <% job.aggregate_activity(-1).each do |activity| %>
+          <div class="powertip-overiew"
+               data-percent="<%= activity['percentage'].round(1) %>"
+               data-activity="<%= activity['activity_name'] %>"
+               style="background: <%= activity['color'] %>; width: <%= activity['percentage'] %>%;"></div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="overview-block">
+      <p class="block-title">Last 24 hours</p>
+
+      <div class="overview-bar">
+        <% job.aggregate_activity(1).each do |activity| %>
+          <div class="powertip-overiew" data-percent="<%= activity['percentage'].round(1) %>" data-activity="<%= activity['activity_name'] %>" style="background: <%= activity['color'] %>; width: <%= activity['percentage'] %>%;"></div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="overview-block well-status">
+      <p class="block-title">Current Activity</p>
+
+      <p class="font-size-16"><%= job.current_gactivity %>
+        - <%= job.current_bit_depth.to_f >= 0.0 ? (number_with_delimiter(number_with_precision(convert(job.current_bit_depth, 'ft', company_unit), precision: 0)).to_s + " " + unit('ft', company_unit)) : "" %></p>
+
+      <p class="font-size-16"><%= job.current_activity %></p>
+    </div>
+
+    <div class="overview-block well-status">
+      <p class="block-title">Hole Depth</p>
+
+      <p class="font-size-22"><%= number_with_delimiter(number_with_precision(convert(job.total_depth, :ft, company_unit), precision: 0)) %>
+        <span class="unit"><%= unit(:ft, company_unit) %></span></p>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<div id="modal_popup" class="modal-popup-background">
+  <div class="backdrop" style="position: fixed; margin-top: 53px; width: 100%; min-width: 1024px; height: calc(100% + 50px); z-index: 1050; left: 0; top: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0.6;"></div>
+
+  <div class="modal-popup modal-popup-fixed" style="z-index: 1060;">
+    <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal" %>
+    <div class="modal-content">
+    </div>
+    <div class="loading">
+      <%= render "layouts/inline_loading", title: "Loading..." %>
+    </div>
+  </div>
+</div>
+
+<script type='text/javascript'>
+  var ov_depth_chart;
+  var ov_depth_graph_data = [];
+
+  (function ($) {
+
+    // tooltip
+    $('.powertip-overiew').powerTip({
+      followMouse: true,
+      fadeInTime: 100,
+      fadeOutTime: 0
+    });
+    $('.powertip-overiew').on({
+      powerTipPreRender: function () {
+        var percent = $(this).attr('data-percent');
+        var activity = $(this).attr('data-activity');
+        $(this).data('powertip', '<div style="padding: 5px 10px; background-color: #333;"><p>' + activity + '</p><p><span>' + percent + '%</span></p></div>');
+      }
+    });
+
+    <% job.depth_vs_time_logs.each_with_index do |log, index| %>
+    ov_depth_graph_data.push({
+      "time": "<%= index %>",
+      "depth": <%= convert(log.to_i, :ft, company_unit).round %>
+    });
+    <% end %>
+
+    <% if job.well.offset_well.present? %>
+    <% job.well.offset_well.job.depth_vs_time_logs.each_with_index do |log, index| %>
+    if (ov_depth_graph_data[<%= index %>]) {
+      ov_depth_graph_data[<%= index %>].offset_depth = <%= convert(log.to_i, :ft, company_unit).round %>;
+      ov_depth_graph_data[<%= index %>].time = "<%= index %>";
+    } else {
+      ov_depth_graph_data.push({
+        "time": "<%= index %>",
+        "offset_depth": <%= convert(log.to_i, :ft, company_unit).round %>
+      });
+    }
+    <% end %>
+    <% end %>
+
+
+    ov_depth_chart = AmCharts.makeChart("depth_chart", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#475959",
+      "backgroundAlpha": 0,
+      "marginLeft": 30,
+      "marginBottom": 60,
+      "dataProvider": ov_depth_graph_data,
+      "balloon": {
+        "borderThickness": 1,
+        "shadowAlpha": 0
+      },
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "left",
+          "reversed": true,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "guides": [
+            {
+              "fillAlpha": 0.8,
+              "fillColor": "#455657",
+              "inside": true,
+              "lineAlpha": 0,
+              "toValue": 50000,
+              "value": -50000
+            }
+          ]
+        }
+      ],
+      "graphs": [
+        {
+          "lineColor": "#ffffff",
+          "lineThickness": 3,
+          "type": "line",
+          "valueField": "depth",
+          "balloonText": "Day <b>[[time]]</b>, MD <b>[[depth]]</b> <%= unit(:ft, company_unit) %>"
+        },
+        {
+          "lineColor": "#a0a8a9",
+          "lineThickness": 2,
+          "valueField": "offset_depth",
+          "legendAlpha": 0,
+          "legendValueText": "",
+          "visibleInLegend": false,
+          "balloonText": "Day <b>[[time]]</b>, MD <b>[[offset_depth]]</b> <%= unit(:ft, company_unit) %>"
+        }
+      ],
+      "chartCursor": {
+        "categoryBalloonEnabled": false,
+        "zoomable": false,
+        "cursorAlpha": 1,
+        "bulletsEnabled": false
+      },
+      "categoryField": "time",
+      "categoryAxis": {
+        "parseDates": false,
+        "minorGridAlpha": 0.3,
+        "minorGridEnabled": true,
+        "color": "#fefefe",
+        "axisColor": "#fefefe",
+        "axisAlpha": 0,
+        "gridAlpha": 0.3,
+        "gridColor": "#fefefe"
+      }
+    });
+
+
+  }(jQuery))
+</script>
+
+
+<script type="text/javascript">
+  /*
+   (function ($) {
+   var warnings = [];
+  <%# job.warnings_order_by_depth.each do |warning| %>
+   warnings.push({
+   depth: <%#= warning.depth_from %>,
+   name: "<%#= warning.name %>",
+   color: "<%#= warning.rgb_color %>"
+   });
+  <%# end %>
+
+   var range_from = 0;
+   var range_to = 4000;
+   var skip = 500;
+   var range = 4000;
+   var marginTop = 0;
+   var total_depth = <%#= job.well.total_depth %>;
+   var height = 0;
+
+   // test
+   total_depth = 13000;
+
+   function draw_warnings_bar() {
+   $('#warnings_bar').html("");
+   var prev = 0;
+   var offset = 0;
+   var prev_axis = 0;
+   for (var i = 0; i < warnings.length; i++) {
+
+   var top = warnings[i].depth / total_depth * (total_depth / range * 490);
+
+   if (top - prev < 15) {
+   offset += 15 - top + prev;
+   }
+
+   $('#warnings_bar').append('<div style="margin-top: ' + (top + offset) + 'px; position: absolute; display: block; margin-left: 97px; color: #fefefe; line-height: 12px; font-size: 12px; width: 150px;">' +
+   '<div class="circle circle-sm" style="background: ' + warnings[i].color + '; display: inline-block;"></div>' +
+   '<div class="inline-block" style="vertical-align: top; margin-left: 10px;">' + warnings[i].name + '</div>' +
+   '</div>');
+
+   prev = top;
+
+   var axis = Math.floor(warnings[i].depth / 500);
+   if (axis >= 1 && axis != prev_axis) {
+   for (var j = prev_axis + 1; j <= axis; j++) {
+   var top = (500 * j) / total_depth * (total_depth / range * 490);
+   $('#warnings_bar').append('<div style="margin-top: ' + (top + offset) + 'px; position: absolute; display: block; margin-left: 0px; width: 80px; text-align: right; color: #fefefe; line-height: 12px; font-size: 12px;">' +
+   (j * 500) +
+   '</div>');
+   }
+   prev_axis = axis;
+   }
+
+   }
+
+   var top = (500 * (prev_axis + 1)) / total_depth * (total_depth / range * 490);
+   if (warnings.length > 0) {
+   $('#warnings_bar').append('<div style="margin-top: ' + (top + offset) + 'px; position: absolute; display: block; margin-left: 0px; width: 80px; text-align: right; color: #fefefe; line-height: 12px; font-size: 12px;">' +
+   ((prev_axis + 1) * 500) +
+   '</div>');
+   }
+
+   height = top + offset + 15;
+   }
+
+   $('#warnings_bar_down').click(function () {
+
+   //      range_from += skip;
+   //      range_to += skip;
+   //      if (range_to >= total_depth) {
+   //        $('#warnings_bar_down').hide();
+   //      }
+   //      if (range_from > 0) {
+   //        $('#warnings_bar_up').show();
+   //      }
+
+   marginTop -= skip / range * 490;
+
+   if (marginTop < 0) {
+   $('#warnings_bar_up').show();
+   }
+   if (marginTop <= 500 - height) {
+   $('#warnings_bar_down').hide();
+   }
+
+   $('#warnings_bar').animate({ marginTop: marginTop + 'px'});
+
+   //      draw_warnings_bar();
+   });
+
+   $('#warnings_bar_up').click(function () {
+   //      if (range_from - skip < 0) {
+   //        range_from = 0;
+   //        range_to = range;
+   //      } else {
+   //        range_from -= skip;
+   //        range_to -= skip;
+   //      }
+   //
+   //      if (range_from == 0) {
+   //        $('#warnings_bar_up').hide();
+   //      }
+   //      if (range_to < total_depth) {
+   //        $('#warnings_bar_down').show();
+   //      }
+
+   marginTop += skip / range * 490;
+
+   if (marginTop > 0) {
+   marginTop = 0;
+   }
+
+   if (marginTop == 0) {
+   $('#warnings_bar_up').hide();
+   }
+   if (marginTop > 500 - height) {
+   $('#warnings_bar_down').show();
+   }
+
+   $('#warnings_bar').animate({ marginTop: marginTop + 'px'});
+
+   //      draw_warnings_bar();
+   });
+
+   draw_warnings_bar();
+
+   if (height < 500) {
+   $('#warnings_bar_down').hide();
+   }
+   }(jQuery));*/
+</script>
+
+<script type="text/javascript">
+  (function ($) {
+    var warnings = <%= raw @job.warning_entities_order_by_date.to_json %>;
+    var total_depth = <%= job.total_depth %>;
+    var rig_name = "<%= job.well.rig.name %>";
+    var offset = 0;
+    var last_date = <%= @job.last_date().to_time.to_i %>;
+    var first_date = <%= @job.start_date.to_time.to_i %>;
+
+    var container_height = 500;
+
+    function draw_warnings_bar() {
+      var prev_pos = -20, prev_top;
+      var sID = 0;
+      var current_level_warnings = {}, current_level_warnings_count = 0;
+      var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+      var duration_info = {};
+      var margin_tip = 0;
+
+      $('#ov_warnings .warnings-container').html('');
+
+      for (var i = 0; i < warnings.length; i++) {
+        var top = (warnings[i].opened_at - first_date) / (last_date - first_date) * 100;
+        var pos = top / 100 * container_height;
+//        var top = Math.max(warnings[i].depth_from / total_depth * 100, 0);
+//        var pos = top / 100 * container_height;
+
+        if (pos - prev_pos <= 18 && current_level_warnings[warnings[i].family]) {
+          var gID = current_level_warnings[warnings[i].family];
+          $('#ov-warning-' + gID).addClass('group-warning');
+          $('#ov-warning-' + gID + ' .dv-warning').removeClass('warning-detail-btn');
+          subIDs = $('#ov-warning-' + gID + ' .dv-warning').data('sub-ids');
+          subIDs = i.toString() + ',' + subIDs;
+          $('#ov-warning-' + gID + ' .dv-warning').data('sub-ids', subIDs);
+          count = subIDs.split(',').length;
+          $('#ov-warning-' + gID + ' .warning-circle').html(count);
+
+          if (parseInt(warnings[i].entity_type) == 0 && duration_info[gID] && duration_info[gID].closed_at < warnings[i].closed_at) {
+            duration_info[gID] = {
+              opened_at: warnings[i].opened_at,
+              closed_at: warnings[i].closed_at,
+              severity: warnings[i].severity,
+              margin: duration_info[gID].margin
+            };
+          }
+        } else {
+          sID++;
+          var margin = 0;
+
+          if (pos - prev_pos > 18) {
+            current_level_warnings = {};
+            current_level_warnings[warnings[i].family] = sID;
+            current_level_warnings_count = 1;
+            prev_pos = pos;
+            prev_top = top;
+            margin_tip = 0;
+          } else if (!current_level_warnings[warnings[i].family]) {
+            if (current_level_warnings_count == 1) {
+              for (var key in current_level_warnings) {
+                $('#ov-warning-' + current_level_warnings[key] + ' .warning-label').remove();
+              }
+            }
+            current_level_warnings[warnings[i].family] = sID;
+            current_level_warnings_count++;
+            margin = 15;
+          }
+
+          margin += 18 * (current_level_warnings_count - 1) + margin_tip;
+
+          for (var key in duration_info) {
+            var t = (duration_info[key].closed_at - first_date) / (last_date - first_date) * 100;
+            if (t > prev_top && duration_info[key].margin == margin) {
+              if (margin == 0) {
+                margin_tip += 18;
+                margin += 33;
+              } else {
+                margin_tip += 18;
+                margin += 18;
+              }
+            }
+          }
+
+          if (parseInt(warnings[i].entity_type) == 0) {
+            duration_info[sID] = {
+              opened_at: warnings[i].opened_at,
+              closed_at: warnings[i].closed_at,
+              severity: warnings[i].severity,
+              margin: margin
+            };
+
+            $('#ov_warnings .warnings-container').append('<div id="ov-warning-' + sID + '" class="warning-container warning-tooltip" style="top: ' + prev_top + '%; cursor: pointer; right: ' + margin + 'px;" ' +
+                'data-severity="' + warnings[i].severity + '" ' +
+                'data-name="' + warnings[i].name + '" ' +
+                'data-rig_name="' + rig_name + '"  ' +
+                'data-duration="' + warnings[i].duration + '" ' +
+                'data-activity_name="' + warnings[i].activity_name + '" ' +
+                'data-depth_from="' + warnings[i].depth_from + '" ' +
+                'data-depth_to="' + warnings[i].depth_to + '" ' +
+                'data-resolution="' + warnings[i].resolution + '" ' +
+                'data-opened_at="' + warnings[i].opened_at + '"' +
+                'data-entity_type="' + warnings[i].entity_type + '">' +
+                ( current_level_warnings_count == 1 && margin == 0 ? '<div class="dash-line"></div>' : '' ) +
+                '<div style="cursor: pointer;" class="dv-warning warning-detail-btn" data-id="' + warnings[i].id + '" data-sub-ids="' + i + '">' +
+                '<div class="warning-circle  color-' + warnings[i].severity + '""></div>' +
+                ( current_level_warnings_count > 1 ? '' : '<div class="warning-label">' + (warnings[i].name).replace(/Moderate|High|Low/gi, '') + '</div>' ) +
+                '</div>' +
+                '</div>');
+          } else {
+            $('#ov_warnings .warnings-container').append('<div id="ov-warning-' + sID + '" class="warning-container warning-tooltip" style="top: ' + prev_top + '%; cursor: pointer; right: ' + (margin) + 'px;" ' +
+                'data-name="' + warnings[i].name + '" ' +
+                'data-depth_from="' + warnings[i].depth_from + '" ' +
+                'data-opened_at="' + warnings[i].opened_at + '" ' +
+                'data-entity_type="' + warnings[i].entity_type + '">' +
+                ( current_level_warnings_count == 1 && margin == 0 ? '<div class="dash-line"></div>' : '' ) +
+                '<div style="cursor: pointer;" class="dv-warning annotation" data-opened_at="' + warnings[i].opened_at + '" data-id="' + warnings[i].id + '" data-sub-ids="' + i + '">' +
+                '<div class="warning-circle color-blue"></div>' +
+                ( current_level_warnings_count > 1 ? '' : '<div class="warning-label">' + warnings[i].name + '</div>' ) +
+                '</div>' +
+                '</div>');
+          }
+
+        }
+      }
+
+      // draw duration bars
+      for (var key in duration_info) {
+        var top = (duration_info[key].opened_at - first_date) / (last_date - first_date) * 100;
+        var height = (duration_info[key].closed_at - duration_info[key].opened_at) / (last_date - first_date) * 100;
+        $('#ov_warnings .warnings-container').prepend('<div class="duration-bar opac-color-' + duration_info[key].severity + ' " style="position: absolute;width: 3px; top: ' + top + '%; height: ' + height + '%; right: ' + ((duration_info[key].margin || 15) + 6) + 'px;"></div>');
+      }
+
+      $('#ov_warnings .dv-warning').off();
+      $('#ov_warnings .warning-tooltip:not(.group-warning) .dv-warning.annotation').click(on_annotation_click);
+
+      // popup box for group warnings
+      $('#ov_warnings .warning-tooltip.group-warning .warning-circle').hover(function () {
+        $('#ov_warnings .group-warning-popup').data('sid', parseInt($('#ov_warnings .group-warning-popup').data('sid')) + 1);
+        var that = $(this).closest('.warning-container');
+        if ($('#ov_warnings .group-warning-popup').data('id') != that.find('.dv-warning').data('id')) {
+          $('#ov_warnings .group-warning-popup .dropback').off();
+          $('#ov_warnings .group-warning-popup').data('id', that.find('.dv-warning').data('id'));
+          var ids = that.find('.dv-warning').data('sub-ids').split(',');
+          var entity_type = that.attr('data-entity_type');
+          var content = '';
+
+          if (parseInt(entity_type) == 0) {
+            var severity = that.attr('data-severity');
+            var name = that.attr('data-name');
+            var rig_name = that.attr('data-rig_name');
+            var resolution = that.attr('data-resolution');
+
+            var content = '<div class="box-header color-' + severity + '">' +
+                rig_name + ' - ' + name +
+                '</div>' +
+                '<div class="box-body">' +
+                '<div class="res-text">' + resolution + '</div>' +
+                '<table class="warning-table">';
+
+            for (var i = ids.length - 1; i >= 0; i--) {
+              var id = ids[i];
+              var severity = warnings[id].severity;
+              var depth_from = warnings[id].depth_from;
+              var depth_to = warnings[id].depth_to;
+              var opened_at = new Date(parseInt(warnings[id].opened_at) * 1000);
+              var opened_at_str = monthNames[opened_at.getMonth()] + " " + opened_at.getDate().add_zero() + " " + opened_at.getHours().add_zero() + ":" + opened_at.getMinutes().add_zero() + ":" + opened_at.getSeconds().add_zero();
+              var duration = warnings[id].duration;
+              var warning_id = warnings[id].id;
+              content += '<tr class="warning-item warning-detail-btn" data-id="' + warning_id + '">' +
+                  '<td><div class="warning-circle color-' + severity + '"></div></td>' +
+                  '<td class="text1">' + parseFloat(depth_from).convert('ft', company_unit).value.round_to_decimal().with_delimiter() + ( depth_to ? ' - ' + parseFloat(depth_to).convert('ft', company_unit).value.round_to_decimal().with_delimiter() : '' ) + ' ' + 'ft'.unit(company_unit) + '</td>' +
+                  '<td class="text2">' + opened_at_str + '</td>' +
+                  '<td>' + ( duration != '' ? '<div class="text3">' + duration + '</div>' : '' ) + '</td>' +
+                  '</tr>';
+            }
+
+            content += '</table>' +
+                '</div><div class="dropback" style="position: fixed; margin-top: 55px; width: 100%; height: 100vh; z-index: 1031; left: 0; top: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0;"></div>';
+
+            $('#ov_warnings .group-warning-popup').html(content);
+            $('#ov_warnings .group-warning-popup').fadeIn(100);
+//            $('#ov_warnings .group-warning-popup .warning-item').click(onWarningClick);
+          } else {
+            var content = '<div class="box-header color-blue">' +
+                'Annotations' +
+                '</div>' +
+                '<div class="box-body">' +
+                '<table class="warning-table">';
+
+            for (var i = ids.length - 1; i >= 0; i--) {
+              var id = ids[i];
+              var title = warnings[id].name;
+              var description = warnings[id].description;
+              var depth_from = warnings[id].depth_from;
+              var opened_at = new Date(parseInt(warnings[id].opened_at) * 1000);
+              var opened_at_str = monthNames[opened_at.getMonth()] + " " + opened_at.getDate().add_zero() + " " + opened_at.getHours().add_zero() + ":" + opened_at.getMinutes().add_zero() + ":" + opened_at.getSeconds().add_zero();
+              var annotation_id = warnings[id].id;
+              content += '<tr class="warning-item" data-id="' + annotation_id + '">' +
+                  '<td class="annotation-title">' + title + '</td>' +
+                  '<td class="text1">' + parseFloat(depth_from).convert('ft', company_unit).value.round_to_decimal().with_delimiter() + ' ' + 'ft'.unit(company_unit) + '</td>' +
+                  '<td class="text2">' + opened_at_str + '</td>' +
+                  '</tr>';
+            }
+
+            content += '</table>' +
+                '</div><div class="dropback" style="position: fixed; margin-top: 55px; width: 100%; height: 100vh; z-index: 1031; left: 0; top: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0;"></div>';
+
+            $('#ov_warnings .group-warning-popup').html(content);
+            $('#ov_warnings .group-warning-popup').fadeIn(100);
+            $('#ov_warnings .group-warning-popup .warning-item').click(on_annotation_click);
+          }
+
+          $('#ov_warnings .group-warning-popup .box-header').hover(function () {
+            $(this).parent().data('sid', parseInt($(this).parent().data('sid')) + 1);
+            $('#ov_warnings .group-warning-popup').stop(true, true);
+            $('#ov_warnings .group-warning-popup').show();
+          });
+          $('#ov_warnings .group-warning-popup .box-body').hover(function () {
+            $(this).parent().data('sid', parseInt($(this).parent().data('sid')) + 1);
+            $('#ov_warnings .group-warning-popup').stop(true, true);
+            $('#ov_warnings .group-warning-popup').show();
+          });
+
+          $('#ov_warnings .group-warning-popup .dropback').on('hover', function () {
+            var sId = $('#ov_warnings .group-warning-popup').data('sid');
+            if (parseInt($('#ov_warnings .group-warning-popup').data('sid')) == parseInt(sId)) {
+              $('#ov_warnings .group-warning-popup').fadeOut(100);
+            }
+          });
+
+          var height = $('#ov_warnings .group-warning-popup').height();
+          var top = parseFloat(that.css('top').substring(0, that.css('top').length - 2));
+          if (top + height - 50 >= container_height) {
+            $('#ov_warnings .group-warning-popup').css('top', container_height - height);
+          } else {
+            $('#ov_warnings .group-warning-popup').css('top', top - 50);
+          }
+          var right = parseFloat(that.css('right').substring(0, that.css('right').length - 2));
+          $('#ov_warnings .group-warning-popup').css('right', -350 + (right == 0 ? 15 : right) - 3);
+
+          // scrollbar
+          $('#ov_warnings .group-warning-popup .box-body').perfectScrollbar();
+        } else {
+          $('#ov_warnings .group-warning-popup').show();
+        }
+      });
+
+      // tooltip for single warning
+      $('#ov_warnings .warning-tooltip:not(.group-warning)').powerTip({
+        followMouse: false,
+        fadeInTime: 50,
+        fadeOutTime: 100,
+        placement: 'e'
+      });
+      $('#ov_warnings .warning-tooltip:not(.group-warning)').on({
+        powerTipPreRender: function () {
+          var entity_type =  $(this).attr('data-entity_type');
+          if (parseInt(entity_type) == 0) {
+            var severity = $(this).attr('data-severity');
+            var name = $(this).attr('data-name');
+            var rig_name = $(this).attr('data-rig_name');
+            var duration = $(this).attr('data-duration');
+            var activity_name = $(this).attr('data-activity_name');
+            var depth_from = $(this).attr('data-depth_from');
+            var depth_to = $(this).attr('data-depth_to');
+            var resolution = $(this).attr('data-resolution');
+            var opened_at = new Date(parseInt($(this).attr('data-opened_at')) * 1000);
+            var opened_at_str = monthNames[opened_at.getMonth()] + " " + opened_at.getDate().add_zero() + " " + opened_at.getHours().add_zero() + ":" + opened_at.getMinutes().add_zero() + ":" + opened_at.getSeconds().add_zero();
+            $(this).data('powertip', '<div class="warning-box">' +
+                '<div class="box-header color-' + severity + '">' +
+                rig_name + ' - ' + name +
+                (duration != '' ? '<span class="hour">' + duration + '</span>' : '') +
+                '</div>' +
+                '<div class="box-body">' +
+                '<p style="color: #ffffff;">' + parseFloat(depth_from).convert('ft', company_unit).value.round_to_decimal().with_delimiter() + ( depth_to != '' ? ' - ' + parseFloat(depth_to).convert('ft', company_unit).val().round_to_decimal().with_delimiter() : '' ) + ' ' + 'ft'.unit(company_unit) + '</p>' +
+                '<p>' + resolution + '</p>' +
+                '<div class="divider"></div>' +
+                '<p>' + opened_at_str + '</p>' +
+                '</div>' +
+                '</div>');
+          } else {
+            var title = $(this).attr('data-name');
+            var depth_from = $(this).attr('data-depth_from');
+            var opened_at = new Date(parseInt($(this).attr('data-opened_at')) * 1000);
+            var opened_at_str = monthNames[opened_at.getMonth()] + " " + opened_at.getDate().add_zero() + " " + opened_at.getHours().add_zero() + ":" + opened_at.getMinutes().add_zero() + ":" + opened_at.getSeconds().add_zero();
+            $(this).data('powertip', '<div class="warning-box">' +
+                '<div class="box-header color-blue">' +
+                'Annotation' +
+                '</div>' +
+                '<div class="box-body">' +
+                '<p style="color: #ffffff;">' + parseFloat(depth_from).convert('ft', company_unit).val().round_to_decimal().with_delimiter() + ' ' + 'ft'.unit(company_unit) + '</p>' +
+                '<p>' + title + '</p>' +
+                '<div class="divider"></div>' +
+                '<p>' + opened_at_str + '</p>' +
+                '</div>' +
+                '</div>');
+          }
+        }
+      });
+    }
+
+    function on_annotation_click() {
+      $.ajax('/jobs/<%= @job.id %>/show_annotation?annotation_id=' + $(this).data('id'), {
+        type: 'get',
+        dataType: 'script'
+      });
+    }
+
+    $('#ov_warnings').css({ "height": container_height });
+    $('#warnings_bar_block').css({ "height": container_height + offset + 50 + 30 });
+    $('#warnings_bar_line').css({ "height": container_height + offset });
+    $('#warnings_bar_container').css({ "height": container_height + offset + 30 });
+    $('#warnings_bar_bottom_axis').parent().css({ "top": container_height });
+//    $('#warnings_bar_bottom_axis').html(total_depth.convert('ft', company_unit).value.round_to_decimal().with_delimiter());
+
+    draw_warnings_bar();
+
+  }(jQuery));
+</script>
+
+<script type="text/javascript">
+  (function ($) {
+    $('#upload-historical-file1').click(function() {
+    $('#well-uploader-view .js-progress-bars').hide();
+    $('#well-uploader-view .uploader-form').show();
+    $('#well-uploader-view').show();
+  });
+  })(jQuery);
+</script>

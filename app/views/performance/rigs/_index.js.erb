@@ -1,0 +1,140 @@
+/**
+ * Global variables
+ */
+var RIG_ID = <%= @rig_id %>,
+    RIG_HISTORY = <%= @history_id %>;
+
+<% cache("trends/rigs/" + cache_key_for_rigs) do %>
+var RIGS = {},
+    UPDATED_RIGS = {},
+    _COLOR_PALETTE = <%= raw @color_palette %>;
+
+
+/**
+ * Filter rigs when select in dropdown.
+ */
+var rigs_updated = function () {
+  UPDATED_RIGS = {};
+
+  if (RIG_HISTORY != -1) {
+    var start_from = (Date.now() || new Date().getTime()) - RIG_HISTORY * 30 * 24 * 60 * 60 * 1000;
+
+    for (var key in RIGS) {
+      var rig = RIGS[key];
+      var updated_rig = {
+        name: rig.name,
+        graph_color: rig.graph_color,
+        wells: {}
+      };
+      for (var k in rig.wells) {
+        var well = rig.wells[k];
+        if (well.finished_at > start_from) {
+          updated_rig.wells[well.id] = well;
+        }
+      }
+      ;
+      UPDATED_RIGS[key] = updated_rig;
+    }
+  } else {
+    UPDATED_RIGS = RIGS;
+  }
+
+  if (RIG_ID != -1) {
+    var temp = UPDATED_RIGS[RIG_ID]
+    UPDATED_RIGS = {};
+    UPDATED_RIGS[RIG_ID] = temp;
+  }
+};
+
+(function ($) {
+  var init_rigs = function () {
+    /**
+     * Load all rigs
+     */
+    <% @rigs.each_with_index do |rig, index| %>
+    RIGS[<%= rig.id %>] = {};
+    RIGS[<%= rig.id %>].name = "<%= rig.name %>";
+    RIGS[<%= rig.id %>].graph_color = _COLOR_PALETTE[<%= index % 9%>];
+    RIGS[<%= rig.id %>].wells = {};
+    <% rig.wells.completed.each do |well| %>
+    RIGS[<%= rig.id %>].wells[<%= well.id %>] = {
+      id: "<%= well.id %>",
+      name: "<%= well.name %>",
+      job_id: "<%= well.job.id %>",
+      finished_at: <%= well.finished_at.to_i * 1000 %>,
+      depth: <%= well.hole_depth.to_f %>,
+      rig_name: "<%= rig.name %>",
+      rig_id: "<%= rig.id %>",
+      total_well_time: <%= well.total_time / 3600.0 / 24.0 %>,
+      drilling_time: <%= well.drilling_time.to_f %>,
+      rop: <%= well.drilling_rop.to_f %>,
+      total_cost: <%= well.total_cost.to_f %>,
+      total_warnings: <%= well.total_warnings.to_i %>,
+      savings_potential: <%= well.potential_savings.to_f %>
+    };
+    <% end %>
+    <% end %>
+  };
+
+  /**
+   * Initialize drilling rigs.
+   */
+  var init = function () {
+
+    init_rigs();
+    rigs_updated();
+
+    /**
+     * Activate a button on click.
+     *
+     * Buttons: Well-Time, Cost, Warnings, Operation buttons
+     */
+    $('.btn-tray').click(function () {
+      $('.btn-tray').removeClass('active');
+      $(this).addClass('active');
+    });
+
+    /**
+     * Click event on history list item
+     */
+    $('#history_list li a').on('click', function () {
+      $('#history_selected').html($(this).html() + ' <span class="caret"></span>');
+      RIG_HISTORY = $(this).attr('data-id');
+      rigs_updated();
+    });
+
+    $('#history_selected').html($('#history_list li a[data-id="' + RIG_HISTORY + '"]').html() + ' <span class="caret"></span>');
+
+    /**
+     * Click event on rigs list item
+     */
+    $('#rig_list li a').on('click', function () {
+      $('#rig_selected').html($(this).html() + ' <span class="caret"></span>');
+      RIG_ID = $(this).attr('data-id');
+      rigs_updated();
+    });
+
+    $('#rig_selected').html($('#rig_list li a[data-id="' + RIG_ID + '"]').html() + ' <span class="caret"></span>');
+
+    /**
+     * Load child view.
+     */
+    if (document.location.hash == '') {
+      setTimeout(function () {
+        tray = $(".remote-tray[data-tray='rigs_well_time']");
+        tray.find('.content').hide();
+        tray.find('.remote-loading').removeClass('hidden');
+        tray.find('.loading').removeClass('hidden');
+        $.ajax({
+          url: "/performance/rigs?section=rigs_well_time",
+          type: "GET",
+          dataType: "script"
+        });
+        $(".remote-tray-toggle[data-tray='rigs']").attr("data-tray-child", "rigs_well_time");
+      }, 0);
+    }
+  };
+
+  init();
+}(jQuery));
+<% end %>

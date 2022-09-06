@@ -1,0 +1,120 @@
+<% provide(:title, I18n.t("jobs.index.title")) %>
+
+
+<div style='height: 52px;'>
+  <div style='position: absolute; left: 0; width: 100%; height: 52px; top: 54px; border-left: 11px solid #58c9c2; box-sizing: border-box;'>
+    <ul id="subnav_overview" class="nav nav-pills alert alert-nav alert-nav-shrink parent-tray-nav" style='border-radius: 0px; border-width: 0px;'>
+
+      <li class="active">
+        <a href="#status" class="remote-tray-toggle custom-data-toggle"
+           data-tray-controller="jobs"
+           data-tray="status">Live</a>
+      </li>
+
+      <!--<li>
+        <a href="#wells" class="remote-tray-toggle custom-data-toggle"
+           data-tray-controller="jobs"
+           data-tray="wells">Wells</a>
+      </li>
+
+
+      <li class="">
+        <a href="#rigs" class="remote-tray-toggle custom-data-toggle "
+           data-tray-controller="jobs"
+           data-tray="rigs">Rigs</a>
+      </li>
+
+      <li class="">
+        <a href="#programs" class="remote-tray-toggle custom-data-toggle "
+           data-tray-controller="jobs"
+           data-tray="programs">Programs</a>
+      </li>-->
+
+      <li id="warnings_nav_item" class="">
+        <a href="#warnings" class="remote-tray-toggle custom-data-toggle "
+           data-tray-controller="jobs"
+           data-tray="warnings">Events & Warnings</a>
+      </li>
+      <li class="">
+        <a href="#maps" class="remote-tray-toggle custom-data-toggle "
+           data-tray-controller="jobs"
+           data-tray="maps">Maps</a>
+      </li>
+
+      <!--<li class="">
+        <a href="#overview" class="remote-tray-toggle custom-data-toggle "
+           data-tray-controller="jobs"
+           data-tray="overview">Overview</a>
+      </li>-->
+
+    </ul>
+  </div>
+</div>
+
+<div class="">
+
+  <div class="remote-tray" data-tray="status">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading live status..." %>
+    </div>
+  </div>
+
+  <!--<div class="remote-tray" data-tray="wells">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading wells..." %>
+    </div>
+  </div>
+
+  <div class="remote-tray" data-tray="rigs">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading rigs..." %>
+    </div>
+  </div>
+
+  <div class="remote-tray" data-tray="programs">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading programs..." %>
+    </div>
+  </div>-->
+
+  <div class="remote-tray custom-data-closed" data-tray="warnings">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading warnings..." %>
+    </div>
+  </div>
+  <div class="remote-tray custom-data-closed" data-tray="maps">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading maps..." %>
+    </div>
+  </div>
+
+  <div id="warning_detail_popup" class="modal-popup-background" style="visibility: hidden; height: 0px;"></div>
+</div>
+
+
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+
+            if (document.location.hash == '') {
+                tray = $(".remote-tray[data-tray='status']");
+                tray.find('.content').hide();
+                tray.find('.remote-loading').removeClass('hidden');
+                tray.find('.loading').removeClass('hidden');
+                window.auid++;
+                setTimeout(function () {
+                    $.ajax({
+                        url: "/jobs?section=status" + "&auid=" + window.auid,
+                        type: "GET",
+                        dataType: "script"
+                    });
+                }, 1);
+            }
+
+        });
+    }(jQuery));
+</script>
+
+
+

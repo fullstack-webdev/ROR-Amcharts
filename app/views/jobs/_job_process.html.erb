@@ -1,0 +1,15 @@
+<% if job.status == Job::PRE_JOB && job.start_date.present? && job.start_date > Time.zone.now && job.active %>
+    <div class="alert">
+      Job starts in <%= pluralize((job.start_date.to_date - Date.today).round(), "day") %>
+    </div>
+<% end %>
+
+
+<% if job.status == Job::POST_JOB && job.is_coordinator_or_creator?(current_user) %>
+    <div id="close_job" class="alert job-process-div">
+      Job Ready to Close
+      <p class="">Make sure all Post-Job documents are correct and complete</p>
+
+      <%= link_to "Approve and Close Job", job_path(job, update_field: true, field: "close_job", value: true), id: "complete_job", "data-id" => job.id, remote: true, :method => :put, class: "bluebtn green" %>
+    </div>
+<% end %>

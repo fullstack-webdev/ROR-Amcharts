@@ -1,0 +1,49 @@
+<% active_jobs_count = jobs.reorder('').where("jobs.status >= 1 AND jobs.status < 50").count() %>
+<% jobs_sql = jobs.reorder('').where("jobs.status >= 1 AND jobs.status < 50").select("jobs.id").to_sql %>
+
+<div class="chart-block">
+  <div class="chart-title">Active Jobs</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <div class="donut-text"><%= active_jobs_count %></div>
+    <div class="percentage "></div>
+  </div>
+</div>
+
+<div class="chart-block">
+  <div class="chart-title">Closed in Last 5 Days</div>
+  <div class="donut-chart-div job-donut-chart-div">
+    <div class="donut-text"><%= jobs.reorder('').where("jobs.status = ?", Job::COMPLETE).where("jobs.close_date > ?", 5.days.ago).count() %></div>
+    <div class="percentage "></div>
+  </div>
+</div>
+
+
+<% if !@district.present? %>
+    <div class="pull-right">
+      <canvas id="canvas" height="100" width="100"></canvas>
+    </div>
+
+    <div class="pull-right help-text">Failure %</div>
+
+
+    <script>
+
+        var options = {
+            animationEasing: "easeOutQuart"
+        }
+
+        var chartData = [
+            {
+                value: <%= 0%>,
+                color: "#F7464A"
+            },
+            {
+                value: <%= 100  %>,
+                color: "#E2EAE9"
+            }
+        ]
+
+        var myLine = new Chart(document.getElementById("canvas").getContext("2d")).Doughnut(chartData, options);
+
+    </script>
+<% end %>

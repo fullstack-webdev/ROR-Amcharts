@@ -1,0 +1,7 @@
+<% require 'uri' %>
+
+$('#well_list_loading').addClass('hidden');
+<% @wells["WellTraitList"].each do |well| %>
+    <% wellbore = well["WellboreTraitList"][0] %>
+    $('#wells_list').append('<a class="btn btn-sub import-well-item" style="float: none; width: 95%; text-align: left;" data-well-id="<%= u well["Id"] %>" data-wellbore-id="<%= u wellbore["Id"] %>" data-log-id="Time_5Sec" data-rig-name="<%= u wellbore["RigName"] %>" data-well-name="<%= u wellbore["Name"] %>"><div class="inline-block" style="width: 30%;"><%= wellbore["RigName"] %></div><div class="inline-block" style="width: 50%;"><%= wellbore["Name"] %></div></a>')
+<% end %>

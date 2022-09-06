@@ -1,0 +1,35 @@
+<div id="bha" class="well">
+  <div class="form" data-form="new_bha">
+    <%= form_for @bha, :url => bha_path(@document.id, bha_id: @bha), :html => {:method => :put, :action => :update}, remote: true do |f| %>
+        <% if @bha.new_record? %>
+            <h3 class="blue-text">New BHA</h3>
+            <br>
+        <% end %>
+        <div class="">
+          <%= text_field_tag :name, "", class: "txtfield",
+                             placeholder: "BHA Name...", autofocus: true %>
+          <%= text_field_tag :description, "", class: "txtfield inline push-right-small",
+                             placeholder: "Description/Purpose..." %>
+        </div>
+
+        <hr>
+
+
+        <%= f.submit "Save", class: "bluebtn pull-right push-right-small form-loading-on-click",
+                     remote: true,
+                     "data-form" => "new_bha" %>
+
+        <%= f.submit "Cancel", class: "bluebtn red pull-right cancel-bha",
+                remote: true %>
+
+
+        <br><br>
+    <% end %>
+  </div>
+
+  <div class="form-loading hidden" data-form="new_bha">
+    <%= render 'layouts/inline_loading', title: "Saving..." %>
+    <br><br>
+  </div>
+
+</div>

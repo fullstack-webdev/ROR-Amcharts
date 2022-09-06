@@ -1,0 +1,127 @@
+<% if document.access_level <= 1 || (document.access_level > 1 && !current_user.role.limit_to_assigned_jobs?) %>
+    <div id="document_<%= document.id %>" class='root-document'>
+      <div class="field inline-form document-field document-download-message"
+           data-toggle="popover"
+           data-placement="top"
+           data-content="Document will start downloading momentarily..."
+           data-animation="true"
+           data-trigger="manual"
+           title="Download">
+
+        <%= s3_uploader_form post: "/documents/" + document.id.to_s, as: "document[url]", class: "inline" do %>
+
+            <%= render 'documents/document_metadata', document: document %>
+
+
+            <div class="document-upload-updating hidden">
+              <div class="progress progress-info progress-striped active">
+                <div class="bar" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="upload-controls inline-block" id="div_upload_<%= !document.job.nil? ? document.job.id : "" %>">
+
+              <% if !in_job %>
+                  <div class='pull-right'>
+                    <%= link_to "remove", document, method: :delete, remote: true, data: {confirm: "Remove Document?"},
+                                class: "delete-button tooltip-info",
+                                "data-placement" => "bottom",
+                                "data-title" => "Delete document" %>
+                    <% if false %>
+                        <%= link_to "order", document_path(document, reorder: "-1"), remote: true,
+                                    class: "order-button tooltip-info",
+                                    "data-placement" => "bottom",
+                                    "data-title" => "Move document up by 1 row" %>
+                    <% end %>
+                  </div>
+              <% end %>
+
+              <% if in_job %>
+                  <div class='pull-right'>
+                    <%= link_to "remove", document, method: :delete, remote: true, data: {confirm: "Remove Document?"},
+                                class: "delete-button tooltip-info",
+                                "data-placement" => "bottom",
+                                "data-title" => "Delete document" %>
+                  </div>
+              <% end %>
+
+              <% if !in_job %>
+                  <div class="upload-document-container" id="file_uploads">
+                    <div class="document-upload-button-container">
+                      <% if document.document_type == Document::DOCUMENT %>
+                          <% if can_upload and (document.template? or !document.read_only?) %>
+                              <% if !@job || (@job and !@job.closed) %>
+                                  <div class="tooltip-info upload-button-div inline-block"
+                                       data-placement="bottom" data-title="Upload new document">
+                                    <%= file_field_tag :file, multiple: false, class: "file-input inline-block", id: "upload_document_browse" %>
+                                    <%= link_to "Upload", "#", id: "upload_document", class: "document-upload-button inline-block align-top" %>
+                                  </div>
+                              <% end %>
+                          <% end %>
+                      <% end %>
+                    </div>
+                  </div>
+              <% end %>
+
+
+            </div>
+
+
+
+
+            <% if false %>
+                <div class="btn-group inline pull-right">
+
+                  <ul class="dropdown-menu">
+                    <li>
+                       <span class='help-text push-right-small'>Not shareable..</span>
+                    </li>
+                    <% if document.url.present? %>
+                        <li class="divider"></li>
+                        <li>
+                          <%= link_to "Download", document.full_url,
+                                      class: "dropdown-menu-link tooltip-info download-link",
+                                      "data-placement" => "left",
+                                      "data-title" => "Download document to computer." %>
+                        </li>
+                    <% end %>
+
+                    <% if !document.document_template.nil? && document.document_template.url.present? %>
+                        <li class="divider"></li>
+                        <li>
+                          <%= link_to "Download original template", document.full_url,
+                                      class: "dropdown-menu-link tooltip-info download-link",
+                                      "data-placement" => "left",
+                                      "data-title" => "Download document to computer." %>
+                        </li>
+                    <% end %>
+                    <% if document.document_template.nil? %>
+                        <li class="divider"></li>
+                        <li>
+                          <%= link_to "x  Delete", document, method: :delete,
+                                      remote: true,
+                                      class: "dropdown-menu-link tooltip-info warning-text",
+                                      data: {confirm: "Delete Document?"},
+                                      "data-placement" => "left",
+                                      "data-title" => "Delete document from job." %>
+                        </li>
+                    <% end %>
+                  </ul>
+                </div>
+            <% end %>
+
+        <% end %>
+
+      </div>
+
+
+      <script id="template-upload" type="text/x-tmpl">
+        <div class="upload">
+          <div class="progress progress-striped active">
+            <div class="bar" style="width: 0%"></div>
+          </div>
+        </div>
+      </script>
+
+    </div>
+
+<% end %>

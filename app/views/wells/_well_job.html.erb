@@ -1,0 +1,48 @@
+
+    <div class="content">
+    <div class="">
+
+      <div id="job-progress-status">
+        <%= render 'jobs/job_progress_status', job: job %>
+      </div>
+
+      <p class="job-field-title"><%= t ".status" %></p>
+
+      <div class="job-field-value">
+        <% if job.status == Job::COMPLETE %>
+            <p class="good-text"><%= job.status_string %></p>
+        <% else %>
+            <p class=""><%= job.status_string %></p>
+        <% end %>
+      </div>
+    </div>
+
+
+
+    <div class="">
+      <% job.dynamic_fields.select { |field| !field.dynamic_field_template.nil? and field.dynamic_field_template.priority? }.each do |dynamic_field| %>
+          <% if !dynamic_field.dynamic_field_template.nil? %>
+              <p class="job-field-title"><b class="blue-text"><%= dynamic_field.dynamic_field_template.name %></b></p>
+
+              <div class="job-field-div">
+                <p class="job-field-value2 blue-text"
+                   data-placement="bottom"
+                   data-title="<%= dynamic_field.value.present? ? dynamic_field.get_user_conversion(@current_user, false, true, true) : "No value set" %>">
+                  <%= dynamic_field.value.present? ? dynamic_field.get_user_conversion(@current_user, false, true) : "-" %>
+                </p>
+              </div>
+          <% end %>
+      <% end %>
+    </div>
+
+    <div class="">
+      <p class="job-field-title"><%= t ".created_date" %></p>
+      <p class="job-field-value"><%= job.created_at.strftime("%m/%d/%Y") %></p>
+
+      <p class="job-field-title"><%= t ".start_date" %></p>
+      <p class="job-field-value"><%= job.start_date.present? ? job.start_date.strftime("%m/%d/%Y") : "-" %></p>
+    </div>
+
+    </div>
+
+

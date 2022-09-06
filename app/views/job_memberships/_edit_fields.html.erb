@@ -1,0 +1,57 @@
+<%= form_for job_membership, html: {class: "inline"}, remote: true do |f| %>
+
+    <div class="well">
+
+      <div class="activity-user-link-div-short">
+        <% if job_membership.user.present? %>
+            <%= render 'activities/user', user: job_membership.user %>
+        <% else %>
+            <div>
+              <b class="blue-text"><%= job_membership.user_name %></b><br><br>
+            </div>
+        <% end %>
+      </div>
+
+      <% if !job_membership.external_user? %>
+          <div>
+            <%= select_tag "job_role_id", options_for_select([["Observer", JobMembership::OBSERVER],
+                                                              ["Manager", JobMembership::MANAGER],
+                                                              ["Coordinator", JobMembership::COORDINATOR],
+                                                              ["Tool Coordinator", JobMembership::TOOL_COORDINATOR],
+                                                              ["Field  -  Day", 1000],
+                                                              ["Field  -  Night", 1001],
+                                                              ["Shop", JobMembership::SHOP]
+                                                             ], job_membership.job_role_id_with_shift),
+                           class: "job-note-type",
+                           prompt: I18n.t("jobs.show.new_member_role_prompt") %>
+          </div>
+      <% else %>
+          <div>
+            <%= text_field_tag "user_name", job_membership.user_name,
+                               placeholder: "Enter Name of Person",
+                               class: "txtfield small align-top" %>
+            <%= select_tag "job_role_id2", options_for_select([["Observer", JobMembership::OBSERVER],
+                                                               ["Company Man  -  Day", 1005],
+                                                               ["Company Man  -  Night", 1006],
+                                                               ["Geologist", JobMembership::GEOLOGIST]], job_membership.job_role_id_with_shift),
+                           class: "job-note-type",
+                           prompt: I18n.t("jobs.show.new_member_role_prompt") %>
+
+            <div>
+              <%= text_field_tag "phone_number", job_membership.phone_number,
+                                 placeholder: "Phone Number",
+                                 class: "txtfield small align-top" %>
+
+              <%= text_field_tag "email", job_membership.email,
+                                 placeholder: "Email",
+                                 class: "txtfield small align-top" %>
+            </div>
+          </div>
+      <% end %>
+
+      <%= f.submit "Save", class: "bluebtn btnsmall" %>
+      <%= link_to "Cancel", "#", class: "bluebtn btnsmall red", id: "cancel_role_" + job_membership.id.to_s %>
+    </div>
+
+
+<% end %>

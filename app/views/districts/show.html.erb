@@ -1,0 +1,205 @@
+<% provide(:title, 'District: ' + @district.name) %>
+
+<div class="page_header">
+  <h1><%= @district.name %></h1>
+
+  <h3 class="inline">&nbsp;District</h3>
+
+  <h2 class="paginated-count">Jobs:
+    <%= render 'layouts/paged_header', items: @jobs %>
+  </h2>
+</div>
+
+
+<div class="alert alert-info">
+
+  <% if current_user.role.district_read? %>
+      <div>
+        <% if @district.master? %>
+            <span class='orange-text'>Sub Districts &nbsp;</span>
+            <% @district.districts.each_with_index do |d, i| %>
+                <%= link_to d, class: "activity-user-link" do %>
+                    <%= i < @district.districts.count - 1 ? d.name + "," : d.name %>
+                <% end %>
+            <% end %>
+        <% else %>
+            <span class='orange-text'>Master District &nbsp;</span>
+            <%= link_to @district.master_district.name, @district.master_district, class: "activity-user-link" %>
+
+            <span class="push-right orange-text">Related Districts &nbsp;</span>
+
+            <% @district.master_district.districts.each_with_index do |d, i| %>
+                <% if d != @district %>
+                    <%= link_to d, class: "activity-user-link" do %>
+                        <%= i < @district.master_district.districts.count - 1 ? d.name + "," : d.name %>
+                    <% end %>
+                <% end %>
+            <% end %>
+        <% end %>
+      </div>
+      <br>
+  <% end %>
+  <% if @district.fields.any? %>
+      <div class="">
+        <b class="push-left-small orange-text">Fields</b>
+        <% @district.fields.each_with_index do |field, i| %>
+            <%= link_to field, class: "activity-user-link inline" do %>
+                <%= i < @district.fields.count - 1 ? field.name + "," : field.name %>
+            <% end %>
+        <% end %>
+        <hr>
+      </div>
+  <% end %>
+
+  <%= form_tag @district, :method => 'get', :id => "inline_search", class: "filter-search-box" do %>
+      <%= text_field_tag :search, params[:search], placeholder: "Search in district jobs...", class: "search-query tooltip-info",
+                         "data-placement" => "left",
+                         "data-title" => "Search in district jobs..." %>
+      <% if params[:search].present? && !params[:search].blank? %>
+          <%= link_to "x  clear results", @district, class: "activity-user-link push-right-small" %>
+      <% end %>
+  <% end %>
+</div>
+
+<% if !@district_jobs.nil? %>
+    <div class="well">
+
+
+      <div class="chart-block">
+        <div class="chart-title">Personnel</div>
+        <div class="donut-chart-div job-donut-chart-div">
+          <div class="donut-text"><%= @district.personnel.count(:id) %></div>
+          <div class="percentage "></div>
+        </div>
+      </div>
+
+
+      <div class="chart-block chart-block-extended2">
+
+        <% manager = @district.personnel.where("users.role_id >= 50 AND users.role_id < 60").first %>
+        <% if manager.present? %>
+            <div class='pull-right'>
+              <% names = manager.present? ? manager.name.split : '' %>
+              <div class="inline-block align-top">
+                <div class='inline-block'>
+                  <div class="member-icon-large tooltip-info">
+                    <p>
+                      <% if names.any? %>
+                          <%= names.count > 1 ? names.first[0, 1] + names.last[0, 1] : names.first[0, 1] %>
+                      <% else %>
+                          -
+                      <% end %>
+                    </p>
+
+                    <div class="member-icon-image member-icon-image-user"></div>
+                  </div>
+                </div>
+                <div class='inline-block align-top push-right-small'>
+                  <br><br>
+
+                  <h3><%= manager.name %></h3>
+                  <%= manager.role.title %>
+                  <br>
+                  <%= manager.phone_number %>
+                  | <%= link_to "Email", "mailto: " + manager.email, class: "activity-user-link" %>
+                </div>
+              </div>
+            </div>
+        <% end %>
+      </div>
+
+      <br><br><br>
+
+      <%= render 'jobs/index_parts/jobs_count', jobs: @district_jobs %>
+
+    </div>
+<% end %>
+
+<div class="map-container">
+  <div id='map' class='dark' style='width:100%;height:300px;'></div>
+  <div class="corner tlcorner"></div>
+  <div class="corner trcorner"></div>
+  <div class="corner brcorner"></div>
+  <div class="corner blcorner"></div>
+</div>
+
+<script type='text/javascript'>
+    var map = L.mapbox.map('map', 'elephant.map-vum3on5g');
+    map.attributionControl = false;
+    map.scrollWheelZoom.disable();
+
+    var geoJson = [];
+
+    <% coordinates_for_zoom = [] %>
+    <% coordinates_for_lines = [] %>
+
+    <% @jobs.includes(:well).each_with_index do |job, index| %>
+    <% if job.present? && !job.well.location.blank? %>
+    <% x = job.well.x_location %>
+    <% y = job.well.y_location  %>
+    <% coordinates_for_lines << [x, y] %>
+    <% coordinates_for_zoom << [y, x] %>
+    geoJson.push({
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [<%= x %>, <%= y %>]
+        },
+        "properties": {
+            title: '<%= "#{job.well.rig.present? ? job.well.rig.name : ''} #{job.field.name} - #{job.well.name}" %>',
+            'marker-size': 'medium',
+            'marker-color': '<%= job.status_color  %>',
+            url: '/jobs/' + <%= job.id %>
+            //'marker-symbol': '1'
+        }
+    });
+    <% end %>
+    <% end %>
+
+    map.markerLayer.setGeoJSON(geoJson);
+
+    map.markerLayer.on('click', function (e) {
+        map.panTo(e.layer.getLatLng());
+    });
+    map.markerLayer.on('click', function (e) {
+        e.layer.unbindPopup();
+        window.location = e.layer.feature.properties.url;
+    });
+
+    var bounds = [];
+    <% coordinates_for_zoom.each do |c| %>
+    bounds.push([<%= c[0] %>, <%= c[1] %>]);
+    <% end %>
+    map.fitBounds(bounds);
+    zoom = Math.round(map.getZoom());
+
+
+    map.markerLayer.on('mouseover', function (e) {
+        e.layer.openPopup();
+    });
+    map.markerLayer.on('mouseout', function (e) {
+        e.layer.closePopup();
+    });
+</script>
+
+<br><br>
+
+
+<div id="search_results">
+  <div id="jobs" class="list">
+    <% @jobs.each do |job| %>
+        <%= render 'jobs/job_progress_link', job: job %>
+    <% end %>
+  </div>
+
+  <div id="full_paginate">
+    <%= will_paginate @jobs %>
+  </div>
+</div>
+
+<div id="search_loading" class="hidden">
+  <%= render 'layouts/inline_loading', title: "Searching..." %>
+</div>
+
+
+

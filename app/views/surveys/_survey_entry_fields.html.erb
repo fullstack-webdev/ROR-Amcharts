@@ -1,0 +1,54 @@
+<%= hidden_field_tag "survey_id", "", value: @survey.id %>
+
+<div>
+  <div class='survey-tie-in-label'>MD</div>
+  <%= text_field_tag "measured_depth", "", placeholder: "Measured Depth", class: "txtfield extra-small tooltip-info",
+                   "data-placement" => "bottom",
+                   "data-title" => "Measured Depth" %>
+
+  <div class='survey-tie-in-label'>Inc</div>
+  <%= text_field_tag "inclination", "", placeholder: "Inclination", class: "txtfield extra-small tooltip-info",
+                   "data-placement" => "bottom",
+                   "data-title" => "Inclination" %>
+
+  <div class='survey-tie-in-label'>Azi</div>
+  <%= text_field_tag "azimuth", "", placeholder: "Azimuth", class: "txtfield extra-small tooltip-info",
+                   "data-placement" => "bottom",
+                   "data-title" => "Azimuth" %>
+</div>
+
+<div>
+  <div class='survey-tie-in-label'>MFS</div>
+  <%= text_field_tag "magnetic_field_strength", "",
+                   placeholder: "Magnetic Field Strength",
+                   class: "txtfield extra-small tooltip-info range-validator",
+                   "data-minimum" => (@survey.magnetic_field_strength.present? ? @survey.magnetic_field_strength : 0) - 0.005,
+                   "data-maximum" => (@survey.magnetic_field_strength.present? ? @survey.magnetic_field_strength : 0)  + 0.005,
+                   "data-placement" => "bottom",
+                   "data-title" => "Magnetic Field Strength" %>
+
+  <div class='survey-tie-in-label'>MDA</div>
+  <%= text_field_tag "magnetic_dip_angle", "",
+                   placeholder: "Magnetic Dip Angle",
+                   class: "txtfield extra-small tooltip-info range-validator",
+                   "data-minimum" => (@survey.magnetic_dip_angle.present? ? @survey.magnetic_dip_angle : 0) - 2,
+                   "data-maximum" => (@survey.magnetic_dip_angle.present? ? @survey.magnetic_dip_angle : 0) + 2,
+                   "data-placement" => "bottom",
+                   "data-title" => "Magnetic Dip Angle" %>
+
+  <div class='survey-tie-in-label'>Grav</div>
+  <%= text_field_tag "gravity_total", "",
+                   placeholder: "Gravity Total",
+                   class: "txtfield extra-small tooltip-info range-validator",
+                   "data-minimum" => (@survey.gravity_total.present? ? @survey.gravity_total : 1)  - 0.003,
+                   "data-maximum" => (@survey.gravity_total.present? ? @survey.gravity_total : 1) + 0.003,
+                   "data-placement" => "bottom",
+                   "data-title" => "Gravity Total" %>
+</div>
+
+<div class='survey-tie-in-label'><i class="icon-comment"></i></div>
+<%= text_field_tag "comment", "",
+                 placeholder: "Comment",
+                 class: "txtfield long tooltip-info",
+                 "data-placement" => "bottom",
+                 "data-title" => "Comment" %>

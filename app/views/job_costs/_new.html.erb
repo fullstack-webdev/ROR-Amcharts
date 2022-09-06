@@ -1,0 +1,99 @@
+<div class="">
+  <%= form_for JobCost.new, remote: true do |f| %>
+    <div class="form" data-form="new_cost">
+      <%= f.hidden_field :job_id, value: @job.id %>
+
+      <div style='margin-bottom: 5px; font-size: 10px;'>
+        <div class='inline-block' style="width: 10%;">
+          <b class='green-text2'>Date</b>
+        </div>
+        <div class="space space-md"></div>
+        <div class='inline-block' style="width: 100px;">
+          <b class='green-text2'>Type</b>
+        </div>
+        <div class="space space-md"></div>
+        <div class='inline-block' style="width: 5%;">
+          <b class='green-text2'>Quantity</b>
+        </div>
+        <div class="space space-md"></div>
+        <div class='inline-block' style="width: 30%;">
+          <b class='green-text2'>Description</b>
+        </div>
+        <div class="space space-md"></div>
+        <div class='inline-block' style="width: 10%;">
+          <b class='green-text2'>Price</b>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="inline-block" style="width: 10%;">
+          <%= f.text_field :charge_at, value: Time.now.in_time_zone.to_date.strftime("%m/%d/%Y"),
+                           class: "txtfield tooltip-info align-top date-picker",
+                           style: "min-width: 0px !important; width: 100% !important; font-size: 13px;",
+                           "data-placement" => "bottom",
+                           "data-title" => "Date of charge" %>
+        </div>
+
+        <div class="space space-md"></div>
+
+        <script type="text/javascript">
+          $('.date-picker').datepicker();
+        </script>
+
+        <div class="inline-block" style="width: 100px;">
+          <%= f.select :charge_type, options_for_select([["Day", JobCost::DAY], ["Job", JobCost::JOB], ["Hour", JobCost::HOUR], ["Item", JobCost::ITEM]]),
+                       {},
+                       style: "width: 100px !important;",
+                       class: "custom-select custom-select-ajax align-top",
+                       placeholder: "Up" %>
+        </div>
+
+        <div class="space space-md"></div>
+
+        <div class="inline-block" style="width: 5%;">
+          <%= f.text_field :quantity, value: 1, placeholder: "Quantity",
+                           class: "txtfield tooltip-info align-top",
+                           style: "width: 100% !important; min-width: 0px !important;",
+                           "data-placement" => "bottom",
+                           "data-title" => "Quantity of asset" %>
+        </div>
+
+        <div class="space space-md"></div>
+
+        <div class="inline-block" style="width: 30%;">
+          <%= f.text_field :description, placeholder: "Description of asset",
+                           class: "txtfield tooltip-info align-top",
+                           style: "width: 100% !important; min-width: 0px;",
+                           "data-placement" => "bottom",
+                           "data-title" => "Description of asset" %>
+        </div>
+
+        <div class="space space-md"></div>
+
+        <div class="inline-block" style="width: 10%;">
+          <%= f.text_field :price, placeholder: "$0.00",
+                           value: nil,
+                           class: "txtfield tooltip-info align-top",
+                           style: "width: 100% !important; min-width: 0px;",
+                           "data-placement" => "bottom",
+                           "data-title" => "Price" %>
+        </div>
+      </div>
+
+      <div class="block">
+        <%= f.submit "Add Cost", class: "btn btn-primary inline-block tooltip-info form-loading-on-click",
+                     style: "margin-top: 20px;",
+                     "data-form" => "new_cost",
+                     "data-placement" => "bottom",
+                     "data-title" => "Add new note/action" %>
+      </div>
+    </div>
+
+    <div class="form-loading hidden" data-form="new_cost">
+      <br><br>
+      <%= render 'layouts/inline_loading', title: "Adding cost..." %>
+      <br><br>
+    </div>
+
+  <% end %>
+</div>

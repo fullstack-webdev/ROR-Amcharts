@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+  <%= wicked_pdf_stylesheet_link_tag "mapbox.css" %>
+  <%= wicked_pdf_javascript_include_tag "mapbox.js" %>
+</head>
+<body style='margin: 0px; padding: 0px; margin-left: 1px; margin-top: 1px; margin-bottom: 1px;'>
+<div id="header">
+</div>
+<div id="content">
+
+<% job = @job %>
+
+<div style='height: 250px;'>
+  <div class="">
+    <div id='map' class='dark' style='width: 774px; height: 250px; margin: 0px; padding: 0px;'></div>
+  </div>
+
+
+  <div style='position: absolute; width: 100%; left: 1px; right: 0; top: 200px; background-color:rgba(0, 0, 0, 0.4); padding-top: 10px;'>
+    <% if job.well.rig.present? %>
+        <%= content_tag class: "job-title inline job-type-description-target orange-text",
+                        style: "margin-left: 10px; font-size: 18px;" do %>
+            <%= job.well.rig.name %>
+        <% end %>
+    <% end %>
+    <%= link_to job.field.name, job.field, class: "job-title inline job-type-description-target white-text",
+                style: "margin-left: 10px;",
+                "data-placement" => "bottom",
+                "data-html" => true,
+                "data-title" => "<div>Field <b>" + job.field.name + "</b></div>" %>
+    <p class="job-well-field-title">Field</p>
+
+
+    <p class="job-title-divider">|</p>
+
+    <div class="inline-block">
+      <%= link_to job.well.name, job.well, class: "job-title inline job-type-description-target white-text",
+                  "data-placement" => "bottom",
+                  "data-html" => true,
+                  "data-title" => "<div>Well <b>" + job.well.name + "</b>, Click to view all jobs</div>" %>
+      <p class="job-well-field-title">Well</p>
+    </div>
+  </div>
+
+
+</div>
+
+
+<div id="job_<%= @job.id %>" class="job-main-div">
+  <div class="">
+
+    <div class="job-tray" data-tray="overview">
+
+      <div class="page_header">
+        <h1>Job Overview</h1>
+      </div>
+
+
+      <% drilling_log = DrillingLog.includes(job: :well).where("wells.id = ?", @job.well_id).first %>
+      <% drilling_log_entries = drilling_log.drilling_log_entries.to_a %>
+
+      <div>
+        <div>
+
+          <div class="chart-block align-top tooltip-info"
+               data-title="Average Total Rate of Penetration.">
+            <div class="chart-title">Drilling ROP</div>
+            <div class="donut-chart-div job-donut-chart-div">
+              <div class="donut-text "><%= drilling_log.nil? || drilling_log.drilling_rop.nil? ? "0.0" : drilling_log.drilling_rop.round(1) %></div>
+              <div class="percentage ">ft/hr</div>
+            </div>
+          </div>
+
+
+          <div class="chart-block align-top tooltip-info"
+               data-title="Current depth">
+            <div class="chart-title">Current Depth</div>
+            <div class="donut-chart-div job-donut-chart-div">
+              <div class="donut-text "><%= drilling_log.nil? || drilling_log.max_depth.nil? ? "0" : number_with_delimiter(drilling_log.max_depth.to_i, :delimiter => ',') %></div>
+              <div class="percentage ">
+              <span class="push-right-small">TD <%= drilling_log.nil? || drilling_log.td_depth.nil? ? "0" : number_with_delimiter(drilling_log.td_depth.to_i, :delimiter => ',') %>
+                ft</span></div>
+            </div>
+          </div>
+
+          <div class="chart-block align-top tooltip-info"
+               data-title="Time in hours spent rotating and sliding.">
+            <div class="chart-title">Drilling Time</div>
+            <div class="donut-chart-div job-donut-chart-div">
+              <div class="donut-text "><%= drilling_log.nil? || drilling_log.drilling_time.nil? ? "0.0" : drilling_log.drilling_time.round(1) %></div>
+              <div class="percentage ">hours</div>
+            </div>
+          </div>
+
+          <% hex = SecureRandom.urlsafe_base64[1..7] %>
+          <div class="inline-block tooltip-info" data-title="ROP">
+            <canvas id="overview_rop_canvas_<%= hex %>" height="110" width="220"></canvas>
+          </div>
+
+          <script type='text/javascript'>
+              <% if !drilling_log_entries.nil? && drilling_log_entries.any? %>
+              <% rops = [] %>
+              <% last_entry = drilling_log_entries.first %>
+              <% drilling_log_entries.each do |dl| %>
+              <% time = (dl.entry_at - last_entry.entry_at).to_f / 60.0 / 60.0 %>
+              <% if dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING || time > 0.1 %>
+              <% rop = ((dl.depth - last_entry.depth).to_f / (dl.entry_at - last_entry.entry_at).to_f * 60.0)  %>
+              <% rops << [dl.entry_at, dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING ? rop : 0.0] %>
+              <% end %>
+              <% last_entry = dl %>
+              <% end %>
+
+              var lineChartData = {
+                  labels: <%= raw rops.map { |dl| '' }.to_json.html_safe %>,
+                  datasets: [
+                      {
+                          fillColor: "rgba(220,220,220,0.5)",
+                          strokeColor: "rgba(220,220,220,1)",
+                          pointColor: "rgba(220,220,220,1)",
+                          pointStrokeColor: "#fff",
+                          data: <%= raw rops.map { |dl| dl[1] }.to_json.html_safe %>
+                      }
+                  ]
+              }
+
+              var myLine = new Chart(document.getElementById("overview_rop_canvas_<%= hex %>").getContext("2d")).Line(lineChartData, { pointDot: false, scaleShowGridLines: false, animation: false, scaleOverride: true, scaleSteps: 4, scaleStepWidth: 5, scaleStartValue: -4 });
+
+              <% end %>
+
+          </script>
+
+
+          <script type='text/javascript'>
+
+              var map = L.mapbox.map('map', 'elephant.map-vum3on5g', {zoomControl: false});
+              map.attributionControl = false;
+              map.scrollWheelZoom.disable();
+              map.dragging.disable();
+              map.touchZoom.disable();
+              map.doubleClickZoom.disable();
+
+              var geoJson = [];
+              geoJson.push({
+                  "type": "Feature",
+                  "geometry": {
+                      "type": "Point",
+                      "coordinates": [<%= @job.well.x_location %>, <%= @job.well.y_location %>]
+                  },
+                  "properties": {
+                      title: '<%= @job.well.field.name + ' | ' + @job.well.name %>',
+                      'marker-size': 'medium',
+                      'marker-color': '#0058a8'
+                      //'marker-symbol': '1'
+                  }
+              });
+
+              map.markerLayer.setGeoJSON(geoJson);
+
+
+              var bounds = [];
+              bounds.push([<%= @job.well.y_location %>, <%= @job.well.x_location %>]);
+              map.fitBounds(bounds);
+              map.setZoom(6);
+
+
+          </script>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+</div>
+</div>
+</body>
+</html>

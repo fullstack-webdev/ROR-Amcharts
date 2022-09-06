@@ -1,0 +1,6 @@
+test:
+  corva_data_java_uri: http://195.68.215.114:5500
+development:
+  corva_data_java_uri: http://195.68.215.114:5500
+production:
+  corva_data_java_uri: http://52.0.83.65:4000

@@ -1,0 +1,121 @@
+<div class="operation_tooltip" style="width: 100%; height: 100%;">
+  <div class="operation_tooltip_container" style="float: left;
+      display: none;
+      position: absolute;
+      z-index: 10000;">
+    <div class='amChart_balloon amChart_balloon_overlay'>
+      <div class='block'>
+        <div class='inline-block text-blue rig-name'></div>
+        <div class='spacer'></div>
+        <div class='inline-block text-white well-name'></div>
+        <div class="clearfix"></div>
+      </div>
+      <div class='block stats-block-3'>
+        <div class='inline-block text-lightblue' style='font-size: 13px;'>
+          <b class="total_savings"></b>
+          <span>%</span>
+        </div>
+        <div class='spacer'></div>
+        <div class='inline-block text-lightblue'>
+          $<b class="total_cost"></b>
+        </div>
+        <div class='spacer'></div>
+        <div class='inline-block text-lightblue'>
+          <b class="rop"></b> <%= unit("ft", company_unit) %>/hr
+        </div>
+        <div class='spacer'></div>
+        <div class='text-red inline-block'>
+          <span class='text-red'>*</span>
+          <span class="total_warnings"></span>
+        </div>
+      </div>
+    </div>
+    <div class="chart-balloon-menu">
+      <a href="javascript:void(0);" class="analyze_well_link">
+        <div class="block item">
+          <div class="inline-block title">Analyze Well</div>
+          <div class="icon-arrow-right icon"></div>
+        </div>
+      </a>
+      <a href="javascript:void(0);" class="graph_rig_link">
+        <div class="block item">
+          <div class="inline-block title">Graph Rig</div>
+          <div class="icon-arrow-right icon"></div>
+        </div>
+      </a>
+      <a href="javascript:void(0);" class="graph_well_comparison_link">
+        <div class="block item">
+          <div class="inline-block title">Graph Well Comparison</div>
+          <div class="icon-arrow-right icon"></div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  function UPDATE_OPERATION_TOOLTIP(id, event) {
+    var x, y;
+    var canvasWidth = $('#' + id).width();
+    var canvasHeight = 520;
+    var width = 266;
+    var height = 40;
+
+    y = 0;
+    if (canvasHeight - event.item.y <= height / 2) {
+      y += event.item.y - (height / 2 - (canvasHeight - event.item.y));
+    } else if (event.item.y < height / 2) {
+      y += event.item.y - (height / 2 - event.item.y);
+    } else {
+      y += event.item.y;
+    }
+
+    if (event.item.x < canvasWidth / 2 - 50) {
+      x = event.item.x + 77;
+    } else {
+      x = event.item.x - 201;
+    }
+
+    var value = event.graph.valueField;
+    var rig_name = event.item.dataContext[value + '_rig_name'];
+    var well_name = event.item.dataContext[value + '_well_name'];
+    var rop = event.item.dataContext[value + '_rop'];
+    var job_id = event.item.dataContext[value + '_job_id'];
+    var total_cost = event.item.dataContext[value + '_total_cost'];
+    var total_warnings = event.item.dataContext[value + '_total_warnings'];
+    var total_savings = event.item.dataContext[value] * 100;
+    var rig_id = event.item.dataContext[value + '_rig_id'];
+    var well_id = event.item.dataContext[value + '_well_id'];
+
+    $(".operation_tooltip .well-name").html(well_name);
+    $(".operation_tooltip .rig-name").html(rig_name);
+    $(".operation_tooltip .rop").html(rop.convert('ft', company_unit).val().round_to_decimal().number_with_delimiter());
+    $(".operation_tooltip .total_cost").html(total_cost.round_to_decimal(0).number_with_delimiter());
+    $(".operation_tooltip .total_warnings").html(total_warnings);
+    $(".operation_tooltip .total_savings").html(total_savings.round_to_decimal().number_with_delimiter());
+    $(".operation_tooltip .analyze_well_link").data('job-id', job_id);
+    $(".operation_tooltip .graph_rig_link").data('rig-id', rig_id);
+    $(".operation_tooltip .graph_well_comparison_link").data('well-id', well_id);
+
+    $(".operation_tooltip").css({top: y, left: x, position: 'absolute'});
+    $('.operation_tooltip_container').show();
+  }
+
+  $('.operation_tooltip').mouseover(function () {
+    $('.operation_tooltip_container').show();
+  });
+
+  $('.operation_tooltip').mouseout(function () {
+    $('.operation_tooltip_container').hide();
+  });
+
+  $(".operation_tooltip .analyze_well_link").on("click", function () {
+    document.location = "/jobs/" + $(this).data('job-id') + "#analysis";
+  });
+  $(".operation_tooltip  .graph_rig_link").on("click", function () {
+    document.location = "/performance/rigs?id=" + $(this).data('rig-id');
+  });
+  $(".operation_tooltip .graph_well_comparison_link").on("click", function () {
+    document.location = "/performance/wells?id=" + $(this).data('well-id');
+  });
+</script>

@@ -1,0 +1,256 @@
+<div class="remote-tray" data-tray="rig_overview_bit">
+
+  <div class='tray-content content-loaded' style="position: relative;">
+
+    <div class="mdv-spinner" id="dv_bit_spinner">
+
+      <%= render 'jobs/inline_spinner' %>
+
+    </div>
+
+    <div class="dv-sub-container" style="display: none;">
+
+      <div class="drill-view-chart">
+        <div id="dv_vibration_warning_box_chart" class="mdv-chart-warning"></div>
+        <div style="position: relative; height: 100%;">
+          <div class="depth-row-container">
+            <div class="depth-row-bg"></div>
+            <div class="depth-row">
+            </div>
+          </div>
+          <div class="label-top">Total Vibration</div>
+          <div id="chart_drillview_bit" class="amChart block chart-view" data-id="bit"></div>
+          <div class="label-bottom" id="dv_bit_total_vibration_axis"></div>
+        </div>
+      </div>
+
+      <div class="drill-view-port" id="dv_bit">
+
+        <div class="menuContentBlock">
+
+          <div class="offline-box" id="dv_bit_offline_box">
+            <h5>System offline</h5>
+
+            <ul class="abnormal-list">
+              <li>
+                <p class="inline-block">Specify correct configurations</p>
+                <a href="#"
+                   class="show-tray inline-block" data-tray="configurations"
+                   style="cursor:hand; text-decoration: underline; padding: 0px; line-height: 10px; margin: 0px; margin-left: 15px;"
+                   style="color: #ffffff;">More details</a>
+
+              </li>
+            </ul>
+          </div>
+
+          <div id="dv_vibration_warning_box" class="mdv-warning-box">
+          </div>
+
+          <div class="block">
+            <div class="mdv-cell">
+              <div class="block clearfix">
+                <p class="title" id="dv_bit_total_vibration_label">Total Vibration</p>
+
+                <p class="value-white" id="dv_bit_total_vibration"></p>
+              </div>
+
+              <div class="block clearfix">
+                <p class="title value-gray" id="">Trip Necessary</p>
+
+                <p class="value-white" id="">-</p>
+              </div>
+            </div>
+
+            <div class="mdv-cell" id="dv_bit_bit_wear" style="position: relative;">
+              <div style="position: absolute; text-align: center; margin-top: 35px; width: 100%; color: #ffffff; font-size: 14px;">Bit
+                Wear
+              </div>
+              <div class="circles" id="dv_bit_circles" style="display: flex; display: -webkit-flex;"></div>
+            </div>
+          </div>
+
+          <div class="clearfix"></div>
+
+          <div class="divider divider-lg"></div>
+
+          <div class="block" style="font-size: 0;">
+            <div class="inline-block" style="width: 30%; vertical-align: middle; ">
+              <p class="value-white" style="font-size: 15px;
+                  margin: 0;
+                  line-height: 27px;">Vibration</p>
+            </div>
+
+            <div class="inline-block" style="width: 68%; vertical-align: top; position: relative;">
+              <div style="border-bottom: 2px solid #ffffff; margin-top: 10px; width: 100%; position: absolute;"></div>
+              <span style="font-size: 10px; color: #ffffff; position: absolute; margin-top: 13px;"><b style="font-family: orgonboldregular">30</b> min ago</span>
+              <span style="font-size: 10px; color: #ffffff; position: absolute; right: 0; margin-top: 13px;">Now</span>
+              <!--<%= image_tag "rig/bit_vibration.png" %>-->
+            </div>
+          </div>
+
+          <div class="divider divider-md"></div>
+
+          <div class="block" style="font-size: 0;">
+            <div class="inline-block" style="width: 20%; vertical-align: middle; ">
+              <div class="inline-block circle" style="background: #58c9c2; width: 10px; height: 10px; margin-right: 5px;">
+              </div>
+              <p class="inline-block value-white" style="line-height: 24px; padding: 0; margin: 0; font-size: 12px; font-weight: normal;">Axial</p>
+            </div>
+
+            <div class="inline-block" style="width: 10%; vertical-align: middle; ">
+              <%= image_tag "rig/icon_up_down.png" %>
+            </div>
+
+            <div class="inline-block" style="width: 68%; vertical-align: middle; box-sizing: border-box; position: relative; overflow: hidden;" id="dv_bit_axial">
+            </div>
+          </div>
+
+          <div class="divider divider-md"></div>
+
+          <div class="block" style="font-size: 0">
+            <div class="inline-block" style="width: 20%; vertical-align: middle; ">
+              <div class="inline-block circle" style="background: #b858c9; width: 10px; height: 10px; margin-right: 5px;">
+              </div>
+              <p class="inline-block value-white" style="line-height: 24px; padding: 0; margin: 0; font-size: 12px; font-weight: normal;">Lateral</p>
+            </div>
+
+            <div class="inline-block" style="width: 10%; vertical-align: middle; ">
+              <%= image_tag "rig/icon_left_right.png" %>
+            </div>
+
+            <div class="inline-block" style="width: 68%; vertical-align: middle; box-sizing: border-box; position: relative; overflow: hidden;" id="dv_bit_lateral">
+            </div>
+          </div>
+
+          <div class="divider divider-md"></div>
+
+          <div class="block" style="font-size: 0; ">
+            <div class="inline-block" style="width: 20%; vertical-align: middle; ">
+              <div class="inline-block circle" style="background: #589dc9; width: 10px; height: 10px; margin-right: 5px;">
+              </div>
+              <p class="inline-block value-white" style="line-height: 24px; padding: 0; margin: 0; font-size: 12px; font-weight: normal;">Torsional</p>
+            </div>
+
+            <div class="inline-block" style="width: 10%; vertical-align: middle; ">
+              <%= image_tag "rig/icon_return.png" %>
+            </div>
+
+            <div class="inline-block" style="width: 68%; vertical-align: middle; box-sizing: border-box; position: relative; overflow: hidden;" id="dv_bit_torsional">
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+
+    DV_CURRENT_TAB = DV_TAB_BIT;
+    $('.dv-subtitle').html("Vibration");
+
+    $(".remote-tray-toggle[data-tray='rig_overview_bit']").click(function () {
+      DV_CURRENT_TAB = DV_TAB_BIT;
+      $('.dv-subtitle').html("Vibration");
+      dv_ajax_call(null, null, null, true);
+    });
+
+    // Create chart
+    DV_CHARTS['bit'] = AmCharts.makeChart("chart_drillview_bit", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#2a2e2e",
+      "backgroundAlpha": 0,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "bit_axis",
+          "autoGridCount": false,
+        }
+      ],
+      "graphs": [
+        {
+          "lineColor": "#58c9c2",
+          "lineThickness": 3,
+          "type": "line",
+          "valueField": "axial"
+        },
+        {
+          "lineColor": "#b858c9",
+          "lineThickness": 3,
+          "type": "line",
+          "valueField": "lateral"
+        },
+        {
+          "lineColor": "#589dc9",
+          "lineThickness": 3,
+          "type": "line",
+          "valueField": "torsional"
+        }
+      ],
+//      "chartCursor": {
+//        "zoomable": false,
+//        "enabled": true,
+//        "selectWithoutZooming": true,
+//        "valueLineEnabled": false,
+//        "valueLineBalloonEnabled": false,
+//        "valueBalloonsEnabled": false,
+//        "categoryBalloonEnabled": false
+//      },
+      "categoryField": "time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "startOnAxis": true,
+        "labelsEnabled": false,
+        "parseDates": false,
+        "minorGridAlpha": 0.3,
+        "tickLength": 0,
+        "minorGridEnabled": true,
+        "position": "left",
+        "color": "#2a2e2e",
+        "axisColor": "#fefefe",
+        "axisAlpha": 1,
+        "gridAlpha": 1,
+        "gridColor": "#373b3b",
+        "inside": true,
+        "labelOffset": -3,
+        "fontSize": 10
+      },
+      "panEventsEnabled": false
+    });
+
+    DV_BIT_CIRCLE = Circles.create({
+      id: 'dv_bit_circles',
+      radius: 70,
+      value: 0,
+      maxValue: 100,
+      width: 15,
+      text: function (value) {
+        return value + '%';
+      },
+      duration: 0,
+      wrpClass: 'circles-wrp',
+      styleWrapper: true,
+      styleText: true
+    });
+
+    dv_ajax_call(null, null, null, true);
+
+  }(jQuery));
+</script>

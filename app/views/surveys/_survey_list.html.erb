@@ -1,0 +1,15 @@
+<% last_point = nil %>
+<% index = 0 %>
+<div id="survey_list">
+  <% points.each do |point| %>
+      <% duplicate = last_point.present? && last_point.measured_depth == point.measured_depth %>
+      <div class="<%= duplicate ? "" : "" %>">
+        <%= render 'survey_points/survey_point', point: point, last_point: last_point %>
+      </div>
+      <% last_point = point %>
+      <% index += 1 %>
+      <% if index % 5 == 0 %>
+          <br>
+      <% end %>
+  <% end %>
+</div>

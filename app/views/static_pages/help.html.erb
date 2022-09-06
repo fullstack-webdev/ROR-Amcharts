@@ -1,0 +1,78 @@
+<% provide(:title, 'Help') %>
+
+<div class="page_header" xmlns="http://www.w3.org/1999/html">
+  <h1>Help</h1>
+</div>
+
+<div class="">
+
+
+  <div class="well">
+    <%= form_tag "http://support.corva.ai/customer/portal/articles/search", :method => 'get', :id => "global_search_id", class: "inline" do %>
+        <%= text_field_tag :q, params[:q], placeholder: "Search support topics...", class: "txtfield tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Search support site topics" %>
+
+        <%= submit_tag "Search", class: "bluebtn btnsmall" %>
+    <% end %>
+
+    <a href="http://support.corva.ai/" class="bluebtn btnsmall gray">Browse Support Topics</a>
+
+  </div>
+
+  <br>
+
+
+  <div class="content">
+
+    <h3>Corva Support</h3>
+    <hr>
+    <div class="pull-left">
+      <a href="mailto:support@corva.ai" class="activity-user-link"><%= image_tag "email_icon.png" %>
+        <p class="inline push-right-small">Support@corva.ai</p></a>
+      <br>
+
+      <p href="tel:1-817-500-0360" class="phone-link">1-817-500-0360</p>
+    </div>
+
+    <div class="">
+      <%= image_tag "bubble_help.png" %>
+    </div>
+  </div>
+
+
+  <br>
+
+
+  <div class="content">
+    <h3><%= current_user.company.name %> Support</h3>
+    <hr>
+
+    <% if current_user.company.support_email.present? %>
+        <a href="mailto:<%= current_user.company.support_email %>" class="activity-user-link"><%= image_tag "email_icon.png" %>
+          <p class="inline push-right-small"><%= current_user.company.support_email %></p></a>
+    <% end %>
+    <% if current_user.company.phone_number.present? %>
+        <br>
+
+        <p href="tel:<%= current_user.company.phone_number %>" class="phone-link"><%= current_user.company.phone_number %></p>
+    <% end %>
+    <br>
+    <p>Please contact your company regarding questions/requests on:
+    <ul>
+      <li><b>User Accounts</b></li>
+      <li><b>Jobs</b></li>
+      <li><b>Job Types (data, documents, failures, tools)</b></li>
+      <li><b>Customers</b></li>
+      <li><b>Districts</b></li>
+    </ul>
+    </p>
+
+    <br>
+
+    <p>In addition, direct questions on use and training.</p>
+
+
+  </div>
+
+</div>

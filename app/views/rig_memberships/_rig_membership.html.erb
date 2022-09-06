@@ -1,0 +1,28 @@
+<li class="job-member-list-item" id="job_membership_<%= rig_membership.id %>">
+
+  <div class="activity-user-link-div-short">
+    <div class="inline  push-right-small">
+      <% if rig_membership.user.present? %>
+          <%= link_to rig_membership.user, class: "activity-user-link tooltip-info", "data-placement" => "bottom",
+                      "data-html" => true, "data-title" => "<div class='activity-tooltip'><h2 class='white-text'>" +
+                          rig_membership.user.name + "</h2>" +
+                          rig_membership.user.title.to_s + "</h2><p>" +
+                          (rig_membership.user.district.present? ? rig_membership.user.district.name : "-") + "</p></div>" do %>
+              &nbsp;<%= rig_membership.user.name %>
+          <% end %>
+      <% end %>
+    </div>
+  </div>
+  <div class='inline-block job-members-position-title'>
+    <p class="inline-block label member-icon-field">Field</p>
+  </div>
+
+  <p class="job-members-position-title push-right orange-text">
+    <b><%= rig_membership.user.present? ? rig_membership.user.phone_number : '-' %></b></p>
+
+  <div class="push-right">
+    <%= link_to "remove", rig_membership, method: :delete, remote: true,
+                data: {confirm: "Remove " + (rig_membership.user.present? ? rig_membership.user.name : '') + " from crew?"},
+                class: "delete-button-small job-member-button" %>
+  </div>
+</li>

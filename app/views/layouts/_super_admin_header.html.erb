@@ -1,0 +1,84 @@
+<div class="navbar navbar-fixed-top">
+
+<div class="navbar-inner">
+
+<div class="right-menu">
+  <ul class="nav header-v-center">
+
+    <% if signed_in_super_admin? %>
+        <li>
+          <p class="user-name inline-block push-down-small"><%= current_user.name %></p>
+        </li>
+
+        <li id="fat-menu" class="dropdown menu-width">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+
+            <div class="pull-left">
+              <%= render 'users/user_icon', user: current_user, use_link: false, use_name: false, table_cell: false %>
+
+            </div>
+
+            <b class="caret pull-left"></b>
+          </a>
+          <ul class="dropdown-menu menu-width2">
+            <li>
+              <%= link_to "Warnings", event_warning_types_path %>
+            </li>
+            <li>
+              <%= link_to "Sign out", admin_logout_path, method: "delete" %>
+            </li>
+          </ul>
+        </li>
+
+        <!--<li>-->
+        <!--<a href="javascript:void(0);" onclick="olark('api.box.expand')"-->
+        <!--class='tooltip-info' data-title="Click for Live support" data-place="bottom"-->
+        <!--style='width: 40px; font-size: 10px; height: 32px; background: #4d4d4d; vertical-align: top; text-align: center; margin: 0px; margin-top: -8px; margin-right: -10px; color: #ffffff; padding-top: 10px;'>-->
+        <!--<div style='margin-top: 8px;'>Help</div>-->
+        <!--</a>-->
+        <!--&lt;!&ndash; <%= link_to "Help", help_path %> &ndash;&gt;-->
+        <!--</li>-->
+    <% else %>
+
+    <% end %>
+
+  </ul>
+</div>
+
+<% if !signed_in? %>
+    <div class='inline-block pull-left push-right-small'>
+      <%= link_to "Corva", root_path, id: "logo", class: "", alt: "Corva Homepage" %>
+    </div>
+
+<% end %>
+<div class="container container-header">
+  <% if signed_in? %>
+      <%= link_to "Corva", root_path, id: "logo" %>
+  <% end %>
+  <nav>
+    <div style="color: #233736; background: #ffffff; border-radius: 8px; font-size: 10px; height: 18px; width: 55px; line-height: 18px; display: inline-block; text-align: center">
+      ADMIN
+    </div>
+    <% if signed_in_super_admin? %>
+        <% filter_options = [] %>
+        <% @companies.each_with_index do |company, index| %>
+            <% filter_options << [company['name'], company['id']] %>
+        <% end %>
+        <% filter_options << ['Add New Company', '0'] %>
+
+        <%= select_tag "#",
+                       options_for_select(filter_options, @company.present? ? (!@company.new_record? ? @company.id : 0) : nil),
+                       prompt: "Select Company",
+                       id: "company_filter",
+                       # "data-id" => @drilling_log.id.to_s,
+                       class: "custom-select custom-select-ajax align-top push-right-small" %>
+        <div class="hidden" id="current_company"><%= @company.present? ? (!@company.new_record? ? @company.id : 0) : nil %></div>
+
+        <% if !@company.nil? && !@company.new_record? %>
+            <%= render 'layouts/super_admin_tab', :company => @company %>
+        <% end %>
+    <% end %>
+  </nav>
+</div>
+</div>
+</div>

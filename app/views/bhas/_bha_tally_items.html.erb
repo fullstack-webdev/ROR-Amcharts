@@ -1,0 +1,79 @@
+<div>
+  <% if bha.nil? %>
+      <br><br>
+
+      <p class='help-text center'>No BHA configured...</p>
+
+      <br>
+      <% if signed_in? && editable %>
+          <div class='center'>
+            <%= link_to "New Tool String BHA", new_bha_path(job: master_bha.job_id, bha: master_bha),
+                        class: "bluebtn btnsmall" %>
+          </div>
+      <% end %>
+  <% else %>
+      <% depth = 0.0 %>
+      <div id="items" class="list">
+        <% bha.bha_items.each do |item| %>
+
+            <% if item.tool.present? %>
+                <% depth = depth + (item.length || 0) %>
+
+                <div class="bha-line">
+
+                  <div class="push-right-small">
+
+
+                    <p class="list-item-column2 list-item-column-short">
+                      <b><%= item.inner_diameter || 0.0 %></b>
+                    </p>
+
+                    <p class="list-item-column2 list-item-column-short ">
+                      <b><%= item.outer_diameter || 0.0 %></b>
+                    </p>
+
+                    <p class="list-item-column2 list-item-column-short">
+                      <b><%= item.length || 0.0 %></b>
+                    </p>
+
+                    <p class="list-item-column2 list-item-column-short ">
+                      <b class='label label-info'><%= depth.round(2) %></b>
+                    </p>
+
+                    <% if (item.up || 0) >= 0 || (item.down.present? && item.down >= 0) %>
+                        <p class="list-item-column2 list-item-column-short help-text tooltip-info"
+                           style='font-size: 11px; margin-right: 0px; margin-left: -10px; width: 140px !important;'
+                           data-html="true"
+                           data-title="Upward Connection: <%= item.up >= 0 ? BhaItem.connection_string(item.up) : "-" %><br>Downward Connection: <%= item.down.present? && item.down >= 0 ? BhaItem.connection_string(item.down) : "-" %>">
+                          <%= item.up >= 0 ? BhaItem.connection_string(item.up) : "-" %>
+                          &nbsp;/&nbsp;
+                          <%= item.down.present? && item.down >= 0 ? BhaItem.connection_string(item.down) : "-" %>
+                        </p>
+                    <% end %>
+
+                  </div>
+
+                </div>
+            <% end %>
+        <% end %>
+      </div>
+
+      <br>
+
+      <% if !bha.master_bha.present? %>
+          <div class='push-down pull-right'>
+            <div class='inline-block'>
+              <b>Bit to
+                Sensor</b><span class='push-right-small blue-text'><%= bha.bit_to_sensor.present? ? bha.bit_to_sensor : "-" %></span>
+            </div>
+            <div class='inline-block push-right'>
+              <b>Bit to
+                Gamma</b><span class='push-right-small blue-text'><%= bha.bit_to_gamma.present? ? bha.bit_to_gamma : "-" %></span>
+            </div>
+          </div>
+      <% elsif  editable %>
+          <br>
+          <%= link_to "Edit Tool String", edit_bha_path(bha), class: "btn btn-default pull-right" %>
+      <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,26 @@
+<% cache("trends/programs/cost/" + cache_key_for_programs) do %>
+  <div class='remote-tray' data-tray='programs_cost'>
+    <div class="remote-loading hidden">
+      <br><br>
+      <%= render 'layouts/inline_loading', title: "Please wait, loading program cost performance..." %>
+    </div>
+
+    <div class='tray-content content-loaded'>
+      <div class="content-view">
+        <div class="block" style="position: relative;">
+          <div id="programs_cost_chart" class="amChart block" style="float: left; width: 100%; height: 520px;"></div>
+
+          <%= render 'performance/tooltip_cost' %>
+        </div>
+
+        <div class="block programs-list"></div>
+      </div>
+
+      <%= render 'performance/no_content' %>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    <%= render 'performance/programs/cost/index_cost.js' %>
+  </script>
+<% end %>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--<title><%= full_title(yield(:title)) %></title>-->
+  <title>Corva | Drilling Intelligence</title>
+  <meta name="description=" content="Corva | Drilling Intelligence">
+  <%= stylesheet_link_tag "application", media: "all" %>
+  <%= javascript_include_tag "application" %>
+
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/0.6.4/css/perfect-scrollbar.min.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/0.6.4/js/min/perfect-scrollbar.jquery.min.js"></script>
+
+  <% if signed_in? || cookies[:access_code].present? %>
+
+      <% if Rails.env.dev? %>
+          <script src='assets/javascript/mapbox.js'></script>
+          <link href='assets/stylesheets/mapbox.css' rel='stylesheet'/>
+      <% else %>
+          <script src='//api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js'></script>
+          <link href='//api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.css' rel='stylesheet'/>
+      <% end %>
+
+  <% end %>
+
+  <style type="text/css">
+      .spinner {
+          width: 40px;
+          height: 40px;
+          position: relative;
+          margin: 0px auto;
+      }
+
+      .double-bounce1 {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background-color: #ffffff;
+          opacity: 0.6;
+          position: absolute;
+          top: 0;
+          left: 0;
+
+          -webkit-animation: bounce 2.0s infinite ease-in-out;
+          animation: bounce 2.0s infinite ease-in-out;
+      }
+
+      .double-bounce2 {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background-color: #ffffff;
+          opacity: 0.6 position : absolute;
+          top: 0;
+          left: 0;
+
+          -webkit-animation: bounce 2.0s infinite ease-in-out;
+          animation: bounce 2.0s infinite ease-in-out;
+          -webkit-animation-delay: -1.0s;
+          animation-delay: -1.0s;
+      }
+
+      @-webkit-keyframes bounce {
+          0%, 100% {
+              -webkit-transform: scale(0.0);
+          }
+          50% {
+              -webkit-transform: scale(1.0);
+          }
+      }
+
+      @keyframes bounce {
+          0%, 100% {
+              transform: scale(0.0);
+              -webkit-transform: scale(0.0);
+          }
+          50% {
+              transform: scale(1.0);
+              -webkit-transform: scale(1.0);
+          }
+      }
+  </style>
+
+  <%= csrf_meta_tags %>
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"></script>
+  <link href='//api.tiles.mapbox.com/mapbox.js/v1.3.1/mapbox.ie.css' rel='stylesheet'>
+  <![endif]-->
+</head>
+<% if signed_in? %>
+    <% if signed_in_super_admin? && (controller_name == 'admin') %>
+        <body class="body super-admin">
+        <%= render 'layouts/super_admin_header' %>
+    <% else %>
+        <body class="body">
+        <%= render 'layouts/header' %>
+    <% end %>
+
+    <div id="wrong_browser_alert" class="hidden" style='position:absolute; left: 0; width: 100%; top: 54px; z-index: 100;'>
+      <div class="alert alert-error2 align-top">
+        <%= image_tag "error_white.png", class: "inline-block align-top" %>&nbsp;&nbsp;
+        <h3 class='inline-block white-text push-right-small'>Problem with Browser</h3>
+        <br>
+
+        <div class='inline-block align-top push-right push-down'>
+          <b>Sorry, we don't support Internet Explorer 9 or lower. Please install either Google Chrome or Firefox.</b>
+        </div>
+        <div class=''>
+          <div class='inline-block push-right'>
+            <i class="icon-download icon-white"></i><%= link_to "Download Google Chrome", "http://www.google.com/chrome/", class: "activity-user-link white-text", :target => "_blank" %>
+          </div>
+          <div class='inline-block push-right'>
+            <i class="icon-download icon-white"></i><%= link_to "Download Firefox", "http://www.mozilla.org/en-US/firefox/", class: "activity-user-link white-text", :target => "_blank" %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="<%= request.path == insight_path ? "" : "container" %>" id="main_container">
+
+      <%= yield %>
+
+      <div id="logged_out" class="hidden">
+      </div>
+
+      <div id="messages_window" class="hidden" style="position: fixed; left: 0; top: 60px; width: 250px; height: 120px;">
+        <div style="position: relative; width: 100%; height: 100%;">
+          <div style="position: absolute; background: #000000; opacity: 0.91; width: 100%; height: 100%; border-radius: 6px;"></div>
+          <div style="position: absolute; padding: 18px;">
+            <h3 class='' style="color: #ffc208;">Messages</h3>
+
+            <div id="messages_content">
+
+            </div>
+            <div id="messages_loading">
+              <br><br>
+
+              <div class="inline-block ajax-loading search-loading">
+                <b class='white-text'>Loading...</b>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="message_window" class="hidden" style="position: fixed; left: 0; top: 60px; width: 400px; height: 80px;">
+        <div style="position: relative; width: 100%; height: 100%;">
+          <div style="position: absolute; background: #000000; opacity: 0.7; width: 100%; height: 100%; border-radius: 6px;"></div>
+          <div id="message_window_content" style="position: absolute; padding: 18px;">
+          </div>
+        </div>
+      </div>
+
+      <div id="working" class="curtain hidden">
+        <div class='curtain-content'>
+          <div>
+            <h1>Loading</h1>
+
+            <div class='inline-block push-right-small'>
+              <div class="inline-block ajax-loading search-loading push-right-small">
+                <b class='white-text'>Please wait...</b></div>
+            </div>
+          </div>
+          <br><br><br>
+          <%= image_tag "corva-logo.png" %>
+        </div>
+      </div>
+
+    </div>
+
+    <%= render 'layouts/footer' %>
+
+    </body>
+<% else %>
+
+
+    <% if request.path == root_path %>
+
+        <div id="static_background">
+
+        </div>
+
+        <body class="body-non-signed-in">
+    <% elsif request.path == "/contact" %>
+
+            <body class="body">
+
+            <div class="container">
+
+    <% else %>
+        <body class="body">
+
+        <div class="container">
+
+    <% end %>
+
+    <% if request.path != root_path %>
+        <%= render 'layouts/header' %>
+    <% end %>
+
+    <div class="container-reset" style="z-index: 9999;">
+      <%= yield %>
+    </div>
+
+    <% if request.path != root_path && request.path != about_path %>
+        </div>
+    <% end %>
+
+    </body>
+
+<% end %>
+
+<script type="text/javascript">
+  <% if signed_in? %>
+    window.company_unit = "<%= company_unit %>";
+  <% end %>
+</script>
+
+<!-- toastr notification -->
+<script type="text/javascript">
+
+    (function ($) {
+
+        <% flash.each do |key, value| %>
+        toastr.<%= key %>("<%= value %>");
+        <% end %>
+
+        <% flash.clear %>
+    }(jQuery));
+
+</script>
+
+<!-- google analytics -->
+<script>
+
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-57461303-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+</html>

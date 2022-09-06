@@ -1,0 +1,26 @@
+<div style="display: block; margin-top: <%= offset %>px; position: relative;">
+  <% if position == 'right' %>
+    <div class="inline-block arrow-between"></div>
+  <% end %>
+
+  <div class="warning-box <%= position == 'left' ? 'left-side' : 'right-side' %> inline-block">
+    <div class="box-header color-<%= warning.severity %>">
+      <%= warning.job.well.rig.name %> - <%= warning.name %>
+      <% if warning.closed_at.present? %>
+        <span class="hour"><%= warning.duration %></span>
+      <% end %>
+    </div>
+    <div class="box-body">
+      <p style="color: #ffffff;"><%= number_with_delimiter(warning.depth_from.present? ? warning.depth_from.convert(:ft, company_unit).round : 0) %><%= warning.closed_at.present? ? ' - ' + number_with_delimiter(warning.depth_to.present? ? warning.depth_to.convert(:ft, company_unit).round : 0) : '' %> <%= unit(:ft, company_unit) %></p>
+
+      <p><%= warning.resolution %></p>
+
+      <div class="divider"></div>
+      <p><%= warning.opened_at.strftime("%b %e, %Y %k:%M") %> <a href="#" class="link-to-right warning-detail-btn" style="cursor:hand;"  data-id="<%= warning.id %>" href="#" style="color: #ffffff;">More details...</a></p>
+    </div>
+  </div>
+
+  <% if position == 'left' %>
+    <div class="inline-block arrow-between"></div>
+  <% end %>
+</div>

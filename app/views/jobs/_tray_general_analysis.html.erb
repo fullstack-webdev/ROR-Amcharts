@@ -1,0 +1,427 @@
+<div class="remote-tray" data-tray="general">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading general analysis..." %>
+  </div>
+
+  <div class='tray-content content-loaded'>
+
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>General Analysis</h1>
+    </div>
+
+    <% @drilling_log = @job.drilling_log %>
+    <% drilling_log = @drilling_log %>
+
+    <% if drilling_log.drilling_log_entries.any? %>
+
+        <div style="width: 100px; height: 400px; position: absolute; display: block; margin-left: -100px; margin-top: 20px;">
+          <div class='formation'>Dewey Lake</div>
+          <div class='formation'>Rustler</div>
+          <div class='formation' style='height: 50px;'>Salado</div>
+          <div class='formation' style='height: 50px;'>Bell Canyon</div>
+          <div class='formation' style='height: 70px;'>Brushy Canyon</div>
+          <div class='formation' style='height: 50px;'>1st Bone Spring</div>
+          <div class='formation' style='height: 50px;'>3rd Bone Spring</div>
+        </div>
+
+        <div style="width: 50px; height: 400px; position: absolute; display: block;  margin-left: 940px; margin-top: 20px;">
+          <div class='formation' style='height: 100px;'>9 5/8"</div>
+          <div class='formation' style='height: 100px;'>7"</div>
+          <div class='formation' style='height: 160px;'>5 7/8"</div>
+        </div>
+
+        <div id="depth_chart" class="amChart" style="width: 100%; height: 400px; display: inline-block"></div>
+
+
+        <div class="page-header-small" style="margin-top: 15px;">
+          <h1>Surface</h1>
+        </div>
+
+        <div>
+          -
+        </div>
+
+
+        <%= render 'jobs/pacesetter_comparison', job: job, drilling_log: drilling_log, title: "Intermediate" %>
+        <%= render 'jobs/pacesetter_comparison', job: job, drilling_log: drilling_log, title: "Curve" %>
+        <%= render 'jobs/pacesetter_comparison', job: job, drilling_log: drilling_log, title: "Lateral" %>
+
+        <br>
+        <br>
+
+        <div class='center'>
+          <div class="inline-block" style="width:10px;height:10px;background:#00BBCC;"></div>
+          <b>Drilling</b>
+
+          <div class="inline-block push-right-small" style="width:10px;height:10px;background:#223bf2;"></div>
+          <b>Sliding</b>
+
+          <div class="inline-block push-right-small" style="width:10px;height:10px;background:#f24922;"></div>
+          <b>NPT</b>
+
+          <div class="inline-block push-right-small" style="width:10px;height:10px;background:#f24922;border-radius:100px;"></div>
+          <b>POOH</b>
+
+          <div class="inline-block push-right-small" style="width:10px;height:10px;background:#ccf7ff;"></div>
+          <b>Time (hrs)</b>
+
+        </div>
+
+        <div id="ropchart" class="amChart" style="width: 100%; height: 400px;"></div>
+
+        <div id="wobchart" class="amChart" style="width: 100%; height: 120px;"></div>
+
+        <div id="flowchart" class="amChart" style="width: 100%; height: 120px;"></div>
+
+        <div id="rpmchart" class="amChart" style="width: 100%; height: 120px;"></div>
+
+    <% else %>
+        <p class='help-text'>No drilling info...</p>
+    <% end %>
+  </div>
+</div>
+
+
+<script type='text/javascript'>
+
+
+    <% drilling_log = @drilling_log %>
+    <% if drilling_log.drilling_log_entries.any? %>
+    <% rops = [] %>
+    <% depth = [] %>
+    <% last_entry = drilling_log.drilling_log_entries.first %>
+    <% max_depth = 0 %>
+    <% drilling_log.drilling_log_entries.each do |dl| %>
+    <% time = (dl.entry_at - last_entry.entry_at).to_f / 60.0 / 60.0 %>
+    <% if dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING || time > 0.2 %>
+    <% rops <<  { "date" => dl.entry_at.strftime("%m/%d/%Y %k:%M"), "time" => time > 0  ? time.round(2) : 0.0, "activity" => DrillingLogEntry.activity_code_string(dl.activity_code), "rop" => dl == last_entry || (dl.activity_code != DrillingLogEntry::SLIDING && dl.activity_code != DrillingLogEntry::DRILLING) ? 0.0 : dl.rop.present? && dl.rop < 2000 ? dl.rop.round(2) : 0.0, "lineColor" => dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING ? (dl.activity_code == DrillingLogEntry::DRILLING ? "#00BBCC" : "#223bf2") : "#f24922", "bulletSize" => (dl.activity_code == DrillingLogEntry::POOH && last_entry.activity_code != DrillingLogEntry::POOH)  ? 11 : 0, "bulletColor" => dl.activity_code == DrillingLogEntry::CHANGE_BHA  ? "#000000" : "#f24922", "wob" => dl.wob, "flow" => dl.flow, "rpm" => dl.rotary_rpm, "depth" => dl.depth } %>
+    <% end %>
+    <% if dl.activity_code != DrillingLogEntry::CONNECTION && dl.activity_code != DrillingLogEntry::CONNECTION_SURVEY && dl.activity_code != DrillingLogEntry::MWD_SURVEY %>
+    <% depth <<  { "date" => dl.entry_at.strftime("%m/%d/%Y %k:%M"), "activity" => DrillingLogEntry.activity_code_string(dl.activity_code), "depth" => dl.depth >= max_depth ? dl.depth : max_depth, "bullet" => (dl.activity_code == DrillingLogEntry::REAMING || dl.activity_code == DrillingLogEntry::PIPE_STUCK || dl.activity_code == DrillingLogEntry::WIRELINE || dl.activity_code == DrillingLogEntry::RIG_REPAIR || dl.activity_code == DrillingLogEntry::FISHING || dl.activity_code == DrillingLogEntry::RIG_SERVICE_INHOLE || dl.activity_code == DrillingLogEntry::POOH )  ? "round" : "", "color" => DrillingLogEntry.activity_code_color(dl.activity_code), "lineColor" =>  (dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING) ? "#ec8133" : DrillingLogEntry.activity_code_color(dl.activity_code) } %>
+    <% end %>
+    <% max_depth = [max_depth, dl.depth].max %>
+    <% last_entry = dl %>
+    <% end %>
+
+    var average = <%= drilling_log.nil? || drilling_log.rop.nil? ? 0.0 : drilling_log.rop.round(1) %>;
+    var drilling_rop = <%= drilling_log.nil? || drilling_log.drilling_rop.nil? ? 0.0 : drilling_log.drilling_rop.round(1) %>;
+
+    // SERIAL CHART
+    var chart = new AmCharts.AmSerialChart();
+    chart.pathToImages = "https://www.amcharts.com/lib/3/images/";
+    chart.dataProvider = <%= raw rops.to_json.html_safe %>;
+    chart.categoryField = "date";
+    chart.dataDateFormat = "MM/DD/YYYY H:NN";
+
+    // AXES
+    // category
+
+    var categoryAxis = chart.categoryAxis;
+    categoryAxis.parseDates = false;
+    categoryAxis.minPeriod = "mm"; // our data is daily, so we set minPeriod to DD
+    categoryAxis.dashLength = 1;
+    categoryAxis.gridAlpha = 0.15;
+    categoryAxis.axisColor = "#DADADA";
+    categoryAxis.labelFunction = function (value, valueString, axis) {
+        return '';
+    };
+
+
+    // value
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.axisColor = "#DADADA";
+    valueAxis.title = "ROP";
+    valueAxis.dashLength = 1;
+    valueAxis.position = "left";
+    valueAxis.color = "#fefefe";
+    valueAxis.titleColor = "#fefefe";
+    //valueAxis.logarithmic = true; // this line makes axis logarithmic
+    chart.addValueAxis(valueAxis);
+
+    // GUIDE for average
+    var guide = new AmCharts.Guide();
+    guide.value = average;
+    guide.lineColor = "#CC0000";
+    guide.dashLength = 4;
+    guide.label = "total";
+    guide.inside = true;
+    guide.lineAlpha = 1;
+    //valueAxis.addGuide(guide);
+
+    // GUIDE for average
+    var guide = new AmCharts.Guide();
+    guide.value = drilling_rop;
+    guide.lineColor = "#CC0000";
+    guide.dashLength = 4;
+    guide.label = "drilling average";
+    guide.inside = true;
+    guide.lineAlpha = 1;
+    valueAxis.addGuide(guide);
+
+    var trendLine = new AmCharts.TrendLine();
+    trendLine.initialDate = "12/04/2013 0:00";
+    trendLine.finalDate = "12/05/2013 18:00";
+    trendLine.initialValue = 19;
+    trendLine.finalValue = 0;
+    trendLine.lineColor = "#f33cfa";
+    trendLine.lineThickness = 3;
+    chart.addTrendLine(trendLine);
+
+
+    var timeGraph = new AmCharts.AmGraph();
+    timeGraph.valueField = "time";
+    timeGraph.title = "Time (Hours)";
+    timeGraph.type = "column";
+    timeGraph.fillAlphas = 1;
+    timeGraph.valueAxis = valueAxis;
+    timeGraph.balloonText = "Time [[time]] hrs";
+    timeGraph.lineColor = "#ccf7ff";
+    timeGraph.lineThickness = 0;
+    timeGraph.dashLengthField = "dashLength";
+    timeGraph.alphaField = "alpha";
+    chart.addGraph(timeGraph);
+
+    // GRAPH
+    var graph = new AmCharts.AmGraph();
+    graph.type = "step";
+    graph.bullet = "round";
+    graph.bulletColorField = "bulletColor";
+    graph.bulletBorderColor = "bulletColor";
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSizeField = "bulletSize";
+    graph.balloonText = "<b>[[activity]]</b><br>ROP [[rop]] ft/hr";
+    graph.title = "Rop";
+    graph.valueField = "rop";
+    graph.lineThickness = 2;
+    graph.lineColor = "#00BBCC";
+    graph.lineColorField = "lineColor";
+    chart.addGraph(graph);
+
+
+    // CURSOR
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart.addChartCursor(chartCursor);
+
+    // SCROLLBAR
+    var chartScrollbar = new AmCharts.ChartScrollbar();
+    chartScrollbar.graphType = "smoothedLine";
+    chartScrollbar.hideResizeGrips = true;
+    chartScrollbar.graph = timeGraph;
+    chartScrollbar.scrollbarHeight = 40;
+    chartScrollbar.color = "transparent";
+    chartScrollbar.autoGridCount = true;
+    chart.addChartScrollbar(chartScrollbar);
+
+    // WRITE
+
+    chart.write("ropchart");
+
+
+    // Depth
+    var chart = new AmCharts.AmSerialChart();
+    chart.pathToImages = "https://www.amcharts.com/lib/3/images/";
+    chart.dataProvider = <%= raw depth.to_json.html_safe %>;
+    chart.categoryField = "date";
+    chart.dataDateFormat = "MM/DD/YYYY H:NN";
+
+    // AXES
+    // category
+
+    var categoryAxis = chart.categoryAxis;
+    categoryAxis.parseDates = false;
+    categoryAxis.minPeriod = "DD"; // our data is daily, so we set minPeriod to DD
+    categoryAxis.dashLength = 1;
+    categoryAxis.gridAlpha = 0.15;
+    categoryAxis.axisColor = "#DADADA";
+    categoryAxis.title = "Days";
+    categoryAxis.titleColor = "#fefefe";
+    categoryAxis.labelFunction = function (value, valueString, axis) {
+        return '';
+    };
+
+
+    // value
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.axisColor = "#DADADA";
+    valueAxis.dashLength = 1;
+    valueAxis.position = "left";
+    valueAxis.reversed = true;
+    valueAxis.color = "#fefefe";
+    valueAxis.titleColor = "#fefefe";
+    //valueAxis.logarithmic = true; // this line makes axis logarithmic
+    chart.addValueAxis(valueAxis);
+
+    // GRAPH
+    graph = new AmCharts.AmGraph();
+    graph.type = "line";
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletField = "bullet";
+    graph.bulletSizeField = "bulletSize";
+    graph.balloonText = "<b>[[activity]]</b><br>Depth [[depth]] ft";
+    graph.title = "Depth";
+    graph.valueField = "depth";
+    graph.lineThickness = 3;
+    graph.lineColorField = "lineColor";
+    chart.addGraph(graph);
+
+
+    // CURSOR
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart.addChartCursor(chartCursor);
+
+    chart.write("depth_chart");
+
+
+    // WOB
+    chart = new AmCharts.AmSerialChart();
+    //chart.pathToImages = "https://www.amcharts.com/lib/3/images/";
+    chart.dataProvider = <%= raw rops.to_json.html_safe %>;
+    chart.categoryField = "date";
+    chart.dataDateFormat = "MM/DD/YYYY H:NN";
+
+    var categoryAxis = chart.categoryAxis;
+    categoryAxis.parseDates = false;
+    categoryAxis.minPeriod = "mm";
+    categoryAxis.dashLength = 1;
+    categoryAxis.gridAlpha = 0.15;
+    categoryAxis.axisColor = "#DADADA";
+    categoryAxis.labelFunction = function (value, valueString, axis) {
+        return '';
+    };
+
+    var wobAxis = new AmCharts.ValueAxis();
+    wobAxis.title = "WOB";
+    wobAxis.gridAlpha = 0;
+    wobAxis.axisAlpha = 0;
+    wobAxis.color = "#fefefe";
+    wobAxis.titleColor = "#fefefe";
+    chart.addValueAxis(wobAxis);
+
+    var graph = new AmCharts.AmGraph();
+    graph.type = "smoothedLine";
+    graph.bullet = "round";
+    graph.fillAlphas = 0.3;
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSize = "0";
+    graph.balloonText = "<b>[[activity]]</b><br>ROP [[rop]]<br>WOB [[wob]]";
+    graph.title = "WOB";
+    graph.valueField = "wob";
+    graph.lineThickness = 2;
+    graph.lineColor = "#8fc0e9";
+    chart.addGraph(graph);
+
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart.addChartCursor(chartCursor);
+
+    chart.write("wobchart");
+
+
+    // Flow
+    chart = new AmCharts.AmSerialChart();
+    //chart.pathToImages = "https://www.amcharts.com/lib/3/images/";
+    chart.dataProvider = <%= raw rops.to_json.html_safe %>;
+    chart.categoryField = "date";
+    chart.dataDateFormat = "MM/DD/YYYY H:NN";
+
+    var categoryAxis = chart.categoryAxis;
+    categoryAxis.parseDates = false;
+    categoryAxis.minPeriod = "mm";
+    categoryAxis.dashLength = 1;
+    categoryAxis.gridAlpha = 0.15;
+    categoryAxis.axisColor = "#DADADA";
+    categoryAxis.equalSpacing = false;
+    categoryAxis.labelFunction = function (value, valueString, axis) {
+        return '';
+    };
+
+    var wobAxis = new AmCharts.ValueAxis();
+    wobAxis.title = "Flow";
+    wobAxis.gridAlpha = 0;
+    wobAxis.axisAlpha = 0;
+    wobAxis.color = "#fefefe";
+    wobAxis.titleColor = "#fefefe";
+    chart.addValueAxis(wobAxis);
+
+    var graph = new AmCharts.AmGraph();
+    graph.type = "smoothedLine";
+    graph.bullet = "round";
+    graph.fillAlphas = 0.3;
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSize = "0";
+    graph.balloonText = "<b>[[activity]]</b><br>ROP [[rop]]<br>Flow [[flow]]";
+    graph.title = "Flow";
+    graph.valueField = "flow";
+    graph.lineThickness = 2;
+    graph.lineColor = "#8fc0e9";
+    chart.addGraph(graph);
+
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart.addChartCursor(chartCursor);
+
+    chart.write("flowchart");
+
+
+    // RPM
+    chart = new AmCharts.AmSerialChart();
+    //chart.pathToImages = "https://www.amcharts.com/lib/3/images/";
+    chart.dataProvider = <%= raw rops.to_json.html_safe %>;
+    chart.categoryField = "date";
+    chart.dataDateFormat = "MM/DD/YYYY H:NN";
+
+    var categoryAxis = chart.categoryAxis;
+    categoryAxis.parseDates = false;
+    categoryAxis.minPeriod = "mm";
+    categoryAxis.dashLength = 1;
+    categoryAxis.gridAlpha = 0.15;
+    categoryAxis.axisColor = "#DADADA";
+    categoryAxis.labelFunction = function (value, valueString, axis) {
+        return '';
+    };
+
+    var wobAxis = new AmCharts.ValueAxis();
+    wobAxis.title = "RPM";
+    wobAxis.gridAlpha = 0;
+    wobAxis.axisAlpha = 0;
+    wobAxis.color = "#fefefe";
+    wobAxis.titleColor = "#fefefe";
+    chart.addValueAxis(wobAxis);
+
+    var graph = new AmCharts.AmGraph();
+    graph.type = "smoothedLine";
+    graph.bullet = "round";
+    graph.fillAlphas = 0.3;
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSize = "0";
+    graph.balloonText = "<b>[[activity]]</b><br>ROP [[rop]]<br>RPM [[rpm]]";
+    graph.title = "RPM";
+    graph.valueField = "rpm";
+    graph.lineThickness = 2;
+    graph.lineColor = "#8fc0e9";
+    chart.addGraph(graph);
+
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart.addChartCursor(chartCursor);
+
+    chart.write("rpmchart");
+
+    var label = $("tspan:contains('chart by amcharts.com')");
+    if (label.length > 0) {
+        label.remove();
+    }
+
+
+    <% end %>
+</script>

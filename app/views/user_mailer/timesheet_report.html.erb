@@ -1,0 +1,42 @@
+<html>
+<link rel="stylesheet" type="text/css" href="/app/assets/stylesheets/application.css.scss"/>
+<body class="email-body" style="width:850px;">
+
+<h1>Timesheet</h1>
+
+<p class="center">
+  <b class='orange-text'><%= @start_date.strftime("%A %B %d") %>
+    - <%= (@start_date + 13.days).strftime("%A %B %d") %></b>
+</p>
+<hr>
+
+<% start_date = @start_date %>
+
+<% total_hours = 0.0 %>
+<% 14.times do |i| %>
+
+<% end %>
+
+<p>
+<h1 class='inline'><%= total_hours == total_hours.to_i ? total_hours.to_i : total_hours %></h1>&nbsp;&nbsp;<b class=''><%= @user.company.work_day_type == Company::HOURLY_WORK_DAY ? "Hours" : "Days" %> worked this period.</b>
+<br><br>
+</p>
+
+<p>Please review and correct your timesheet with <b>24 hours</b> of this email.</p>
+
+
+<br>
+
+<div class='alert push-down'>
+<p>In addition, please make sure you have added your work schedule for the upcoming week of work.</p>
+</div>
+
+<% if Rails.env.production? %>
+    <br>
+
+    <div class="center"><%= image_tag "corva-logo.png" %></div>
+    <br>
+<% end %>
+
+</body>
+</html>

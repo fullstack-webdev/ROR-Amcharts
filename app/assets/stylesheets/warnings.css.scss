@@ -1,0 +1,133 @@
+.warnings-overview {
+  padding-top: 30px;
+  padding-bottom: 30px;
+
+  ul.list {
+    margin-left: 0;
+    padding-right: 0;
+    list-style-type: none;
+    width: 220px;
+
+    li {
+      border-bottom: 1px solid #4d6460;
+      margin-top: 15px;
+
+      div.metrics {
+        color: #bee9d0;
+        margin-bottom: 10px;
+      }
+
+      div.warning {
+
+        span {
+          color: #050505;
+          background: url(image_path('red_arrow.png')) no-repeat;
+          background-position: center center;
+          background-size: 21px 18px;
+          position: absolute;
+          width: 21px;
+          text-align: center;
+        }
+
+        p {
+          margin-left: 30px;
+          margin-bottom: 10px;
+          color: #fdfcfc;
+        }
+      }
+    }
+  }
+}
+
+.warnings-list {
+  width: 100%;
+
+  th {
+    color: #9a9fa0;
+    font-style: italic;
+    font-size: 13px;
+    padding: 16px 0 16px 0;
+    text-align: left;
+  }
+
+  tr.header1 {
+    border: none;
+  }
+
+  tr.heading-date {
+    border: none !important;
+
+    td {
+      font-size: 22px;
+      color: #58c9c2;
+      text-align: center;
+      padding: 55px 0 12px 0 !important;
+    }
+  }
+
+  tbody tr {
+    border-bottom: #4d6460 1px solid;
+
+    .warning-high {
+      background: url(image_path('error_red.png')) no-repeat;
+      position: absolute;
+      margin-left: -34px;
+      width: 24px;
+      height: 22px;
+    }
+
+    .warning-moderate {
+      background: url(image_path('error_orange.png')) no-repeat;
+      position: absolute;
+      margin-left: -34px;
+      width: 24px;
+      height: 22px;
+    }
+
+    .warning-low {
+      background: url(image_path('error_yellow.png')) no-repeat;
+      position: absolute;
+      margin-left: -34px;
+      width: 24px;
+      height: 22px;
+    }
+
+    td {
+      padding: 16px 0 16px 0;
+    }
+
+    td.metrics {
+      font-size: 14px;
+      color: #bee9d0;
+
+      span {
+        font-style: bold;
+        margin-right: 2px;
+      }
+    }
+
+    td.event {
+      font-size: 15px;
+      color: #ffffff;
+      font-style: bold;
+    }
+
+    td.activity {
+      font-size: 15px;
+      color: #d4d6d6;
+    }
+
+    a {
+      color: #58c9c2;
+      text-decoration: underline;
+      font-size: 13px;
+    }
+
+
+  }
+
+}
+
+.chart-container {
+  background-color: #3d4e50;
+}

@@ -1,0 +1,144 @@
+<div style='height: 52px;'>
+  <div style='position: absolute; left: 0; width: 100%; height: 52px; border-left: 11px solid #58c9c2; background-color: #2D4040;'>
+    <ul class="nav nav-pills alert alert-nav alert-nav-shrink parent-tray-nav" style='border-radius: 0px; border-width: 0px; float: left;'>
+
+
+      <li class="active">
+        <a href="#rig_overview" class="remote-tray-toggle custom-data-toggle tooltip-info"
+           data-id="<%= @job.id %>"
+           data-tray-controller="jobs"
+           data-tray="rig_overview"
+           data-tray-child="rig_overview_overview"
+           data-placement="bottom" data-title="Overview">Overview
+        </a>
+      </li>
+
+      <li class="">
+        <a href="#time_analysis" class="remote-tray-toggle custom-data-toggle tooltip-info"
+           data-id="<%= @job.id %>"
+           data-tray-controller="jobs"
+           data-tray="time_analysis"
+           data-placement="bottom" data-title="Time Analysis">Time Analysis
+        </a>
+      </li>
+
+      <li class="">
+        <a href="#performance" class="remote-tray-toggle custom-data-toggle tooltip-info"
+           data-id="<%= @job.id %>"
+           data-tray-controller="jobs"
+           data-tray="performance_analysis  "
+           data-placement="bottom" data-title="Performance">Performance
+        </a>
+      </li>
+
+      <li class="">
+        <a href="#warnings" class="remote-tray-toggle custom-data-toggle tooltip-info"
+           data-id="<%= @job.id %>"
+           data-tray-controller="jobs"
+           data-tray="warnings"
+           data-tray-child="warnings_overview"
+           data-placement="bottom" data-title="Warnings">Warnings
+        </a>
+      </li>
+
+
+    </ul>
+
+    <div class="settings-block">
+      <ul>
+        <li>
+          <a href="#">H&P 220</a>
+        </li>
+        <li>
+          <a href="#">Dusek 45-1H</a>
+        </li>
+        <li>
+          <a href="#"><%= image_tag "rig/icon1.png" %></a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!--<header class="rig">-->
+<!--<nav>-->
+<!--<ul class="rig-nav">-->
+<!--<li class="active">-->
+<!--<a href="#overview" class="remote-tray-toggle custom-data-toggle tooltip-info"-->
+<!--data-id="<%= @job.id %>"-->
+<!--data-tray-controller="jobs"-->
+<!--data-tray="overview"-->
+<!--data-tray-child="sub_overview"-->
+<!--data-placement="bottom" data-title="Well Info">Overview</a>-->
+<!--</li>-->
+<!--<li>-->
+<!--<a href="#">Time Analysis</a>-->
+<!--</li>-->
+<!--<li>-->
+<!--<a href="#">Warnings</a>-->
+<!--</li>-->
+<!--</ul>-->
+<!--</nav>-->
+
+<!--<div class="settings-block">-->
+<!--<ul>-->
+<!--<li>-->
+<!--<a href="#">H&P 220</a>-->
+<!--</li>-->
+<!--<li>-->
+<!--<a href="#">Dusek 45-1H</a>-->
+<!--</li>-->
+<!--<li>-->
+<!--<a href="#"><%= image_tag "rig/icon1.png" %></a>-->
+<!--</li>-->
+<!--</ul>-->
+<!--</div>-->
+
+<!--</header>-->
+
+<div id="job_<%= @job.id %>" class="job-main-div">
+  <div>
+
+
+    <div class="remote-tray custom-data-closed" data-tray="time_analysis">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading time analysis..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="performance_analysis">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading performance..." %>
+      </div>
+    </div>
+
+    <%= render 'jobs/tray_warnings' %>
+
+    <%= render 'jobs/tray_rig_overview', :locals => {:showEvents => true} %>
+
+
+  </div>
+</div>
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+
+            if (document.location.hash == '') {
+                tray = $(".remote-tray[data-tray='rig_overview']");
+                tray.find('.content').hide();
+                tray.find('.remote-loading').removeClass('hidden');
+                tray.find('.loading').removeClass('hidden');
+                setTimeout(function () {
+                    $.ajax({
+                        url: "/jobs/<%= @job.id %>?section=rig_overview_overview",
+                        type: "GET",
+                        dataType: "script"
+                    });
+                }, 1);
+            }
+
+        });
+    }(jQuery));
+</script>

@@ -1,0 +1,75 @@
+<div id="survey_point_<%= point.id %>">
+  <% if !point.comment.blank? %>
+      <br>
+
+      <div class='hr-underline'>
+        <i class="icon-comment"></i><b class='survey-comment'><%= point.comment %></b>
+      </div>
+  <% end %>
+
+  <div class="btn-group inline pull-right push-down-small">
+    <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+    </a>
+    <ul class="dropdown-menu">
+      <li>
+        <% if point.tie_on? %>
+            <%= link_to "Edit Tie-In", edit_survey_point_path(point), remote: true, class: "dropdown-menu-link show-modal-button" %>
+        <% else %>
+            <%= link_to "Edit Point", edit_survey_point_path(point), remote: true, class: "dropdown-menu-link show-modal-button" %>
+        <% end %>
+      </li>
+      <li class="divider"></li>
+      <li>
+        <%= link_to "Remove Point", point, method: :delete, remote: true,
+                    data: {confirm: "Remove Point?"}, class: "dropdown-menu-link tooltip-info",
+                    "data-placement" => "bottom",
+                    "data-title" => "Remove Point" %>
+      </li>
+    </ul>
+  </div>
+
+  <% if false %>
+      <div class='pull-right'>
+        <% if !point.tie_on && (!point.valid_magnetic_field_strength? || !point.valid_magnetic_dip_angle? || !point.valid_gravity_total?) %>
+            <%= image_tag "error_red.png", class: "inline-block align-top push-down-small" %>
+        <% end %>
+      </div>
+  <% end %>
+
+  <% if false %>
+      data-title="<%= render 'surveys/hover', point: point %>"
+  <% end %>
+  <div class='survey-point'>
+    <% if last_point.present? %>
+        <% if !point.tie_on && (point.inclination - last_point.inclination != 0 || point.azimuth - last_point.azimuth != 0) %>
+            <% changing = true %>
+        <% else %>
+            <% changing = false %>
+        <% end %>
+    <% end %>
+    <div class="list-item-column list-item-column-short"><%= number_with_delimiter(point.measured_depth.convert(:ft, company_unit).round(2), :delimiter => ',') %></div>
+    <div class="list-item-column list-item-column-short3 <%= changing ? "orange-text" : "" %>"><%= point.inclination %></div>
+    <div class="list-item-column list-item-column-short3 <%= changing ? "orange-text" : "" %>"><%= point.azimuth %></div>
+
+
+    <div class="list-item-column list-item-column-short"><%= point.true_vertical_depth.present? ? number_with_delimiter(point.true_vertical_depth.convert(:ft, company_unit).round(2), :delimiter => ',') : '-' %></div>
+    <div class="list-item-column list-item-column-short blue-text"><%= point.vertical_section.present? ? number_with_delimiter(point.vertical_section.convert(:ft, company_unit).round(2), :delimiter => ',') : '-' %></div>
+    <div class="list-item-column list-item-column-short"><%= point.north_south.present? ? point.north_south.round(2) : '-' %></div>
+    <div class="list-item-column list-item-column-short"><%= point.east_west.present? ? point.east_west.round(2) : '-' %></div>
+
+    <div class="list-item-column list-item-column-count">
+      <span class='label label-info'><%= point.dog_leg_severity.present? ? point.dog_leg_severity.round(2) : 0.0 %></span>
+    </div>
+
+    <% if point.tie_on? %>
+        <div class='inline-block list-item-column-count push-down-small'><%= point.survey.magnetic_field_strength.present? ? point.survey.magnetic_field_strength.round(4) : '-' %></div>
+        <div class='inline-block list-item-column-count push-down-small'><%= point.survey.magnetic_dip_angle.present? ? point.survey.magnetic_dip_angle.round(4) : '-' %></div>
+        <div class='inline-block list-item-column-count push-down-small'><%= point.survey.gravity_total.present? ? point.survey.gravity_total.round(4) : '-' %></div>
+    <% else %>
+        <div class='inline-block list-item-column-count push-down-small <%= point.valid_magnetic_field_strength? ? "" : "warning-text" %>'><%= point.magnetic_field_strength.present? ? point.magnetic_field_strength.round(4) : '-' %></div>
+        <div class='inline-block list-item-column-count push-down-small <%= point.valid_magnetic_dip_angle? ? "" : "warning-text" %>'><%= point.magnetic_dip_angle.present? ? point.magnetic_dip_angle.round(4) : '-' %></div>
+        <div class='inline-block list-item-column-count push-down-small <%= point.valid_gravity_total? ? "" : "warning-text" %>'><%= point.gravity_total.present? ? point.gravity_total.round(4) : '-' %></div>
+    <% end %>
+
+  </div>
+</div>

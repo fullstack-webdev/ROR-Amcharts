@@ -1,0 +1,26 @@
+<div class="login m-login-section" style="display: none;">
+  <div class="content">
+    <div class="form" data-form="login">
+      <%= form_for(:session, url: sessions_path, autocomplete: "on") do |f| %>
+        <%= f.email_field :email, placeholder: "Email",
+                          value: params[:email],
+                          class: "input-controls tooltip-info",
+                          "data-placement" => "bottom",
+                          "data-title" => "Email address" %>
+
+        <%= f.password_field :password, placeholder: "Password",
+                             class: "input-controls tooltip-info",
+                             "data-placement" => "bottom",
+                             "data-title" => "Password" %>
+
+        <div class="block section-footer">
+          <%= f.submit "LOG IN", class: "btn-login form-loading-on-click",
+                       "data-form" => "login" %>
+
+          <%= link_to "Need help logging in?", reset_password_path,
+                      class: "need-help pull-right" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

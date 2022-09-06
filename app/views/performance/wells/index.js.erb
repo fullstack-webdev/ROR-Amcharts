@@ -1,0 +1,12 @@
+tray = $(".remote-tray[data-tray='<%= params[:section] %>']");
+setTimeout(function () {
+  <% if params[:section] == "wells_well_time" %>
+  tray.replaceWith("<%= j render 'performance/wells/well_time/index.html' %>");
+  <% elsif params[:section] == "wells_cost" %>
+  tray.replaceWith("<%= j render 'performance/wells/cost/index_cost.html' %>");
+  <% elsif params[:section] == "wells_warnings" %>
+  tray.replaceWith("<%= j render 'performance/wells/warnings/index.html' %>");
+  <% elsif params[:section] == "wells_operations" %>
+  tray.replaceWith("<%= j render 'performance/wells/operations/index.html' %>");
+  <% end %>
+}, 0);

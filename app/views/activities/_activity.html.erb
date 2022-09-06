@@ -1,0 +1,20 @@
+<div>
+  <div class="avatar-box-small">
+    <%= image_tag "user_avatar_small.png" %>
+  </div>
+
+  <div class="header">
+    <h3><%= activity.message %></h3>
+
+    <div class="pull-right"><%= activity.created_at.to_formatted_s(:long) %></div>
+  </div>
+  <% if activity.target.present? %>
+      <%= render activity.target %>
+  <% else %>
+      <div class="field ">
+        <div class="push-right">
+          <%= activity.metadata %> - id: <%= activity.target_id %> - DELETED
+        </div>
+      </div>
+  <% end %>
+</div>

@@ -1,0 +1,254 @@
+<% provide(:title, @survey.name) %>
+
+<div class="section-header">
+
+
+  <div class="pull-right push-right-small">
+    <%= link_to "Update Well Plan", edit_survey_path(@survey), class: "btn btn-sub align-top" %>
+  </div>
+
+  <div class="pull-right push-right-small">
+    <%= link_to job_path(@survey.job, :anchor => "surveys"), class: "btn btn-sub align-top" do %>
+      <span>Add Surveys</span>
+    <% end %>
+  </div>
+
+  <h1>Well Plan</h1>
+</div>
+
+<div>
+  <p class='help-text'><%= @survey.name %></p>
+</div>
+<br>
+
+<div id="chartdiv" class='inline-block amChart' style="width: 50%; float: left; height: 500px; background-color: #475959;"></div>
+
+<div id="chartdiv2" class='inline-block amChart' style="width: 50%; height: 500px; background-color: #475959;"></div>
+
+<div class='push-down'>
+  <div class="list-item-column list-item-column-short">M. Depth</div>
+  <div class="list-item-column list-item-column-short">Inclination</div>
+  <div class="list-item-column list-item-column-short">Azimuth</div>
+  <div class="list-item-column list-item-column-short">Course</div>
+  <div class="list-item-column list-item-column-short">TVD</div>
+  <div class="list-item-column list-item-column-short">V Sect</div>
+  <div class="list-item-column list-item-column-short">+N/S-</div>
+  <div class="list-item-column list-item-column-short">+E/W-</div>
+  <div class="list-item-column list-item-column-count">DLS</div>
+</div>
+<hr>
+
+<% calculated_points = @survey.survey_points %>
+
+<% last_point = nil %>
+<% index = 0 %>
+<% changing = false %>
+<% calculated_points.each do |point| %>
+
+  <% if !point.comment.blank? %>
+    <br>
+    <i class="icon-comment"></i><b class='survey-comment'><%= point.comment %></b>
+    <hr>
+  <% end %>
+
+  <div class='tooltip-info survey-point'
+       data-title="<%= render 'surveys/hover', point: point %>"
+       data-html="true"
+       data-placement="right">
+    <% if last_point.nil? || (point.inclination - last_point.inclination != 0 || point.azimuth - last_point.azimuth != 0) %>
+      <% changing = true %>
+    <% else %>
+      <% changing = false %>
+    <% end %>
+    <div class="list-item-column list-item-column-short"><%= number_with_delimiter(point.measured_depth.round(2), :delimiter => ',') %></div>
+    <div class="list-item-column list-item-column-short <%= changing ? "orange-text" : "" %>"><%= point.inclination %></div>
+    <div class="list-item-column list-item-column-short <%= changing ? "orange-text" : "" %>"><%= point.azimuth %></div>
+    <div class="list-item-column list-item-column-short <%= changing ? "orange-text" : "" %>"><%= point.course_length %></div>
+    <div class="list-item-column list-item-column-short"><%= number_with_delimiter(point.true_vertical_depth.round(2), :delimiter => ',') %></div>
+    <div class="list-item-column list-item-column-short blue-text"><%= number_with_delimiter(point.vertical_section.round(2), :delimiter => ',') %></div>
+    <div class="list-item-column list-item-column-short"><%= point.north_south.round(2) %></div>
+    <div class="list-item-column list-item-column-short"><%= point.east_west.round(2) %></div>
+
+    <div class="list-item-column list-item-column-count"><%= point.dog_leg_severity.present? ? point.dog_leg_severity.round(2) : "-" %></div>
+
+    <% last_point = point %>
+  </div>
+  <% index += 1 %>
+  <% if index % 5 == 0 %>
+    <br>
+  <% end %>
+<% end %>
+
+<script type="text/javascript">
+  var chart;
+  var chartData = <%= raw calculated_points.map { |point| {"tvd" => point.true_vertical_depth.round(1), "vs" => point.vertical_section.round(1), "comment" => point.comment || ''} }.to_json.html_safe %>;
+  if (chartData[0].comment == '') {
+    chartData[0].comment = "Tie In";
+  }
+  if (chartData[chartData.length - 1].comment == '') {
+    chartData[chartData.length - 1].comment = "TD";
+  }
+  var chart2;
+  var chartData2 = <%= raw calculated_points.map { |point| {"ns" => point.north_south.round(1), "ew" => point.east_west.round(1), "comment" => point.comment || ''} }.to_json.html_safe %>;
+  if (chartData2[0].comment == '') {
+    chartData2[0].comment = "Tie In";
+  }
+  if (chartData2[chartData2.length - 1].comment == '') {
+    chartData2[chartData2.length - 1].comment = "TD";
+  }
+  <% ranges = Survey.get_ranges calculated_points %>
+
+  AmCharts.ready(function () {
+
+    // SERIAL CHART
+    chart = new AmCharts.AmXYChart();
+    //chart.pathToImages = "https://www.amcharts.com/lib/3/images/";
+    chart.dataProvider = chartData;
+
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "Vertical Section";
+    valueAxis.position = "bottom";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.autoGridCount = true;
+    valueAxis.minimum = <%= ranges[1][0] - 1 %>;
+    valueAxis.maximum = <%= ranges[1][1] + 1 %>;
+    valueAxis.color = "#ffffff";
+    valueAxis.titleColor = "#ffffff";
+    chart.addValueAxis(valueAxis);
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "True Vertical Depth";
+    valueAxis.position = "left";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.autoGridCount = true;
+    valueAxis.reversed = true;
+    valueAxis.minimum = <%= ranges[0][0] - 1 %>;
+    valueAxis.maximum = <%= ranges[0][1] + 1 %>;
+    valueAxis.color = "#ffffff";
+    valueAxis.titleColor = "#ffffff";
+    chart.addValueAxis(valueAxis);
+
+
+    // GRAPH
+    var graph = new AmCharts.AmGraph();
+    graph.xField = "vs";
+    graph.yField = "tvd";
+    graph.type = "smoothedLine";
+    graph.bullet = "round";
+    graph.balloonText = "<b>[[comment]]</b> TVD [[tvd]] ft, VS [[vs]] ft";
+    graph.bulletColor = "#FFFFFF";
+    graph.bulletBorderColor = "#cc4800";
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSize = 1.2;
+    graph.title = "tvd";
+    graph.lineThickness = 0;
+    graph.lineColor = "#cc4800";
+    graph.lineAlpha = 0.3;
+    graph.clustered = true;
+    chart.addGraph(graph);
+
+    // CURSOR
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart.addChartCursor(chartCursor);
+
+
+    // WRITE
+    chart.write("chartdiv");
+
+    var label = $("g[cursor=pointer]");
+    if (label.length > 0) {
+      var tspan = label.find('tspan');
+      if (tspan.length > 0) {
+        label.remove();
+      }
+    }
+
+    var circles = $('#chartdiv').find('circle[stroke=#cc4800]');
+    circles.each(function (index) {
+      if (chartData[index].comment != '' || index == chartData.length - 1 || index == 0) {
+        $(this).attr('r', 4);
+      }
+    });
+
+    // SERIAL CHART
+    chart2 = new AmCharts.AmXYChart();
+    //chart2.pathToImages = "https://www.amcharts.com/lib/3/images/";
+    chart2.dataProvider = chartData2;
+
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "East/West";
+    valueAxis.position = "bottom";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.integersOnly = false;
+    valueAxis.gridCount = 10;
+    valueAxis.minimum = <%= ranges[3][0] - 1 %>;
+    valueAxis.maximum = <%= ranges[3][1] + 1 %>;
+    valueAxis.color = "#ffffff";
+    valueAxis.titleColor = "#ffffff";
+    chart2.addValueAxis(valueAxis);
+
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "North/South";
+    valueAxis.position = "left";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.integersOnly = false;
+    valueAxis.gridCount = 10;
+    valueAxis.reversed = true;
+    valueAxis.minimum = <%= ranges[2][0] - 1 %>;
+    valueAxis.maximum = <%= ranges[2][1] + 1 %>;
+    valueAxis.color = "#ffffff";
+    valueAxis.titleColor = "#ffffff";
+    chart2.addValueAxis(valueAxis);
+
+
+    // GRAPH
+    var graph = new AmCharts.AmGraph();
+    graph.xField = "ew";
+    graph.yField = "ns";
+    graph.type = "smoothedLine";
+    graph.bullet = "round";
+    graph.balloonText = "<b>[[comment]]</b> [[ns]], [[ew]]";
+    graph.bulletColor = "#FFFFFF";
+    graph.bulletBorderColor = "#cc4800";
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSize = 1.2;
+    graph.title = "tvd";
+    graph.lineThickness = 0;
+    graph.lineColor = "#cc4800";
+    graph.lineAlpha = 0.3;
+    graph.clustered = true;
+    chart2.addGraph(graph);
+
+    // CURSOR
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart2.addChartCursor(chartCursor);
+
+
+    // WRITE
+    chart2.write("chartdiv2");
+
+    var label = $("tspan:contains('chart by amcharts.com')");
+    if (label.length > 0) {
+      label.remove();
+    }
+
+    var circles = $('#chartdiv2').find('circle[stroke=#cc4800]');
+    circles.each(function (index) {
+      if (chartData2[index].comment != '' || index == chartData2.length - 1 || index == 0) {
+        $(this).attr('r', 4);
+      }
+    });
+  });
+
+</script>

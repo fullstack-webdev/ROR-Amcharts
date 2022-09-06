@@ -1,0 +1,28 @@
+<% provide(:title, 'Rigs') %>
+
+<div class="section-header">
+  <h1>Rigs</h1>
+
+  <div class='inline-block push-right-small align-top'>
+    <%= link_to  new_rig_path, remote: true,
+                class: "btn btn-primary white-text tooltip-info show-modal-button", id: "new_rig_link",
+                "data-placement" => "bottom",
+                "data-title" => "Create new rig" do %>
+        <i class="icon-plus-sign icon-white"></i>
+        <span>New Rig</span>
+    <% end %>
+  </div>
+</div>
+
+
+<%= render 'rigs/rigs_overview', rigs: @rigs %>
+
+
+<div id="modal_popup" class="modal-popup-background">
+  <div class="modal-popup modal-popup-fixed">
+    <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal" %>
+    <div class="modal-content">
+    </div>
+    <%= render "layouts/inline_loading", title: "Loading..." %>
+  </div>
+</div>

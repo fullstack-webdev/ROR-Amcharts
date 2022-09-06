@@ -1,0 +1,106 @@
+<%= form_for(JobMembership.new, :html => {:class => "inline  ", id: "new_member_form"}, remote: true) do |f| %>
+
+
+    <div>
+      <ul class="nav nav-pills">
+        <li class='active'>
+          <a href="#" class='job-membership-type' data-type="elephant">Corva User</a>
+        </li>
+        <li class="push-right-small">
+          <a href="#" class='job-membership-type blue-text' data-note="external">External User</a>
+        </li>
+      </ul>
+    </div>
+
+    <%= f.hidden_field :job_id, id: "new_member_job_id", value: job.id %>
+
+    <div id='elephant_user' class='inline-block'>
+      <%= f.hidden_field :user_id, id: "new_member_id" %>
+      <%= image_tag "user_avatar_extrasmall.png", class: "job-status-avatar align-top push-down-small inline-block" %>
+      <%= text_field_tag "", "", data: {autocomplete_source: users_path},
+                         placeholder: I18n.t("jobs.show.new_member_prompt"),
+                         id: "new_member_name", class: "txtfield small align-top" %>
+      <%= select_tag "job_role_id", options_for_select([["Observer", JobMembership::OBSERVER],
+                                                     ["Company Man  -  Day", 1005],
+                                                     ["Company Man  -  Night", 1006],
+                                                     ["Geologist", JobMembership::GEOLOGIST],
+                                                     ["Manager", JobMembership::MANAGER],
+                                                     ["Coordinator", JobMembership::COORDINATOR],
+                                                     ["Tool Coordinator", JobMembership::TOOL_COORDINATOR],
+                                                     ["Field  -  Day", 1000],
+                                                     ["Field  -  Night", 1001],
+                                                     ["Shop", JobMembership::SHOP]
+                                                     ]),
+                   class: "custom-select custom-select-ajax",
+                   prompt: I18n.t("jobs.show.new_member_role_prompt") %>
+    </div>
+    <div id='external_user' class='inline-block hidden'>
+      <%= text_field_tag "user_name", "",
+                         placeholder: "Enter Name of Person",
+                         class: "txtfield small align-top" %>
+      <%= select_tag "job_role_id2", options_for_select([["Observer", JobMembership::OBSERVER],
+                                                     ["Company Man  -  Day", 1005],
+                                                     ["Company Man  -  Night", 1006],
+                                                     ["Geologist", JobMembership::GEOLOGIST],
+                                                     ["Coordinator", JobMembership::COORDINATOR],
+                                                     ["Field  -  Day", 1000],
+                                                     ["Field  -  Night", 1001]]),
+                   class: "custom-select custom-select-ajax",
+                   prompt: I18n.t("jobs.show.new_member_role_prompt") %>
+
+      <div>
+        <%= text_field_tag "phone_number", "",
+                           placeholder: "Phone Number",
+                           class: "txtfield small align-top" %>
+
+        <%= text_field_tag "email", "",
+                           placeholder: "Email",
+                           class: "txtfield small align-top" %>
+      </div>
+    </div>
+    <%= f.submit I18n.t("global.add"), class: "bluebtn btnsmall add-member-loading-button" %>
+<% end %>
+
+<script type='text/javascript'>
+    var focusevent, last_selected_item;
+
+    last_selected_item = null;
+
+    focusevent = function(event, ui) {
+        var selected_item;
+        if (last_selected_item !== null) {
+            $('.item_' + last_selected_item.id).removeClass('ui-state-hover');
+        }
+        selected_item = $('.item_' + ui.item.id);
+        selected_item.addClass('ui-state-hover');
+        return last_selected_item = ui.item;
+    };
+
+    $('#new_member_name').autocomplete({
+        source: $('#new_member_name').data('autocomplete-source'),
+        focus: focusevent,
+        select: function(event, ui) {
+            if (ui.item.id > 0) {
+                $("#new_member_name").val(ui.item.label);
+            }
+            return $("#new_member_id").val(ui.item.id);
+        }
+    });
+
+    $('#new_note_name').autocomplete({
+        source: $('#new_note_name').data('autocomplete-source'),
+        focus: focusevent,
+        select: function(event, ui) {
+            if (ui.item.id > 0) {
+                $("#new_note_name").val(ui.item.label);
+                return $("#new_note_name_id").val(ui.item.id);
+            }
+        }
+    });
+
+    $('#new_member_name').data("autocomplete")._renderItem = function (ul, item) {
+        return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                "<a>" + (item.id > 0 ? "<img src='/assets/user_avatar_extrasmall.png' class='job-member-avatar pull-left'>" : "") + "<div class='job-user'><strong>" + item.value + " </strong>" + (item.id > 0 ? "<div><p class='job-user-title'>" + item.position_title + "</p><p class='job-user-district'>" + item.district + "</p></div>" : "") + "</div></a>").appendTo(ul)
+    }
+
+</script>

@@ -1,0 +1,40 @@
+
+$('#modal_popup').find('.loading').addClass('hidden');
+$('#modal_popup').find('.form').show();
+
+<% if @rig.new_record? %>
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding Rig", message: @rig.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show:true});
+
+<% else %>
+
+$('#modal_popup').css('visibility', 'hidden');
+$('#modal_popup').find(".modal-content").children().remove();
+$('#modal_popup').height(0);
+
+if($('#rig_id').length > 0) {
+    $('#rig_id').val("<%= @rig.id %>");
+    $('#rig_name').val("<%= sanitize(@rig.name) %>");
+}
+
+if($('#rig_list').length > 0) {
+    $('#rig_list').append("<%= j render "rigs/rig", rig: @rig %>");
+}
+
+<% if !params[:reference].blank? %>
+    $('#modal_popup').css('visibility', 'visible');
+    $('#modal_popup').height($(document).height() + 100);
+    $('#modal_popup').find('.loading').removeClass('hidden');
+
+    $.ajax({
+        url: "<%= params[:reference].gsub("%2F","/").gsub("%3F", "?").gsub("%3D", "=") %>" + "&rig_id=<%= @rig.id %>&rig_name=<%= u(@rig.name) %>",
+        type: "GET",
+        dataType: "script"
+    });
+
+
+<% end %>
+
+<% end %>

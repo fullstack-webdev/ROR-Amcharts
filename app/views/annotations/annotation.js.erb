@@ -1,0 +1,41 @@
+$('#config_detail_popup').html('<%= j render 'annotations/annotation' %>');
+$('#config_detail_popup').css('visibility', 'visible');
+
+var height = ($(window).height() - 200).toString();
+$('#config_detail_popup .modal-popup').css('max-height', height + 'px');
+$('#config_detail_popup .comments-list').css('height', (height - 68 - 65) + 'px');
+$("#config_detail_popup .comments-list").perfectScrollbar();
+
+$('#add_annotation_comment_button').click(function(){
+    var comment = $('#annotation_comment').val();
+    if(comment.length > 0) {
+        $.ajax('/jobs/<%= @job.id %>/create_annotation_comment', {
+            type: 'post',
+            dataType: 'script',
+            data: {
+                annotation_id: $(this).attr('data-annotation-id'),
+                comment: comment
+            }
+        });
+    }
+    return false;
+});
+
+$('#annotation_comment').focus(function() {
+    $('#new_annoation_comment_div').css('opacity', '1.0');
+});
+
+
+$('#annotation_comment').focusout(function() {
+    if($('#new_annoation_comment_div').val().length <= 0) {
+        $('#new_annoation_comment_div').css('opacity', '0.5');
+    }
+});
+
+<% if defined?(@created) && @created %>
+var DV = window.DV;
+if (DV) {
+  DV_ANNOTATIONS.push(<%= raw @annotation.to_json({:methods => :description}) %>);
+  DV.draw_warnings_row();
+}
+<% end %>

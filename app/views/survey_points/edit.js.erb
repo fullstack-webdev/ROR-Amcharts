@@ -1,0 +1,29 @@
+$('#modal_popup').find('.modal-content').append('<%= j render 'survey_points/edit', survey_point: @survey_point %>');
+$('#modal_popup').css('visibility', 'visible');
+$('#modal_popup').find('.loading').addClass('hidden');
+$('#modal_popup').find('.modal-popup').css('max-width', '800px').css('width', '800px');
+$('#modal_popup').find('.custom-select').customSelect();
+
+
+$('.range-validator').live("keyup", function() {
+    var any, value;
+    value = parseFloat($(this).val());
+    if (value < parseFloat($(this).attr('data-minimum')) || value > parseFloat($(this).attr('data-maximum'))) {
+        $(this).addClass('ui-autocomplete-bad');
+    } else {
+        $(this).removeClass('ui-autocomplete-bad');
+    }
+    any = false;
+    $('.range-validator').each(function() {
+        if ($(this).hasClass('ui-autocomplete-bad')) {
+            return any = true;
+        }
+    });
+    if (any) {
+        return $('#survey_out_of_range').removeClass('hidden');
+    } else {
+        return $('#survey_out_of_range').addClass('hidden');
+    }
+});
+
+

@@ -1,0 +1,44 @@
+
+
+    <div class='' style='margin-top: 0px;'>
+
+      <% if false %>
+          <div class="<%= in_form ? 'well' : '' %>">
+
+            <% if false %>
+                <div id="job-progress-status">
+                  <%= render 'jobs/job_progress_status', job: job %>
+                </div>
+            <% end %>
+
+            <div class="district-client-div">
+
+              <%= image_tag "district_extrasmall.png", class: "job-status-avatar" %>
+
+              <% if job.district.present? %>
+                  <% if in_form %>
+                      <%= link_to job.district.name, job.district,
+                                  class: "job-field-value-link tooltip-info",
+                                  "data-placement" => "bottom",
+                                  "data-title" => "View all jobs in " + job.district.name + " district" %>
+                  <% else %>
+                      <b class="inline"><%= job.district.name %></b>
+                  <% end %>
+              <% end %>
+
+
+            </div>
+
+          </div>
+      <% end %>
+
+      <div id="job_circle_div" class='pull-left' style="margin-top: 0px; margin-right: 20px;">
+
+      </div>
+
+
+
+
+    </div>
+
+

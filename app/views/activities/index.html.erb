@@ -1,0 +1,16 @@
+<% provide(:title, 'Admin Activity') %>
+
+<div class="page_header">
+  <h1>Admin Activity</h1>
+
+  <h2><%= @activities.count() %></h2>
+</div>
+
+
+<%= will_paginate %>
+
+<div id="activities" class="list">
+  <%= render @activities %>
+</div>
+
+<%= will_paginate %>

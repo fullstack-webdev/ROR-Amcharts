@@ -1,0 +1,93 @@
+<div id="survey_entry" class="well <%= @survey.survey_points.empty? ? "hidden" : "" %>" style="background-color: #394f50;">
+  <div>
+    <b>Add New Survey Point</b>
+    <br>
+    <br>
+  </div>
+  <div class="form" data-form="new_survey_point">
+    <%= form_for SurveyPoint.new, remote: true do |f| %>
+
+        <%= f.hidden_field :survey_id, value: @survey.id %>
+
+        <div>
+          <div class='survey-tie-in-label'>MD</div>
+          <%= f.text_field :measured_depth, placeholder: "Survey Depth", class: "txtfield extra-small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Survey Depth" %>
+
+          <div class='survey-tie-in-label'>Inc</div>
+          <%= f.text_field :inclination, placeholder: "Inclination", class: "txtfield extra-small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Inclination" %>
+
+          <div class='survey-tie-in-label'>Azi</div>
+          <%= f.text_field :azimuth, placeholder: "Azimuth", class: "txtfield extra-small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Azimuth" %>
+        </div>
+
+        <div>
+          <div class='survey-tie-in-label'>MFS</div>
+          <%= f.text_field :magnetic_field_strength,
+                           placeholder: "Magnetic Field Strength",
+                           class: "txtfield extra-small tooltip-info range-validator",
+                           "data-minimum" => (@survey.magnetic_field_strength.present? ? @survey.magnetic_field_strength : 0) - 0.005,
+                           "data-maximum" => (@survey.magnetic_field_strength.present? ? @survey.magnetic_field_strength : 0)  + 0.005,
+                           "data-placement" => "bottom",
+                           "data-title" => "Magnetic Field Strength" %>
+
+          <div class='survey-tie-in-label'>MDA</div>
+          <%= f.text_field :magnetic_dip_angle,
+                           placeholder: "Magnetic Dip Angle",
+                           class: "txtfield extra-small tooltip-info range-validator",
+                           "data-minimum" => (@survey.magnetic_dip_angle.present? ? @survey.magnetic_dip_angle : 0) - 2,
+                           "data-maximum" => (@survey.magnetic_dip_angle.present? ? @survey.magnetic_dip_angle : 0) + 2,
+                           "data-placement" => "bottom",
+                           "data-title" => "Magnetic Dip Angle" %>
+
+          <div class='survey-tie-in-label'>Grav</div>
+          <%= f.text_field :gravity_total,
+                           placeholder: "Gravity Total",
+                           class: "txtfield extra-small tooltip-info range-validator",
+                           "data-minimum" => (@survey.gravity_total.present? ? @survey.gravity_total : 1)  - 0.003,
+                           "data-maximum" => (@survey.gravity_total.present? ? @survey.gravity_total : 1) + 0.003,
+                           "data-placement" => "bottom",
+                           "data-title" => "Gravity Total" %>
+        </div>
+
+        <div class='survey-tie-in-label'><i class="icon-comment"></i></div>
+        <%= f.text_field :comment,
+                         placeholder: "Comment",
+                         class: "txtfield long tooltip-info",
+                         "data-placement" => "bottom",
+                         "data-title" => "Comment" %>
+
+        <%= f.submit "Add Survey",
+                     class: "btn btn-primary pull-right push-down form-loading-on-click",
+                     "data-form" => "new_survey_point" %>
+
+
+
+        <div id='survey_out_of_range' class='hidden pull-left'>
+          <div class='warning-text push-down'>Value is out of the range of valid values which could indicate a bad survey.</div>
+        </div>
+
+
+        <br>
+
+
+        <% if false %>
+            <br>
+            <i class="icon-comment"></i>
+            <%= f.text_field :comment, placeholder: "Comment", class: "txtfield txtfield-long tooltip-info",
+                             "data-placement" => "bottom",
+                             "data-title" => "Point Comment" %>
+        <% end %>
+    <% end %>
+  </div>
+
+  <div class="form-loading hidden" data-form="new_survey_point">
+    <%= render 'layouts/inline_loading', title: "Adding survey point..." %>
+    <br><br>
+  </div>
+</div>

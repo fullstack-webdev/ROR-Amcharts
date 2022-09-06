@@ -1,0 +1,26 @@
+<% cache("trends/wells/warnings/" + cache_key_for_wells) do %>
+  <div class='remote-tray' data-tray='wells_warnings'>
+    <div class="remote-loading hidden">
+      <br><br>
+      <%= render 'layouts/inline_loading', title: "Please wait, loading..." %>
+    </div>
+
+    <div class='tray-content content-loaded'>
+      <div class="content-view">
+        <div class="block" style="position: relative;">
+          <div id="wells_warnings_chart" class="amChart block" style="float: left; width: 100%; height: 520px;"></div>
+        </div>
+
+        <div class="block warnings-depth-chart-container">
+          <%= render 'performance/wells/warnings/warnings_depth_chart' %>
+        </div>
+      </div>
+
+      <%= render 'performance/no_content' %>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    <%= render 'performance/wells/warnings/index.js' %>
+  </script>
+<% end %>

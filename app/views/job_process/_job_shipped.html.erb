@@ -1,0 +1,15 @@
+<div class="content job-process" id="job_shipped_id">
+  <%= image_tag "approve_arrow.png" %>
+
+
+  <p class="job-approved-to-ship inline">Job shipped to location</p>
+
+  <p class="inline">-</p>
+  <div class="inline">
+    <%= render 'activities/user', user: job_process.user %>
+  </div>
+
+  <p class="activity-date inline-block pull-right align-top"><%= time_ago_in_words(job_process.created_at) %> ago</p>
+
+
+</div>

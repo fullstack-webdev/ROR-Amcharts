@@ -1,0 +1,53 @@
+<%= render layout: 'performance/layout_performance' do %>
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Custom Query</h1>
+    </div>
+
+
+    <div>
+      <%= render 'form' %>
+    </div>
+
+
+    <div id="query_results" class="hidden">
+      <div class="block">
+        <div class="inline-block" style="margin-left: 30px; vertical-align: top;">
+          <%= render 'tray_btns' %>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <div class="remote-tray" data-tray="custom_queries_well_time">
+          <div class="remote-loading" style="margin-top: 30px;">
+            <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+          </div>
+        </div>
+
+        <div class="remote-tray custom-data-closed" data-tray="custom_queries_cost">
+          <div class="remote-loading" style="margin-top: 30px;">
+            <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+          </div>
+        </div>
+
+        <div class="remote-tray custom-data-closed" data-tray="custom_queries_warnings">
+          <div class="remote-loading" style="margin-top: 30px;">
+            <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+          </div>
+        </div>
+
+        <div class="remote-tray custom-data-closed" data-tray="custom_queries_operations">
+          <div class="remote-loading" style="margin-top: 30px;">
+            <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+          </div>
+        </div>
+      </div>
+
+      <script type="text/javascript">
+          <%= render 'index.js' %>
+      </script>
+    </div>
+
+
+<% end %>

@@ -1,0 +1,25 @@
+<% if f.object.present? %>
+    <%= render 'shared/error_messages', object: f.object %>
+<% end %>
+
+<div class="well">
+  <div class="">
+    <%= hidden_field_tag "", "", name: "reference", value: params[:reference] %>
+
+    <%= f.text_field :name, placeholder: "Rig Name",
+                     class: "txtfield tooltip-info",
+                     id: "rig_name_id",
+                     :autofocus => true,
+                     :autocomplete => 'off',
+                     "data-placement" => "bottom",
+                     "data-title" => "Rig Name" %>
+  </div>
+
+  <div class="alert alert-warning hidden">
+    <b>Warning!</b> Rigs that already exist
+    <br><br>
+
+    <div id="similar_rig"></div>
+  </div>
+
+</div>

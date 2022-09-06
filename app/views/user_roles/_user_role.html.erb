@@ -1,0 +1,13 @@
+<li class="field">
+  <%= link_to user_role_path(user_role.role_id), class: "list-item-header user-header tooltip-info",
+              "data-placement" => "left",
+              "data-title" => "Click to open/edit user role" do %>
+
+      <%= image_tag "user_avatar_extrasmall.png", class: "job-status-avatar align-top" %>
+
+      <p class="list-item-header-text list-item-column list-item-column-long">
+        <%= user_role.title %>
+      </p>
+      <p class='inline push-right-small help-text'> <%= user_role.description %></p>
+  <% end %>
+</li>

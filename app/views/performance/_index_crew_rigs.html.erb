@@ -1,0 +1,175 @@
+<div class='remote-tray' data-tray='crew_rigs'>
+
+  <div class='tray-content content-loaded '>
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Drilling Rigs - Crew</h1>
+    </div>
+
+    <div class="block">
+
+      <div class="inline-block">
+        <div class="dropdown dropdown-styled" style="display: inline-block">
+          <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="crew_rig_selected" data-id="-1">
+            All Rigs - Crew <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="crew_rig_list">
+            <% if @crew_rigs.empty? then %>
+                <li role="presentation"><a href="javascript:void(0);">No Rigs - Crew</a></li>
+            <% else %>
+                <li role="presentation"><a href="javascript:void(0);" data-id="-1">All Rigs - Crew</a></li>
+                <% @crew_rigs.each do |crew_rig| %>
+                    <li role="presentation"><%= link_to crew_rig.name + "- Morning", "javascript:void(0);", "data-id" => crew_rig.id.to_s + "-0", "data-crew" => "0", "tabindex" => "-1" %></li>
+                    <li role="presentation"><%= link_to crew_rig.name + "- Night", "javascript:void(0);", "data-id" => crew_rig.id.to_s + "-1", "data-crew" => "1", "tabindex" => "-1" %></li>
+                <% end %>
+            <% end %>
+          </ul>
+        </div>
+
+        <div class="dropdown dropdown-styled" style="display: inline-block; margin-left: 20px;">
+          <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="history_selected" data-id="-1">
+            Full History <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="history_list">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="-1">Full History</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="3">Last 3 months</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="6">Last 6 months</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="12">Last year</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!--<ul class="btn-group inline-block">-->
+      <!--<li>
+          <%= link_to "Well Time", "#",
+                      #                       "data-tray-controller" => "performance",
+                      #                       "data-tray" => "crew_rigs_well_time",
+                      #                       "data-tray-parent" => "crew_rigs",
+                      class: "remote-tray-toggle" %>
+              <button type="button" class="btn-sub" style=" display: inline-block; float: none; margin-left: 10px; vertical-align: top;">-->
+      <!--Well Time-->
+      <!--</button>-->
+      <!--</li>-->
+
+      <!--<li>
+          <%= link_to "Cost", "#",
+                      #                       "data-tray-controller" => "performance",
+                      #                       "data-tray" => "crew_rigs_cost",
+                      #                       "data-tray-parent" => "crew_rigs",
+                      class: "remote-tray-toggle" %>
+        </li>-->
+
+      <!--</ul>-->
+
+      <div class="inline-block" style="margin-left: 30px; vertical-align: top;">
+        <a href="#" data-tray-controller="performance" data-tray="crew_rigs_well_time" data-tray-parent="crew_rigs" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-crew_rigs-perf active">
+            Well Time
+          </button>
+        </a>
+
+        <a href="#" data-tray-controller="performance" data-tray="crew_rigs_cost" data-tray-parent="crew_rigs" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-crew_rigs-perf  ">
+            Cost
+          </button>
+        </a>
+
+        <a href="#" data-tray-controller="performance" data-tray="crew_rigs_warnings" data-tray-parent="crew_rigs" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-crew_rigs-perf  ">
+            Warnings
+          </button>
+        </a>
+
+        <a href="#" data-tray-controller="performance" data-tray="crew_rigs_process_time" data-tray-parent="crew_rigs" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-crew_rigs-perf  ">
+            Operations
+          </button>
+        </a>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="tray-content content-loaded">
+
+      <div class="remote-tray" data-tray="crew_rigs_well_time">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </div>
+
+      <div class="remote-tray custom-data-closed" data-tray="crew_rigs_cost">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </div>
+
+      <div class="remote-tray custom-data-closed" data-tray="crew_rigs_warnings">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </div>
+
+      <div class="remote-tray custom-data-closed" data-tray="crew_rigs_process_time">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script type="text/javascript">
+    var current_id = -1;
+    var current_history = -1;
+    (function ($) {
+
+
+        $('.btn-crew_rigs-perf').click(function() {
+            console.log('button clicked');
+            $('.btn-crew_rigs-perf').removeClass('active');
+            $(this).addClass('active');
+
+        });
+
+        // click even on crew_rigs list
+        $('#crew_rig_list li a').on('click', function () {
+//            alert($(this).attr('data-id'));
+            $('#crew_rig_selected').html($(this).html() + ' <span class="caret"></span>');
+            $('#crew_rig_selected').data('id', $(this).attr('data-id'));
+        });
+
+        // click event on history list
+        $('#history_list li a').on('click', function () {
+            $('#history_selected').html($(this).html() + ' <span class="caret"></span>');
+            $('#history_selected').data('id', $(this).attr('data-id'));
+        });
+    }(jQuery));
+</script>
+<script type="text/javascript">
+//    var color_palette = ["#58c9c2", "#b858c9", "#589dc9", "#9babee", "#23c9ff", "#9aea6a", "#9eddde", "#987cf4", "#23fcff" ];
+    (function ($) {
+        $(document).ready(function () {
+            setTimeout(function () {
+            tray = $(".remote-tray[data-tray='crew_rigs_well_time']");
+            console.log(tray);
+            tray.find('.content').hide();
+            tray.find('.remote-loading').removeClass('hidden');
+            tray.find('.loading').removeClass('hidden');
+
+
+                $.ajax({
+                    url: "/performance?section=crew_rigs_well_time",
+                    type: "GET",
+                    dataType: "script"
+                });
+                $(".remote-tray-toggle[data-tray='crew_rigs']").attr("data-tray-child","crew_rigs_well_time");
+            }, 0);
+
+        });
+    }(jQuery));
+</script>

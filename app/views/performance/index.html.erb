@@ -1,0 +1,92 @@
+<% provide(:title, I18n.t("performance.index.title")) %>
+
+<div style='height: 52px;'>
+  <div style='position: absolute; left: 0; width: 100%; height: 52px; top: 54px; border-left: 11px solid #58c9c2; box-sizing: border-box;'>
+    <ul class="nav nav-pills alert alert-nav alert-nav-shrink parent-tray-nav" style='border-radius: 0px; border-width: 0px;'>
+
+      <li class="active">
+        <a href="#programs" class="remote-tray-toggle custom-data-toggle"
+           data-tray-controller="performance"
+
+           data-tray="programs"
+           data-placement="bottom" data-title="Drilling Programs">Drilling Programs</a>
+      </li>
+
+      <li class="">
+        <a href="#rigs" class="remote-tray-toggle custom-data-toggle"
+           data-tray-controller="performance"
+
+           data-tray="rigs"
+           data-placement="bottom" data-title="Rigs">Rigs</a>
+      </li>
+
+      <li class="">
+        <a href="#wells" class="remote-tray-toggle custom-data-toggle"
+           data-tray-controller="performance"
+
+           data-tray="wells"
+           data-placement="bottom" data-title="Wells">Wells</a>
+
+      </li>
+
+      <li class="">
+        <a href="#custom" class="remote-tray-toggle custom-data-toggle"
+           data-tray-controller="performance"
+           data-tray="custom"
+           data-placement="bottom" data-title="Custom Query">Custom Query</a>
+      </li>
+
+    </ul>
+  </div>
+</div>
+
+<div class="">
+
+  <div class="remote-tray" data-tray="programs">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading programs..." %>
+    </div>
+  </div>
+
+  <div class="remote-tray custom-data-closed" data-tray="rigs">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading rigs..." %>
+    </div>
+  </div>
+
+  <div class="remote-tray custom-data-closed" data-tray="wells">
+    <div class="remote-loading" style="margin-top: 30px;">
+      <%= render 'layouts/inline_loading', title: "Please wait, loading wells..." %>
+    </div>
+  </div>
+
+
+</div>
+
+
+
+<script type="text/javascript">
+  var _COLOR_PALETTE = ["#58c9c2", "#b858c9", "#589dc9", "#9babee", "#23c9ff", "#9aea6a", "#9eddde", "#987cf4", "#23fcff" ];
+  var analysis_well_id = -1;
+  var analysis_rig_id = -1;
+
+  (function ($) {
+    $(document).ready(function () {
+      if (document.location.hash == '') {
+        tray = $(".remote-tray[data-tray='programs']");
+        tray.find('.content').hide();
+        tray.find('.remote-loading').removeClass('hidden');
+        tray.find('.loading').removeClass('hidden');
+
+        window.auid++;
+        setTimeout(function () {
+          $.ajax({
+            url: "/performance?section=programs" + "&auid=" + window.auid,
+            type: "GET",
+            dataType: "script"
+          });
+        }, 1);
+      }
+    });
+  }(jQuery));
+</script>

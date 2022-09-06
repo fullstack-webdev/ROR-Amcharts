@@ -1,0 +1,35 @@
+<% if !@master_bha.present? %>
+    <div class="well">
+      <div class='pull-left'>
+        <b>BHA Number</b>
+        <br><br>
+        <%= f.text_field :name, class: "txtfield",
+                         placeholder: "BHA Number..." %>
+      </div>
+
+
+      <div>
+        <b class='push-right-small'>Description</b>
+        <br><br>
+        <%= f.text_field :description, class: "txtfield input-small push-right-small",
+                         placeholder: "Description/Purpose..." %>
+      </div>
+
+      <hr>
+
+
+      <div class='inline-block'>
+        <b>Bit to Sensor</b>
+        <%= f.text_field :bit_to_sensor, class: "txtfield small push-right-small",
+                         placeholder: "Bit to Sensor..." %>
+      </div>
+
+      <div class='inline-block push-right'>
+        <b>Bit to Gamma</b>
+        <%= f.text_field :bit_to_gamma, class: "txtfield small push-right-small",
+                         placeholder: "Bit to Gamma..." %>
+      </div>
+
+
+    </div>
+<% end %>

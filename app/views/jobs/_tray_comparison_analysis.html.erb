@@ -1,0 +1,218 @@
+<div class="remote-tray" data-tray="comparison">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading comparison analysis..." %>
+  </div>
+
+  <div class='tray-content content-loaded'>
+
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Comparison Analysis</h1>
+    </div>
+
+    <% @drilling_log = @job.drilling_log %>
+    <% drilling_log = @drilling_log %>
+
+    <% if drilling_log.drilling_log_entries.any? %>
+
+        <div id="comp_chart" class="amChart" style="width: 100%; height: 500px; display: inline-block"></div>
+
+        <div id="comp_chart2" class="amChart" style="width: 100%; height: 400px; display: inline-block"></div>
+
+
+        <div id="comp_chart3" class="amChart" style="width: 100%; height: 400px; display: inline-block"></div>
+
+    <% else %>
+        <p class='help-text'>No drilling info...</p>
+    <% end %>
+  </div>
+</div>
+
+
+<script type='text/javascript'>
+
+    var graphs = [];
+
+    <% series = [] %>
+    <% drilling_logs = DrillingLog.joins(job: {well: {field: :state}}).where("concat(fields.county, ', ', states.name) = ?", @job.drilling_log.job.well.field.county + ', ' + @job.drilling_log.job.well.field.state.name) %>
+    <% puts ".............." + drilling_logs.count.to_s %>
+    <% drilling_logs.each do |dl| %>
+
+        graphs.push({
+            "balloonText": "$[[depth_<%= dl.job_id %>]] ft [[time_<%= dl.job_id %>]]" ,
+            "bullet": "none",
+            "color": "#666",
+            "lineAlpha": 1,
+            "lineThickness": <%= dl.job_id == @job.id ? 3.5 : 1 %>,
+            "lineColor": "<%= '#' + Digest::MD5.hexdigest(dl.job.well_name)[0..5] %>",
+            "xField": "time_<%= dl.job_id %>",
+            "yField": "depth_<%= dl.job_id %>",
+            "title": "<%= dl.job.well_name %>"
+        });
+
+        <% entries = dl.drilling_log_entries %>
+        <% last_entry = entries.first %>
+        <% last_time = 0 %>
+        <% max_depth = 0 %>
+        <% total_time = 0 %>
+        <% entries.each do |dl| %>
+            <% time = (dl.entry_at - last_entry.entry_at).to_f / 60.0 / 60.0 %>
+            <% total_time += time %>
+            <% if total_time > (last_time + 10) && dl.activity_code != DrillingLogEntry::CONNECTION && dl.activity_code != DrillingLogEntry::CONNECTION_SURVEY && dl.activity_code != DrillingLogEntry::MWD_SURVEY %>
+                <% series << {"time_#{dl.job_id}" => total_time, "depth_#{dl.job_id}" => dl.depth >= max_depth ? dl.depth : max_depth} %>
+                <% last_time = total_time %>
+            <% end %>
+            <% max_depth = [max_depth, dl.depth].max %>
+            <% last_entry = dl %>
+        <% end %>
+    <% end %>
+
+    var chart = AmCharts.makeChart("comp_chart", {
+        "type": "xy",
+        "pathToImages": "http://cdn.amcharts.com/lib/3/images/",
+        "sequencedAnimation": false,
+        "graphs": graphs,
+        "guides": [],
+        "valueAxes": [
+            {
+                "id": "ValueAxis-1",
+                "position": "left",
+                "title": "Depth",
+                "reversed": true
+            },
+            {
+                "id": "ValueAxis-2",
+                "position": "bottom",
+                "title": "Time"
+
+            }
+        ],
+        "allLabels": [],
+        "balloon": {},
+        "titles": [],
+        "legend": {
+            "useGraphSettings": true
+        },
+        "dataProvider": <%= series.to_json.html_safe %>
+    });
+
+
+
+
+
+
+    graphs = [];
+
+    <% series = [] %>
+    <% drilling_logs = DrillingLog.joins(job: {well: {field: :state}}).where("concat(states.name) = ?", @job.drilling_log.job.well.field.state.name) %>
+    <% drilling_logs.each do |dl| %>
+
+    graphs.push({
+        "balloonText": "$[[depth_<%= dl.job_id %>]] ft [[time_<%= dl.job_id %>]]" ,
+        "bullet": "none",
+        "color": "#666",
+        "lineAlpha": 1,
+        "lineThickness": <%= dl.job_id == @job.id ? 3.5 : 1 %>,
+        "lineColor": "<%= '#' + Digest::MD5.hexdigest(dl.job.well_name)[0..5] %>",
+        "xField": "time_<%= dl.job_id %>",
+        "yField": "depth_<%= dl.job_id %>",
+        "title": "<%= dl.job.well_name %>"
+    });
+
+    <% entries = dl.drilling_log_entries %>
+    <% last_entry = entries.first %>
+    <% last_time = 0 %>
+    <% max_depth = 0 %>
+    <% total_time = 0 %>
+    <% entries.each do |dl| %>
+    <% time = (dl.entry_at - last_entry.entry_at).to_f / 60.0 / 60.0 %>
+    <% total_time += time %>
+    <% if total_time > (last_time + 10) && dl.activity_code != DrillingLogEntry::CONNECTION && dl.activity_code != DrillingLogEntry::CONNECTION_SURVEY && dl.activity_code != DrillingLogEntry::MWD_SURVEY %>
+    <% series << {"time_#{dl.job_id}" => total_time, "depth_#{dl.job_id}" => dl.depth >= max_depth ? dl.depth : max_depth} %>
+    <% last_time = total_time %>
+    <% end %>
+    <% max_depth = [max_depth, dl.depth].max %>
+    <% last_entry = dl %>
+    <% end %>
+    <% end %>
+
+    var chart = AmCharts.makeChart("comp_chart2", {
+        "type": "xy",
+        "pathToImages": "http://cdn.amcharts.com/lib/3/images/",
+        "sequencedAnimation": false,
+        "graphs": graphs,
+        "guides": [],
+        "valueAxes": [
+            {
+                "id": "ValueAxis-1",
+                "position": "left",
+                "title": "Depth",
+                "reversed": true
+            },
+            {
+                "id": "ValueAxis-2",
+                "position": "bottom",
+                "title": "Time"
+
+            }
+        ],
+        "allLabels": [],
+        "balloon": {},
+        "titles": [],
+        "dataProvider": <%= series.to_json.html_safe %>
+    });
+
+
+
+
+
+
+
+
+    <% costs = [] %>
+    <% result = DrillingLog.joins(job: {well: { field: :state }}).select("jobs.id as job_id, wells.name, concat(fields.name, ' - ', wells.name) as well_name, concat(fields.county, ', ', states.name) as county_name, coalesce(drilling_logs.max_depth, 0) as max_depth, coalesce(jobs.total_cost, 0) as cost").order("max_depth").where("max_depth > 0").where("concat(states.name) = ?", @job.drilling_log.job.well.field.state.name) %>
+    <% result.each do |r| %>
+            <% costs << { depth: r[:max_depth], cost: r[:cost], county: r[:county_name], color: '#' + Digest::MD5.hexdigest(r[:county_name])[0..5], well_name: r[:well_name], bulletSize: r[:job_id].to_i == @job.id ? 15 : 8} %>
+    <% end %>
+
+
+    var chart = AmCharts.makeChart("comp_chart3", {
+        "type": "xy",
+        "pathToImages": "http://cdn.amcharts.com/lib/3/images/",
+        "sequencedAnimation": false,
+        "graphs": [
+            {
+                "balloonText": "<b>[[well_name]]</b> $[[cost]]",
+                "bullet": "round",
+                "bulletSizeField": "bulletSize",
+                "colorField": "color",
+                "id": "AmGraph-1",
+                "lineAlpha": 0,
+                "xField": "cost",
+                "yField": "depth"
+            }
+        ],
+        "guides": [],
+        "valueAxes": [
+            {
+                "id": "ValueAxis-1",
+                "position": "left",
+                "title": "Depth",
+                "reversed": true
+            },
+            {
+                "id": "ValueAxis-2",
+                "position": "bottom",
+                "title": "Cost"
+
+            }
+        ],
+        "allLabels": [],
+        "balloon": {},
+        "titles": [],
+        "dataProvider": <%= costs.to_json.html_safe %>
+    });
+
+</script>

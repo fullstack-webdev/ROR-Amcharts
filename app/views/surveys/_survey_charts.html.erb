@@ -1,0 +1,13 @@
+<div id="survey_charts">
+  <% if well_plan.present? || (survey.present? && survey.no_well_plan && survey.survey_points.any?)  %>
+
+      <% calculated_points_survey = survey.present? ? survey.calculated_points(survey.no_well_plan ? 0 : well_plan.vertical_section_azimuth) : [] %>
+      <% well_plan_points = well_plan.present? ? well_plan.survey_points : [] %>
+
+
+      <div id="chartdiv_<%= section %>" class='inline-block' style="width: 490px; height: <%= height %>px;"></div>
+      <div id="chartdiv2_<%= section %>" class='inline-block' style="width: 400px; height: <%= height %>px;"></div>
+
+      <%= render 'surveys/charting', calculated_points_survey: calculated_points_survey, calculated_points: well_plan_points, section: section %>
+  <% end %>
+</div>

@@ -1,0 +1,41 @@
+<div id="bha">
+  <% @bhas = Bha.joins(:job).where("bhas.master_bha_id IS NULL").where("jobs.well_id = ?", @job.well_id).order("bhas.name ASC") %>
+  <% @bha = nil %>
+  <% query = URI.parse(request.url).query %>
+  <% if !query.blank? %>
+      <% p = CGI.parse(query) %>
+      <% if p["bha"].present? %>
+          <% @bha = Bha.find_by_id(p["bha"]) %>
+      <% end %>
+  <% end %>
+  <% if @bha.nil? %>
+      <% query = URI.parse(request.referrer).query %>
+      <% if !query.blank? %>
+          <% p = CGI.parse(query) %>
+          <% if p["bha"].present? %>
+              <% @bha = Bha.find_by_id(p["bha"]) %>
+          <% else %>
+
+          <% end %>
+      <% end %>
+  <% end %>
+  <% if @bha.nil? %>
+      <% @bha = @bhas.first %>
+  <% end %>
+
+  <%= render "bhas/bha_header", job: @job, bhas: @bhas %>
+
+  <div id="bha">
+    <% if  @bha.present? %>
+        <%= render "bhas/bha_tally", bha: @bha %>
+    <% end %>
+
+    <div id="bha_loader" class="push-down center hidden inline">
+
+      <br>
+      <div class="" style="margin-top: 30px;">
+        <span class="ajax-loading search-loading"><b>Loading BHA..</b></span>
+      </div>
+    </div>
+  </div>
+</div>

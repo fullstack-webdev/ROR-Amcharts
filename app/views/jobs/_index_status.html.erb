@@ -1,0 +1,75 @@
+<% jobs = current_user.jobs_list %>
+<% jobs = jobs.where("jobs.status = ? or end_date >= ?", Job::ON_JOB, DateTime.now - 24.months) %>
+<% jobs_array = jobs.to_a %>
+
+<% jobs_array = jobs_array.sort_by { |j| j.start_date }.reverse.uniq { |j| "#{j.well.rig.present? ? j.well.rig.name : j.well.name}" }.sort_by { |j| "#{j.well.rig.present? ? j.well.rig.name : j.well.name}" } %>
+<% @jobs = [] %>
+<div class='remote-tray' data-tray='status'>
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading live status..." %>
+  </div>
+
+
+  <div class='tray-content content-loaded '>
+
+    <div class='section-header' style="margin-top: 15px;">
+      <h1>Well Overview</h1>
+
+      <div class="pull-right wells-overview-toggle">
+        <div data-view-mode="list" class="list-view active"></div>
+        <div data-view-mode="grid" class="grid-view"></div>
+      </div>
+    </div>
+    <% if current_user.active_jobs.present? && current_user.current_warnings_list.empty? %>
+      <div class="alert-box alert-success">
+        All systems are operating normally <a href="#warnings" class="remote-tray-toggle"
+                                              data-tray-controller="jobs"
+                                              data-tray="warnings" id="btn_view_warnings">View details</a>
+      </div>
+    <% else %>
+      <% current_user.current_warnings_list.each do |warning| %>
+        <div class="alert-box alert-warning color-<%= warning.severity %>">
+          <i class="fa fa-exclamation-triangle"></i> &nbsp;&nbsp;<%= warning.job.well.rig.name %>&nbsp;&nbsp; - &nbsp;&nbsp; <%= warning.name %>
+          <%= link_to "View details", job_path(warning.job) + "#" + warning.tray_name %>
+        </div>
+      <% end %>
+    <% end %>
+    <div style="display: block; padding-top: 10px;">
+
+      <div id='outer_container' style="width: 75%; float: left; padding-right: 2%; border-right: 1px solid #506061;">
+        <div id='inner_container'>
+          <%= render 'overview/tray_jobs', jobs_array: jobs_array %>
+        </div>
+      </div>
+
+      <div class="tray-content content-loaded " style="width: 20%; padding-left: 2%;">
+        <div class="page-header-small">
+          <h1>Events & Warnings</h1>
+        </div>
+
+        <div>
+          <%= render 'overview/tray_warnings' %>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+    $(document).ready(function () {
+      $('#outer_container').height($('#inner_container').height());
+    });
+
+//    $("#btn_view_warnings").click(function (e) {
+//      setTimeout(function() {
+//        $('#warnings_nav_item').addClass("active");
+//      },300);
+//    });
+  }(jQuery));
+</script>

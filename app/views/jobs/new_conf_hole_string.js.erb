@@ -1,0 +1,109 @@
+$("#hole_string_show_container").hide();
+$("#hole_string_edit_container").hide();
+
+no_hs = 0;
+no_ds = 0;
+no_casing = 0;
+
+$("#hole_string_add_container #hole_string_ds_container").html("");
+<% @default_drilling_string.each do |drilling_string| %>
+$("#hole_string_add_container #hole_string_ds_container").append("<tr id='hs_ds_row" + no_ds + "'>" +
+    "<td><input type='text' value='<%= drilling_string.type %>' id='hs_ds_type" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= drilling_string.outer_diameter.convert(:in, company_unit) %>' id='hs_ds_od" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= drilling_string.inner_diameter.convert(:in, company_unit) %>' id='hs_ds_id" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= drilling_string.weight.convert(:lbm__ft, company_unit) %>' id='hs_ds_weight" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= drilling_string.length.convert(:ft, company_unit) %>' id='hs_ds_length" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+//    "<td class='hole-string-depth-based'><input type='text' value='<%= drilling_string.depth_from %>' id='hs_ds_depth_from" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+//    "<td class='hole-string-depth-based'><input type='text' value='<%= drilling_string.depth_to %>' id='hs_ds_depth_to" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_ds_remove" + no_ds + "' class='hs_ds_remove' data-id='" + no_ds + "'><i class='fa fa-remove'></i></a></td>" +
+    "</tr>");
+
+$('#hole_string_add_container #hs_ds_row' + no_ds).mouseover(function () {
+  $(this).find('.remove').show();
+});
+
+$('#hole_string_add_container #hs_ds_row' + no_ds).mouseout(function () {
+  $(this).find('.remove').hide();
+});
+
+no_ds ++;
+<% end %>
+
+$("#hole_string_add_container #hole_string_hs_container").html("");
+<% @default_hole_size.each do |hole_size| %>
+$("#hole_string_add_container #hole_string_hs_container").append("<tr id='hs_hs_row" + no_hs + "'>" +
+    "<td><input type='text' value='<%= hole_size.diameter.convert(:in, company_unit) %>' id='hs_hs_diameter" + no_hs + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= hole_size.depth.convert(:ft, company_unit) %>' id='hs_hs_depth" + no_hs + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_hs_remove" + no_hs + "' class='hs_hs_remove' data-id='" + no_hs + "'><i class='fa fa-remove'></i></a></td>" +
+    "</tr>");
+
+$('#hole_string_add_container #hs_hs_row' + no_hs).mouseover(function () {
+  $(this).find('.remove').show();
+});
+
+$('#hole_string_add_container #hs_hs_row' + no_hs).mouseout(function () {
+  $(this).find('.remove').hide();
+});
+
+no_hs ++;
+<% end %>
+
+$("#hole_string_add_container #hole_string_casing_container").html("");
+<% @default_casing.each do |casing| %>
+$("#hole_string_add_container #hole_string_casing_container").append("<tr id='hs_casing_row" + no_casing + "'>" +
+    "<td><input type='text' value='<%= casing.inner_diameter.convert(:in, company_unit) %>' id='hs_casing_id" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= casing.length.convert(:ft, company_unit) %>' id='hs_casing_length" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= casing.depth_from.convert(:ft, company_unit) %>' id='hs_casing_depth_from" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= casing.depth_to.convert(:ft, company_unit) %>' id='hs_casing_depth_to" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_casing_remove" + no_casing + "' class='hs_casing_remove' data-id='" + no_casing + "'><i class='fa fa-remove'></i></a></td>" +
+    "</tr>");
+
+$('#hole_string_add_container #hs_casing_row' + no_casing).mouseover(function () {
+  $(this).find('.remove').show();
+});
+
+$('#hole_string_add_container #hs_casing_row' + no_casing).mouseout(function () {
+  $(this).find('.remove').hide();
+});
+
+no_casing++;
+<% end %>
+<% @depth_based_casing.each do |casing| %>
+$("#hole_string_add_container #hole_string_casing_container").append("<tr id='hs_casing_row" + no_casing + "' class='hole-string-depth-based'>" +
+    "<td><input type='text' value='<%= casing.inner_diameter.convert(:in, company_unit) %>' id='hs_casing_id" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= casing.length.convert(:ft, company_unit) %>' id='hs_casing_length" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= casing.depth_from.convert(:ft, company_unit) %>' id='hs_casing_depth_from" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td><input type='text' value='<%= casing.depth_to.convert(:ft, company_unit) %>' id='hs_casing_depth_to" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+    "<td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_casing_remove" + no_casing + "' class='hs_casing_remove' data-id='" + no_casing + "'><i class='fa fa-remove'></i></a></td>" +
+    "</tr>");
+
+$('#hole_string_add_container #hs_casing_row' + no_casing).mouseover(function () {
+  $(this).find('.remove').show();
+});
+
+$('#hole_string_add_container #hs_casing_row' + no_casing).mouseout(function () {
+  $(this).find('.remove').hide();
+});
+
+no_casing++;
+<% end %>
+
+<% if @default_bit.present? %>
+$("#hole_string_add_container #hs_bit_size").val('<%= @default_bit.size.convert(:in, company_unit) %>');
+$("#hole_string_add_container #hs_bit_make").val('<%= @default_bit.make %>');
+$("#hole_string_add_container #hs_bit_jets").val('<%= @default_bit.jets %>');
+$("#hole_string_add_container #hs_bit_nozzle_size").val('<%= @default_bit.nozzle_size.convert(:in, company_unit) %>');
+$("#hole_string_add_container #hs_bit_tfa").val('<%= @default_bit.tfa.convert(:in2, company_unit) %>');
+$("#hole_string_add_container #hs_bit_hhsi").val('<%= @default_bit.hhsi %>');
+$("#hole_string_add_container #hs_bit_serial_no").val('<%= @default_bit.serial_no %>');
+<% else %>
+$("#hole_string_add_container #hs_bit_size").val('');
+$("#hole_string_add_container #hs_bit_make").val('');
+$("#hole_string_add_container #hs_bit_jets").val('');
+$("#hole_string_add_container #hs_bit_nozzle_size").val('');
+$("#hole_string_add_container #hs_bit_tfa").val('');
+$("#hole_string_add_container #hs_bit_hhsi").val('');
+$("#hole_string_add_container #hs_bit_serial_no").val('');
+<% end %>
+
+$("#hole_string_add_container").show();

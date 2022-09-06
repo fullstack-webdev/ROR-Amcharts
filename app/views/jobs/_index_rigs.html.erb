@@ -1,0 +1,48 @@
+<div class='remote-tray' data-tray='rigs'>
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading rigs..." %>
+  </div>
+
+  <% @rigs = current_user.company.rigs.order("rigs.name ASC") %>
+
+
+  <div class='tray-content content-loaded'>
+    <div class='section-header' style="margin-top: 15px;">
+
+      <h1 class='inline-block'>Rigs</h1>
+
+      <div class='inline-block align-top pull-right'>
+        <%= link_to new_rig_path, class: "btn btn-sub tooltip-info align-top",
+                    "data-placement" => "bottom",
+                    "data-title" => "Create new rig" do %>
+            New
+        <% end %>
+      </div>
+    </div>
+
+    <div id="wells_list">
+      <div style="font-size: 13px; color: #7C9B8F; margin: 15px;">
+        <div class="inline-block" style="width: 38%;">Rig Name</div>
+        <div class="inline-block" style="width: 30%;">Well</div>
+        <div class="inline-block" style="width: 31%;">Drilling Program</div>
+      </div>
+
+      <% @rigs.each do |rig| %>
+          <%= link_to rig, class: "well-link tooltip-info",
+                      "data-placement" => "left",
+                      "data-title" => "Click to open rig" do %>
+              <%= render 'rigs/rig_line', rig: rig %>
+          <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+

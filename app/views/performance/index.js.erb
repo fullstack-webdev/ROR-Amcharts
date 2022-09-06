@@ -1,0 +1,67 @@
+tray = $(".remote-tray[data-tray='<%= params[:section] %>']");
+setTimeout(function () {
+<% if params[:section] == "combined_metrics" %>
+tray.replaceWith("<%= j render 'performance/index_combined_metrics' %>");
+<% elsif params[:section] == "delivery_time" %>
+tray.replaceWith("<%= j render 'performance/index_delivery_time' %>");
+<% elsif params[:section] == "rop" %>
+tray.replaceWith("<%= j render 'performance/index_rop' %>");
+<% elsif params[:section] == "cost" %>
+tray.replaceWith("<%= j render 'performance/index_cost' %>");
+<% elsif params[:section] == "activity_time" %>
+tray.replaceWith("<%= j render 'performance/index_activity_time' %>");
+<% elsif params[:section] == "programs" %>
+tray.replaceWith("<%= j render 'performance/programs/index_programs.html' %>");
+<% elsif params[:section] == "counties" %>
+tray.replaceWith("<%= j render 'performance/index_counties' %>");
+<% elsif params[:section] == "contractors" %>
+tray.replaceWith("<%= j render 'performance/index_contractors' %>");
+<% elsif params[:section] == "rigs" %>
+tray.replaceWith("<%= j render 'performance/index_rigs' %>");
+<% elsif params[:section] == "wells" %>
+tray.replaceWith("<%= j render 'performance/index_wells' %>");
+<% elsif params[:section] == "crew_rigs" %>
+tray.replaceWith("<%= j render 'performance/index_crew_rigs' %>");
+<% elsif params[:section] == "programs_well_time" %>
+tray.replaceWith("<%= j render 'performance/programs/well_time/index.html' %>");
+<% elsif params[:section] == "programs_cost" %>
+tray.replaceWith("<%= j render 'performance/programs/cost/index_cost.html' %>");
+<% elsif params[:section] == "programs_warnings" %>
+tray.replaceWith("<%= j render 'performance/programs/tray_programs_warnings' %>");
+<% elsif params[:section] == "programs_process_time" %>
+tray.replaceWith("<%= j render 'performance/programs/tray_programs_process_time' %>");
+<% elsif params[:section] == "rigs_well_time" %>
+tray.replaceWith("<%= j render 'performance/tray_rigs_well_time' %>");
+<% elsif params[:section] == "rigs_cost" %>
+tray.replaceWith("<%= j render 'performance/tray_rigs_cost' %>");
+<% elsif params[:section] == "rigs_warnings" %>
+tray.replaceWith("<%= j render 'performance/tray_rigs_warnings' %>");
+<% elsif params[:section] == "rigs_process_time" %>
+tray.replaceWith("<%= j render 'performance/tray_rigs_process_time' %>");
+<% elsif params[:section] == "crew_rigs_well_time" %>
+tray.replaceWith("<%= j render 'performance/tray_crew_rigs_well_time' %>");
+<% elsif params[:section] == "crew_rigs_cost" %>
+tray.replaceWith("<%= j render 'performance/tray_crew_rigs_cost' %>");
+<% elsif params[:section] == "crew_rigs_warnings" %>
+tray.replaceWith("<%= j render 'performance/tray_crew_rigs_warnings' %>");
+<% elsif params[:section] == "crew_rigs_process_time" %>
+tray.replaceWith("<%= j render 'performance/tray_crew_rigs_process_time' %>");
+<% elsif params[:section] == "wells_well_time" %>
+tray.replaceWith("<%= j render 'performance/tray_wells_well_time' %>");
+<% elsif params[:section] == "wells_cost" %>
+tray.replaceWith("<%= j render 'performance/tray_wells_cost' %>");
+<% elsif params[:section] == "wells_warnings" %>
+tray.replaceWith("<%= j render 'performance/tray_wells_warnings' %>");
+<% elsif params[:section] == "wells_process_time" %>
+tray.replaceWith("<%= j render 'performance/tray_wells_process_time' %>");
+
+    <% elsif params[:section] == "custom_well_time" %>
+    tray.replaceWith("<%= j render 'performance/tray_wells_well_time' %>");
+    <% elsif params[:section] == "custom_cost" %>
+    tray.replaceWith("<%= j render 'performance/tray_wells_cost' %>");
+    <% elsif params[:section] == "custom_warnings" %>
+    tray.replaceWith("<%= j render 'performance/tray_wells_warnings' %>");
+    <% elsif params[:section] == "custom_process_time" %>
+    tray.replaceWith("<%= j render 'performance/tray_wells_process_time' %>");
+<% end %>
+}, 0);

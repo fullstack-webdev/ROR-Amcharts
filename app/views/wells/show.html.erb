@@ -1,0 +1,261 @@
+<div class="page_header">
+  <h1><%= @well.name %></h1>
+
+  <h3 class="inline">&nbsp;Well</h3>
+
+  <h2 class="inline push-right-small"><%= @jobs.count.to_s %> jobs</h2>
+
+  <%= link_to "+ " + I18n.t("jobs.index.new"), new_job_path(:well => @well.id), class: "bluebtn pull-right tooltip-info push-right-small",
+              "data-placement" => "bottom",
+              "data-title" => "Create new job on this well" %>
+
+</div>
+
+<div class="well">
+
+  <div class="pull-right">
+
+    <%= link_to "More Well Details", "#",
+                id: "expand_well_details",
+                class: "activity-user-link tooltip-info pull-right" %>
+  </div>
+
+
+  <div>
+    <div>
+      <p class="inline"><b>Field:&nbsp;</b></p>
+
+      <%= link_to @well.field.name, @well.field, class: "activity-user-link inline" %>
+
+      <div class="inline-block">
+        <%= image_tag "rig_extrasmall.png", class: "job-status-avatar push-right-small" %>
+        <p class="inline help-text">Rig&nbsp;</p>
+        <% if @well.rig.present? %>
+            <%= link_to @well.rig.name, @well.rig, class: "activity-user-link inline" %>
+        <% else %>
+            -
+        <% end %>
+
+        <%= image_tag "district_extrasmall.png", class: "job-status-avatar push-right-small" %>
+        <%= link_to @well.field.district.name, @well.field.district, class: "activity-user-link inline" %>
+
+        <% if @well.jobs.any? && @well.jobs.first.client.present? %>
+            <div class="inline-block ">
+              <%= image_tag "user_avatar_client_extrasmall.png", class: "job-status-avatar push-right-small" %>
+              <%= link_to @well.jobs.first.client.name, @well.jobs.first.client, class: "activity-user-link inline" %>
+            </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="well-details hidden">
+    <hr>
+
+    <%= link_to "Edit Well", edit_well_path(@well),
+                class: "activity-user-link tooltip-info pull-right" %>
+
+    <% if @well.offshore? %>
+        <div>
+          <p class="job-field-value"><b>Offshore</b></p>
+        </div>
+    <% end %>
+
+    <% if @well.offshore? %>
+        <div>
+          <p class="job-field-title tooltip-info"
+             data-placement="bottom"
+             data-title="Water Depth">Water Depth</p>
+
+          <div class="job-field-div">
+            <p class="job-field-value2 unit-tooltip"
+               data-placement="bottom"
+               data-title="<%= @well.water_depth.present? ? @well.dynamic_field("water_depth").get_user_conversion(@current_user, false, true, true) : "No value set" %>">
+              <%= @well.water_depth.present? ? @well.dynamic_field("water_depth").get_user_conversion(@current_user, false, true) : "-" %>
+            </p>
+          </div>
+        </div>
+    <% end %>
+
+    <div>
+      <p class="job-field-title tooltip-info"
+         data-placement="bottom"
+         data-title="Measured Depth">Measured Depth</p>
+
+      <div class="job-field-div">
+        <p class="job-field-value2 unit-tooltip"
+           data-placement="bottom"
+           data-title="<%= @well.measured_depth.present? ? @well.dynamic_field("measured_depth").get_user_conversion(@current_user, false, true, true) : "No value set" %>">
+          <%= @well.measured_depth.present? ? @well.dynamic_field("measured_depth").get_user_conversion(@current_user, false, true) : "-" %>
+        </p>
+      </div>
+
+      <div class="inline">
+        <p class="job-field-title tooltip-info"
+           data-placement="bottom"
+           data-title="True Vertical Depth">True Vertical Depth</p>
+
+        <div class="job-field-div">
+          <p class="job-field-value2 unit-tooltip"
+             data-placement="bottom"
+             data-title="<%= @well.true_vertical_depth.present? ? @well.dynamic_field("true_vertical_depth").get_user_conversion(@current_user, false, true, true) : "No value set" %>">
+            <%= @well.true_vertical_depth.present? ? @well.dynamic_field("true_vertical_depth").get_user_conversion(@current_user, false, true) : "-" %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+    <div>
+      <p class="job-field-title tooltip-info"
+         data-placement="bottom"
+         data-title="Bottom Hole Temperature">Bottom Hole Temperature</p>
+
+      <div class="job-field-div">
+        <p class="job-field-value2 unit-tooltip"
+           data-placement="bottom"
+           data-title="<%= @well.bottom_hole_temperature.present? ? @well.dynamic_field("bottom_hole_temperature").get_user_conversion(@current_user, false, true, true) : "No value set" %>">
+          <%= @well.bottom_hole_temperature.present? ? @well.dynamic_field("bottom_hole_temperature").get_user_conversion(@current_user, false, true) : "-" %>
+        </p>
+      </div>
+
+      <div class="inline">
+        <p class="job-field-title tooltip-info"
+           data-placement="bottom"
+           data-title="Bottom Hole Formation Pressure">Bottom Hole Formation Pressure</p>
+
+        <div class="job-field-div">
+          <p class="job-field-value2 unit-tooltip"
+             data-placement="bottom"
+             data-title="<%= @well.bottom_hole_formation_pressure.present? ? @well.dynamic_field("bottom_hole_formation_pressure").get_user_conversion(@current_user, false, true, true) : "No value set" %>">
+            <%= @well.bottom_hole_formation_pressure.present? ? @well.dynamic_field("bottom_hole_formation_pressure").get_user_conversion(@current_user, false, true) : "-" %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="job-field-title tooltip-info"
+         data-placement="bottom"
+         data-title="Frac Pressure">Frac Pressure</p>
+
+      <div class="job-field-div">
+        <p class="job-field-value2 unit-tooltip"
+           data-placement="bottom"
+           data-title="<%= @well.frac_pressure.present? ? @well.dynamic_field("frac_pressure").get_user_conversion(@current_user, false, true, true) : "No value set" %>">
+          <%= @well.frac_pressure.present? ? @well.dynamic_field("frac_pressure").get_user_conversion(@current_user, false, true) : "-" %>
+        </p>
+      </div>
+    </div>
+
+    <div>
+      <p class="job-field-title tooltip-info"
+         data-placement="bottom"
+         data-title="Max Deviation">Max Deviation</p>
+
+      <div class="job-field-div">
+        <p class="job-field-value2 unit-tooltip"
+           data-placement="bottom"
+           data-title="<%= @well.max_deviation.present? ? @well.max_deviation.to_s + " degrees" : "No value set" %>">
+          <%= @well.max_deviation.present? ? @well.max_deviation.to_s + " degrees" : "-" %>
+        </p>
+      </div>
+
+
+      <div class="inline">
+        <p class="job-field-title tooltip-info"
+           data-placement="bottom"
+           data-title="Bottom Deviation">Bottom Deviation</p>
+
+        <div class="job-field-div">
+          <p class="job-field-value2 unit-tooltip"
+             data-placement="bottom"
+             data-title="<%= @well.bottom_deviation.present? ? @well.bottom_deviation.to_s + " degrees" : "No value set" %>">
+            <%= @well.bottom_deviation.present? ? @well.bottom_deviation.to_s + " degrees" : "-" %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+</div>
+
+<% if !@well.location.blank? %>
+    <div class="map-container">
+      <div id='map' class='dark' style='width:100%;height:150px;'></div>
+      <div class="corner tlcorner"></div>
+      <div class="corner trcorner"></div>
+      <div class="corner brcorner"></div>
+      <div class="corner blcorner"></div>
+    </div>
+
+    <% if false %>
+        <div class="">
+          <%= link_to "http://maps.google.com/maps?q=" + @well.location,
+                      class: "activity-user-link", target: "_blank" do %>
+              <img src="http://maps.googleapis.com/maps/api/staticmap?center=<%= @well.location %>&zoom=9&size=600x200&maptype=roadmap&sensor=false&markers=color:blue%7C<%= @well.location %>&key=<%= Rails.env.production? ? 'AIzaSyC28fW0cLbMkTbKfyBgYKG4XbOCR3QBmT4' : 'AIzaSyAbuYOZMWlhjk2gKQaoqso7MoARROW9-fs' %>">
+          <% end %>
+        </div>
+    <% end %>
+    <br><br>
+<% end %>
+
+
+<br><br>
+
+<div id="jobs">
+  <% @jobs.includes(dynamic_fields: :dynamic_field_template).includes(:field, :well, :documents, :district, :job_template).each do |job| %>
+      <%= link_to job, class: "job-status job-link job-link2 tooltip-info",
+                  "data-status" => job.status,
+                  "data-member" => job.user_is_member?(current_user),
+                  "data-placement" => "left",
+                  "data-title" => "Click to open job" do %>
+          <%= render 'jobs/job_progress', job: job, show_summary_data: true, job_name: true %>
+      <% end %>
+  <% end %>
+</div>
+
+<script type='text/javascript'>
+    var map = L.mapbox.map('map', 'elephant.map-vum3on5g');
+    map.attributionControl = false;
+    map.scrollWheelZoom.disable();
+
+    var geoJson = [];
+    geoJson.push({
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [<%= @well.x_location %>, <%= @well.y_location %>]
+        },
+        "properties": {
+            title: '<%= @well.field.name + ' | ' + @well.name %>',
+            'marker-size': 'medium',
+            'marker-color': '#0058a8'
+            //'marker-symbol': '1'
+        }
+    });
+
+    map.markerLayer.setGeoJSON(geoJson);
+
+    map.markerLayer.on('click', function (e) {
+        map.panTo(e.layer.getLatLng());
+    });
+
+    var bounds = [];
+    bounds.push([<%= @well.y_location %>, <%= @well.x_location %>]);
+    map.fitBounds(bounds);
+    zoom = Math.round(map.getZoom());
+    if (zoom > 8) {
+        map.setZoom(8);
+    }
+
+    map.markerLayer.on('mouseover', function (e) {
+        e.layer.openPopup();
+    });
+    map.markerLayer.on('mouseout', function (e) {
+        e.layer.closePopup();
+    });
+</script>

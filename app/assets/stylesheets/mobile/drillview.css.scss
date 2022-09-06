@@ -1,0 +1,335 @@
+.mdv {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0 -10px;
+  box-sizing: border-box;
+
+  .dv-main {
+    width: 100%;
+    height: 100%;
+    padding-right: 70px;
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    .dv-subtitle {
+      background-color: $dark-green2;
+      width: 100%;
+      border-left: 6px solid $blue;
+      color: $blue;
+      padding-left: 10px;
+      height: 45px;
+      line-height: 45px;
+      //      position: absolute;
+      position: relative;
+      box-sizing: border-box;
+      font-size: 16px;
+      padding-right: 80px;
+
+      .dv-torque-plots-list {
+        width: 80px !important;
+        min-width: inherit;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none;
+        height: 45px;
+        line-height: 45px;
+        font-size: 12px;
+        overflow: hidden;
+        color: $gray;
+      }
+
+      .dv-subpage-actions {
+        position: absolute;
+        top: 0;
+        right: 0;
+
+        i {
+          float: right;
+          padding: 0 3px;
+          color: $gray;
+          line-height: 45px;
+          font-size: 12px;
+        }
+      }
+    }
+
+    .dv-content {
+      width: 100%;
+      height: 100%;
+      //      min-height: 540px;
+      //      padding-top: 45px;
+      background-color: rgba(0, 0, 0, 0.6);
+      box-sizing: border-box;
+
+      .dv-torque-plot {
+        th {
+          font-size: 14px;
+          color: #7C9B8F;
+          padding: 0px 5px;
+          text-align: left;
+        }
+
+        td {
+          color: #ffffff;
+          padding: 10px 5px;
+          text-align: left;
+          font-size: 16px;
+          font-family: $main-font;
+
+          > span {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+
+  .remote-tray, .tray-content, .dv-sub-container, .drill-view-chart, .drill-view-port, .chart-view {
+    height: 100%;
+  }
+}
+
+.mdv-spinner {
+  background-color: rgba(0, 0, 0, 0.6);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  z-index: 998;
+  margin: 0;
+  padding-top: 50%;
+
+  .double-bounce1 {
+    background-color: #c3c3c3;
+  }
+
+  .double-bounce2 {
+    background-color: #c3c3c3;
+  }
+}
+
+@media (orientation: landscape) {
+  html.ipad.ios7 .mdv-spinner {
+    padding-top: 20%;
+  }
+}
+
+.well-activity {
+  width: 60%;
+  display: inline-block;
+}
+
+.well-warnings {
+  width: 40%;
+  display: inline-block;
+  float: left;
+}
+
+.mdv-cell {
+  width: 50%;
+  float: left;
+  vertical-align: top;
+
+  .title {
+    font-size: 20px;
+    line-height: 20px;
+    margin: 0 0 10px 0;
+  }
+
+  .value-white, .value-blue {
+    font-size: 30px;
+    line-height: 30px;
+    margin: 0 0 30px 0;
+  }
+}
+
+.mdv-torque-rg {
+  vertical-align: top;
+  float: right;
+  margin-right: 15px;
+  box-sizing: border-box;
+}
+
+.mdv-slide {
+  padding-right: 2px;
+  box-sizing: border-box;
+}
+
+.mdv-chart-warning {
+  display: none;
+
+  .alert-box {
+    margin: 10px 0 0 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  .mdv {
+    .drill-view-chart {
+      width: 40%;
+
+      .depth-row-container {
+        width: 55px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+
+        .depth-row-bg {
+          width: 100%;
+          position: absolute;
+          top: 21px;
+          bottom: 21px;
+          background-color: rgba(0, 0, 0, 0.4);
+          height: auto;
+          z-index: 1;
+        }
+
+        .depth-row {
+          width: 100%;
+          box-sizing: border-box;
+          height: 100%;
+          z-index: 1;
+        }
+      }
+
+      .label-top {
+        margin-top: 0;
+        top: 0;
+        z-index: 1;
+        background-color: rgba(0, 0, 0, 0.4);
+        height: 21px;
+      }
+
+      .label-bottom {
+        bottom: 0;
+        height: 21px;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    .drill-view-port {
+      width: 60%;
+      overflow: scroll;
+      padding: 0;
+
+      .menuContentBlock {
+        padding: 20px 30px;
+        box-sizing: border-box;
+      }
+    }
+  }
+
+  .mdv-warning-box {
+    .alert-box {
+      padding: 10px;
+      word-break: break-all;
+      margin: 10px -30px;
+
+      &:first-child {
+        margin-top: -20px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .mdv {
+    .drill-view-chart {
+      width: 100%;
+      overflow: scroll;
+    }
+
+    .drill-view-port {
+      width: 100%;
+      display: none;
+      padding: 0;
+
+      .menuContentBlock {
+        padding: 20px 30px;
+      }
+    }
+  }
+
+  .mdv-slide {
+    width: 100% !important;
+    padding: 0;
+  }
+
+  .mdv-chart-warning {
+    display: block;
+
+    .alert-box:first-child {
+      margin-top: 0px;
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .mdv .drill-view-port {
+
+    .menuContentBlock {
+      padding: 15px 10px;
+    }
+  }
+
+  .well-activity {
+    width: 100%;
+    display: block;
+  }
+
+  .well-warnings {
+    width: 100%;
+    display: block;
+  }
+
+  .mdv-cell {
+    vertical-align: top;
+    width: 100%;
+
+    .title {
+      float: left;
+      font-size: 18px;
+      line-height: 18px;
+      margin-bottom: 20px;
+      max-width: 50%;
+    }
+
+    .value-white, .value-blue {
+      font-size: 18px;
+      line-height: 18px;
+      float: right;
+      margin-bottom: 20px;
+
+      > span {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .mdv-torque-rg {
+    margin-right: 30px;
+  }
+
+  .mdv-warning-box {
+    .alert-box {
+      padding: 10px;
+      word-break: break-all;
+      margin: 10px -10px;
+
+      &:first-child {
+        margin-top: -15px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .mdv-torque-rg {
+    margin-right: 30%;
+  }
+}

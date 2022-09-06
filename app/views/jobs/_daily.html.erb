@@ -1,0 +1,103 @@
+<div id="daily">
+  <div class="section-header" style="margin-top: 15px;">
+    <h1>Daily &amp; Notes</h1>
+  </div>
+
+  <div class="">
+    <div class="field">
+      <% if true %>
+          <%= form_for(JobNote.new, :html => {class: "", id: "new_note_form"}, remote: true) do |f| %>
+              <div class="new-product-line well">
+                <div class="form" data-form="new-note-form">
+                  <%= f.hidden_field :job_id, value: job.id %>
+                  <%= f.hidden_field :assign_to_id, id: "new_note_name_id" %>
+                  <%= f.hidden_field :note_type, id: "note_type_id", value: JobNote::ACTIVITY_REPORT %>
+
+                  <div>
+                    <ul class="nav nav-pills">
+                      <li class='active'>
+                        <a href="#" class='change-note-type' data-note="report"> Activity Report</a>
+                      </li>
+                      <li class="push-right-small">
+                        <a href="#" class='change-note-type blue-text' data-note="note"><i class="icon-comment icon-white"></i>
+                          Note</a>
+                      </li>
+                      <li class='push-right-small'><a href="#" class='change-note-type blue-text' data-note="task">
+                        <div class='job-note-task-box'></div>
+                        Task</a>
+                      </li>
+                      <li class='push-right-small'><a href="#" class='change-note-type blue-text' data-note="warning">
+                        <div class='job-note-warning-box'></div>
+                        Warning</a>
+                      </li>
+                      <li class='push-right-small'>
+                        <a href="#" class='change-note-type blue-text' data-note="asset">Asset Request</a>
+                      </li>
+                    </ul>
+                    <hr>
+                  </div>
+
+                  <%= f.text_area :text, placeholder: I18n.t("jobs.show.new_note_prompt"),
+                                  class: "txtfield job-notes-text tooltip-info hidden", autofocus: false,
+                                  id: "new_note_id",
+                                  "data-placement" => "bottom",
+                                  "data-title" => "Note/Action text" %>
+
+                  <div id="note_report" class=''>
+                    <p class="inline-block list-item-column-short2"><b>Past day</b></p>
+                    <%= text_field_tag "past", "",
+                                       placeholder: "Previous 24 hours activity description",
+                                       class: "txtfield full-width-well2 tooltip-info",
+                                       "data-placement" => "bottom",
+                                       "data-title" => "Previous 24 hours activity description" %>
+                    <p class="inline-block list-item-column-short2"><b>Present</b></p>
+                    <%= text_field_tag "present", "",
+                                       placeholder: "Present activity description",
+                                       class: "txtfield full-width-well2 tooltip-info",
+                                       "data-placement" => "bottom",
+                                       "data-title" => "Present activity description" %>
+                    <p class="inline-block list-item-column-short2"><b>Next day</b></p>
+                    <%= text_field_tag "future", "",
+                                       placeholder: "Next 24 hours activity description",
+                                       class: "txtfield full-width-well2 inline-block tooltip-info",
+                                       "data-placement" => "bottom",
+                                       "data-title" => "Next 24 hours activity description" %>
+                    <br>
+                  </div>
+
+                  <div>
+                    <%= f.submit "Add note", class: "btn btn-primary white-text inline pull-right tooltip-info form-loading-on-click",
+                                 "data-form" => "new-note-form",
+                                 "data-placement" => "bottom",
+                                 "data-title" => "Add new note/action",
+                                style: "margin-top: 10px;" %>
+
+                    <div class='inline-block align-top hidden pull-left' id="assign_note_user">
+                      <%= image_tag "user_avatar_extrasmall.png", class: "job-status-avatar push-down align-top" %>
+                      <%= text_field_tag "", "", data: {autocomplete_source: users_path},
+                                         placeholder: "Optionally assign to person",
+                                         id: "new_note_name",
+                                         class: "inline-block txtfield small job-note-assign custom-data-input tooltip-info align-top",
+                                         "data-placement" => "bottom",
+                                         "data-title" => "Optionally assign this note to a person" %>
+                    </div>
+
+
+                    <br>
+                  </div>
+
+
+                </div>
+
+                <div class="form-loading hidden" data-form="new-note-form">
+                  <p><%= render 'layouts/inline_loading', title: "Creating note..." %></p>
+                  <br><br>
+                </div>
+
+              </div>
+          <% end %>
+      <% end %>
+    </div>
+  </div>
+
+</div>

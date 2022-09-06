@@ -1,0 +1,47 @@
+<%= render layout: 'performance/layout_performance' do %>
+  <div class="section-header" style="margin-top: 15px;">
+    <h1>Drilling Rigs</h1>
+  </div>
+
+  <div class="block">
+    <div class="inline-block">
+      <%= render 'form' %>
+    </div>
+
+    <div class="inline-block" style="margin-left: 30px; vertical-align: top;">
+      <%= render 'tray_btns' %>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div>
+    <div class="remote-tray" data-tray="rigs_well_time">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="rigs_cost">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="rigs_warnings">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="rigs_operations">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<script type="text/javascript">
+  <%= render 'index.js' %>
+</script>

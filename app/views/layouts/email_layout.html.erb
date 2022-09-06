@@ -1,0 +1,35 @@
+<table cellpadding="0" cellspacing="0" style="width: 100%; max-width: 800px;">
+  <thead style="background: #233736; color: #ffffff;">
+  <tr>
+    <td>
+      <div class="container" style="margin: 0 auto; height:80px; line-height:80px; max-width:650px; padding-left: 25px; padding-right: 25px;">
+        <%= image_tag(attachments['corva-logo.png'].url, :style => 'padding-top: 30px;') %>
+        <span style="float:right; color: #777777;">
+            Oil Drilling Intelligence
+          </span>
+      </div>
+    </td>
+  </tr>
+  </thead>
+  <tbody style="background: #304949; color: #ffffff;">
+  <tr>
+    <td>
+      <div class="container" style="margin: 0 auto; padding-top: 10px; padding-bottom: 40px; width: 87%; max-width: 650px; font-size: 14px; padding-left: 25px; padding-right: 25px;">
+        <%= yield %>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <div class="container" style="margin: 0 auto; border-top: 2px solid #A2C5DA;padding-bottom:60px; max-width:650px; padding-left: 25px; padding-right: 25px; color: #b5d0cf;">
+        <p style="font-size: 14px; margin-top:35px;font-weight: bold;margin-bottom:5px; color: #ffffff;">Need more help?</p>
+        Email or phone Corva technical support
+        <br/>
+        Learn more by visiting
+        <%= link_to('corva.ai/contact', root_path(:only_path => false), :style => 'color: #b5d0cf') %>
+      </div>
+    </td>
+  </tr>
+  </tbody>
+</table>
+

@@ -1,0 +1,2 @@
+module SurveyPointsHelper
+end

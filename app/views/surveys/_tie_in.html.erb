@@ -1,0 +1,127 @@
+<div id="survey_tie_in" class=''>
+
+  <div class="alert-box alert-info">
+    <b>Tie-In</b>
+
+    <p>Please add tie-in information</p>
+  </div>
+
+  <br><br>
+
+  <div class="form" data-form="new_tie_in">
+    <%= form_for SurveyPoint.new, remote: true do |f| %>
+
+      <%= hidden_field_tag "tie_in", "tie_in", value: true %>
+      <%= f.hidden_field :survey_id, value: @survey.id %>
+
+      <div>
+        <div class='survey-tie-in-label'>&nbsp;</div>
+        <%= text_field_tag "gyro_company", "", placeholder: "Gyro Company Name", class: "txtfield long tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Gyro Company Name" %>
+
+        <div class='survey-tie-in-label'>Date</div>
+        <input type="text" value="<%= Date.today.strftime("%m/%d/%Y") %>"
+               name="gyro_date"
+               class="job-field-value-editable date-picker tooltip-info"
+               data-placement="bottom"
+               data-title="Date gyro survey was taken">
+
+
+        <script type='text/javascript'>
+          $('.date-picker').datepicker();
+        </script>
+
+        <div class='survey-tie-in-label'>&nbsp;</div>
+        <%= select_tag "north_type",
+                       options_for_select([["Grid North", Survey::GRID], ["True North", Survey::TRUE], ["Magnetic North", Survey::MAGNETIC]], Survey::GRID),
+                       class: "custom-select custom-select-ajax tooltip-info align-top",
+                       style: "width: 230px;",
+                       "data-title" => "North Type",
+                       placeholder: "North Type" %>
+
+      </div>
+
+      <div>
+        <div class='survey-tie-in-label'>MFS</div>
+        <%= text_field_tag "mfs", "", placeholder: "Magnetic Field Strength", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Magnetic Field Strength" %>
+
+        <div class='survey-tie-in-label'>MDA</div>
+        <%= text_field_tag "mda", "", placeholder: "Magnetic Dip Angle", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Magnetic Dip Angle" %>
+
+        <div class='survey-tie-in-label'>Corr</div>
+        <%= text_field_tag "total_correction", "",
+                           placeholder: "Total Correction",
+                           class: "txtfield small tooltip-info align-top",
+                           "data-placement" => "bottom",
+                           "data-title" => "Total Correction" %>
+
+
+      </div>
+
+      <div>
+        <div class='survey-tie-in-label'>MD</div>
+        <%= text_field_tag "md", "", placeholder: "Measured Depth", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Measured Depth" %>
+
+        <div class='survey-tie-in-label'>Inc</div>
+        <%= text_field_tag "i", "", placeholder: "Inclination", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Inclination" %>
+
+        <div class='survey-tie-in-label'>Azi</div>
+        <%= text_field_tag "a", "", placeholder: "Azimuth", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Azimuth" %>
+      </div>
+
+      <div>
+        <div class='survey-tie-in-label'>TVD</div>
+        <%= text_field_tag "tvd", "", placeholder: "True Vertical Depth", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "True Vertical Depth" %>
+
+        <div class='survey-tie-in-label'>VS</div>
+        <%= text_field_tag "vs", "", placeholder: "Vertical Section", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Vertical Section" %>
+
+        <div class='survey-tie-in-label'>DLS</div>
+        <%= text_field_tag "dls", "", placeholder: "Dogleg Severity", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Dogleg Severity" %>
+      </div>
+
+      <div>
+        <div class='survey-tie-in-label'>N/S</div>
+        <%= text_field_tag "ns", "", placeholder: "North/South", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "North/South" %>
+
+        <div class='survey-tie-in-label'>E/W</div>
+        <%= text_field_tag "ew", "", placeholder: "East/West", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "East/West" %>
+      </div>
+
+      <div class="divider divider-md"></div>
+
+      <%= f.submit "Create Tie-In Point",
+                   class: "btn btn-primary form-loading-on-click",
+                   style: "margin-left: 20px;",
+                   "data-form" => "new_tie_in" %>
+
+      <div class="divider divider-lg"></div>
+    <% end %>
+  </div>
+
+  <div class="form-loading hidden" data-form="new_tie_in">
+    <%= render 'layouts/inline_loading', title: "Creating Tie In Point..." %>
+    <br><br>
+  </div>
+</div>

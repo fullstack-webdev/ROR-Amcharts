@@ -1,0 +1,1073 @@
+<div class='remote-tray' data-tray='hole_drill_string'>
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading Hole/Drill String..." %>
+</div>
+
+<div class='tray-content'>
+
+<div id="hs_ajax_loader" class="hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait..." %>
+</div>
+
+<div id="hole_string_show_container">
+
+  <% days = @job.get_hole_string_days %>
+  <% depth = @job.get_hole_string_depth %>
+
+
+  <% if show_header %>
+  <div class='section-header' style="margin-top: 15px;">
+    <h1 class='inline-block'>Hole/Drill String</h1>
+
+    <div class='inline-block align-top pull-right'>
+      <%= link_to "Add New Record", new_conf_hole_string_job_path, remote: true, class: "btn btn-sub tooltip-info align-top" %>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div id="hole_string_days_container" class="block">
+    <div class="inline-block" style="width: 120px; font-size: 17px; color: #7C9B8F;">
+      Day
+    </div>
+    <div class="dropdown dropdown-styled inline-block">
+      <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="hole_string_day_selected" data-id="-1" style="width: 240px;">
+        <% if days.empty? %>
+          <span style="color: #7C9B8F;">No records</span>
+        <% else %>
+          <%= days.last.entry_at.strftime("%A %m/%d") %> <span class="caret"></span>
+        <% end %>
+      </button>
+      <ul class="dropdown-menu" role="menu" id="hole_string_day" style="width: 240px; max-width: 240px;">
+        <% days.each do |date| %>
+          <li role="presentation"><%= link_to date.entry_at.strftime("%A %m/%d"), "javascript:void(0);", "data-id" => date.entry_at.to_i, "tabindex" => "-1" %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <div id="hole_string_depth_range_container" class="block" style="display: none;">
+    <div class="inline-block" style="width: 120px; font-size: 17px; color: #7C9B8F;">
+      Depth range
+    </div>
+    <div class="dropdown dropdown-styled inline-block">
+      <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="hole_string_depth_range_selected" data-id="-1" style="width: 240px;">
+        <% if depth.empty? %>
+          <span style="color: #7C9B8F;">No records</span>
+        <% else %>
+          <%= number_with_delimiter(number_with_precision(depth.last.depth_from.convert(:ft, company_unit), strip_insignificant_zeros: true, precision: 0)) %>
+          - <%= number_with_delimiter(number_with_precision(depth.last.depth_to.convert(:ft, company_unit), strip_insignificant_zeros: true, precision: 0)) %> <%= unit(:ft, company_unit) %>
+          <span class="caret"></span>
+        <% end %>
+      </button>
+      <ul class="dropdown-menu" role="menu" id="hole_string_depth_range" style="width: 240px; max-width: 240px;">
+        <% depth.each do |range| %>
+          <li role="presentation"><%= link_to number_with_delimiter(number_with_precision(range.depth_from.convert(:ft, company_unit), strip_insignificant_zeros: true, precision: 0)).to_s + ' - ' + number_with_delimiter(number_with_precision(range.depth_to.convert(:ft, company_unit), strip_insignificant_zeros: true, precision: 0)).to_s + ' ' + unit(:ft, company_unit), "javascript:void(0);", "data-depth-from" => range.depth_from, "data-depth-to" => range.depth_to, "tabindex" => "-1" %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+  <% end %>
+
+  <div class="block">
+    <div class="inline-block clearfix" style="width: 30%;">
+      <div style="font-size: 20px;">
+        Hole Size
+      </div>
+
+      <div class="divider divider-md"></div>
+
+      <div id="hs_hole_size_container" class="block" style="position: absolute; height: 550px;">
+        <div class="inline-block" style="vertical-align: top; margin-right: 15px; box-sizing: border-box; float: left; height: 100%;">
+          <div class="left_bar" style="display: inline-block; height: 100%; float: left; position: relative;">
+          </div>
+          <div class="center_bar" style="display: inline-block; margin: 0 12px; box-sizing: border-box; float: left; height: 100%; position: relative;">
+            <div style="width: 27px; height: 100%; background: #ffffff; border-radius: 0 0 3px 3px;"></div>
+            <div style="position: absolute; bottom: 0px; background-color: #85caee; border-radius: 0 0 3px 3px; width: 27px; height: 12px; margin-top: -12px;"></div>
+          </div>
+          <div class="right_bar" style="display: inline-block; float: left; height: 100%; position: relative;">
+          </div>
+          <div style="clear: both;"></div>
+        </div>
+
+        <div class="inline-block depth-container" style="position: relative; text-align: left; width: 40px; margin-right: 0px; float: left;">
+        </div>
+      </div>
+    </div>
+
+    <div class="inline-block" style="width: 68%; vertical-align: top; min-height: 600px;">
+      <div class="section-sub-header">
+        Drilling String
+      </div>
+
+      <div class="block">
+        <table class="table-normal">
+          <thead>
+          <tr>
+            <th>Type</th>
+            <th>O.D.(<%= unit(:in, company_unit) %>)</th>
+            <th>I.D.(<%= unit(:in, company_unit) %>)</th>
+            <th>Weight(<%= unit(:lbm, company_unit) %>/<%= unit(:ft, company_unit) %>)</th>
+            <th>Length(<%= unit(:ft, company_unit) %>)</th>
+          </tr>
+          </thead>
+          <tbody id="hs_drilling_string_container">
+          <tr>
+            <td class="text-bold">-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="divider divider-lg"></div>
+
+      <div class="section-sub-header">
+        Bit
+      </div>
+
+      <div class="block">
+        <table class="table-normal">
+          <tbody id="hs_bit_container">
+          <tr>
+            <td width="30%">Size</td>
+            <td width="20%">-</td>
+            <td width="30%">Make</td>
+            <td width="20%">-</td>
+          </tr>
+          <tr>
+            <td>Jets</td>
+            <td>-</td>
+            <td>Nozzle Size</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>TFA</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>HHSI</td>
+            <td>-</td>
+            <td>Serial #</td>
+            <td>-</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="divider divider-lg"></div>
+
+      <div class="section-sub-header">
+        Casing
+      </div>
+
+      <div class="block">
+        <table class="table-normal">
+          <thead>
+          <tr>
+            <th>I.D.(<%= unit(:in, company_unit) %>)</th>
+            <th>Length(<%= unit(:ft, company_unit) %>)</th>
+            <th>Top Depth</th>
+            <th>Btm Depth</th>
+          </tr>
+          </thead>
+          <tbody id="hs_casing_container">
+          <tr>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+  <% if show_header %>
+  <div id="hole_string_show_action_container" class="block">
+    <a id="hole_string_delete_button" href="javascript:void(null)" class="btn btn-default">Delete</a>
+
+    <div class="space"></div>
+    <a id="hole_string_edit_button" href="javascript:void(null)" class="btn btn-default">Edit</a>
+  </div>
+  <% end %>
+</div>
+
+<div id="hole_string_add_container" style="display: none;" class="hole-string-container">
+  <div class='section-header' style="margin-top: 15px;">
+    <h1 class='inline-block'>Hole/Drill String</h1>
+  </div>
+
+  <div class="divider"></div>
+
+  <div id="hole_string_day_based_container" class="block align-top" style="width: auto; font-size: 17px; color: #7C9B8F; margin-top:9px; margin-bottom: 15px;">
+    <input type="radio" name="hole_string_day_based" class="form-control hole_string_day_based" value="1" checked/>
+    Date/time based
+    <div class="space space-lg"></div>
+    <input type="radio" name="hole_string_day_based" class="form-control hole_string_day_based" value="0"/> Depth based
+  </div>
+
+  <div id="hole_string_day_container" class="block">
+    <div class="inline-block align-top" style="width: 130px; font-size: 17px; color: #7C9B8F; margin-top:9px;">
+      Day
+    </div>
+    <div class="inline-block align-top">
+      <div class="datetimepicker input-append date" style="width: 280px;">
+        <input id="hole_string_form_date" data-format="MM/dd/yyyy hh:mm:ss" class="job-field-value-editable" style="width: calc(100% - 50px);" type="text" placeholder="Warning start date" value="<%= @job.last_date().strftime("%m/%d/%Y  %H:%M:%S") %>"></input>
+              <span class="add-on" style="height: 40px; box-sizing: border-box; border-radius: 0px; border: none; background: #58C9C2;">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar" style="margin-top: 10px;">
+                </i>
+              </span>
+      </div>
+    </div>
+  </div>
+
+  <div id="hole_string_depth_container" class="block" style="display: none;">
+    <div class="inline-block align-top" style="width: 130px; font-size: 17px; color: #7C9B8F; margin-top:9px;">
+      Depth range(<%= unit(:ft, company_unit) %>)
+    </div>
+    <div class="inline-block align-top" style="line-height: 30px;">
+      <input type="text" id="hole_string_depth_from" class="job-field-value-editable tooltip-info text-field" style="width: 100px;"/>
+      -
+      <input type="text" id="hole_string_depth_to" class="job-field-value-editable tooltip-info text-field" style="width: 100px;"/>
+    </div>
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+  <div class="block">
+    <div class="inline-block" style="width: 100%; vertical-align: top;">
+      <%= render 'jobs/drilling_string' %>
+
+      <div class="divider divider-lg"></div>
+
+      <%= render 'jobs/bit' %>
+
+      <div class="divider divider-lg"></div>
+
+      <%= render 'jobs/casing' %>
+    </div>
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+  <div class="block">
+    <a id="hole_string_cancel_button" href="javascript:void(null)" class="btn btn-default">Cancel</a>
+    <a id="hole_string_save_button" href="javascript:void(null)" class="btn btn-primary" style="margin-left: 17px;">Save</a>
+  </div>
+</div>
+
+<div id="hole_string_edit_container" style="display: none;" class="hole-string-container">
+  <div class='section-header' style="margin-top: 15px;">
+    <h1 class='inline-block'>Edit Hole/Drill String</h1>
+  </div>
+
+  <div class="divider"></div>
+
+  <div id="hole_string_edit_form" class="block">
+    <%= render 'jobs/drilling_string' %>
+
+    <div class="divider divider-lg"></div>
+
+    <%= render 'jobs/bit' %>
+
+    <div class="divider divider-lg"></div>
+
+    <%= render 'jobs/casing' %>
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+  <div class="block">
+    <a id="hole_string_edit_cancel_button" href="javascript:void(null)" class="btn btn-default">Cancel</a>
+    <a id="hole_string_edit_save_button" href="javascript:void(null)" class="btn btn-primary" style="margin-left: 17px;">Save</a>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script type="text/javascript">
+  var no_hs = 0;
+  var no_ds = 0;
+  var no_casing = 0;
+
+  (function ($) {
+    var depth_based = <%= @job.has_depth_based_hole_string %>;
+    var company_unit = "<%= company_unit %>";
+
+    var display_string = function (value, isNumber, precision) {
+      isNumber = isNumber || false;
+      precision = precision || 0;
+      if (typeof value != 'undefined' && value != null) {
+        if (isNumber) {
+          return parseFloat(value).round_to_decimal(precision).number_with_delimiter();
+        } else {
+          return value;
+        }
+      } else {
+        return '-';
+      }
+    };
+
+    $("input[name=hole_string_day_based]:radio").change(function () {
+      var day_based = $(this).val();
+      if (day_based == '1') {
+        $('#hole_string_day_container').show();
+        $('#hole_string_depth_container').hide();
+        $('.hole-string-depth-based').hide();
+      } else {
+        $('#hole_string_day_container').hide();
+        $('#hole_string_depth_container').show();
+        $('.hole-string-depth-based').show();
+      }
+    });
+
+    $(".datetimepicker").datetimepicker({
+      language: 'en',
+      pick12HourFormat: false
+    });
+
+    function update_view(data) {
+
+      /*
+       $('#hs_hole_size_container').html('');
+       var max_width = 0;
+       var container_width = $('#hs_hole_size_container').width() - 60;
+       data.hole_sizes.forEach(function (hole_size) {
+       var width = hole_size.diameter * 7.5;
+       if (width > container_width) {
+       width = container_width;
+       }
+       if (width > max_width) {
+       max_width = width;
+       }
+       $('#hs_hole_size_container').append('<div class="hole-depth-block">' +
+       '<div class="image-container">' +
+       '<div class="hole-image" style="width: ' + width + 'px;"></div>' +
+       '</div>' +
+       '<div class="desc-container">' +
+       '<div class="hole-width">' +
+       hole_size.diameter + '<span>"</span>' +
+       '</div>' +
+       '<div class="hole-depth">' + hole_size.depth + '</div>' +
+       '</div>' +
+       '</div>');
+       });
+       $('.image-container').css('min-width', max_width);
+       */
+
+      $('#hs_hole_size_container').hide();
+      $('#hs_hole_size_container .depth-container').html('');
+      $('#hs_hole_size_container .left_bar').html('');
+      $('#hs_hole_size_container .right_bar').html('');
+
+      var max_width = 0;
+
+      var max_depth = 0;
+      if (data.hole_sizes.length > 0) {
+        max_depth = data.hole_sizes[data.hole_sizes.length - 1].depth || 0;
+        var diameter_str;
+        var diameter = data.hole_sizes[0].diameter;
+        if (!data.hole_sizes[0].diameter) {
+          diameter_str = '';
+        } else if (company_unit == 'Imperial') {
+          diameter_str = parseFloat(diameter).round_to_decimal(2) + ' in (' + parseFloat(diameter).convert('in', company_unit).val().round_to_decimal() + ' ' + 'in'.unit(company_unit) + ')';
+        } else if (company_unit == 'Metric') {
+          diameter_str = parseFloat(diameter).convert('in', company_unit).val().round_to_decimal() + ' ' + 'in'.unit(company_unit) + ' (' + parseFloat(diameter).round_to_decimal(2) + ' in)';
+        }
+        $('#hs_hole_size_container .depth-container').append('<div style="position: absolute; top: 0px; font-size: 10px; color: #fefefe; margin-top: -5px; width: 100px;">' + 0 + '<br>' + diameter_str + '</div>');
+      }
+
+      for (var i = 0; i < data.hole_sizes.length; i++) {
+        var hole_size = data.hole_sizes[i]
+        var depth = hole_size.depth || 0;
+        var diameter = data.hole_sizes[i + 1] ? data.hole_sizes[i + 1].diameter : '';
+        var size = hole_size.diameter || 0;
+        var height = depth / max_depth * 500;
+        var diameter_str;
+        if (!diameter) {
+          diameter_str = '';
+        } else if (company_unit == 'Imperial') {
+          diameter_str = parseFloat(diameter).round_to_decimal(2) + ' in (' + parseFloat(diameter).convert('in', 'metric').val().round_to_decimal() + ' ' + 'in'.unit('metric') + ')';
+        } else if (company_unit == 'Metric') {
+          diameter_str = parseFloat(diameter).convert('in', company_unit).val().round_to_decimal() + ' ' + 'in'.unit(company_unit) + ' (' + parseFloat(diameter).round_to_decimal(2) + ' in)';
+        }
+        $('#hs_hole_size_container .depth-container').append('<div style="position: absolute; top: ' + height + 'px; font-size: 10px; color: #fefefe; margin-top: -5px; width: 100px;">' + parseFloat(depth).convert('ft', company_unit).value.round_to_decimal().with_delimiter() + '<br>' + diameter_str + '</div>');
+        $('#hs_hole_size_container .left_bar').append('<div style="width: ' + size + 'px; height: ' + height + 'px; background:#747777; position: absolute; top: 0; right: 0;"></div>');
+        $('#hs_hole_size_container .right_bar').append('<div style="width: ' + size + 'px; height: ' + height + 'px; background:#747777; position: absolute; top: 0; left: 0;"></div>');
+        max_width = max_width || hole_size.diameter;
+        max_width = Math.max(max_width, hole_size.diameter);
+      }
+
+      $('#hs_hole_size_container').css('height', 500 + 'px');
+      $('#hs_hole_size_container .right_bar').css('width', max_width + 'px');
+      $('#hs_hole_size_container .left_bar').css('width', max_width + 'px');
+
+      if (data.hole_sizes && data.hole_sizes.length > 0) {
+        $('#hs_hole_size_container').show();
+      }
+
+      $('#hs_casing_container').html('');
+      data.casings.forEach(function (casing) {
+        $('#hs_casing_container').append('<tr>' +
+            '<td>' + (typeof casing.inner_diameter != 'undefined' && casing.inner_diameter != null ? casing.inner_diameter.convert('in', company_unit).val().round_to_decimal(2) : '') + '</td>' +
+            '<td>' + (typeof casing.length != 'undefined' && casing.length != null ? display_string(casing.length.convert('ft', company_unit).value, true, 1) : '') + '</td>' +
+            '<td>' + (typeof casing.depth_from != 'undefined' && casing.depth_from != null ? display_string(casing.depth_from.convert('ft', company_unit).value, true, 2) : '') + '</td>' +
+            '<td>' + (typeof casing.depth_to != 'undefined' && casing.depth_to != null ? display_string(casing.depth_to.convert('ft', company_unit).value, true, 2) : '') + '</td>' +
+            '</tr>');
+      });
+
+      $('#hs_drilling_string_container').html('');
+      var bha_length = 0;
+      data.drilling_strings.forEach(function (drill_string) {
+        $('#hs_drilling_string_container').append('<tr>' +
+            '<td class="text-bold">' + display_string(drill_string.type) + '</td>' +
+            '<td>' + (typeof drill_string.outer_diameter != 'undefined' && drill_string.outer_diameter != null ? drill_string.outer_diameter.convert('in', company_unit).val().round_to_decimal(company_unit == 'Imperial' ? 3 : 0).with_delimiter() : '') + '</td>' +
+            '<td>' + (typeof drill_string.inner_diameter != 'undefined' && drill_string.inner_diameter != null ? drill_string.inner_diameter.convert('in', company_unit).val().round_to_decimal(company_unit == 'Imperial' ? 3 : 0).with_delimiter() : '') + '</td>' +
+            '<td>' + (typeof drill_string.weight != 'undefined' && drill_string.weight != null ? drill_string.weight.convert('lbm/ft', company_unit).value.round_to_decimal(2).with_delimiter() : '-') + '</td>' +
+            '<td>' + (typeof drill_string.length != 'undefined' && drill_string.length != null ? display_string(drill_string.length.convert('ft', company_unit), true, 1) : '') + '</td>' +
+            '</tr>');
+        bha_length += parseFloat(drill_string.length) || 0;
+      });
+      $('#hs_drilling_string_container').append('<tr>' +
+          '<td></td>' +
+          '<td></td>' +
+          '<td></td>' +
+          '<td></td>' +
+          '<td class="text-bold">' + bha_length.convert('ft', company_unit).value.round_to_decimal(1).number_with_delimiter() + '</td>' +
+          '</tr>');
+
+      data.bit = data.bit || {};
+      $('#hs_bit_container').html('<tr>' +
+          '<td>Size</td>' +
+          '<td class="text-bold">' + (typeof data.bit.size != 'undefined' && data.bit.size != null ? data.bit.size.convert('in', company_unit).val().round_to_decimal(company_unit == 'Imperial' ? 2 : 0) + ' <span>' + 'in'.unit(company_unit) + '</span>' : '-') + '</td>' +
+          '<td>Make</td>' +
+          '<td class="text-bold">' + display_string(data.bit.make) + '</td>' +
+          '</tr>' +
+          '<tr>' +
+          '<td>Jets</td>' +
+          '<td class="text-bold">' + display_string(data.bit.jets) + '</td>' +
+          '<td>Nozzle Size</td>' +
+          '<td class="text-bold">' + (typeof data.bit.nozzle_size != 'undefined' && data.bit.nozzle_size != null ? data.bit.nozzle_size.convert('in', company_unit).val().round_to_decimal(company_unit == 'Imperial' ? 2 : 0) + ' <span class="index">1/32</span><span>' + 'in'.unit(company_unit) + '</span>' : '-') + '</td>' +
+          '</tr>' +
+          '<tr>' +
+          '<td>TFA</td>' +
+          '<td class="text-bold">' + (typeof data.bit.tfa != 'undefined' && data.bit.tfa != null ? data.bit.tfa.convert('in2', company_unit).val().round_to_decimal(2) + ' <span>' + 'in2'.unit(company_unit) + '</span>' : '-') + '</td>' +
+          '</tr>' +
+          '<tr>' +
+          '<td>HHSI</td>' +
+          '<td class="text-bold">' + (typeof data.bit.hhsi != 'undefined' && data.bit.hhsi != null ? data.bit.hhsi + ' <span>hhp/in</span><span class="index">2</span>' : '-') + '</td>' +
+          '<td>Serial #</td>' +
+          '<td class="text-bold">' + display_string(data.bit.serial_no) + '</td>' +
+          '</tr>');
+
+      $(".hole-string-depth-based").hide();
+    }
+
+    // click event on day list dropdown
+    $('#hole_string_day li a').live('click', function () {
+      $('#hole_string_day_selected').html($(this).html() + ' <span class="caret"></span>');
+      $('#hole_string_day_selected').data('id', $(this).attr('data-id'));
+
+      $('#hs_ajax_loader').show();
+      $('#hs_ajax_loader .loading').show();
+      $("#hole_string_show_container").hide();
+
+      $.get("<%= get_hole_string_job_path %>", {date: $(this).attr('data-id')}).done(function (result) {
+        update_view(result);
+        $('#hs_ajax_loader').hide();
+        $("#hole_string_show_container").show();
+      });
+    });
+
+    $('#hole_string_depth_range li a').live('click', function () {
+      $('#hole_string_depth_range_selected').html($(this).html() + ' <span class="caret"></span>');
+      $('#hole_string_depth_range_selected').data('depth-from', $(this).attr('data-depth-from'));
+      $('#hole_string_depth_range_selected').data('depth-to', $(this).attr('data-depth-to'));
+
+      $('#hs_ajax_loader').show();
+      $('#hs_ajax_loader .loading').show();
+      $("#hole_string_show_container").hide();
+
+      $.get("<%= get_hole_string_job_path %>", {depth_from: $(this).attr('data-depth-from'), depth_to: $(this).attr('data-depth-to')}).done(function (result) {
+        update_view(result);
+        $('#hs_ajax_loader').hide();
+        $("#hole_string_show_container").show();
+      });
+    });
+
+    /*
+     function remove_hole_size() {
+     var id = $(this).attr('data-id');
+     $('#hole_string_add_container #hs_hs_row' + id).remove();
+     }
+
+     $('#hole_string_add_container .hs_hs_remove').live('click', remove_hole_size);
+
+     function add_hole_size() {
+     $("#hole_string_add_container #hole_string_hs_container").append("<tr id='hs_hs_row" + no_hs + "'>" +
+     "<td><input type='text' id='hs_hs_diameter" + no_hs + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+     "<td><input type='text' id='hs_hs_depth" + no_hs + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+     "<td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_hs_remove" + no_hs + "' class='hs_hs_remove' data-id='" + no_hs + "'><i class='fa fa-remove'></i></a></td>" +
+     "</tr>");
+
+     $('#hole_string_add_container #hs_hs_row' + no_hs).mouseover(function () {
+     $(this).find('.remove').show();
+     });
+
+     $('#hole_string_add_container #hs_hs_row' + no_hs).mouseout(function () {
+     $(this).find('.remove').hide();
+     });
+     }
+     */
+
+    function remove_drilling_string() {
+      var id = $(this).attr('data-id');
+      $(this).closest('.hole-string-container').find('#hs_ds_row' + id).remove();
+    }
+
+    $('#hole_string_add_container .hs_ds_remove').live('click', remove_drilling_string);
+    $('#hole_string_edit_container .hs_ds_remove').live('click', remove_drilling_string);
+
+    function add_drilling_string() {
+
+      var container = $(this).closest('.hole-string-container');
+
+      container.find("#hole_string_ds_container").append("<tr id='hs_ds_row" + no_ds + "'>" +
+          "<td><input type='text' id='hs_ds_type" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_ds_od" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_ds_id" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_ds_weight" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_ds_length" + no_ds + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_ds_remove" + no_ds + "' class='hs_ds_remove' data-id='" + no_ds + "'><i class='fa fa-remove'></i></a></td>" +
+          "</tr>");
+
+      container.find('#hs_ds_row' + no_ds).mouseover(function () {
+        $(this).find('.remove').show();
+      });
+
+      container.find('#hs_ds_row' + no_ds).mouseout(function () {
+        $(this).find('.remove').hide();
+      });
+
+    }
+
+    function remove_casing() {
+      var id = $(this).attr('data-id');
+      $(this).closest('.hole-string-container').find('#hs_casing_row' + id).remove();
+    }
+
+    $('#hole_string_add_container .hs_casing_remove').live('click', remove_casing);
+    $('#hole_string_edit_container .hs_casing_remove').live('click', remove_casing);
+
+    function add_casing() {
+
+      var container = $(this).closest('.hole-string-container');
+
+      container.find("#hole_string_casing_container").append("<tr id='hs_casing_row" + no_casing + "'>" +
+          "<td><input type='text' id='hs_casing_id" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_casing_length" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_casing_depth_from" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td><input type='text' id='hs_casing_depth_to" + no_casing + "' class='job-field-value-editable tooltip-info text-field'/></td>" +
+          "<td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_casing_remove" + no_casing + "' class='hs_casing_remove' data-id='" + no_casing + "'><i class='fa fa-remove'></i></a></td>" +
+          "</tr>");
+
+      container.find('#hs_casing_row' + no_casing).mouseover(function () {
+        $(this).find('.remove').show();
+      });
+
+      container.find('#hs_casing_row' + no_casing).mouseout(function () {
+        $(this).find('.remove').hide();
+      });
+    }
+
+    $("#hole_string_cancel_button").click(function () {
+      $("#hole_string_add_container").css('display', 'none');
+      $("#hole_string_show_container").css('display', 'block');
+    });
+
+    $("#hole_string_edit_cancel_button").click(function () {
+      $("#hole_string_edit_container").css('display', 'none');
+      $("#hole_string_show_container").css('display', 'block');
+    });
+
+    $("a.remote-tray-toggle[data-tray='hole_drill_string']").click(function () {
+      $("#hole_string_add_container").css('display', 'none');
+      $("#hole_string_show_container").css('display', 'block');
+    });
+
+    $("#hole_string_add_container .hole_string_ds_add_button").click(function () {
+      no_ds++;
+
+      add_drilling_string.call(this);
+
+      var day_based = $("input[name=hole_string_day_based]:checked").val();
+      if (day_based == '1') {
+        $(".hole-string-depth-based").hide();
+      }
+    });
+
+    $("#hole_string_add_container .hole_string_hs_add_button").click(function () {
+      no_hs++;
+
+      add_hole_size.call(this);
+    });
+
+    $("#hole_string_add_container .hole_string_casing_add_button").click(function () {
+      no_casing++;
+
+      add_casing.call(this);
+    });
+
+    $("#hole_string_edit_container .hole_string_ds_add_button").click(function () {
+      no_ds++;
+
+      add_drilling_string.call(this);
+
+      if (!depth_based) {
+        $(".hole-string-depth-based").hide();
+      }
+    });
+
+    $("#hole_string_edit_container .hole_string_casing_add_button").click(function () {
+      no_casing++;
+
+      add_casing.call(this);
+    });
+
+    $("#hole_string_save_button").click(function () {
+
+      var day_based = $("input[name=hole_string_day_based]:checked").val();
+
+      var data = {};
+
+      data.hole_sizes = [];
+      /*
+       for (var i = 0; i <= no_hs; i++) {
+       if ($('#hole_string_add_container #hs_hs_row' + i).length > 0) {
+       var item = {};
+       item.diameter = $("#hole_string_add_container #hs_hs_diameter" + i).val();
+       item.depth = $("#hole_string_add_container #hs_hs_depth" + i).val();
+       data.hole_sizes.push(item);
+       }
+       }
+       */
+
+      data.drilling_strings = [];
+      for (var i = 0; i <= no_ds; i++) {
+        if ($('#hole_string_add_container #hs_ds_row' + i).length > 0) {
+          var item = {};
+          item.type = $("#hole_string_add_container #hs_ds_type" + i).val();
+          item.outer_diameter = $("#hole_string_add_container #hs_ds_od" + i).val();
+          item.inner_diameter = $("#hole_string_add_container #hs_ds_id" + i).val();
+          item.weight = $("#hole_string_add_container #hs_ds_weight" + i).val();
+          item.length = $("#hole_string_add_container #hs_ds_length" + i).val();
+          data.drilling_strings.push(item);
+        }
+      }
+
+      data.casings = [];
+      for (var i = 0; i <= no_casing; i++) {
+        if ($('#hole_string_add_container #hs_casing_row' + i).length > 0) {
+          var item = {};
+          item.inner_diameter = $("#hole_string_add_container #hs_casing_id" + i).val();
+          item.length = $("#hole_string_add_container #hs_casing_length" + i).val();
+          item.depth_from = $("#hole_string_add_container #hs_casing_depth_from" + i).val();
+          item.depth_to = $("#hole_string_add_container #hs_casing_depth_to" + i).val();
+          data.casings.push(item);
+        }
+      }
+
+      data.bit = {};
+      data.bit.size = $("#hole_string_add_container #hs_bit_size").val();
+      data.bit.make = $("#hole_string_add_container #hs_bit_make").val();
+      data.bit.jets = $("#hole_string_add_container #hs_bit_jets").val();
+      data.bit.nozzle_size = $("#hole_string_add_container #hs_bit_nozzle_size").val();
+      data.bit.tfa = $("#hole_string_add_container #hs_bit_tfa").val();
+      data.bit.hhsi = $("#hole_string_add_container #hs_bit_hhsi").val();
+      data.bit.serial_no = $("#hole_string_add_container #hs_bit_serial_no").val();
+
+      if (day_based == '1') {
+        var picker = $('.datetimepicker').data('datetimepicker');
+        var utc = picker.getDate();
+        data.entry_at = Math.round(new Date(utc).getTime() / 1000);
+      } else {
+        data.depth_from = parseFloat($('#hole_string_depth_from').val()).convert_default('ft', company_unit).val().round_to_decimal();
+        data.depth_to = parseFloat($('#hole_string_depth_to').val()).convert_default('ft', company_unit).val().round_to_decimal();
+      }
+
+      $.ajaxSetup({
+        contentType: "application/json; charset=utf-8"
+      });
+
+      $('#hs_ajax_loader').show();
+      $('#hs_ajax_loader .loading').show();
+      $("#hole_string_add_container").hide();
+      $("#hole_string_show_container").hide();
+
+      $.post("<%= create_hole_string_job_path %>.json", JSON.stringify(data)).done(function (result) {
+        $('#hs_ajax_loader').hide();
+
+        if (result.valid) {
+          toastr.info("New record is created.");
+
+          if (result.entry_at) {
+            $('#hole_string_day').html('');
+            result.days.forEach(function (date) {
+              $('#hole_string_day').append('<li role="presentation">' +
+                  '<a href="javascript:void(null)" data-id="' + date.ts + '" tabindex="-1">' +
+                  date.entry_at + '</a>' +
+                  '</li>');
+            });
+
+            $.get("<%= get_hole_string_job_path %>", {date: result.entry_at}).done(function (data) {
+              update_view(data);
+
+              depth_based = false;
+              $("#hole_string_days_container").show();
+              $("#hole_string_depth_range_container").hide();
+
+              $('#hole_string_day_selected').html(result.entry_at_display + ' <span class="caret"></span>');
+              $('#hole_string_day_selected').data('id', result.entry_at);
+
+              $("#hole_string_add_container").hide();
+              $("#hole_string_show_container").show();
+            });
+          } else {
+            $('#hole_string_depth_range').html('');
+            result.depth_ranges.forEach(function (range) {
+              $('#hole_string_depth_range').append('<li role="presentation">' +
+                  '<a href="javascript:void(null)" data-depth-from="' + range.depth_from + '" data-depth-to="' + range.depth_to + '" tabindex="-1">' +
+                  range.depth_from.convert('ft', company_unit).value.round_to_decimal(0).number_with_delimiter() + ' - ' + range.depth_to.convert('ft', company_unit).value.round_to_decimal(0).number_with_delimiter() + ' ' + 'ft'.unit(company_unit) + '</a>' +
+                  '</li>');
+            });
+
+            $.get("<%= get_hole_string_job_path %>", {depth_from: data.depth_from, depth_to: data.depth_to}).done(function (result) {
+              update_view(result);
+
+              depth_based = true;
+              $("#hole_string_days_container").hide();
+              $("#hole_string_depth_range_container").show();
+
+              $('#hole_string_depth_range_selected').html(parseFloat(data.depth_from).convert('ft', company_unit).value.round_to_decimal().with_delimiter() + ' - ' + parseFloat(data.depth_to).convert('ft', company_unit).value.round_to_decimal().with_delimiter() + ' <span class="caret"></span>');
+              $('#hole_string_depth_range_selected').data('depth-from', data.depth_from);
+              $('#hole_string_depth_range_selected').data('depth-to', data.depth_to);
+
+              $("#hole_string_add_container").hide();
+              $("#hole_string_show_container").show();
+            });
+          }
+
+          $('#hole_string_show_action_container').show();
+        } else {
+          $("#hole_string_add_container").show();
+          $("#hole_string_show_container").hide();
+          var err = [];
+          if (result.error.bit && result.error.bit.size) {
+            err.push("Bit Size can't be blank and should be numeric value.");
+          }
+          if (result.error.hole_size) {
+            err.push("Hole Size can't be blank and should contain numeric values.");
+          }
+          if (result.error.drilling_string && result.error.drilling_string.inner_diameter) {
+            result.error.drilling_string.inner_diameter.forEach(function (item) {
+              err.push("Drilling String / Inner Diameter " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.length) {
+            result.error.drilling_string.length.forEach(function (item) {
+              err.push("Drilling String / Length " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.weight) {
+            result.error.drilling_string.weight.forEach(function (item) {
+              err.push("Drilling String / Weight " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.outer_diameter) {
+            result.error.drilling_string.outer_diameter.forEach(function (item) {
+              err.push("Drilling String / Outer Diameter " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.type) {
+            result.error.drilling_string.type.forEach(function (item) {
+              err.push("Drilling String / Type " + item);
+            });
+          }
+          toastr.warning(err.join("<br>"), "Please enter valid information.<br>");
+        }
+      }).fail(function (err) {
+        $('#hs_ajax_loader').hide();
+        $("#hole_string_add_container").show();
+        $("#hole_string_show_container").hide();
+        toastr.error("Some went wrong. Please try again later.");
+      });
+    });
+
+    $("#hole_string_edit_save_button").click(function () {
+
+      var data = {};
+
+      data.hole_sizes = [];
+      /*
+       for (var i = 0; i <= no_hs; i++) {
+       if ($('#hole_string_add_container #hs_hs_row' + i).length > 0) {
+       var item = {};
+       item.diameter = $("#hole_string_add_container #hs_hs_diameter" + i).val();
+       item.depth = $("#hole_string_add_container #hs_hs_depth" + i).val();
+       data.hole_sizes.push(item);
+       }
+       }
+       */
+
+      data.drilling_strings = [];
+      for (var i = 0; i <= no_ds; i++) {
+        if ($('#hole_string_edit_container #hs_ds_row' + i).length > 0) {
+          var item = {};
+          item.type = $("#hole_string_edit_container #hs_ds_type" + i).val();
+          item.outer_diameter = $("#hole_string_edit_container #hs_ds_od" + i).val();
+          item.inner_diameter = $("#hole_string_edit_container #hs_ds_id" + i).val();
+          item.weight = $("#hole_string_edit_container #hs_ds_weight" + i).val();
+          item.length = $("#hole_string_edit_container #hs_ds_length" + i).val();
+          if (depth_based) {
+            item.depth_from = $("#hole_string_edit_container #hs_ds_depth_from" + i).val();
+            item.depth_to = $("#hole_string_edit_container #hs_ds_depth_to" + i).val();
+          }
+          data.drilling_strings.push(item);
+        }
+      }
+
+      data.casings = [];
+      for (var i = 0; i <= no_casing; i++) {
+        if ($('#hole_string_edit_container #hs_casing_row' + i).length > 0) {
+          var item = {};
+          item.inner_diameter = $("#hole_string_edit_container #hs_casing_id" + i).val();
+          item.length = $("#hole_string_edit_container #hs_casing_length" + i).val();
+          item.depth_from = $("#hole_string_edit_container #hs_casing_depth_from" + i).val();
+          item.depth_to = $("#hole_string_edit_container #hs_casing_depth_to" + i).val();
+          data.casings.push(item);
+        }
+      }
+
+      data.bit = {};
+      data.bit.size = $("#hole_string_edit_container #hs_bit_size").val();
+      data.bit.make = $("#hole_string_edit_container #hs_bit_make").val();
+      data.bit.jets = $("#hole_string_edit_container #hs_bit_jets").val();
+      data.bit.nozzle_size = $("#hole_string_edit_container #hs_bit_nozzle_size").val();
+      data.bit.tfa = $("#hole_string_edit_container #hs_bit_tfa").val();
+      data.bit.hhsi = $("#hole_string_edit_container #hs_bit_hhsi").val();
+      data.bit.serial_no = $("#hole_string_edit_container #hs_bit_serial_no").val();
+
+      data.entry_at = $("#hole_string_edit_container #hole_string_edit_form").data('date');
+      if (data.entry_at == '') {
+        data.entry_at = null;
+      }
+      data.depth_from = $("#hole_string_edit_container #hole_string_edit_form").data('depth-from');
+      data.depth_to = $("#hole_string_edit_container #hole_string_edit_form").data('depth-to');
+
+      $.ajaxSetup({
+        contentType: "application/json; charset=utf-8"
+      });
+
+      $('#hs_ajax_loader').show();
+      $('#hs_ajax_loader .loading').show();
+      $("#hole_string_edit_container").hide();
+
+      $.post("<%= create_hole_string_job_path %>.json", JSON.stringify(data)).done(function (result) {
+        $('#hs_ajax_loader').hide();
+
+        if (result.valid) {
+          toastr.info("Your changes have been saved.");
+
+          if (result.entry_at) {
+            $.get("<%= get_hole_string_job_path %>", {date: result.entry_at}).done(function (result) {
+              update_view(result);
+              depth_based = false;
+
+              $("#hole_string_edit_container").hide();
+              $("#hole_string_show_container").show();
+            });
+          } else {
+            $.get("<%= get_hole_string_job_path %>", {depth_from: data.depth_from, depth_to: data.depth_to}).done(function (result) {
+              update_view(result);
+              depth_based = true;
+
+              $("#hole_string_edit_container").hide();
+              $("#hole_string_show_container").show();
+            });
+          }
+        } else {
+          $("#hole_string_edit_container").show();
+          $("#hole_string_show_container").hide();
+          var err = [];
+          if (result.error.bit && result.error.bit.size) {
+            err.push("Bit Size can't be blank and should be numeric value.");
+          }
+          if (result.error.hole_size) {
+            err.push("Hole Size can't be blank and should contain numeric values.");
+          }
+          if (result.error.drilling_string && result.error.drilling_string.inner_diameter) {
+            result.error.drilling_string.inner_diameter.forEach(function (item) {
+              err.push("Drilling String / Inner Diameter " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.length) {
+            result.error.drilling_string.length.forEach(function (item) {
+              err.push("Drilling String / Length " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.weight) {
+            result.error.drilling_string.weight.forEach(function (item) {
+              err.push("Drilling String / Weight " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.outer_diameter) {
+            result.error.drilling_string.outer_diameter.forEach(function (item) {
+              err.push("Drilling String / Outer Diameter " + item);
+            });
+          }
+          if (result.error.drilling_string && result.error.drilling_string.type) {
+            result.error.drilling_string.type.forEach(function (item) {
+              err.push("Drilling String / Type " + item);
+            });
+          }
+          toastr.warning(err.join("<br>"), "Please enter valid information.<br>");
+        }
+      }).fail(function (err) {
+        $('#hs_ajax_loader').hide();
+        $("#hole_string_edit_container").show();
+        $("#hole_string_show_container").hide();
+        toastr.error("Some went wrong. Please try again later.");
+      });
+    });
+
+    $('#hole_string_delete_button').click(function () {
+      if (confirm('Are you sure?')) {
+        $('#hs_ajax_loader').show();
+        $('#hs_ajax_loader .loading').show();
+        $("#hole_string_show_container").hide();
+
+        if (depth_based) {
+          var depth_from = $('#hole_string_depth_range_selected').data('depth-from');
+          var depth_to = $('#hole_string_depth_range_selected').data('depth-to');
+
+          $.ajaxSetup({
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8"
+          });
+
+          $.post("<%= delete_conf_hole_string_job_path %>", {depth_from: depth_from, depth_to: depth_to}).done(function () {
+            $('#hs_ajax_loader').hide();
+            $("#hole_string_show_container").show();
+            toastr.success("The record has been removed.");
+            window.auid++;
+            $.ajax("<%= job_path %>?section=hole_drill_string" + "&auid=" + window.auid, {
+              type: 'get',
+              dataType: 'script'
+            });
+          }).fail(function () {
+            $('#hs_ajax_loader').hide();
+            $("#hole_string_show_container").show();
+            toastr.error("Some went wrong. Please try again later.");
+          });
+        } else {
+          var entry_at = $('#hole_string_day_selected').data('id');
+
+          $.ajaxSetup({
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8"
+          });
+
+          $.post("<%= delete_conf_hole_string_job_path %>", {date: entry_at}).done(function () {
+            $('#hs_ajax_loader').hide();
+            $("#hole_string_show_container").show();
+            toastr.success("The record has been removed.");
+            window.auid++;
+            $.ajax("<%= job_path %>?section=hole_drill_string" + "&auid=" + window.auid, {
+              type: 'get',
+              dataType: 'script'
+            });
+          }).fail(function () {
+            $('#hs_ajax_loader').hide();
+            $("#hole_string_show_container").show();
+            toastr.error("Some went wrong. Please try again later.");
+          });
+        }
+      }
+    });
+
+    $('#hole_string_edit_button').click(function () {
+      $('#hs_ajax_loader').show();
+      $('#hs_ajax_loader .loading').show();
+      $("#hole_string_show_container").hide();
+
+      if (depth_based) {
+        var depth_from = $('#hole_string_depth_range_selected').data('depth-from');
+        var depth_to = $('#hole_string_depth_range_selected').data('depth-to');
+        $.get("<%= edit_conf_hole_string_job_path %>", {depth_from: depth_from, depth_to: depth_to}).fail(function () {
+          $('#hs_ajax_loader').hide();
+          $("#hole_string_show_container").show();
+          toastr.error("Some went wrong. Please try again later.");
+        });
+      } else {
+        var date = $('#hole_string_day_selected').data('id');
+        $.get("<%= edit_conf_hole_string_job_path %>", {date: date}).fail(function () {
+          $('#hs_ajax_loader').hide();
+          $("#hole_string_show_container").show();
+          toastr.error("Some went wrong. Please try again later.");
+        });
+      }
+    });
+
+    function init() {
+      $("#hole_string_add_container").css('display', 'none');
+      $("#hole_string_show_container").css('display', 'block');
+
+      <% if @job.has_depth_based_hole_string %>
+      $("#hole_string_days_container").hide();
+      $("#hole_string_depth_range_container").show();
+
+      <%
+        depth_entry = depth.last
+        if !@depth.nil?
+            @depth = @depth.to_f
+            depth.each do |d|
+                if @depth >= d.depth_from.to_f && @depth < d.depth_to.to_f
+                    depth_entry = d
+                    break
+                end
+            end
+        end
+      %>
+
+      $.get("<%= get_hole_string_job_path %>", {depth_from: <%= depth_entry.depth_from %>, depth_to: <%= depth_entry.depth_to %>}).done(function (result) {
+        update_view(result);
+        $('#hole_string_depth_range_selected').data('depth-from', '<%= depth_entry.depth_from %>');
+        $('#hole_string_depth_range_selected').data('depth-to', '<%= depth_entry.depth_to %>');
+      });
+      <% elsif !days.empty? %>
+      $.get("<%= get_hole_string_job_path %>", {date: <%= days.last.entry_at.to_i %>}).done(function (result) {
+        update_view(result);
+        $('#hole_string_day_selected').data('id', '<%= days.last.entry_at.to_i %>');
+      });
+      <% else %>
+      $('#hole_string_show_action_container').hide();
+      <% end %>
+
+      $('#hs_hole_size_container').hide();
+    }
+
+    init();
+
+  }(jQuery));
+</script>

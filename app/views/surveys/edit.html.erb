@@ -1,0 +1,52 @@
+<div class="section-header">
+  <h1>Update Well Plan</h1>
+</div>
+
+<div class="form" data-form="new_well_plan">
+  <%= form_for @survey, :html => {:multipart => true} do |f| %>
+
+      <div class='alert-box alert-info'>
+        <b>Import New Plan</b>
+        <p>Select the Compass <b>.txt</b> well plan file for upload...</p>
+      </div>
+
+      <% @surveys = Survey.includes(job: :well).where(:plan => false).where("wells.id = ?", @survey.job.well_id).order("surveys.created_at ASC") %>
+      <% if @surveys.count > 1 %>
+      <div>
+        <p class='help-text'>Track which will use this well plan...</p>
+
+        <%= select_tag "track_id", options_for_select(@surveys.collect { |s| ["Track " + s.name, s.id] }, @surveys.last.present? ? @surveys.last.id : nil),
+                    class: "custom-select align-top" %>
+
+        <br><br>
+      </div>
+      <% end %>
+
+      <br>
+      <div style="position:relative;">
+        <a class='btn btn-sub' href='javascript:;' style="float: none; background-color:#33afe9;">
+          Click to choose a file...
+          <input type="file" style='height: 34px; position:absolute;z-index:2;top:0;left:0;filter: alpha(opacity=0);-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";opacity:0;background-color:transparent;color:transparent;' name="file_source" size="40" onchange='$("#upload-file-info").html($(this).val());'>
+        </a>
+        <br><br>
+        <span class='label label-default push-down' style="opacity: 0.4; padding: 5px; padding-left: 10px; padding-right: 10px;" id="upload-file-info">No file chosen...</span>
+      </div>
+
+      <div class=" actions">
+        <hr>
+
+        <%= link_to "Cancel", job_path(@survey.job_id, anchor: "surveys"), class: "btn btn-default tooltip-info",
+                    "data-title" => "Cancel well changes and go back" %>
+
+        <%= f.submit "Save Well Plan",
+                     class: "btn btn-primary form-loading-on-click",
+                     style: "margin-left: 20px;",
+                     "data-form" => "new_well_plan" %>
+      </div>
+
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="new_well_plan">
+  <%= render 'layouts/inline_loading', title: "Saving well plan..." %>
+</div>

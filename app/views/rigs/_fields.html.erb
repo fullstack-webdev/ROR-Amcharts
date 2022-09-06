@@ -1,0 +1,146 @@
+<%= render 'shared/error_messages', object: f.object %>
+
+<div style="overflow: hidden;">
+  <div class="inline-block" style="width: 45%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Rig Name</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <%= f.text_field :name, placeholder: "Rig Name",
+                       id: "rig_name_field",
+                       style: "width: calc(100% - 25px);",
+                       class: "job-field-value-editable" %>
+
+    </div>
+    <div class="alert-box hidden">
+      &nbsp;&nbsp;
+      <p class='inline-block'><b class='orange-text'>Warning!</b> Wells that already exist</p>
+
+      <p class='inline-block push-right-small' style='font-family: orgonboldregular ;' id="similar_well"></p>
+    </div>
+  </div>
+
+  <div class="inline-block" style="width: 45%; margin-left: 10%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Day Spread Cost</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <div class="price-toggle">$</div>
+      <%= f.text_field :day_cost, placeholder: "Day Cost",
+                       style: "width: calc(100% - 40px);",
+                       class: "job-field-value-editable price-field" %>
+    </div>
+  </div>
+</div>
+
+<div class="divider divider-xl"></div>
+
+<div style="font-size: 20px;">
+  Characteristics
+</div>
+
+<div style="margin-bottom: 30px;">
+  <div class="inline-block" style="width: 45%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Block Weight (<%= unit('klbf', company_unit) %>)</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <%= f.text_field :block_weight, placeholder: "Block Weight",
+                       value: (@rig.block_weight.to_f || 0).convert(:klbf, company_unit),
+                       style: "width: calc(100% - 25px);",
+                       class: "job-field-value-editable" %>
+    </div>
+  </div>
+</div>
+
+<div class="divider divider-xl"></div>
+
+<div style="font-size: 20px;">
+  Operational Targets
+</div>
+<div style="color:#7C9B8F;font-size: 14px;">Measured in seconds</div>
+
+<div class="divider"></div>
+
+<div style="overflow: hidden;">
+
+  <div class="inline-block" style="width: 45%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Weight To Weight</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <%= f.text_field :benchmark_wtw, placeholder: "Benchmark WTW",
+                       # value: @rig.benchmark_,
+                       style: "width: calc(100% - 25px);",
+                       class: "job-field-value-editable" %>
+    </div>
+  </div>
+  <div class="inline-block" style="width: 45%; margin-left: 10%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Tripping In Connection</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <%= f.text_field :benchmark_tripping_in_connection, placeholder: "Benchmark Tripping In Connection",
+                       # value: @rig.benchmark_,
+                       style: "width: calc(100% - 25px);",
+                       class: "job-field-value-editable" %>
+    </div>
+  </div>
+  <div class="inline-block" style="width: 45%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Connection</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <%= f.text_field :benchmark_connection, placeholder: "Benchmark Connection",
+                       # value: @rig.benchmark_,
+                       style: "width: calc(100% - 25px);",
+                       class: "job-field-value-editable" %>
+    </div>
+  </div>
+  <div class="inline-block" style="width: 45%; margin-left: 10%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Tripping In Pipe Moving</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <%= f.text_field :benchmark_tripping_in_pipe, placeholder: "Benchmark Tripping In Pipe",
+                       # value: @rig.benchmark_,
+                       style: "width: calc(100% - 25px);",
+                       class: "job-field-value-editable" %>
+    </div>
+  </div>
+  <div class="inline-block" style="width: 45%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Treatment</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <%= f.text_field :benchmark_treatment, placeholder: "Benchmark Treatment",
+                       # value: @rig.benchmark_,
+                       style: "width: calc(100% - 25px);",
+                       class: "job-field-value-editable" %>
+    </div>
+  </div>
+  <div class="inline-block" style="width: 45%; margin-left: 10%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Tripping Out Connection</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <%= f.text_field :benchmark_tripping_out_connection, placeholder: "Benchmark Tripping Out Connection",
+                       # value: @rig.benchmark_,
+                       style: "width: calc(100% - 25px);",
+                       class: "job-field-value-editable" %>
+    </div>
+  </div>
+  <div class="inline-block" style="width: 45%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Drilling Stand</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <%= f.text_field :benchmark_bottom, placeholder: "Benchmark Bottom",
+                       # value: @rig.benchmark_,
+                       style: "width: calc(100% - 25px);",
+                       class: "job-field-value-editable" %>
+    </div>
+  </div>
+  <div class="inline-block" style="width: 45%; margin-left: 10%; float: left;">
+    <p class='job-field-title inline-block wide-space' style="width: 40%; float: left;">Tripping Out Pipe Moving</p>
+
+    <div class="inline-block rig-field-div" style="width: 55%; float: left;">
+      <%= f.text_field :benchmark_tripping_out_pipe, placeholder: "Benchmark Tripping Out Pipe",
+                       # value: @rig.benchmark_,
+                       style: "width: calc(100% - 25px);",
+                       class: "job-field-value-editable" %>
+    </div>
+  </div>
+</div>
+
+<div class="divider divider-xl"></div>

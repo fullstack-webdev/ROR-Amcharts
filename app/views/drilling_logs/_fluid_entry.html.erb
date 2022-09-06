@@ -1,0 +1,184 @@
+<% if @drilling_log.job.status < Job::COMPLETE && signed_in? %>
+    <div id='drilling_log_entry' class="well">
+    <div class="form" data-form="new-job-log">
+
+    <%= form_for DrillingLogEntry.new, remote: true do |f| %>
+
+        <div>
+          <h3>Add Fluid Report</h3>
+        </div>
+
+        <div style="margin-top: 10px;">
+          Date
+          <input type="text" value="<%= Time.zone.now.to_date.strftime("%m/%d/%Y") %>"
+                 name="date"
+                 id="entry_date"
+                 class="job-field-value-editable input-small date-picker tooltip-info"
+                 data-title="Date of entry">
+
+
+          <div class="inline-block push-right-small">
+            Time
+            <input name="entry_time" type="text"
+                   value="<%= Time.zone.now.strftime("%H:%M") %>"
+                   class="job-field-value-editable input-small tooltip-info"
+                   placeholder="24 hr time"
+                   data-title="24 hour time">
+
+          </div>
+        </div>
+
+        <%= f.hidden_field :drilling_log_id, value: @drilling_log.id %>
+        <hr>
+
+
+        <div class='sub-tray' data-tray="mud">
+          <div class='job-field-title2 align-top  push-down'>Type</div>
+          <%= select_tag "[drilling_log_entry][mud_type]",
+                         options_for_select([["Water", 1], ["Oil", 2], ["Synthetic", 3], ["Brine", 4], ["Air", 5]], @last_entry.present? ? @last_entry.mud_type : nil),
+                         class: "job-field-value-editable input-small custom-select custom-select-ajax tooltip-info align-top",
+                         "data-title" => "Mud Type",
+                         placeholder: "Mud Type" %>
+
+          <div class='inline-block align-top'>
+          <div class='job-field-title2 push-right-small'>Wt</div>
+          <input name="[drilling_log_entry][mud_weight]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.mud_weight : nil %>"
+                 placeholder="Mud Wt"
+                 data-title="Mud Weight">
+
+          <div class='job-field-title2 push-right-small'>Visc</div>
+          <input name="[drilling_log_entry][viscosity]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.viscosity : nil %>"
+                 placeholder="Viscosity"
+                 data-title="Mud Viscosity">
+
+          <div class='job-field-title2 push-right-small'>CHL</div>
+          <input name="[drilling_log_entry][chlorides]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.chlorides : nil %>"
+                 placeholder="Chlorides"
+                 data-title="Chlorides">
+          </div>
+
+          <br>
+
+          <div class='job-field-title2'>YP</div>
+          <input name="[drilling_log_entry][yp]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.yp : nil %>"
+                 placeholder="YP"
+                 data-title="Yield Point">
+
+          <div class='job-field-title2 push-right-small'>PV</div>
+          <input name="[drilling_log_entry][pv]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.pv : nil %>"
+                 placeholder="PV"
+                 data-title="Plastic Viscosity">
+
+          <div class='job-field-title2 push-right-small'>PH</div>
+          <input name="[drilling_log_entry][ph]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.ph : nil %>"
+                 placeholder="PH"
+                 data-title="PH">
+
+          <br>
+
+          <div class='job-field-title2'>Gas %</div>
+          <input name="[drilling_log_entry][gas]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.gas : nil %>"
+                 placeholder="Gas %"
+                 data-title="Gas Content %">
+
+          <div class='job-field-title2 push-right-small'>Sand %</div>
+          <input name="[drilling_log_entry][sand]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.sand : nil %>"
+                 placeholder="Sand %"
+                 data-title="Sand Content %">
+
+          <div class='job-field-title2 push-right-small'>Solid %</div>
+          <input name="[drilling_log_entry][solids]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.solids : nil %>"
+                 placeholder="Solid %"
+                 data-title="Solid Content %">
+
+          <div class='job-field-title2 push-right-small'>Oil %</div>
+          <input name="[drilling_log_entry][oil]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.oil : nil %>"
+                 placeholder="Oil %"
+                 data-title="Oil Content %">
+
+          <br>
+
+          <div class='job-field-title2'>BHT</div>
+          <input name="[drilling_log_entry][bh_temp]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.bh_temp : nil %>"
+                 placeholder="BH Temp"
+                 data-title="Bottom Hole Temperature">
+
+          <div class='job-field-title2 push-right-small'>FLT</div>
+          <input name="[drilling_log_entry][fl_temp]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.fl_temp : nil %>"
+                 placeholder="FL Temp"
+                 data-title="Flow Line Temperature">
+
+          <div class='job-field-title2 push-right-small'>WL</div>
+          <input name="[drilling_log_entry][water_loss]" type="text"
+                 class="job-field-value-editable input-small tooltip-info"
+                 value="<%= @last_entry.present? ? @last_entry.water_loss : nil %>"
+                 placeholder="Water Loss"
+                 data-title="Water Loss">
+
+        </div>
+        <hr>
+
+        <div class="pull-right">
+
+          <%= f.submit "Add Fluid Report",
+                       class: "btn btn-primary inline-block form-loading-on-click",
+                       "data-form" => "new-job-log" %>
+
+        </div>
+
+        <br>
+
+
+    <% end %>
+
+    </div>
+
+    <br>
+
+
+    <div class="form-loading hidden" data-form="new-job-log">
+      <%= render 'layouts/inline_loading', title: "Creating entry..." %>
+      <br><br>
+    </div>
+
+    <script type='text/javascript'>
+      $('.date-picker').datepicker();
+
+      <% if false %>
+      setTimeout(function() {
+          window.auid++;
+          $.ajax('/drilling_logs/' + <%= @drilling_log.id %> + "?section=log2" + "&auid=" + window.auid, {
+              type: 'get',
+              dataType: 'script'
+          });
+      }, 1);
+      <% end %>
+    </script>
+
+
+    </div>
+<% end %>

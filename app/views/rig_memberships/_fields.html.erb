@@ -1,0 +1,14 @@
+<%= form_for(RigMembership.new, :html => {:class => "inline hidden new-job-member ", id: "new_member_form"}, remote: true) do |f| %>
+    <%= f.hidden_field :rig_id, id: "new_member_rig_id", value: rig.id %>
+
+    <div id='elephant_user' class='inline-block'>
+      <%= f.hidden_field :user_id, id: "new_member_id" %>
+      <%= image_tag "user_avatar_extrasmall.png", class: "job-status-avatar align-top push-down-small inline-block" %>
+      <%= text_field_tag "", "", data: {autocomplete_source: users_path},
+                         placeholder: I18n.t("jobs.show.new_member_prompt"),
+                         id: "new_member_name", class: "txtfield small align-top" %>
+    </div>
+
+    <%= f.submit I18n.t("global.add"), class: "bluebtn btnsmall add-member-loading-button" %>
+    <%= link_to "cancel", "#", class: "bluebtn btnsmall red", id: "cancel_add_member" %>
+<% end %>

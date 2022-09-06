@@ -1,0 +1,79 @@
+<% @is_empty = true %>
+<% if !job.well.location.blank? %>
+  <% @is_empty = false %>
+<% end %>
+
+<div class="remote-tray" data-tray="well_maps">
+
+  <div class="remote-loading hidden white" style="margin-top: 280px; color: white !important;">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading maps..." %>
+  </div>
+
+  <div class='tray-content'>
+
+    <% if @is_empty %>
+      <div class="block">
+        <p class='help-text' style="text-align: center; margin-top: 40px;">No location is set to show...</p>
+
+        <div style="margin-top:10px; text-align: center;"><%= image_tag("no_data_icon.PNG", style: "width:40px;") %></div>
+      </div>
+    <% else %>
+      <div style='margin: 0px; left: 0; top: 153px; bottom: 0px; padding: 0px; width: 100%; background: #202020; position: absolute; '>§
+        <div id="maps" style="height: 100%; width: 100%; background: #202020;">
+          <div class="map-container"
+               style='position:absolute; left: 0; top: 0px; width:100%; height:100%;'>
+            <div id='map' class='dark' style="position:relative;"></div>
+          </div>
+        </div>
+      </div>
+
+      <script type='text/javascript'>
+
+        <% x = job.well.x_location %>
+        <% y = job.well.y_location  %>
+
+        var map = L.mapbox.map('map', 'elephant.im6cakbc').setView([<%= x %>, <%= y %>], 9);
+        map.markerLayer.setGeoJSON([]);
+        map.attributionControl = false;
+        map.scrollWheelZoom.disable();
+
+        var markerLayer = L.mapbox.markerLayer().addTo(map);
+
+        var geoJson = [];
+
+        var geoJsonData = {
+          type: "FeatureCollection",
+          features: []
+        };
+
+        geoJsonData.features.push({
+          type: 'Feature',
+          properties: {
+            title: '<%= job.well.name %>',
+            url: '/jobs/' + <%= job.id %>,
+            icon: {
+              iconUrl: "<%= "#{request.protocol}#{request.host_with_port}#{asset_path('map_pin1.png')}" %>",
+              iconSize: [9, 9]
+            }
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [<%= y %>, <%= x %>]
+          }
+        });
+
+        markerLayer.on('layeradd', function (e) {
+          var marker = e.layer,
+              feature = marker.feature;
+
+          marker.setIcon(L.icon(feature.properties.icon));
+        });
+
+        markerLayer.setGeoJSON(geoJsonData);
+
+      </script>
+    <% end %>
+
+  </div>
+</div>
+

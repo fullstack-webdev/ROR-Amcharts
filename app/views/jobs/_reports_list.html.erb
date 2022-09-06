@@ -1,0 +1,308 @@
+<div id="reports_list">
+
+<div class='section-header' style="margin-top: 15px;">
+  <h1>Reports</h1>
+</div>
+
+<% @drilling_log = DrillingLog.joins(:job).where("jobs.well_id = ?", @job.well_id).last %>
+
+<% if @drilling_log.present? %>
+    <div class='report' data-report="drilling_report">
+      <div class='pull-right'>
+
+        <div class="inline-block generating-report hidden">
+          <b class='inline-block blue-text align-top push-down'>Generating...&nbsp;</b>
+
+          <div class="inline-block progress progress-info progress-striped active push-down">
+            <div class="bar" style="width: 400px;"></div>
+          </div>
+        </div>
+
+        <div class='inline-block generate-report-div'>
+          <%= form_for @drilling_log, :method => :get, class: "inline-block", remote: true do |f| %>
+              <%= hidden_field_tag "report", "", value: true %>
+              <%= hidden_field_tag "report_name", "", value: "drilling_report" %>
+
+              <% entries = @drilling_log.drilling_log_entries.includes(:bha).to_a %>
+              <% dates = entries.group_by { |item| item.entry_at.to_date } %>
+              <% filter_options = [] %>
+              <% filter_options << ["All Days", 0] %>
+              <% dates.each_with_index do |d, index| %>
+                  <% filter_options << [d[0].strftime("%A %m/%d/%Y"), index + 1] %>
+              <% end %>
+
+              <%= select_tag "type",
+                             options_for_select(filter_options, 0),
+                             class: "custom-select custom-select-ajax align-top report-type" %>
+
+              <%= f.submit "Generate",
+                           class: "bluebtn btnsmall gray generate-report align-top" %>
+          <% end %>
+        </div>
+
+        <%= link_to "Download", "#",
+                    class: "bluebtn btnsmall green download-report align-top hidden" %>
+
+      </div>
+
+      <h3 class='inline-block push-down'>Drilling Overview</h3>
+
+      <br> <br>
+      <hr class=''>
+    </div>
+
+
+    <div class='report' data-report="daily_activity">
+      <div class='pull-right'>
+
+        <div class="inline-block generating-report hidden">
+          <b class='inline-block blue-text align-top push-down'>Generating...&nbsp;</b>
+
+          <div class="inline-block progress progress-info progress-striped active push-down">
+            <div class="bar" style="width: 400px;"></div>
+          </div>
+        </div>
+
+        <div class='generate-report-div inline-block'>
+          <%= form_for @drilling_log, :method => :get, class: "inline-block", remote: true do |f| %>
+              <%= hidden_field_tag "report", "", value: true %>
+              <%= hidden_field_tag "report_name", "", value: "daily_activity" %>
+
+              <% entries = @drilling_log.drilling_log_entries.includes(:bha).to_a %>
+              <% dates = entries.group_by { |item| item.entry_at.to_date } %>
+              <% filter_options = [] %>
+              <% filter_options << ["All Days", 0] %>
+              <% dates.each_with_index do |d, index| %>
+                  <% filter_options << [d[0].strftime("%A %m/%d/%Y"), index + 1] %>
+              <% end %>
+
+              <%= select_tag "type",
+                             options_for_select(filter_options, 0),
+                             class: "custom-select custom-select-ajax align-top report-type" %>
+
+              <%= f.submit "Generate",
+                           class: "bluebtn btnsmall gray generate-report align-top" %>
+          <% end %>
+        </div>
+
+
+        <%= link_to "Download", "#",
+                    class: "bluebtn btnsmall green download-report align-top hidden" %>
+
+      </div>
+
+      <h3 class='inline-block push-down'>Drilling Activity</h3>
+
+      <br> <br>
+      <hr class=''>
+    </div>
+
+
+    <div class='report' data-report="run_report">
+      <div class='pull-right'>
+
+        <div class="inline-block generating-report hidden">
+          <b class='inline-block blue-text align-top push-down'>Generating...&nbsp;</b>
+
+          <div class="inline-block progress progress-info progress-striped active push-down">
+            <div class="bar" style="width: 400px;"></div>
+          </div>
+        </div>
+
+        <div class='generate-report-div inline-block'>
+          <%= form_for @drilling_log, :method => :get, class: "inline-block", remote: true do |f| %>
+              <%= hidden_field_tag "report", "", value: true %>
+              <%= hidden_field_tag "report_name", "", value: "run_report" %>
+
+              <% runs = @drilling_log.get_runs %>
+              <% filter_options = [] %>
+              <% filter_options << ["All Runs", 0] %>
+              <% runs.each_with_index do |d, index| %>
+                  <% filter_options << ["Run #{index + 1}", index + 1] %>
+              <% end %>
+
+              <%= select_tag "type",
+                             options_for_select(filter_options, 0),
+                             class: "custom-select custom-select-ajax align-top report-type" %>
+
+              <%= f.submit "Generate",
+                           class: "bluebtn btnsmall gray generate-report align-top" %>
+          <% end %>
+        </div>
+
+        <%= link_to "Download", "#",
+                    class: "bluebtn btnsmall green download-report align-top hidden" %>
+
+      </div>
+
+      <h3 class='inline-block push-down'>Run</h3>
+
+      <br> <br>
+      <hr class=''>
+    </div>
+
+    <div class='report' data-report="bha_report">
+      <div class='pull-right'>
+
+        <div class="inline-block generating-report hidden">
+          <b class='inline-block blue-text align-top push-down'>Generating...&nbsp;</b>
+
+          <div class="inline-block progress progress-info progress-striped active push-down">
+            <div class="bar" style="width: 400px;"></div>
+          </div>
+        </div>
+
+        <div class='generate-report-div inline-block'>
+          <%= form_for @drilling_log, :method => :get, class: "inline-block", remote: true do |f| %>
+              <%= hidden_field_tag "report", "", value: true %>
+              <%= hidden_field_tag "report_name", "", value: "bha_report" %>
+              <% bhas = Bha.where(:job_id => @drilling_log.job_id).where("bhas.master_bha_id IS NULL").order("name ASC") %>
+              <% filter_options = [] %>
+              <% filter_options << ["Select BHA...", 0] %>
+              <% bhas.each_with_index do |bha, index| %>
+                  <% filter_options << ["#{bha.name} - #{bha.description}", bha.id] %>
+              <% end %>
+
+              <%= select_tag "type",
+                             options_for_select(filter_options, bhas.first),
+                             class: "custom-select custom-select-ajax align-top report-type" %>
+
+              <%= f.submit "Generate",
+                           class: "bluebtn btnsmall gray generate-report align-top" %>
+          <% end %>
+        </div>
+
+
+        <%= link_to "Download", "#",
+                    class: "bluebtn btnsmall green download-report align-top hidden" %>
+
+      </div>
+
+      <h3 class='inline-block push-down'>BHA</h3>
+
+      <br> <br>
+      <hr class=''>
+    </div>
+
+
+    <div class='report' data-report="survey">
+      <div class='pull-right'>
+
+        <div class="inline-block generating-report hidden">
+          <b class='inline-block blue-text align-top push-down'>Generating...&nbsp;</b>
+
+          <div class="inline-block progress progress-info progress-striped active push-down">
+            <div class="bar" style="width: 400px;"></div>
+          </div>
+        </div>
+
+        <div class='generate-report-div inline-block'>
+          <%= form_for @drilling_log, :method => :get, class: "inline-block", remote: true do |f| %>
+              <%= hidden_field_tag "report", "", value: true %>
+              <%= hidden_field_tag "report_name", "", value: "survey" %>
+
+              <%= f.submit "Generate",
+                           class: "bluebtn btnsmall gray generate-report align-top" %>
+          <% end %>
+        </div>
+
+
+        <%= link_to "Download", "#",
+                    class: "bluebtn btnsmall green download-report align-top hidden" %>
+
+      </div>
+
+      <h3 class='inline-block push-down'>Surveys</h3>
+
+      <br> <br>
+      <hr class=''>
+    </div>
+
+
+    <div class='report' data-report="railroad">
+      <div class='pull-right'>
+
+        <div class="inline-block generating-report hidden">
+          <b class='inline-block blue-text align-top push-down'>Generating...&nbsp;</b>
+
+          <div class="inline-block progress progress-info progress-striped active push-down">
+            <div class="bar" style="width: 400px;"></div>
+          </div>
+        </div>
+
+        <div class='generate-report-div inline-block'>
+          <%= form_for @drilling_log, :method => :get, class: "inline-block", remote: true do |f| %>
+              <%= hidden_field_tag "report", "", value: true %>
+              <%= hidden_field_tag "report_name", "", value: "railroad" %>
+
+              <%= f.submit "Generate",
+                           class: "bluebtn btnsmall gray generate-report align-top" %>
+          <% end %>
+        </div>
+
+
+        <%= link_to "Download", "#",
+                    class: "bluebtn btnsmall green download-report align-top hidden" %>
+
+      </div>
+
+      <h3 class='inline-block push-down'>Railroad Commission Letter</h3>
+
+      <br> <br>
+      <hr class=''>
+    </div>
+
+    <div class='report' data-report="railroad_certification">
+      <div class='pull-right'>
+
+        <div class="inline-block generating-report hidden">
+          <b class='inline-block blue-text align-top push-down'>Generating...&nbsp;</b>
+
+          <div class="inline-block progress progress-info progress-striped active push-down">
+            <div class="bar" style="width: 400px;"></div>
+          </div>
+        </div>
+
+        <div class='generate-report-div inline-block'>
+          <%= form_for @drilling_log, :method => :get, class: "inline-block", remote: true do |f| %>
+              <%= hidden_field_tag "report", "", value: true %>
+              <%= hidden_field_tag "report_name", "", value: "railroad_certification" %>
+
+
+              <%= f.submit "Generate",
+                           class: "bluebtn btnsmall gray generate-report align-top" %>
+          <% end %>
+        </div>
+
+
+        <%= link_to "Download", "#",
+                    class: "bluebtn btnsmall green download-report align-top hidden" %>
+
+      </div>
+
+      <h3 class='inline-block push-down'>Railroad Commission Certification</h3>
+
+      <br> <br>
+      <hr class=''>
+    </div>
+
+<% end %>
+</div>
+
+<script type='text/javascript'>
+    $('.generate-report').each(function() {
+        $(this).click(function() {
+            var report = $(this).closest('.report');
+            report.find('.generating-report').removeClass('hidden');
+            $(this).addClass('hidden');
+            $(this).closest('.generate-report-div').addClass('hidden');
+        });
+    });
+
+
+    $('.report-type').change(function() {
+        var report = $(this).closest('.report');
+        report.find('.generate-report').removeClass('hidden');
+        report.find('.download-report').addClass('hidden');
+    });
+</script>

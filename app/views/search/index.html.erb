@@ -1,0 +1,61 @@
+<%
+   sort_options = []
+   sort_options << ["Newest", "ctime_desc"]
+   sort_options << ["Oldest", "ctime_asc"]
+   sort_options << ["Name Ascending", "name_asc"]
+   sort_options << ["Name Descending", "name_desc"]
+%>
+
+<div class="section-header" style="margin-top: 15px;">
+  <h1 class="inline-block">Search Results</h1>
+</div>
+<% if @jobs.present? %>
+  <% jobs = @jobs %>
+  <% jobs_array = jobs.includes(well: :rig).includes(well: :programs).to_a %>
+  <% jobs_array = jobs_array.uniq { |j| "#{j.well.rig.name} - #{j.well.name}" } %>
+  <div class="divider divider-sm"></div>
+  <div class="block" style="height: 40px;">
+    <h4 class="inline-block" style="color: #ffffff; line-height: 40px;"><%= number_with_delimiter(jobs_array.length) %>
+      wells found</h4>
+
+    <div class="inline-block" style="float: right;">
+      <%= form_tag search_index_path, :method => 'get', :id => "form_search_sort" do %>
+        <%= hidden_field_tag 'search', params[:search] %>
+        <span style="line-height: 40px;">Sort by:</span>
+        <%= select_tag "sort",
+                       options_for_select(sort_options, params[:sort]),
+                       id: "sort",
+                       style: "min-width: 150px; width: 150px;",
+                       class: "custom-select custom-select-ajax align-top push-right-small" %>
+      <% end %>
+    </div>
+  </div>
+  <div class="divider divider-sm"></div>
+  <div id="wells_list">
+    <div style="font-size: 13px; color: #7C9B8F; margin: 15px;">
+      <div class="inline-block" style="width: 45%;">Well Name</div>
+      <div class="inline-block" style="width: 19%;">Rig</div>
+      <div class="inline-block" style="width: 16%;">Drilling Program</div>
+      <div class="inline-block" style="width: 19%;">Date</div>
+    </div>
+
+    <div id="jobs" class="list">
+      <% jobs_array.each do |job| %>
+        <%= render 'jobs/well_link', job: job %>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <h2 style="color: #ffffff; margin-top: 150px;">We didn't find any wells that match your search. Please modify your
+    search to expand it.</h2>
+<% end %>
+
+<script type="text/javascript">
+  (function ($) {
+    $(document).ready(function () {
+      $('#form_search_sort #sort').change(function () {
+        $("#form_search_sort").submit();
+      });
+    });
+  }(jQuery));
+</script>

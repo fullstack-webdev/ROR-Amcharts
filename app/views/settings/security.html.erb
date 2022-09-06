@@ -1,0 +1,36 @@
+<% provide(:title, "Security") %>
+
+
+<%= form_for :security, :url => "/update_security" do |f| %>
+
+    <div class="section-header">
+      <h1>Security</h1>
+    </div>
+
+
+    <div class="page-header-small">
+      <br>
+
+      <h1>VPN</h1>
+    </div>
+
+    <div class="">
+      <b>Limit Traffic to VPN Range</b>
+      <p>Ex: 127.1.0.0-127.1.0.255, 127.89.89.89</p>
+      <%= f.text_field :vpn_range,
+                       value: @vpn_range,
+                       placeholder: "IP Range (comma separated)", class: "txtfield tooltip-info",
+                       "data-placement" => "bottom",
+                       "data-title" => "VPN IP Range" %>
+    </div>
+
+
+
+    <br><br>
+
+    <%= link_to "Cancel", root_path, class: "btn btn-sub" %>
+
+    <%= f.submit "Save", class: "btn btn-primary push-right-small" %>
+
+
+<% end %>

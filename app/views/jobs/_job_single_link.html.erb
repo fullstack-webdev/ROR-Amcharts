@@ -1,0 +1,23 @@
+<% if job.can_user_view?(current_user) %>
+    <div class='job-status-no-border'>
+      <%= link_to job, class: "inline-block job-status job-status-no-wrap job-status-no-border job-link  tooltip-info",
+                  "data-placement" => "right",
+                  "data-html" => "true",
+                  "data-title" => render('jobs/well_tooltip', job: job, show_summary_data: false) do %>
+          <div class='' style="padding-bottom: 0px; margin-bottom: 0px; margin-top: 0px;">
+            <div class="">
+              <div class="inline-block light-blue-text align-top">
+                <b><%= job.well.rig.present? ? job.well.rig.name : '-' %></b>
+              </div>
+              &nbsp;
+
+              <h2 class="job-title job-title4 inline"><%= job.field.name %></h2>
+
+              <p class="job-title-divider2">|</p>
+
+              <h2 class="job-title job-title4 inline"><%= job.well.name %></h2>
+            </div>
+          </div>
+      <% end %>
+    </div>
+<% end %>

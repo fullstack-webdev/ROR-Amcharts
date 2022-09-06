@@ -1,0 +1,235 @@
+<div>
+<div class='page_header' style='margin-top: -20px;'>
+  <h3>Projections</h3>
+</div>
+
+<% @drilling_log = @survey.job.drilling_log %>
+
+<% @well_plans = Survey.includes(job: :well).where(:plan => true).where("wells.id = ?", @drilling_log.job.well_id).order("surveys.created_at ASC") %>
+<% if @survey.present? %>
+    <% @active_well_plan = @well_plans.where("surveys.well_plan_for_survey_id = ?", @survey.id).last %>
+<% end %>
+<% if @active_well_plan.nil? %>
+    <% @active_well_plan = @well_plans.last %>
+<% end %>
+
+<% calculated_points = @survey.no_well_plan ? [] : @active_well_plan.survey_points %>
+<% calculated_points_survey = @survey.calculated_points(@survey.no_well_plan ? 0 : @active_well_plan.vertical_section_azimuth) %>
+
+<% last_point = calculated_points_survey.last %>
+
+
+
+
+<div class='push-down'>
+  <ul class="nav nav-pills selection-nav">
+    <li class='active'>
+      <a href="#" class='change-asset-type change-projection' data-type="current">Current</a>
+    </li>
+    <li class='push-right-small'>
+      <a href="#" class='change-asset-type blue-text change-projection' data-type="target">Target</a>
+    </li>
+    <li class="push-right-small">
+      <a href="#" class='change-asset-type blue-text change-projection' data-type="bit">Bit-to-Sensor</a>
+    </li>
+    <li class="push-right-small">
+      <a href="#" class='change-asset-type blue-text change-projection' data-type="md">MD</a>
+    </li>
+    <li class="push-right-small">
+      <a href="#" class='change-asset-type blue-text change-projection' data-type="tvd">TVD</a>
+    </li>
+  </ul>
+</div>
+
+<hr>
+
+<div id="projections_form">
+  <%= form_tag "/survey_projections", method: :post, remote: true do %>
+      <%= hidden_field_tag "survey", "", name: "survey", value: @survey.id %>
+      <%= hidden_field_tag "type", "", name: "type", value: "current", id: "projection_type" %>
+
+      <div class='inline-block asset-type-form align-top' data-type="current"
+           style='font-family: gothambookregular; font-size: 12px;'>
+
+        <div>
+          <div class='inline-block' style='width: 85px;'>
+            <b>Add</b>
+          </div>
+          <%= text_field_tag "current_add", "",
+                             class: "job-field-value-editable projection-value",
+                             style: 'width: 80px;',
+                             placeholder: "Add MD" %>
+        </div>
+        <div>
+          <div class='inline-block' style='width: 85px;'>
+            <b>Dogleg</b>
+          </div>
+          <%= text_field_tag "current_dog_leg", "",
+                             class: "job-field-value-editable projection-value",
+                             style: 'width: 80px;',
+                             placeholder: "Dogleg" %>
+        </div>
+        <div>
+          <div class='inline-block' style='width: 85px;'>
+            <b>Tool Face</b>
+          </div>
+          <%= text_field_tag "current_tool_face", "",
+                             class: "job-field-value-editable projection-value",
+                             style: 'width: 80px;',
+                             placeholder: "TFO" %>
+        </div>
+
+        <%= submit_tag "Update", remote: true, class: "btn btn-default push-down", style: "margin-left: 113px;" %>
+
+      </div>
+
+      <div class='inline-block asset-type-form align-top hidden' data-type="target"
+           style='font-family: gothambookregular; font-size: 12px;'>
+
+        <div>
+          <div class='inline-block' style='width: 85px;'>
+            <b>Inclination</b>
+          </div>
+          <%= text_field_tag "target_inc", "",
+                             class: "job-field-value-editable projection-value",
+                             style: 'width: 80px;',
+                             placeholder: "Inclination" %>
+        </div>
+        <div>
+          <div class='inline-block' style='width: 85px;'>
+            <b>Azimuth</b>
+          </div>
+          <%= text_field_tag "target_azi", "",
+                             class: "job-field-value-editable projection-value",
+                             style: 'width: 80px;',
+                             placeholder: "Azimuth" %>
+        </div>
+        <div>
+          <div class='inline-block' style='width: 85px;'>
+            <b>TVD</b>
+          </div>
+          <%= text_field_tag "target_tvd", "",
+                             class: "job-field-value-editable projection-value",
+                             style: 'width: 80px;',
+                             placeholder: "TVD" %>
+        </div>
+
+        <%= submit_tag "Update", remote: true, class: "btn btn-default push-down", style: "margin-left: 113px;" %>
+
+      </div>
+
+      <div class='inline-block asset-type-form align-top hidden' data-type="bit"
+           style='font-family: gothambookregular; font-size: 12px;'>
+        Bit to Sensor &nbsp;&nbsp;
+        <b class='orange-text' style='font-family: orgonboldregular ;'>
+          <%= @bit_to_sensor %>
+        </b>
+      </div>
+
+      <div class='inline-block asset-type-form align-top hidden' data-type="md"
+           style='font-family: gothambookregular; font-size: 12px;'>
+
+        <div>
+          <div class='inline-block' style='width: 85px;'>
+            <b>Add</b>
+          </div>
+          <%= text_field_tag "md_add", "",
+                             class: "job-field-value-editable projection-value",
+                             style: 'width: 80px;',
+                             placeholder: "Add MD" %>
+        </div>
+        <span class='help-text'>or</span>
+        <div>
+          <div class='inline-block' style='width: 85px;'>
+            <b>Target</b>
+          </div>
+          <%= text_field_tag "md_target", "",
+                             class: "job-field-value-editable projection-value",
+                             style: 'width: 80px;',
+                             placeholder: "Target MD" %>
+        </div>
+
+        <%= submit_tag "Update", remote: true, class: "btn btn-default push-down", style: "margin-left: 113px;" %>
+
+      </div>
+
+      <div class='inline-block asset-type-form align-top hidden' data-type="tvd"
+           style='font-family: gothambookregular; font-size: 12px;'>
+
+        <div>
+          <div class='inline-block' style='width: 85px;'>
+            <b>Add</b>
+          </div>
+          <%= text_field_tag "tvd_add", "",
+                             class: "job-field-value-editable projection-value",
+                             style: 'width: 80px;',
+                             placeholder: "Add TVD" %>
+        </div>
+        <span class='help-text'>or</span>
+        <div>
+          <div class='inline-block' style='width: 85px;'>
+            <b>Target</b>
+          </div>
+          <%= text_field_tag "tvd_target", "",
+                             class: "job-field-value-editable projection-value",
+                             style: 'width: 80px;',
+                             placeholder: "Target TVD" %>
+        </div>
+
+        <%= submit_tag "Update", remote: true, class: "btn btn-default push-down", style: "margin-left: 113px;" %>
+      </div>
+
+      <div class='pull-right alert' style='margin-left: 15px; font-family: gothambookregular; width: 280px; padding-left: 30px; padding-bottom: 20px; padding-top: 13px;'>
+        <div id="projections_result">
+          <div class='inline-block' style='font-family: orgonboldregular ; width: 130px;'>
+            <b class='orange-text'>Name</b>
+          </div>
+          <div class='inline-block' style='font-family: orgonboldregular ; width: 100px;'>
+            <b class='orange-text'>Result</b>
+          </div>
+          <div class='inline-block' style='font-size: 10px;'>
+            <span class='orange-text'>Change</span>
+          </div>
+          <div class='push-down'>
+            <div class='inline-block' style='width: 130px;'>M. Depth</div>
+            <div class='inline-block blue-text' style='font-family: orgonboldregular ; width: 100px;'>
+              <b id="md">-</b></div>
+            <div id="md_delta" class='inline-block help-text'></div>
+          </div>
+          <div class=''>
+            <div class='inline-block' style='width: 130px;'>&nbsp;&nbsp;with Bit</div>
+            <div class='inline-block blue-text' style='font-family: orgonboldregular ; width: 100px;'>
+              <b id="md_bit">-</b></div>
+          </div>
+          <div>
+            <div class='inline-block' style='width: 130px;'>TVD</div>
+            <div class='inline-block blue-text' style='width: 100px;'>
+              <b id="tvd">-</b></div>
+            <div id="tvd_delta" class='inline-block help-text'></div>
+          </div>
+          <div class=' hidden'>
+            <div class='inline-block' style='width: 130px;'>Inclination</div>
+            <div class='inline-block blue-text' style='width: 100px;'><b id="inc">-</b></div>
+            <div id="inc_delta" class='inline-block help-text'></div>
+          </div>
+          <div class='push-down'>
+            <div class='inline-block' style='width: 130px;'>Tool Face</div>
+            <div class='inline-block blue-text' style='width: 100px;'><b id="azi">-</b></div>
+            <div id="azi_delta" class='inline-block help-text'></div>
+          </div>
+          <div>
+            <div class='inline-block' style='width: 130px;'>Dogleg Severity</div>
+            <div class='inline-block blue-text' style='width: 100px;'><b id="dls">-</b></div>
+            <div id="dls_delta" class='inline-block help-text'></div>
+          </div>
+        </div>
+        <div id="projections_loading" class='hidden'>
+          <%= render "layouts/inline_loading", title: "Calculating..." %>
+          <br><br>
+        </div>
+      </div>
+
+  <% end %>
+</div>
+
+</div>

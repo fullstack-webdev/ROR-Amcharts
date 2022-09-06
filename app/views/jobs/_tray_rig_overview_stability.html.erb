@@ -1,0 +1,415 @@
+<div class="remote-tray" data-tray="rig_overview_stability">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading rig Wellbore Stability..." %>
+  </div>
+
+  <div class='tray-content content-loaded' style="position: relative;">
+
+    <div class="dv-spinner" id="dv_stability_spinner">
+
+      <%= render 'jobs/inline_spinner' %>
+
+    </div>
+
+    <div class="dv-sub-container" style="display: none;">
+      <div class="drill-view-chart" style="width: 35%; min-height: 100px;">
+        <div class="label-top">EMW</div>
+        <div id="chart_drillview_wellbore" class="amChart block chart-view"></div>
+        <div id="chart_drillview_wellbore_offline" class="amChart block chart-view" style="display: none; position: relative;">
+          <%= image_tag 'no_mud.png', style: 'width: 100%; height: 100%;' %>
+          <%= image_tag 'error_orange.png', style: 'position: absolute; left: 10px; top: 10px;' %>
+        </div>
+        <div class="label-bottom" id="dv_wellbore_emw_axis"></div>
+      </div>
+
+      <div class="drill-view-port" style="width: 65%; display: none;" id="dv_wellbore">
+
+        <div class="menuContentBlock">
+
+          <div class="section-header" style="margin-top: 15px;">
+            <h1>Wellbore Stability</h1>
+          </div>
+
+          <div class="offline-box" id="dv_stability_offline_box">
+            <h5>System offline</h5>
+
+            <ul class="abnormal-list">
+              <li>
+                <p class="inline-block">Specify correct configurations</p>
+                <a href="#"
+                   class="show-tray inline-block" data-tray="configurations"
+                   style="cursor:hand; text-decoration: underline; padding: 0px; line-height: 10px; margin: 0px; margin-left: 15px;"
+                   style="color: #ffffff;">More details</a>
+
+              </li>
+            </ul>
+          </div>
+
+          <div id="dv_stability_no_mud_alert" class="block clearfix" style="position: relative; display: none; margin-bottom: 20px;">
+            <%= image_tag 'error_orange.png', style: 'position: absolute; left: 0px; top: 2px;' %>
+            <div style="float: left; margin-left: 30px;">
+              <p style="color: #ef891b; margin: 0; padding: 0;">Mud window not available. Import offset well logs.</p>
+              <a class="show-tray inline-block" data-tray="lwd_logs" href="#"
+                 style="color: #ffffff;">More Details</a>
+            </div>
+          </div>
+
+          <div id="dv_stability_warning_box">
+          </div>
+
+          <div class="block">
+            <div class="inline-block" style="width: 50%;">
+              <p class="title" id="dv_wellbore_ecd_label">ECD</p>
+
+              <p class="value-white" style="font-size: 30px;" id="dv_wellbore_ecd"></p>
+            </div>
+
+
+            <div class="inline-block" style="width: auto;">
+              <div>
+                <p class="title" id="dv_overview_predicted_rop_label">Rec Mud Wt</p>
+                <p class="value-blue" style="font-size: 30px;" id="dv_overview_rec_mud_wt">-</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider divider-lg"></div>
+
+          <div class="block">
+            <div class="inline-block" style="width: 50%;">
+              <p class="title" id="dv_wellbore_pore_pressure_label">Pore Pressure</p>
+
+              <p class="value-white" style="font-size: 30px;" id="dv_wellbore_pore_pressure"></p>
+            </div>
+
+            <div class="inline-block" style="width: 48%;">
+              <p class="title" id="dv_wellbore_shear_failure_label">Shear Failure</p>
+
+              <p class="value-white" style="font-size: 30px;" id="dv_wellbore_shear_failure"></p>
+            </div>
+          </div>
+
+          <div class="divider divider-lg"></div>
+
+          <div class="block">
+            <div class="inline-block" style="width: 50%;">
+              <p class="title" id="dv_wellbore_min_stress_label">Minimum Stress</p>
+
+              <p class="value-white" style="font-size: 30px;" id="dv_wellbore_min_stress"></p>
+            </div>
+
+            <div class="inline-block" style="width: 48%;">
+              <p class="title" id="dv_wellbore_fracture_pressure_label">Fracture Pressure</p>
+
+              <p class="value-white" style="font-size: 30px;" id="dv_wellbore_fracture_pressure"></p>
+            </div>
+          </div>
+
+          <div class="divider divider-lg" style="height: 120px;"></div>
+
+          <div class="chart-legend-block" id="dv_wellbore_chart_legend" style="display: none;">
+            <div class="chart-legend">
+              <div class="circle">
+              </div>
+              <div class="legend-label">
+                <p>ECD</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #ff0078;">
+              </div>
+              <div class="legend-label">
+                <p>Collapse</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #ff6d7a;">
+              </div>
+              <div class="legend-label">
+                <p>Breakout</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #2dff81;">
+              </div>
+              <div class="legend-label">
+                <p>Safe</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #fbff78;">
+              </div>
+              <div class="legend-label">
+                <p>Mud Loss</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #ff1818;">
+              </div>
+              <div class="legend-label">
+                <p>Lost Circulation</p>
+              </div>
+            </div>
+          </div>
+
+          <!--<div class="chart-legend-block">-->
+          <!--<div class="legend">-->
+          <!--<div class="circle">-->
+          <!--</div>-->
+          <!--<div class="label">-->
+          <!--<p>Current EMW</p>-->
+          <!--</div>-->
+          <!--</div>-->
+          <!--</div>-->
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+
+    DV_CURRENT_TAB = DV_TAB_WELLBORE;
+    $("#depth-row-wide").html("");
+
+    function tune_dv_wellbore() {
+
+      var innerHeight = $(window).innerHeight() - 186;
+      var viewHeight = Math.max(innerHeight, DV_MENU_HEIGHT - 44);
+      $('.drillview').css({ "height": viewHeight });
+      $('#dv_wellbore').css({ "height": viewHeight });
+      $('#vertical-slider').css({ "height": viewHeight - 20 });
+      $('#depth-row-wide').css({ "height": viewHeight });
+      $('.menuBlock').css({ "height": viewHeight + 44 });
+      $('#chart_drillview_wellbore').css({ "height": viewHeight });
+      $('#chart_drillview_wellbore_offline').css({ "height": viewHeight });
+      $('#dv_warnings').css({ "height": viewHeight - 20 });
+      $('#dv_stability_spinner').css({ "padding-top": viewHeight / 2 - 20 });
+      $('#dv_stability_spinner').css({ "height": viewHeight });
+      DV_CHARTS['wellbore'].validateNow();
+
+      update_chart_cursor('dv_wellbore');
+
+      $('#dv_wellbore_chart_legend').show();
+
+    }
+
+    $(".remote-tray-toggle[data-tray='rig_overview_stability']").click(function () {
+      DV_CURRENT_TAB = DV_TAB_WELLBORE;
+      $('.dv-spinner').show();
+      $('.dv-sub-container').hide();
+
+      $('#depth-row-wide').show();
+      $("#depth-row-wide").html("");
+      $('#depth-row').hide();
+      $('#activity-row').hide();
+
+      setTimeout(function () {
+        tune_dv_wellbore();
+        $('#dv_wellbore').perfectScrollbar('update');
+        $slider = $('.slider');
+        $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+      }, 0);
+    });
+
+    // Tune view port height and etc..
+    $(window).resize(tune_dv_wellbore);
+
+    // Create chart
+    DV_CHARTS['wellbore'] = AmCharts.makeChart("chart_drillview_wellbore", {
+      "type": "xy",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#2a2e2e",
+      "backgroundAlpha": 0,
+//      "rotate": true,
+//      "marginRight": 50,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "trendLines": [
+        <% (1..9).each do |i| %>
+        {
+          "initialValue": <%= i*2000 %>,
+          "initialXValue": 0,
+          "finalValue": <%= i*2000 %>,
+          "finalXValue": 1000,
+          "lineColor": "#fefefe",
+          "lineAlpha": 0.2
+        },
+        <% end %>
+      ],
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "autoGridCount": false,
+          "gridCount": 100000,
+          "labelsEnabled": true,
+          "id": "wellbore_axis",
+          "autoGridCount": false,
+          "minVerticalGap": 1,
+          "minHorizontalGap": 1
+        },
+        {
+          "axisAlpha": 0,
+          "position": "right",
+          "reversed": true,
+          "inside": false,
+          "fontSize": 13,
+          "color": "#ffffff",
+          "gridColor": "#373b3b",
+          "gridAlpha": 0,
+          "autoWrap": true,
+          "tickLength": 0,
+          "id": "depth_axis",
+          "autoGridCount": false,
+          "minimum": 0,
+          "maximum": 20000,
+          "gridCount": 20000,
+          "labelsEnabled": false,
+          "minVerticalGap": 1,
+          "minHorizontalGap": 1
+        },
+        {
+          "axisAlpha": 0,
+          "id": "left_axis",
+          "position": "left"
+        }
+      ],
+      "graphs": [
+        {
+          "id": "maxGraph",
+          "lineColor": "#ff1818",
+          "lineThickness": 0,
+          "fillAlphas": 1,
+          "xField": "max",
+          "yField": "depth",
+          "fillToAxis": "left_axis"
+        },
+        {
+          "id": "fractureGraph",
+          "lineColor": "#fbff78",
+          "lineThickness": 0,
+          "xField": "fracture_pressure",
+          "yField": "depth",
+          "fillAlphas": 1,
+          "fillToAxis": "left_axis"
+//          "fillToGraph": "maxGraph"
+        },
+        {
+          "id": "minGraph",
+          "lineColor": "#2dff81",
+          "lineThickness": 0,
+          "xField": "min_stress",
+          "yField": "depth",
+          "fillToAxis": "left_axis",
+          "fillAlphas": 1,
+//          "fillToGraph": "fractureGraph"
+        },
+        {
+          "id": "shearGraph",
+          "lineColor": "#ff6d7a",
+          "lineThickness": 0,
+          "xField": "shear_failure",
+          "yField": "depth",
+          "fillToAxis": "left_axis",
+          "fillAlphas": 1,
+//          "fillToGraph": "minGraph"
+        },
+        {
+          "lineThickness": 0,
+          "lineColor": "#ff0078",
+          "id": "poreGraph",
+          "xField": "pore_pressure",
+          "yField": "depth",
+          "fillToAxis": "left_axis",
+          "fillAlphas": 1,
+//          "fillToGraph": "shearGraph"
+        },
+        {
+          "id": "ecdGraph",
+          "lineColor": "#ffffff",
+          "lineThickness": 5,
+          "xField": "ecd",
+          "yField": "depth"
+        },
+      ],
+      "chartCursor": {
+        "zoomable": false,
+        "enabled": true,
+        "selectWithoutZooming": true,
+        "valueLineEnabled": false,
+        "valueLineBalloonEnabled": false,
+        "valueBalloonsEnabled": false,
+        "categoryBalloonEnabled": false,
+        "cursorAlpha": 0
+      },
+//      "categoryField": "time",
+//      "categoryAxis": {
+//        "gridPosition": "start",
+//        "startOnAxis": true,
+//        "labelsEnabled": false,
+//        "parseDates": false,
+//        "minorGridAlpha": 0.3,
+//        "tickLength": 0,
+//        "minorGridEnabled": true,
+//        "position": "left",
+//        "color": "#2a2e2e",
+//        "axisColor": "#fefefe",
+//        "axisAlpha": 1,
+//        "gridAlpha": 1,
+//        "gridColor": "#373b3b",
+//        "inside": true,
+//        "labelOffset": -3,
+//        "fontSize": 10
+//      }
+    });
+
+    var myCursor;
+
+//    DV_CHARTS['wellbore'].addListener("changed", handleChanged);
+
+    $('#chart_drillview_wellbore').click(function () {
+      DV_CURSOR_POS = myCursor;
+      update_chart_cursor('dv_wellbore');
+    });
+
+    $('#chart_drillview_wellbore').mouseleave(function () {
+      update_dv_wellbore(DV_CURSOR_POS);
+    });
+
+    function handleChanged(event) {
+      myCursor = event.index;
+      update_dv_wellbore(event.index);
+    }
+
+    tune_dv_wellbore();
+
+    $('#dv_wellbore').perfectScrollbar();
+
+    $('#dv_wellbore').show();
+    $('#depth-row-wide').hide();
+    $('#depth-row').show();
+    $('#activity-row').show();
+
+    $slider = $('.slider');
+    $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+  }(jQuery));
+</script>

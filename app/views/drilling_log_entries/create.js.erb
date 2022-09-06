@@ -1,0 +1,58 @@
+$('.form[data-form=new-job-log]').show();
+$('.form-loading[data-form=new-job-log]').addClass('hidden');
+
+<% if @drilling_log_entry.new_record?  || @drilling_log_entry.errors.any?  %>
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Failed to add entry", message: @drilling_log_entry.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show: true});
+
+<% else %>
+
+if ($('.no-job-log-entries').length > 0) {
+    $('.no-job-log-entries').remove();
+}
+
+<% date = @drilling_log_entry.entry_at %>
+var group = $(".log-entry-group[data-date='<%= date.strftime("%m/%d/%Y") %>']");
+if (group.length > 0) {
+    group.append("<%= j render 'drilling_log_entries/drilling_log_entry', entry: @drilling_log_entry, editable: true %>");
+}
+else {
+    $("#list").append("<%= j render 'drilling_log_entries/drilling_log_entry_group', date: date, entries: [@drilling_log_entry], empty: false %>");
+}
+
+$('#new_job_log_id').val('');
+
+if ($('#measured_depth').length > 0) {
+    $('#measured_depth').val('');
+    $('#inclination').val('');
+    $('#azimuth').val('');
+    $('#magnetic_field_strength').val('');
+    $('#magnetic_dip_angle').val('');
+    $('#gravity_total').val('');
+    $('#comment').val('');
+}
+
+<% if (@drilling_log_entry.activity_code == DrillingLogEntry::CONNECTION_SURVEY || @drilling_log_entry.activity_code == DrillingLogEntry::CONNECTION) %>
+<% if @drilling_log_entry.course_length > 0 %>
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem With Activity Entry", message: "Entry was accepted but it appears the course length (#{@drilling_log_entry.course_length} ft) is not equal to zero. A connection should have no change in depth. It might also be a problem with the date and time (#{@drilling_log_entry.entry_at.strftime("%m/%d/%Y %H:%M")})" %>");
+$('#alert').modal({show: true});
+<% end %>
+<% end %>
+
+<% if (@drilling_log_entry.activity_code == DrillingLogEntry::CONNECTION_SURVEY || @drilling_log_entry.activity_code == DrillingLogEntry::MWD_SURVEY) %>
+<% if params[:measured_depth].present? && !params[:measured_depth].blank?  && !@survey_accepted %>
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem With Survey", message: "Survey point was not recorded because either the inclination or azimuth was empty or there is an existing survey for that depth." %>");
+$('#alert').modal({show: true});
+<% end %>
+<% end %>
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.activity-user-link').tooltip();
+    //$('.tooltip-info').tooltip();
+}
+
+<% end %>

@@ -1,0 +1,2 @@
+module LwdLogsHelper
+end

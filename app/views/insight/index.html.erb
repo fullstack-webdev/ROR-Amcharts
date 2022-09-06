@@ -1,0 +1,63 @@
+<% provide(:title, 'Insight') %>
+
+<div class="page_header">
+  <h1>Insight</h1>
+
+  <p class="help-text">Corva surfaces relevant information that might help in mitigating future problems.</p>
+</div>
+
+
+
+<div class="pull-right">
+  <canvas id="canvas" height="200" width="960"></canvas>
+</div>
+
+<span class="help-text pull-right blue-text2">This year in blue verse last year</span>
+
+<script>
+    var lineChartData = {
+        labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        datasets: [
+            {
+                fillColor: "rgba(220,220,220,0.5)",
+                strokeColor: "rgba(220,220,220,1)",
+                pointColor: "rgba(220,220,220,1)",
+                pointStrokeColor: "#fff",
+                data: <%= raw (1..12).map { |month| (@failures_last_year && @failures_last_year[month]) || 0 }.to_json.html_safe %>
+            },
+            {
+                fillColor: "rgba(151,187,205,0.5)",
+                strokeColor: "rgba(151,187,205,1)",
+                pointColor: "rgba(151,187,205,1)",
+                pointStrokeColor: "#fff",
+                data: <%= raw (1..12).map { |month| (@failures_current_year && @failures_current_year[month]) || 0 }.to_json.html_safe %>
+            }
+        ]
+    }
+
+    <% if false %>
+    <% activities = Activity.activities_for_job(job).select("DISTINCT created_at") %>
+
+    alert('<%= activities.count %>');
+    var lineChartData = {
+        labels: <%= raw activities.map { |a| a.created_at.day }.to_json %>,
+        datasets: [
+
+            {
+                fillColor: "rgba(151,187,205,0.5)",
+                strokeColor: "rgba(151,187,205,1)",
+                pointColor: "rgba(151,187,205,1)",
+                pointStrokeColor: "#fff",
+                data: <%= raw activities.map { rand(5..30) }.to_json %>
+            }
+        ]
+
+    }
+    <% end %>
+
+    var myLine = new Chart(document.getElementById("canvas").getContext("2d")).Line(lineChartData);
+
+</script>
+<br>
+<br><br><br><br><br><br><br><br>
+<br><br><br><br><br>

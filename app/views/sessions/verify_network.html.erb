@@ -1,0 +1,32 @@
+<% provide(:title, 'Verify Network') %>
+<div class="content">
+
+  <div class="page_header">
+    <h1>Verify Network</h1>
+  </div>
+
+  <%= form_for(:session, url: verify_network_path) do |f| %>
+
+      <div class="well">
+        <div class="content">
+
+          <div class="">
+            <div class="field">
+              <%= f.label nil, "Access Code", class: "field-title field-title-long" %>
+              <%= f.text_field :network_access_code, class: "txtfield small" %>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <%= f.submit "Verify Network", class: "bluebtn pull-right" %>
+
+        <br>
+        <%= link_to "Didn't get it yet? Resend access code", verify_network_path(:resend => "true"),
+                    class: "activity-user-link pull-left push-right-small"  %>
+      </div>
+
+  <% end %>
+</div>

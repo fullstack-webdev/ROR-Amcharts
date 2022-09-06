@@ -1,0 +1,137 @@
+<% @npt_current_year = DrillingLog.where("drilling_logs.job_id IN (#{@jobs_sql})").where("drilling_logs.created_at >= ?", Date.today - 1.year).select("date_trunc('month', drilling_logs.created_at) as DATE").group("date_trunc('month', drilling_logs.created_at)").average("drilling_logs.npt").map { |k, v| {Date.strptime(k).month => v} }.reduce(:merge) %>
+
+<div id="overview_npt" data-loaded='true'>
+
+<div>
+  <div class="chart-block tooltip-info"
+       data-title="Current Month NPT hours">
+    <div class="chart-title">Avg NPT</div>
+    <div class="donut-chart-div job-donut-chart-div">
+      <% average_npt = DrillingLog.where("drilling_logs.job_id IN (#{@jobs_sql})").average("drilling_logs.npt") %>
+      <div class="donut-text "><%= average_npt.present? ? average_npt.round(1) : '-' %></div>
+      <div class="percentage ">hours</div>
+    </div>
+  </div>
+
+
+</div>
+
+<hr>
+
+<div class='center'>
+  <b class='blue-text'>NPT (trailing year)</b>
+  <br><br>
+</div>
+<div class="">
+  <canvas id="canvas_npt" height="200" width="960"></canvas>
+</div>
+
+<% rigs = Rig.all.to_a %>
+
+<div class='center'>
+  <br><br>
+  <b class='blue-text'>NPT (per Rig)</b>
+  <br><br>
+</div>
+<div>
+  <div id="npt_div" class='inline-block amChart' style="width: 900px; height: 500px;"></div>
+</div>
+
+<br><br>
+<div>
+  <% rigs.each do |rig| %>
+      <div class='inline-block'>
+        <div class="label inline-block push-right-small part-name tooltip-info" style="padding:3px; padding-left: 10px; padding-right: 10px; background:#<%= rig.color %>; width: 100px;"
+            data-title="<%= rig.name %>">
+          <b class='white-text'><%= rig.name %></b>
+        </div>
+      </div>
+  <% end %>
+</div>
+
+<script>
+    var lineChartData = {
+        labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        datasets: [
+            {
+                fillColor: "rgba(151,187,205,0.5)",
+                strokeColor: "rgba(151,187,205,1)",
+                pointColor: "rgba(151,187,205,1)",
+                pointStrokeColor: "#fff",
+                data: <%= raw (1..12).map { |month| (@npt_current_year && @npt_current_year[month]) || 0 }.to_json.html_safe %>
+            }
+        ]
+    }
+
+    var myLine = new Chart(document.getElementById("canvas_npt").getContext("2d")).Line(lineChartData);
+
+</script>
+
+<script type="text/javascript">
+
+
+    <% points = [] %>
+    <% points2 = [] %>
+    <% rigs.each do |rig| %>
+    <% npts = DrillingLog.includes(job: { well: :rig }).where("drilling_logs.created_at >= ?", Date.today - 1.year).where("rigs.id = ?", rig.id) %>
+    <% npts.each do |dl| %>
+    <% points << { "rig_#{rig.id}" => rig.name, "day_#{rig.id}" => dl.created_at.strftime("%W"), "npt_#{rig.id}" => dl.npt.round(1) } %>
+    <% end %>
+    <% end %>
+    var chartData = <%= raw points.to_json.html_safe %>;
+
+    var chart = new AmCharts.AmXYChart();
+    chart.dataProvider = chartData;
+
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "Week of Year (trailing)";
+    valueAxis.position = "bottom";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.autoGridCount = true;
+    chart.addValueAxis(valueAxis);
+
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.title = "NPT";
+    valueAxis.position = "left";
+    valueAxis.dashLength = 5;
+    valueAxis.axisAlpha = 0;
+    valueAxis.autoGridCount = true;
+    chart.addValueAxis(valueAxis);
+
+
+    <% rigs.each do |rig| %>
+    var color = "#<%= "#{rig.color}" %>";
+    var graph = new AmCharts.AmGraph();
+    graph.xField = "day_<%= "#{rig.id}" %>";
+    graph.yField = "npt_<%= "#{rig.id}" %>";
+    graph.type = "smoothedLine";
+    graph.bullet = "round";
+    graph.balloonText = "<b>[[rig_<%= "#{rig.id}" %>]]</b> NPT [[npt_<%= "#{rig.id}" %>]] hours";
+    graph.bulletColor = "#FFFFFF";
+    graph.bulletBorderColor = color;
+    graph.bulletBorderAlpha = 1;
+    graph.bulletBorderThickness = 2;
+    graph.bulletSize = 6;
+    graph.title = "npt";
+    graph.lineThickness = 1;
+    graph.lineColor = color;
+    graph.clustered = true;
+    chart.addGraph(graph);
+    <% end %>
+
+
+    var chartCursor = new AmCharts.ChartCursor();
+    chartCursor.cursorPosition = "mouse";
+    chart.addChartCursor(chartCursor);
+
+
+    chart.write("npt_div");
+
+    var label = $("tspan:contains('chart by amcharts.com')");
+    if (label.length > 0) {
+        label.remove();
+    }
+</script>
+</div>

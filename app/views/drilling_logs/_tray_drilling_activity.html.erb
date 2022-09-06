@@ -1,0 +1,149 @@
+<div id="activity_list" class="remote-tray" data-tray="rig_activity">
+
+  <% @drilling_log = @job.drilling_log %>
+  <% @bhas = Bha.joins(job: :well).where("bhas.master_bha_id IS NULL").where("jobs.well_id = ?", @drilling_log.job.well_id).order("bhas.name ASC") %>
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading activity..." %>
+  </div>
+
+  <div class='tray-content content-loaded'>
+    <% entries = @drilling_log.drilling_log_entries.includes(:bha).to_a %>
+    <% dates = entries.group_by { |item| item.entry_at.in_time_zone(Time.zone).to_date } %>
+    <% filter_options = [] %>
+    <% filter_options << ["Show Recent", 'recent'] %>
+    <% filter_options << ["Show All", 'all'] %>
+    <% dates.each_with_index do |d, index| %>
+        <% filter_options << [d[0].strftime("%A %m/%d/%Y"), d[0].strftime("%m/%d/%Y")] %>
+    <% end %>
+
+    <% if false %>
+        <% @survey = Survey.includes(job: :well).where(:plan => false).where("wells.id = ?", @drilling_log.job.well_id).first %>
+
+        <% if @survey.present? %>
+            <% @active_well_plan = Survey.includes(job: :well).where(:plan => true).where("wells.id = ?", @drilling_log.job.well_id).first %>
+            <% @survey_points = @survey.calculated_points(@active_well_plan.vertical_section_azimuth).to_a %>
+        <% end %>
+    <% end %>
+
+    <div class='section-header' style="margin-top: 20px;">
+      <h1>Drilling Activity</h1>
+
+      <div class='inline-block align-top push-right-small'>
+        <%= select_tag "#",
+                       options_for_select(filter_options, 1),
+                       id: "drilling_log_filter",
+                       "data-id" => @drilling_log.id.to_s,
+                       class: "custom-select custom-select-ajax align-top push-up push-right-small" %>
+      </div>
+
+      <div class="btn-group inline pull-right push-right">
+        <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+          Import/Export
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <%= link_to "Export as Excel", drilling_log_path(@drilling_log, format: "xlsx"),
+                        target: "_blank",
+                        class: "dropdown-menu-link tooltip-info submit-form",
+                        "data-placement" => "left",
+                        "data-title" => "Export log as Microsoft Excel file." %>
+          </li>
+          <li>
+            <%= form_for DrillingLogEntry.new, :html => {:multipart => true} do |f| %>
+                <%= f.hidden_field :drilling_log_id, value: @drilling_log.id %>
+                <a class='btn' style="background: #0058a8; color: white; margin-left: 10px; margin-right: 10px; margin-bottom: 6px;" href='javascript:;'>
+                  Import Offline Log
+                  <input type="file" style='position:absolute;z-index:2;top:0px;right:0px;filter: alpha(opacity=0);-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";opacity:0;background-color:transparent;color:transparent;' name="file_source" size="40" onchange="showWorkingCurtain(); $(this).closest('form').submit();">
+                </a>
+            <% end %>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <% if false && @drilling_log.job.status < Job::COMPLETE %>
+        <%= link_to "#",
+                    class: "bluebtn btnsmall gray align-top tooltip-info push-up pull-right",
+                    id: "add_new_entry_jump",
+                    "data-form" => "new-job-log",
+                    "data-placement" => "bottom",
+                    "data-title" => "Add New Log Entry" do %>
+            Add New Entry
+        <% end %>
+    <% end %>
+
+
+    <div class="content">
+      <div class="">
+        <p class="help-text list-item-column list-item-column-short">
+          Date/Time
+        </p>
+
+        <p class="help-text list-item-column list-item-column-short">
+          Hours
+        </p>
+
+        <p class="help-text list-item-column2">
+          Depth
+        </p>
+
+        <p class="help-text list-item-column list-item-column4">
+          Activity
+        </p>
+
+        <p class="help-text list-item-column">
+          Comment/Description
+        </p>
+
+        <p class="help-text pull-right push-down-small">
+          BHA/Actions
+        </p>
+        <br><br>
+      </div>
+
+
+      <% if entries.empty? %>
+
+          <div class="" id="list"></div>
+          <br><br>
+
+          <div class="no-job-log-entries alert">
+            <%= image_tag "warning.png", class: "pull-left push-down" %>
+            <div class='pull-left push-right-small push-down-small'>
+              <h3 class='orange-text'>No Activity...</h3>
+
+              <p>No drilling data</p>
+            </div>
+            <br><br><br>
+          </div>
+
+          <br><br>
+
+      <% else %>
+          <div class="" id="list">
+            <% @last_entry = entries.first %>
+            <% @last_date = nil %>
+            <% dates.each_with_index do |date, index| %>
+                <% if index < dates.length - 1 %>
+                    <%= render 'drilling_log_entries/drilling_log_entry_group', date: date[0], entries: date[1], empty: true %>
+                <% end %>
+                <% @last_date = date %>
+            <% end %>
+            <%= render 'drilling_log_entries/drilling_log_entry_group', date: @last_date[0], entries: @last_date[1], empty: false %>
+          </div>
+      <% end %>
+
+    </div>
+
+
+    <% if false %>
+    <%= render 'drilling_logs/log_entry', job: @job, drilling_log: @job.drilling_log %>
+        <% end %>
+
+
+  </div>
+</div>
+
+

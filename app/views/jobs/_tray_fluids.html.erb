@@ -1,0 +1,37 @@
+<div class="remote-tray" data-tray="fluids">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading casing program..." %>
+  </div>
+
+  <div class='tray-content content-loaded'>
+
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Fluids</h1>
+
+      <div class='inline-block push-right-small align-top push-down-small'>
+        <%= link_to "#",
+                    class: "btn btn-primary white-text push-right-small" do %>
+            <i class="icon-plus-sign icon-white"></i>
+            <span>Add Report</span>
+        <% end %>
+      </div>
+    </div>
+
+    <br>
+
+    <b>No fluid reports...</b>
+
+    <br><br>
+
+
+
+    <% @drilling_log = @job.drilling_log %>
+
+    <%= render 'drilling_logs/fluid_entry' %>
+
+
+  </div>
+</div>

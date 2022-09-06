@@ -1,0 +1,45 @@
+<div class="company-overview">
+  <div class="section-header">
+    <h1><%= @warning_type.name %></h1>
+
+    <div class='inline-block align-top pull-right'>
+      <%= link_to "Edit", edit_event_warning_type_path, class: "btn btn-sub tooltip-info align-top" %>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class='job-field-title'>ID</div>
+    <h3><%= @warning_type.warning_id %></h3>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="block">
+    <div class='job-field-title'>Severity</div>
+    <h4><%= @warning_type.severity_text %></h4>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="block">
+    <div class='job-field-title'>Category</div>
+    <h4><%= @warning_type.category_label %></h4>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="block">
+    <div class='job-field-title'>Description</div>
+    <h4><%= @warning_type.description %></h4>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="block">
+    <div class='job-field-title'>Resolution</div>
+    <h4><%= @warning_type.resolution %></h4>
+  </div>
+
+  <div class="divider divider-md"></div>
+  <%= link_to button_tag("Cancel", class: "btn btn-sub push-left-small tooltip-info","data-title" => "Cancel edit and go back", :type => 'button'), event_warning_types_path %>
+</div>

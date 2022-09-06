@@ -1,0 +1,326 @@
+<div>
+
+
+<% @bhas = Bha.joins(job: :well).where("bhas.master_bha_id IS NULL").where("jobs.well_id = ?", @drilling_log.job.well_id).order("bhas.name ASC") %>
+<% days = @drilling_log.below_rotary.present? && @drilling_log.above_rotary.present? ? ((@drilling_log.above_rotary + @drilling_log.below_rotary) / 24).ceil : 0 %>
+
+<%# if drilling_log.drilling_log_entries.empty? %>
+<% if false %>
+  <div class='alert'>
+    <div class='pull-left push-down'>
+      <%= image_tag "warning.png" %>
+    </div>
+
+    <div class='pull-left push-right-small'>
+      <h3 class='orange-text push-down-small'>No Data to Show</h3>
+
+      <p class='push-down'>There is no data to show because the job has not started yet or there is no drilling
+        data. </p>
+
+    </div>
+
+    <br><br><br><br>
+  </div>
+  <br><br>
+
+<% else %>
+
+  <div class="well-overview">
+    <div class="well-info">
+      <div>
+        <span class="well-name color-white"><%= job.well.rig.present? ? job.well.rig.name : "-" %></span>
+        <span class="" style="color: #bfe9cf; font-size: 17px;"><%= job.well_name %></span>
+          <span class="color-white" style="float: right; font-size: 28px;">
+            <%= number_to_currency(job.total_cost, :unit => "$ ") %>
+          </span>
+      </div>
+
+      <div class="alert-box alert-success">
+        All systems are operating normally <a href="#">View details</a>
+      </div>
+
+      <!--<div>-->
+      <!--<span class="days color-white"><%= days %> <%= "day".pluralize(days) %></span>-->
+      <!--<span class="percentage color-red">+23% over</span>-->
+      <!--<span id='total_job_cost' class="color-white" style="font-size: 26px;">-->
+      <!--<%= number_to_currency(job.total_cost, :unit => "$ ") %>-->
+      <!--</span>-->
+      <!--</div>-->
+    </div>
+
+    <div class="block">
+      <div class="inline-block" style="width: 23%; float: left;">
+        <%= render 'jobs/rig_events_bar' %>
+      </div>
+
+      <div class="inline-block" style="width: 77%; float: left;">
+
+        <div class="block datestatus-block">
+          <div class="inline-block cell">
+            <p class="title">Days</p>
+
+            <p class="value"><%= number_with_delimiter(number_with_precision(job.total_days, precision: 1)) %>
+              <span><%= "day".pluralize(job.total_jobs) %></span></p>
+          </div>
+
+          <div class="inline-block cell">
+            <p class="title">Predicted Total Days</p>
+
+            <p class="value"><%= number_with_delimiter(number_with_precision(job.well.predicted_well_time, precision: 1)) %>
+              <span><%= "day".pluralize(job.well.predicted_well_time) %></span></p>
+          </div>
+
+          <% days_behind = [job.well.predicted_well_time.to_f - job.total_days, 0].max %>
+          <div class="inline-block cell">
+            <p class="title"></p>
+
+            <p class="value value-red">(<%= number_with_delimiter(number_with_precision(days_behind, precision: 1)) %>
+              <span><%= "day".pluralize(days_behind) %> behind</span>)</p>
+          </div>
+        </div>
+
+        <div>
+          <%= image_tag "well_overview_chart.png" %>
+        </div>
+
+        <div class="overview-block" style="margin-top: 30px;">
+          <p class="block-title">Entire Well</p>
+
+          <div class="overview-bar">
+            <% job.aggregate_activity(-1).each do |activity| %>
+              <div style="background: <%= activity['color'] %>; width: <%= activity['percentage'] %>%;"></div>
+            <% end %>
+            <!--<div style="background: #c2c2c2; width: 3%;"></div>-->
+            <!--<div style="background: #f781a8; width: 6%;"></div>-->
+            <!--<div style="background: #dd1759; width: 9%;"></div>-->
+            <!--<div style="background: #58e80a; width: 9%;"></div>-->
+            <!--<div style="background: #3e940f; width: 15%;"></div>-->
+            <!--<div style="background: #af7bf5; width: 15%;"></div>-->
+            <!--<div style="background: #203fe0; width: 43%;"></div>-->
+          </div>
+        </div>
+
+        <div class="overview-block">
+          <p class="block-title">Last 24 hours</p>
+
+          <div class="overview-bar">
+            <% job.aggregate_activity(1).each do |activity| %>
+              <div style="background: <%= activity['color'] %>; width: <%= activity['percentage'] %>%;"></div>
+            <% end %>
+            <!--<div style="background: #c2c2c2; width: 3%;"></div>-->
+            <!--<div style="background: #f781a8; width: 6%;"></div>-->
+            <!--<div style="background: #dd1759; width: 9%;"></div>-->
+            <!--<div style="background: #58e80a; width: 9%;"></div>-->
+            <!--<div style="background: #3e940f; width: 15%;"></div>-->
+            <!--<div style="background: #af7bf5; width: 15%;"></div>-->
+            <!--<div style="background: #203fe0; width: 43%;"></div>-->
+          </div>
+        </div>
+
+        <div class="overview-block well-status">
+          <p class="block-title">Current Activity</p>
+          <p class="font-size-16">Tripping In - 6,784 ft</p>
+          <p class="font-size-16">Connection</p>
+          <p class="font-size-16"><%= job.current_activity %></p>
+        </div>
+
+        <div class="overview-block well-status">
+          <p class="block-title">Hole Depth</p>
+
+          <p class="font-size-22"><%= number_with_delimiter(number_with_precision(job.total_depth, precision: 0)) %>
+            <span class="unit">ft</span></p>
+        </div>
+
+        <!--<div class="overview-block well-status">-->
+        <!--<p class="block-title">Current Lithology</p>-->
+        <!--<p class="font-size-22">Silty Sandstone</p>-->
+        <!--<p style="font-size: 13px; font-family: orgonlightregular">Sandstone 87%, Limestone 13%</p>-->
+        <!--</div>-->
+
+        <!--<div class="overview-block well-status">-->
+        <!--<p class="block-title font-size-20">Torque</p>-->
+        <!--<p class="font-size-30">5051,5 <span class="unit">ft/lb</span></p>-->
+        <!--</div>-->
+
+        <!--<div class="overview-block well-status">-->
+        <!--<p class="block-title font-size-20">ROP</p>-->
+        <!--<p class="font-size-30">202.3 <span class="unit">ft/hr</span></p>-->
+        <!--</div>-->
+
+        <!--<div class="overview-block well-status">-->
+        <!--<p class="block-title font-size-20">MSE</p>-->
+        <!--<p class="font-size-30">24.5 <span class="unit">ksi</span></p>-->
+        <!--</div>-->
+
+        <!--<div class="overview-block" style="clear:both;">-->
+        <!--<p class="block-title">Current System Status</p>-->
+
+        <!--<div class="system-status">-->
+        <!--<p>Circulation</p>-->
+        <!--<div class="normal">Normal</div>-->
+        <!--</div>-->
+        <!--<div class="system-status">-->
+        <!--<p>Hole Stability</p>-->
+        <!--<div class="normal">Normal</div>-->
+        <!--</div>-->
+        <!--<div class="system-status">-->
+        <!--<p>Pressure</p>-->
+        <!--<div class="normal">Normal</div>-->
+        <!--</div>-->
+        <!--<div class="system-status">-->
+        <!--<p>Torque + Drag</p>-->
+        <!--<div class="normal">Normal</div>-->
+        <!--</div>-->
+        <!--<div class="system-status">-->
+        <!--<p>Hydraulics</p>-->
+        <!--<div class="normal">Normal</div>-->
+        <!--</div>-->
+        <!--<div class="system-status">-->
+        <!--<p>Bit Vibrations</p>-->
+        <!--<div class="normal">Normal</div>-->
+        <!--</div>-->
+        <!--<div class="system-status">-->
+        <!--<p>Directional</p>-->
+        <!--<div class="normal">Normal</div>-->
+        <!--</div>-->
+        <!--<div class="system-status">-->
+        <!--<p>Cleaning</p>-->
+        <!--<div class="normal">Normal</div>-->
+        <!--</div>-->
+        <!--<div class="system-status">-->
+        <!--<p>Applied Energe</p>-->
+        <!--<div class="abnormal">Abnormal</div>-->
+        <!--</div>-->
+        <!--<div class="system-status">-->
+        <!--<p>Speed</p>-->
+        <!--<div class="normal">Normal</div>-->
+        <!--</div>-->
+        <!--</div>-->
+      </div>
+    </div>
+
+  </div>
+
+
+  <div style="display: none;">
+
+    <div class="chart-block align-top tooltip-info"
+         data-title="Current depth">
+      <div class="chart-title">Perfect-Well Ratio</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text ">3.34</div>
+        <div class="percentage "></div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info"
+         data-title="Average Total Rate of Penetration.">
+      <div class="chart-title">ROP</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.drilling_rop.nil? ? "-" : drilling_log.drilling_rop.round(1) %></div>
+        <div class="percentage ">ft/hr</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info align-top"
+         data-title="Total Job Cost">
+      <div class="chart-title">Days</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text chart-text"><%= days %></div>
+        <div class="percentage"><%= "day".pluralize(days) %></div>
+      </div>
+    </div>
+
+    <% if false %>
+      <div class="chart-block align-top tooltip-info"
+           data-title="Current depth">
+        <div class="chart-title">Depth</div>
+        <div class="donut-chart-div job-donut-chart-div">
+          <div class="donut-text "><%= drilling_log.nil? || drilling_log.max_depth.nil? ? "0" : number_with_delimiter(drilling_log.max_depth.to_i, :delimiter => ',') %></div>
+          <div class="percentage ">
+              <span class="push-right-small">TD <%= drilling_log.nil? || drilling_log.td_depth.nil? ? "0" : number_with_delimiter(drilling_log.td_depth.to_i, :delimiter => ',') %>
+                ft</span></div>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="chart-block tooltip-info"
+         data-title="Time in hours spent rotating or sliding.">
+      <div class="chart-title">Drilling Time</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.drilling_time.nil? ? "-" : drilling_log.drilling_time.round(1) %></div>
+        <div class="percentage ">hours</div>
+      </div>
+    </div>
+
+    <br><br><br>
+
+    <div>
+      <div class="chart-block tooltip-info"
+           data-title="Non-Productive Time (excluding Stand-By Out-hole)">
+        <div class="chart-title">NPT</div>
+        <div class="donut-chart-div job-donut-chart-div">
+          <div class="donut-text chart-text-red"><%= drilling_log.nil? ? "-" : drilling_log.npt.to_f.round(1) %></div>
+          <div class="percentage chart-text-red">hours</div>
+        </div>
+      </div>
+
+      <div class="chart-block tooltip-info"
+           data-title="Total feet drilled.">
+        <div class="chart-title">Runs</div>
+        <div class="donut-chart-div job-donut-chart-div">
+          <div class="donut-text "><%= drilling_log.get_runs.count %></div>
+          <div class="percentage "><span class="push-right-small"></span></div>
+        </div>
+      </div>
+
+      <div class="chart-block tooltip-info"
+           data-title="Total feet drilled.">
+        <div class="chart-title">BHAs</div>
+        <div class="donut-chart-div job-donut-chart-div">
+          <div class="donut-text "><%= @bhas.count %></div>
+          <div class="percentage "><span class="push-right-small"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <% @surveys = Survey.includes(job: :well).where(:plan => false).where("wells.id = ?", drilling_log.job.well_id).order("surveys.created_at ASC") %>
+    <% if @survey.nil? %>
+      <% @survey = @surveys.last %>
+    <% end %>
+    <% @well_plans = Survey.includes(job: :well).where(:plan => true).where("wells.id = ?", drilling_log.job.well_id).order("surveys.created_at ASC") %>
+    <% if @survey.present? %>
+      <% @active_well_plan = @well_plans.where("surveys.well_plan_for_survey_id = ?", @survey.id).last %>
+    <% end %>
+    <% if @active_well_plan.nil? %>
+      <% @active_well_plan = @well_plans.last %>
+    <% end %>
+
+    <% if !@active_well_plan.nil? || (@survey.present? && @survey.no_well_plan) %>
+      <%= render 'surveys/survey_charts', well_plan: @active_well_plan, survey: @survey, height: 350, section: "overview" %>
+    <% else %>
+      <div id="survey_charts"><p class='help-text center'>No active well plan set...</p></div>
+    <% end %>
+
+    <div class='center'>
+      <div class='inline-block alert'>
+        <span><div class='well-plan'></div> Well Plan</span>
+        <span class='push-right-small'><div class='active-survey'></div> Active Survey</span>
+      </div>
+    </div>
+
+    <br>
+  </div>
+
+
+<% end %>
+
+
+</div>
+
+
+
+
+

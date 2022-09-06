@@ -1,0 +1,659 @@
+<div class='remote-tray' data-tray='pumps_fluids'>
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading Pumps/Fluids..." %>
+</div>
+
+
+<div class='tray-content'>
+
+<div id="fluids_ajax_loader" class="hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait..." %>
+</div>
+
+<div id="fluids_show_container">
+<div class='section-header' style="margin-top: 15px;">
+  <h1 class='inline-block'>Fluids</h1>
+
+  <div class='inline-block align-top pull-right'>
+    <%= link_to "Add New Record", new_conf_fluids_job_path, remote: true, class: "btn btn-sub tooltip-info align-top" %>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div id="fluids_days_container" class="block">
+  <div class="inline-block" style="width: 60px; font-size: 17px; color: #7C9B8F;">
+    Day
+  </div>
+  <div class="dropdown dropdown-styled inline-block">
+    <% days = @job.get_fluids_days %>
+    <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="fluids_show_day_selected" data-id="-1" style="width: 240px;">
+      <% if days.empty? %>
+        <span style="color: #7C9B8F;">No records</span>
+      <% else %>
+        <%= days.last.entry_at.strftime("%A %m/%d") %> <span class="caret"></span>
+      <% end %>
+    </button>
+    <ul class="dropdown-menu" role="menu" id="fluids_show_day_lists" style="width: 240px; max-width: 240px;">
+      <% days.each do |date| %>
+        <li role="presentation"><%= link_to date.entry_at.strftime("%A %m/%d"), "javascript:void(0);", "data-id" => date.entry_at.to_i, "tabindex" => "-1" %></li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<div id="fluids_depths_container" class="block" style="display: none;">
+  <div class="inline-block" style="width: 60px; font-size: 17px; color: #7C9B8F;">
+    Depth
+  </div>
+  <div class="dropdown dropdown-styled inline-block">
+    <% depths = @job.get_fluids_depths %>
+    <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="fluids_show_depth_selected" data-id="-1" style="width: 240px;">
+      <% if depths.empty? %>
+        <span style="color: #7C9B8F;">No records</span>
+      <% else %>
+        <%= number_with_delimiter(number_with_precision(depths.last.in_depth.convert(:ft, company_unit), strip_insignificant_zeros: true, precision: 0)) %> <%= unit(:ft, company_unit) %><span class="caret"></span>
+      <% end %>
+    </button>
+    <ul class="dropdown-menu" role="menu" id="fluids_show_depth_lists" style="width: 240px; max-width: 240px;">
+      <% depths.each do |depth| %>
+        <li role="presentation"><%= link_to number_with_delimiter(number_with_precision(depth.in_depth.convert(:ft, company_unit), strip_insignificant_zeros: true, precision: 0)).to_s + ' ' + unit(:ft, company_unit), "javascript:void(0);", "data-id" => depth.in_depth.to_f, "tabindex" => "-1" %></li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div class="block">
+
+  <div class="section-sub-header">
+    Properties
+  </div>
+
+  <div class="block">
+    <table class="table-normal">
+      <tbody>
+      <tr>
+        <td style="width: 30%;">Type</td>
+        <td class="text-bold" id="fluids_show_type" style="width: 20%;">-</td>
+        <td style="width: 30%;">Density</td>
+        <td id="fluids_show_density" style="width: 20%;">-</td>
+      </tr>
+      <tr>
+        <td>Funnel Viscosity</td>
+        <td id="fluids_show_funnel_viscosity">-</td>
+        <td>Filtrate</td>
+        <td id="fluids_show_filtrate">-</td>
+      </tr>
+      <tr>
+        <td>PV</td>
+        <td id="fluids_show_pv">-</td>
+        <td>YP</td>
+        <td id="fluids_show_yp">-</td>
+      </tr>
+      <tr>
+        <td>pH</td>
+        <td id="fluids_show_ph">-</td>
+        <td>Mud cake thickness</td>
+        <td id="fluids_show_mud_cake_thickness">-</td>
+      </tr>
+      <tr>
+        <td>High gravity solids densities</td>
+        <td class="text-bold" id="fluids_show_high_gravity_densities">-</td>
+        <td>Low gravity solids densities</td>
+        <td class="text-bold" id="fluids_show_low_gravity_densities">-</td>
+      </tr>
+      <tr>
+        <td>High gravity solids volume %</td>
+        <td class="text-bold" id="fluids_show_high_gravity_volume">-</td>
+        <td>Low gravity solids volume %</td>
+        <td class="text-bold" id="fluids_show_low_gravity_volume">-</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td></td>
+        <td>Drilled Solids Volume %</td>
+        <td class="text-bold" id="fluids_show_drilled_solids_volume">-</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div style="display: flex;">
+
+  <div class="inline-block" style="width: 48%; float: left;">
+
+    <div class="section-sub-header">
+      Rheometer Readings
+    </div>
+
+    <div class="block">
+      <table class="table-normal">
+        <tbody>
+        <tr>
+          <td style="width: 30%;">600 rpm</td>
+          <td class="text-bold" id="fluids_show_600rpm" style="width: 20%;">-</td>
+          <td style="width: 30%;">300 rpm</td>
+          <td class="text-bold" id="fluids_show_300rpm" style="width: 20%;">-</td>
+        </tr>
+        <tr>
+          <td>200 rpm</td>
+          <td class="text-bold" id="fluids_show_200rpm">-</td>
+          <td>100 rpm</td>
+          <td class="text-bold" id="fluids_show_100rpm">-</td>
+        </tr>
+        <tr>
+          <td>6 rpm</td>
+          <td class="text-bold" id="fluids_show_6rpm">-</td>
+          <td>3 rpm</td>
+          <td class="text-bold" id="fluids_show_3rpm">-</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="inline-block" style="width: 48%; float: left; margin-left: 4%;">
+
+    <div class="section-sub-header">
+      Gel Strengths
+    </div>
+
+    <div class="block">
+      <table class="table-normal">
+        <tbody>
+        <tr>
+          <td>10 seconds</td>
+          <td class="text-bold" id="fluids_show_10seconds">-</td>
+        </tr>
+        <tr>
+          <td>10 minutes</td>
+          <td id="fluids_show_10minutes">-</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="clearfix"></div>
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div style="display: flex;">
+  <div class="inline-block" style="width: 48%; float: left;">
+
+    <div class="section-sub-header">
+      Retort Test
+    </div>
+
+    <div class="block">
+      <table class="table-normal">
+        <tbody>
+        <tr>
+          <td style="width: 30%;">Water Volume %</td>
+          <td id="fluids_show_water_volume" style="width: 30%;">-</td>
+        </tr>
+        <tr>
+          <td>Oil Volume %</td>
+          <td id="fluids_show_oil_volume">-</td>
+        </tr>
+        <tr>
+          <td class="text-bold">Solid Volume %</td>
+          <td id="fluids_show_solid_volume">-</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="inline-block" style="width: 48%; float: left; margin-left: 4%;">
+
+    <div class="section-sub-header">
+      Methylene Blue Test
+    </div>
+
+    <div class="block">
+      <table class="table-normal">
+        <tbody>
+        <tr>
+          <td style="width: 30%;">Methylene Blue</td>
+          <td class="bold" id="fluids_show_methylene_blue" style="width: 30%;">-</td>
+        </tr>
+        <tr>
+          <td>Drilling Fluid</td>
+          <td id="fluids_show_drilling_fluid">-</td>
+        </tr>
+        <tr>
+          <td class="text-bold">Bentonite</td>
+          <td id="fluids_show_bentonite">-</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="clearfix"></div>
+</div>
+
+<div class="divider divider-lg"></div>
+
+<div class="block">
+
+  <div class="section-sub-header">
+    Titration Test
+  </div>
+
+  <div class="block">
+    <table class="table-normal">
+      <tbody>
+      <tr>
+        <td style="width: 30%;">Total Cl-</td>
+        <td class="bold" id="fluids_show_total_cl" style="width: 20%;">-</td>
+        <td style="width: 30%;">K+ in K-Acetate</td>
+        <td id="fluids_show_k_acetate" style="width: 20%;">-</td>
+      </tr>
+      <tr>
+        <td>Br- in Potassium Bromide</td>
+        <td id="fluids_show_potassium_bromide">-</td>
+        <td>Br- in Sodium Bromide</td>
+        <td id="fluids_show_sodium_bromide">-</td>
+      </tr>
+      <tr>
+        <td>Br- in Calcium Bromide</td>
+        <td id="fluids_show_calcium_bromide">-</td>
+        <td>Formate in Potassium Formate</td>
+        <td id="fluids_show_potassium_formate">-</td>
+      </tr>
+      <tr>
+        <td>Formate in Sodium Formate</td>
+        <td id="fluids_show_sodium_formate">-</td>
+        <td>Formate in Cesium Formate</td>
+        <td id="fluids_show_cesium_formate">-</td>
+      </tr>
+      <tr>
+        <td>Cl- in Ammonium Chloride</td>
+        <td id="fluids_show_ammonium_chloride">-</td>
+        <td>K+ in KCI</td>
+        <td id="fluids_show_kci">-</td>
+      </tr>
+      <tr>
+        <td>K+ in K2SO4</td>
+        <td id="fluids_show_k2so4">-</td>
+        <td>Ca2+ in CaCl2</td>
+        <td id="fluids_show_cacl2">-</td>
+      </tr>
+      <tr>
+        <td>Mg2+ in MgCl2</td>
+        <td id="fluids_show_mgcl2">-</td>
+        <td class="text-bold">Brine Density</td>
+        <td id="fluids_show_brine_density">-</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</div>
+
+<div id="fluids_form_container" style="display: none;">
+  <div class='section-header' style="margin-top: 15px;">
+    <h1 class='inline-block'>Fluids</h1>
+  </div>
+
+  <div class="divider"></div>
+
+  <div id="fluid_form_type_container" class="block align-top" style="width: auto; font-size: 17px; color: #7C9B8F; margin-top:9px; margin-bottom: 15px;">
+    <input type="radio" name="fluid_day_based" class="form-control fluid_day_based" value="1" checked/>
+    Date/time based
+    <div class="space space-lg"></div>
+    <input type="radio" name="fluid_day_based" class="form-control fluid_day_based" value="0"/> Depth based
+  </div>
+
+  <div id="fluids_form_day_container" class="block">
+    <div class="inline-block align-top" style="width: 60px; font-size: 17px; color: #7C9B8F;  margin-top:9px;">
+      Day
+    </div>
+    <div class="inline-block align-top">
+      <div class="datetimepicker input-append date" style="width: 280px;">
+        <input id="fluids_form_date" data-format="MM/dd/yyyy hh:mm:ss" class="job-field-value-editable" style="width: calc(100% - 50px);" type="text" placeholder="Warning start date" value="<%= @job.last_date().strftime("%m/%d/%Y  %H:%M:%S") %>"></input>
+              <span class="add-on" style="height: 40px; box-sizing: border-box; border-radius: 0px; border: none; background: #58C9C2;">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar" style="margin-top: 10px;">
+                </i>
+              </span>
+      </div>
+    </div>
+  </div>
+
+  <div id="fluids_form_depth_container" class="block" style="display: none;">
+    <div class="inline-block align-top" style="width: 60px; font-size: 17px; color: #7C9B8F;  margin-top:9px;">
+      Depth
+    </div>
+    <div class="inline-block align-top">
+      <input type="text" id="fluids_form_depth" class="job-field-value-editable tooltip-info text-field" style="width: 100px;" />
+    </div>
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+  <div class="block">
+
+    <%= render 'jobs/fluids_properties' %>
+
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+  <div style="display: flex;">
+
+    <div class="inline-block" style="width: 48%; float: left;">
+
+      <%= render 'jobs/rheometer_readings' %>
+
+    </div>
+
+    <div class="inline-block" style="width: 48%; float: left; margin-left: 4%;">
+
+      <%= render 'jobs/gel_strengths' %>
+
+    </div>
+
+    <div class="clearfix"></div>
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+  <div style="display: flex;">
+    <div class="inline-block" style="width: 48%; float: left;">
+
+      <%= render 'jobs/retort_test' %>
+
+    </div>
+
+    <div class="inline-block" style="width: 48%; float: left; margin-left: 4%;">
+
+      <%= render 'jobs/methylene_blue_test' %>
+
+    </div>
+
+    <div class="clearfix"></div>
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+  <div class="block">
+
+    <%= render 'jobs/tiratuon_test' %>
+
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+  <div class="block">
+    <a id="fluids_form_cancel" href="javascript:void(null)" class="btn btn-default">Cancel</a>
+    <a id="fluids_form_save" href="javascript:void(null)" class="btn btn-primary" style="margin-left: 17px;">Save</a>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+    var depth_based = <%= @job.has_depth_based_fluid %>;
+    var company_unit = "<%= company_unit %>";
+
+    $("input[name=fluid_day_based]:radio").change(function () {
+      var day_based = $(this).val();
+      if (day_based == '1') {
+        $('#fluids_form_day_container').show();
+        $('#fluids_form_depth_container').hide();
+      } else {
+        $('#fluids_form_day_container').hide();
+        $('#fluids_form_depth_container').show();
+      }
+    });
+
+    $(".datetimepicker").datetimepicker({
+      language: 'en',
+      pick12HourFormat: false
+    });
+
+    function update_view(data) {
+      $('#fluids_show_type').html(data.type);
+      $('#fluids_show_density').html(data.density ? data.density.convert('ppg', company_unit).val().round_to_decimal() + ' <span>' + 'ppg'.unit(company_unit) + '</span>' : "-");
+      $('#fluids_show_funnel_viscosity').html(data.funnel_viscosity ? data.funnel_viscosity + ' <span>sec</span>' : "-");
+      $('#fluids_show_filtrate').html(data.filtrate ? data.filtrate + ' <span>ml</span>' : "-");
+      $('#fluids_show_pv').html(data.pv ? data.pv + ' <span></span>' : "-");
+      $('#fluids_show_yp').html(data.yp ? data.yp + ' <span></span>' : "-");
+      $('#fluids_show_ph').html(data.ph || "-");
+      $('#fluids_show_mud_cake_thickness').html(data.mud_cake_thickness ? data.mud_cake_thickness.convert('in', company_unit).val() + ' <span>' + 'in'.unit(company_unit) + '/32</span>' : "-");
+      $('#fluids_show_high_gravity_densities').html(data.high_gravity_densities ? data.high_gravity_densities.convert('ppg', company_unit).val().round_to_decimal() + ' <span>' + 'ppg'.unit(company_unit) + '</span>' : "-");
+      $('#fluids_show_low_gravity_densities').html(data.low_gravity_densities ? data.low_gravity_densities.convert('ppg', company_unit).val().round_to_decimal() + ' <span>' + 'ppg'.unit(company_unit) + '</span>' : "-");
+      $('#fluids_show_high_gravity_volume').html(data.high_gravity_volume ? data.high_gravity_volume + '%' : "-");
+      $('#fluids_show_low_gravity_volume').html(data.low_gravity_volume ? data.low_gravity_volume + '%' : "-");
+      $('#fluids_show_drilled_solids_volume').html(data.drilled_solids_volume ? data.drilled_solids_volume + '%' : '-');
+      $('#fluids_show_600rpm').html(data.rpm600 || "-");
+      $('#fluids_show_300rpm').html(data.rpm300 || "-");
+      $('#fluids_show_200rpm').html(data.rpm200 || "-");
+      $('#fluids_show_100rpm').html(data.rpm100 || "-");
+      $('#fluids_show_6rpm').html(data.rpm6 || "-");
+      $('#fluids_show_3rpm').html(data.rpm3 || "-");
+      $('#fluids_show_10seconds').html(data.seconds10 || "-");
+      $('#fluids_show_10minutes').html(data.minutes10 || "-");
+      $('#fluids_show_water_volume').html(data.water_volume || "-");
+      $('#fluids_show_oil_volume').html(data.oil_volume || "-");
+      $('#fluids_show_solid_volume').html(data.solid_volume || "-");
+      $('#fluids_show_methylene_blue').html(data.methylene_blue || "-");
+      $('#fluids_show_drilling_fluid').html(data.drilling_fluid || "-");
+      $('#fluids_show_bentonite').html(data.bentonite || "-");
+      $('#fluids_show_total_cl').html(data.total_cl || "-");
+      $('#fluids_show_k_acetate').html(data.k_acetate || "-");
+      $('#fluids_show_potassium_bromide').html(data.potassium_bromide || "-");
+      $('#fluids_show_sodium_bromide').html(data.sodium_bromide || "-");
+      $('#fluids_show_calcium_bromide').html(data.calcium_bromide || "-");
+      $('#fluids_show_potassium_formate').html(data.potassium_formate || "-");
+      $('#fluids_show_sodium_formate').html(data.sodium_formate || "-");
+      $('#fluids_show_cesium_formate').html(data.cesium_formate || "-");
+      $('#fluids_show_ammonium_chloride').html(data.ammonium_chloride || "-");
+      $('#fluids_show_kci').html(data.kci || "-");
+      $('#fluids_show_k2so4').html(data.k2so4 || "-");
+      $('#fluids_show_cacl2').html(data.cacl2 || "-");
+      $('#fluids_show_mgcl2').html(data.mgcl2 || "-");
+      $('#fluids_show_brine_density').html(data.brine_density || "-");
+    }
+
+    $("#fluids_form_save").click(function () {
+      var day_based = $("input[name=fluid_day_based]:checked").val();
+      var data = {};
+
+      data.type = $('#fluids_form_type').val();
+      data.density = $('#fluids_form_density').val();
+      data.funnel_viscosity = $('#fluids_form_funnel_viscosity').val();
+      data.filtrate = $('#fluids_form_filtrate').val();
+      data.pv = $('#fluids_form_pv').val();
+      data.yp = $('#fluids_form_yp').val();
+      data.ph = $('#fluids_form_ph').val();
+      data.mud_cake_thickness = $('#fluids_form_mud_cake_thickness').val();
+      data.high_gravity_densities = $('#fluids_form_high_gravity_densities').val();
+      data.low_gravity_densities = $('#fluids_form_low_gravity_densities').val();
+      data.high_gravity_volume = $('#fluids_form_high_gravity_volume').val();
+      data.low_gravity_volume = $('#fluids_form_low_gravity_volume').val();
+      data.drilled_solids_volume = $('#fluids_form_drilled_solids_volume').val();
+      data.rpm600 = $('#fluids_form_600rpm').val();
+      data.rpm300 = $('#fluids_form_300rpm').val();
+      data.rpm200 = $('#fluids_form_200rpm').val();
+      data.rpm100 = $('#fluids_form_100rpm').val();
+      data.rpm6 = $('#fluids_form_6rpm').val();
+      data.rpm3 = $('#fluids_form_3rpm').val();
+      data.seconds10 = $('#fluids_form_10seconds').val();
+      data.minutes10 = $('#fluids_form_10minutes').val();
+      data.water_volume = $('#fluids_form_water_volume').val();
+      data.oil_volume = $('#fluids_form_oil_volume').val();
+      data.solid_volume = $('#fluids_form_solid_volume').val();
+      data.methylene_blue = $('#fluids_form_methylene_blue').val();
+      data.drilling_fluid = $('#fluids_form_drilling_fluid').val();
+      data.bentonite = $('#fluids_form_bentonite').val();
+      data.total_cl = $('#fluids_form_total_cl').val();
+      data.k_acetate = $('#fluids_form_k_acetate').val();
+      data.potassium_bromide = $('#fluids_form_potassium_bromide').val();
+      data.sodium_bromide = $('#fluids_form_sodium_bromide').val();
+      data.calcium_bromide = $('#fluids_form_calcium_bromide').val();
+      data.potassium_formate = $('#fluids_form_potassium_formate').val();
+      data.sodium_formate = $('#fluids_form_sodium_formate').val();
+      data.cesium_formate = $('#fluids_form_cesium_formate').val();
+      data.ammonium_chloride = $('#fluids_form_ammonium_chloride').val();
+      data.kci = $('#fluids_form_kci').val();
+      data.k2so4 = $('#fluids_form_k2so4').val();
+      data.cacl2 = $('#fluids_form_cacl2').val();
+      data.mgcl2 = $('#fluids_form_mgcl2').val();
+      data.brine_density = $('#fluids_form_brine_density').val();
+
+      if (day_based == '1') {
+        var picker = $('.datetimepicker').data('datetimepicker');
+        var utc = picker.getDate();
+        data.entry_at = Math.round(new Date(utc).getTime() / 1000);
+      } else {
+        data.in_depth = parseFloat($('#fluids_form_depth').val()).convert_default('ft', company_unit).val().round_to_decimal();
+      }
+//      data.entry_at = $("#fluids_form_date").val();
+
+      $.ajaxSetup({
+        contentType: "application/json; charset=utf-8"
+      });
+
+      $('#fluids_ajax_loader').show();
+      $('#fluids_ajax_loader .loading').show();
+      $("#fluids_form_container").hide();
+      $("#fluids_show_container").hide();
+
+      $.post("<%= create_fluids_job_path %>", JSON.stringify(data)).done(function (result) {
+        $('#fluids_ajax_loader').hide();
+
+        if (result.valid) {
+          toastr.info("New record is created.");
+
+          window.auid++;
+          $.ajax("<%= job_path %>?section=pumps_fluids" + "&auid=" + window.auid, {
+            type: 'get',
+            dataType: 'script'
+          });
+
+          /*
+          $("#fluids_form_container").hide();
+          $("#fluids_show_container").show();
+          toastr.info("New record is created.");
+
+          $('#fluids_show_day_lists').html('');
+          result.days.forEach(function (date) {
+            $('#fluids_show_day_lists').append('<li role="presentation">' +
+                '<a href="javascript:void(null)" data-id="' + date.ts + '" tabindex="-1">' +
+                date.entry_at + '</a>' +
+                '</li>');
+          });
+
+          $('#fluids_show_day_lists li a').on('click', function () {
+            $('#fluids_show_day_selected').html($(this).html() + ' <span class="caret"></span>');
+            $('#fluids_show_day_selected').data('id', $(this).attr('data-id'));
+
+            $.get("<%= get_fluids_job_path %>", {date: $(this).attr('data-id')}).done(function (result) {
+              update_view(result);
+            });
+          });
+
+          update_view(data);
+          $('#fluids_show_day_selected').html(result.entry_at + ' <span class="caret"></span>');
+          */
+        } else {
+          $("#fluids_form_container").show();
+          $("#fluids_show_container").hide();
+          toastr.warning("Please enter valid information.");
+        }
+      }).fail(function (err) {
+        $('#fluids_ajax_loader').hide();
+
+        $("#fluids_form_container").show();
+        $("#fluids_show_container").hide();
+        toastr.warning("Some went wrong. Please try again later.");
+      });
+    });
+
+    function init() {
+      $("#fluids_form_container").hide();
+      $("#fluids_show_container").show();
+
+      $("#fluids_form_container .datepicker").datepicker();
+
+      <% if @job.has_depth_based_fluid %>
+        $("#fluids_days_container").hide();
+        $("#fluids_depths_container").show();
+        $.get("<%= get_fluids_job_path %>", {depth: <%= depths.last.in_depth.to_f %>}).done(function (result) {
+          update_view(result);
+          $('#fluids_show_depth_selected').data('id', <%= depths.last.in_depth.to_f %>);
+        });
+      <% else %>
+        <% if !days.empty? %>
+          $.get("<%= get_fluids_job_path %>", {date: <%= days.last.entry_at.to_i %>}).done(function (result) {
+            update_view(result);
+            $('#fluids_show_day_selected').data('id', '<%= days.last.entry_at.to_i %>');
+          });
+        <% end %>
+      <% end %>
+
+      $("a.remote-tray-toggle[data-tray='pumps_fluids']").click(function () {
+        $("#fluids_form_container").hide();
+        $("#fluids_show_container").show();
+      });
+
+      $("#fluids_form_cancel").click(function () {
+        $("#fluids_form_container").hide();
+        $("#fluids_show_container").show();
+      });
+
+      $('#fluids_show_day_lists li a').on('click', function () {
+        $('#fluids_show_day_selected').html($(this).html() + ' <span class="caret"></span>');
+        $('#fluids_show_day_selected').data('id', $(this).attr('data-id'));
+
+        $('#fluids_ajax_loader').show();
+        $('#fluids_ajax_loader .loading').show();
+        $("#fluids_show_container").hide();
+
+        $.get("<%= get_fluids_job_path %>", {date: $(this).attr('data-id')}).done(function (result) {
+          update_view(result);
+          $('#fluids_ajax_loader').hide();
+          $("#fluids_show_container").show();
+        });
+      });
+
+      $('#fluids_show_depth_lists li a').on('click', function () {
+        $('#fluids_show_depth_selected').html($(this).html() + ' <span class="caret"></span>');
+        $('#fluids_show_depth_selected').data('id', $(this).attr('data-id'));
+
+        $('#fluids_ajax_loader').show();
+        $('#fluids_ajax_loader .loading').show();
+        $("#fluids_show_container").hide();
+
+        $.get("<%= get_fluids_job_path %>", {depth: $(this).attr('data-id')}).done(function (result) {
+          update_view(result);
+          $('#fluids_ajax_loader').hide();
+          $("#fluids_show_container").show();
+        });
+      });
+    }
+
+    init();
+
+  }(jQuery))
+</script>

@@ -1,0 +1,52 @@
+<div class="content job-process" id="job_closed_id">
+  <%= image_tag "approve_arrow.png" %>
+
+  <p class="job-approved-to-ship inline">Job completed and closed</p>
+
+  <p class="inline">-</p>
+
+  <div class="inline">
+    <%= render 'activities/user', user: job_process.user %>
+  </div>
+
+  <p class="activity-date pull-right"><%= time_ago_in_words(job_process.created_at) %> ago</p>
+
+  <% if job_process.job.documents.any? %>
+      <% if job_process.job.post_job_report_document.nil? || job_process.job.post_job_report_document.url.nil? %>
+          <div class="post-job-report-generation">
+
+            <div class="">
+              <p>Generating Post Job Report</p>
+
+              <div class="progress progress-info progress-striped active">
+                <div class="bar" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <script type="text/javascript">
+                (function ($) {
+
+                    check_status = function () {
+
+                        $.ajax({
+                            url:"/job_process/" + <%= job_process.job.id.to_s %> +"?show_failures=false",
+                            type:"put",
+                            dataType:"script"
+                        });
+                    }
+
+                    setTimeout(check_status, 5000);
+
+                }(jQuery));
+            </script>
+          </div>
+      <% else %>
+          <br>
+          <br>
+          <%= link_to "Post Job Report", job_process.job.post_job_report_document.full_url, class: "bluebtn", target: "_blank" %>
+          <br>
+          <br>
+      <% end %>
+  <% end %>
+
+</div>

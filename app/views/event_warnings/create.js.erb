@@ -1,0 +1,18 @@
+<% if @success == true %>
+  toastr.success("Warning created");
+
+  // empty form
+  $('#job_id').val('');
+  $('#warning_id').val('');
+  $('#warning_label').val('');
+  $('#job_label').val('');
+  $('#date_from').val('');
+  $('#date_to').val('');
+  $('#warning_new_popup #add_btn').removeAttr('disabled');
+
+  // update warning tree
+  $('#warnings_tree_container').html('<%= j render 'event_warnings/warning_tree', warnings: @warnings, active_jobs: @company.active_jobs, current_warnings_list: @company.current_warnings_list, prev_time: @prev_time %>');
+<% else %>
+  toastr.error('<%= @error %>');
+  $('#warning_new_popup #add_btn').removeAttr('disabled');
+<% end %>

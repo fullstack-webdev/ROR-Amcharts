@@ -1,0 +1,24 @@
+<html>
+<link rel="stylesheet" type="text/css" href="/app/assets/stylesheets/custom.css.scss"/>
+<body class="email-body">
+
+<h1>Added To Job</h1>
+<p class="center">You were added to a new job</p>
+
+<hr>
+
+<p><%= link_to @job.absolute_url, class: "activity-user-link" do %>Click here<% end %> to view the job.</p>
+
+<br><br>
+<%= link_to @job.absolute_url, class: "job-email-link" do %>
+    <%= render 'jobs/job_data_email', job: @job %>
+<% end %>
+
+<% if Rails.env.production? %>
+    <hr>
+    <div class="center"><%= image_tag "corva-logo.png" %></div>
+    <br>
+<% end %>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<%= render 'shared/error_messages', object: f.object %>
+
+<div class="well">
+  <div class="content">
+    <div class="">
+      <%= f.text_field :name, placeholder: "District Name",
+                       class: "txtfield tooltip-info",
+                       id: "district_name_id",
+                       :autocomplete => 'off',
+                       "data-placement" => "bottom",
+                       "data-title" => "District Name" %>
+    </div>
+
+    <div class="alert alert-warning hidden">
+      <b>Warning!</b> Districts that already exist
+      <br><br>
+
+      <div id="similar_districts"></div>
+    </div>
+
+    <br>
+
+        <div class="field stripe">
+          <%= f.label :country_id, class: "field-title" %>
+          <%= f.select :country_id, options_for_select(@countries.sort_by { |c| c.name }.collect { |p| [p.name, p.id] }, @country),
+                       prompt: "Select a Country..." %>
+        </div>
+
+        <div class="field stripe">
+          <%= f.label :state_id, class: "field-title" %>
+          <%= f.select :state_id, options_for_select(@states.collect { |p| [p.name, p.id] }, @state),
+                       prompt: "Select a State..." %>
+
+          <div class="no-alerts inline">
+            <p class="inline push-right">(Optional)</p>
+          </div>
+        </div>
+
+  </div>
+
+  <% if !@master %>
+      <div class="page_header">
+        <h2>Contact Information</h2>
+      </div>
+
+      <div class="content">
+
+        <div class="field">
+          <%= f.time_zone_select :time_zone, ActiveSupport::TimeZone.all,
+                                 html: {class: "long-select tooltip-info",
+                                        "data-placement" => "bottom",
+                                        "data-title" => "Time Zone"},
+                                 default: "Central Time (US & Canada)" %>
+        </div>
+
+        <div class="field stripe">
+          <%= f.text_field :region, placeholder: "Region", class: "txtfield tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Region Name" %>
+        </div>
+
+        <div class="field stripe">
+          <%= f.text_field :address_line_1, placeholder: "Address", class: "txtfield tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Address Line 1" %>
+          <%= f.text_field :address_line_2, placeholder: "Address Line 2", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Address Line 2" %>
+        </div>
+        <div class="field stripe">
+          <%= f.text_field :city, placeholder: "City", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "City" %>
+          <%= f.text_field :postal_code, placeholder: "Postal Code", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Postal Code" %>
+        </div>
+        <div class="field stripe">
+          <%= f.text_field :phone_number, placeholder: "Phone Number", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Phone Number" %>
+          <%= f.text_field :support_email, placeholder: "Support Email", class: "txtfield small tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Support Email" %>
+
+        </div>
+
+      </div>
+  <% end %>
+</div>
+

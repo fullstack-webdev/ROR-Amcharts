@@ -1,0 +1,46 @@
+<div>
+  <div class="page_header">
+    <h1 class='inline-block'>Activity Details</h1>
+
+    <div class='push-right-small'>
+      <%= @drilling_log_entry.entry_at.strftime("%m/%d/%Y") %>
+    </div>
+
+    <div class='inline-block pull-right'>
+      <%= render 'users/user_icon', user: @drilling_log_entry.user, use_name: false, use_link: true %>
+      <b><%= @drilling_log_entry.user.present? ? @drilling_log_entry.user.name : '' %></b>
+    </div>
+  </div>
+
+  <%= render 'drilling_log_entries/drilling_log_entry', entry: @drilling_log_entry, editable: false %>
+
+  <div>
+    <ul class="nav nav-pills alert alert-nav">
+
+      <li class="active">
+        <a href="#" class="job-tray-toggle custom-data-toggle tooltip-info"
+           data-tray="conditions"
+           data-placement="bottom" data-title="Past Occurrences">Running Conditions</a>
+      </li>
+
+      <li class="">
+        <a href="#" class="job-tray-toggle custom-data-toggle tooltip-info"
+           data-tray="bha"
+           data-placement="bottom" data-title="Past Occurrences">Current BHA</a>
+      </li>
+
+    </ul>
+  </div>
+
+  <div class='job-tray content' data-tray="conditions">
+    <%= render "drilling_logs/range_details", entries: [@drilling_log_entry], survey_points: nil %>
+  </div>
+
+  <div class='job-tray content custom-data-closed' data-tray="bha">
+    <% if @drilling_log_entry.bha.present? %>
+        <%= render "bhas/bha_view", bha: @drilling_log_entry.bha %>
+    <% else %>
+        <p class='help-text'>No BHA for this entry...</p>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<div class='remote-tray' data-tray='wells'>
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading wells..." %>
+  </div>
+
+
+  <div class='tray-content content-loaded'>
+    <div class='section-header' style="margin-top: 15px;">
+
+      <h1 class='inline-block'>Wells</h1>
+
+      <div class='inline-block align-top pull-right' style="margin-top: 0px;">
+        <%= link_to new_job_path, class: "btn btn-sub tooltip-info align-top", style: "background-color: #02d0c5;" do %>
+            New
+        <% end %>
+      </div>
+
+      <div class='inline-block align-top pull-right' style="margin-top: 0px;">
+        <%= link_to witsml_servers_path, class: "btn btn-sub tooltip-info align-top" do %>
+            Import from WITSML
+        <% end %>
+      </div>
+    </div>
+
+    <%= render 'jobs/well_list' %>
+
+  </div>
+</div>

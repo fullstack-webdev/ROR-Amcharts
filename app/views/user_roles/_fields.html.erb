@@ -1,0 +1,13 @@
+<div class="well">
+  <div class="">
+    <%= f.hidden_field :role_id,
+                       value: @role.role_id,
+                       name: "user_role[role_id]" %>
+    <%= f.text_field :title, placeholder: "Role Title",
+                     class: "txtfield tooltip-info",
+                     value: @role.title,
+                     name: "user_role[title]",
+                     "data-placement" => "bottom",
+                     "data-title" => "User Role Title"%>
+  </div>
+</div>

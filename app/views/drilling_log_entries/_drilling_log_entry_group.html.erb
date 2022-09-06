@@ -1,0 +1,23 @@
+<div class="log-entry-group"
+     data-date="<%= date.strftime("%m/%d/%Y") %>"
+     data-loaded="<%= !empty ? "true" : "false" %>">
+  <h3 class='orange-text'><%= date.strftime("%A %m/%d/%Y") %></h3>
+  <br>
+
+  <div class='log-entry-hidden hidden help-text'></div>
+  <br>
+
+  <% if !empty %>
+      <% entries.each do |entry| %>
+          <%= render 'drilling_log_entries/drilling_log_entry', entry: entry, editable: true  %>
+          <% @last_entry = entry %>
+      <% end %>
+  <% else %>
+      <div class="loading">
+        <span class="ajax-loading search-loading"><b>Loading day...</b></span>
+        <br>
+        <br>
+        <br>
+      </div>
+  <% end %>
+</div>

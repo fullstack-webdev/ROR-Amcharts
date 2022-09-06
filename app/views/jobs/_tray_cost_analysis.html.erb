@@ -1,0 +1,286 @@
+<div class='remote-tray' data-tray='cost'>
+
+  <% @related_jobs = @job.related_jobs %>
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading performance combined metrics..." %>
+  </div>
+
+
+  <div class='tray-content'>
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Well Cost</h1>
+    </div>
+
+
+    <div class="block amChart" id="cost_analysis_chart" style="width: 100%; height: 420px;">
+    </div>
+
+    <div class="divider divider-lg"></div>
+
+    <div class="block">
+      <div class="kpi-block inline-block" style="width: 33%;">
+        <div class="title">Total Cost</div>
+        <div class="value">$<%= number_with_delimiter(number_with_precision(@job.get_section_cost(Job::SECTION_TOTAL), precision: 0)) %></div>
+      </div>
+
+      <div class="kpi-block inline-block" style="width: 33%;">
+        <div class="title">Cost/<%= unit(:ft, company_unit).capitalize %></div>
+        <div class="value">$<%= number_with_delimiter(number_with_precision(@job.get_section_depth(Job::SECTION_TOTAL).to_f > 0 ? @job.get_section_cost(Job::SECTION_TOTAL).to_f / @job.get_section_depth(Job::SECTION_TOTAL).to_f.convert(:ft, company_unit) : 0, precision: 0)) %></div>
+      </div>
+    </div>
+
+    <div class="divider divider-lg"></div>
+
+    <div class="block">
+      <div class="kpi-block inline-block" style="width: 33%;">
+        <div class="title">Intermediate</div>
+        <div class="value">$<%= number_with_delimiter(number_with_precision(@job.get_section_cost(Job::SECTION_INTERMEDIATE), precision: 0)) %></div>
+        <% depth = @job.get_section_depth(Job::SECTION_INTERMEDIATE).to_f.convert(:ft, company_unit) %>
+        <div>
+          <span>$<%= number_with_delimiter(number_with_precision(depth > 0 ? @job.get_section_cost(Job::SECTION_INTERMEDIATE).to_f / depth : 0, precision: 0)) %>
+            /<%= unit(:ft, company_unit) %></span></div>
+      </div>
+
+      <div class="kpi-block inline-block" style="width: 33%;">
+        <div class="title">Curve</div>
+        <div class="value">$<%= number_with_delimiter(number_with_precision(@job.get_section_cost(Job::SECTION_CURVE), precision: 0)) %></div>
+        <% depth = @job.get_section_depth(Job::SECTION_CURVE).to_f.convert(:ft, company_unit) %>
+        <div>
+          <span>$<%= number_with_delimiter(number_with_precision(depth > 0 ? @job.get_section_cost(Job::SECTION_CURVE).to_f / depth : 0, precision: 0)) %>
+            /<%= unit(:ft, company_unit) %></span></div>
+      </div>
+
+      <div class="kpi-block inline-block" style="width: 33%;">
+        <div class="title">Lateral</div>
+        <div class="value">$<%= number_with_delimiter(number_with_precision(@job.get_section_cost(Job::SECTION_TANGENT), precision: 0)) %></div>
+        <% depth = @job.get_section_depth(Job::SECTION_CURVE).to_f.convert(:ft, company_unit) %>
+        <div>
+          <span>$<%= number_with_delimiter(number_with_precision(depth > 0 ? @job.get_section_cost(Job::SECTION_CURVE).to_f / depth : 0, precision: 0)) %>
+            /<%= unit(:ft, company_unit) %></span></div>
+      </div>
+    </div>
+
+    <div class="divider divider-lg"></div>
+
+    <div class="block amChart" id="metrics_chart" style="background-color: #3d4f50;
+        width: 100%;
+        height: <%= (@related_jobs.length + 1) * 40 + 65 %>px;
+        font-family: inherit;
+        font-size: 15px;">
+    </div>
+
+  </div>
+
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+    $('#outer_container').height($('#inner_container').height());
+
+    var metrics_chart_data = [];
+
+    metrics_chart_data.push({
+      "well": "<%= @job.well.name %>",
+      "vertical": (<%= @job.get_section_cost(Job::SECTION_INTERMEDIATE) || 0 %>).toFixed(2),
+      "curve": (<%= @job.get_section_cost(Job::SECTION_CURVE) || 0 %>).toFixed(2),
+      "lateral": (<%= @job.get_section_cost(Job::SECTION_TANGENT) || 0 %>).toFixed(2)
+    });
+
+    <% @related_jobs.each do |j| %>
+    metrics_chart_data.push({
+      "well": "<%= j.well.name %>",
+      "vertical": (<%= j.get_section_cost(Job::SECTION_INTERMEDIATE) || 0 %>).toFixed(2),
+      "curve": (<%= j.get_section_cost(Job::SECTION_CURVE) || 0 %>).toFixed(2),
+      "lateral": (<%= j.get_section_cost(Job::SECTION_TANGENT) || 0 %>).toFixed(2)
+    });
+    <% end %>
+
+    // draw metrics chart
+    var chart = AmCharts.makeChart("metrics_chart", {
+      "type": "serial",
+      "theme": "none",
+      "legend": {
+        "useGraphSettings": true,
+        "position": "top",
+        "align": "right",
+        "color": "#fefefe",
+        "markerType": "circle",
+        "markerSize": 8
+      },
+      "dataProvider": metrics_chart_data,
+      "valueAxes": [
+        {
+          "stackType": "regular",
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "labelsEnabled": false
+        }
+      ],
+      "graphs": [
+        {
+          "fillAlphas": 0.8,
+          "lineAlpha": 0.3,
+          "title": "Intermediate",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "vertical",
+          "lineColor": "#aa58c9",
+          "fixedColumnWidth": 25,
+        },
+        {
+          "fillAlphas": 0.8,
+          "lineAlpha": 0.3,
+          "title": "Curve",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "curve",
+          "lineColor": "#00ccff",
+          "fixedColumnWidth": 25,
+        },
+        {
+          "fillAlphas": 0.8,
+          "lineAlpha": 0.3,
+          "title": "Lateral",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "lateral",
+          "lineColor": "#58c9c2",
+          "fixedColumnWidth": 25,
+        }
+      ],
+      "rotate": true,
+      "categoryField": "well",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "position": "left",
+        "fontSize": 15,
+        "color": "#fefefe"
+      },
+      "fontFamily": "orgonlightregular"
+    });
+
+  }(jQuery));
+</script>
+
+<script type="text/javascript">
+  (function ($) {
+    var graph_data = [];
+
+    graph_data.push({
+      "current_cost": <%= @job.get_section_cost(Job::SECTION_TOTAL) || 0 %>,
+      "current_depth": <%= @job.get_section_depth(Job::SECTION_TOTAL).to_f.convert(:ft, company_unit) || 0 %>,
+      "current_size": 14
+    });
+
+    <% @related_jobs.each do |j| %>
+    graph_data.push({
+      "other_cost": <%= j.get_section_cost(Job::SECTION_TOTAL) || 0 %>,
+      "other_depth": <%= j.get_section_depth(Job::SECTION_TOTAL).to_f.convert(:ft, company_unit) || 0 %>,
+      "other_size": 7
+    });
+    <% end %>
+
+    <% if @job.well.offset_well.present? %>
+    graph_data.push({
+      "offset_cost": <%= @job.well.offset_well.total_cost %>,
+      "offset_depth": <%= @job.well.offset_well.total_depth.to_f.convert(:ft, company_unit) %>,
+      "offset_size": 10
+    });
+    <% end %>
+
+    var chart = AmCharts.makeChart("cost_analysis_chart", {
+      "type": "xy",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "legend": {
+        "useGraphSettings": true,
+        "position": "top",
+        "align": "right",
+        "color": "#fefefe"
+      },
+      "dataProvider": graph_data,
+      "valueAxes": [
+        {
+          "position": "bottom",
+          "gridColor": "#516162",
+          "gridAlpha": 1,
+          "axisAlpha": 0,
+          "dashLength": 0,
+          "title": "Cost (1K)",
+          "labelFunction": function labelFunction(value, valueText, valueAxis) {
+            var returnValue = value / 1000;
+            if (returnValue < 1) {
+              returnValue = returnValue * 1000;
+            }
+            return returnValue.toString();
+          },
+          "color": "#fefefe",
+          "titleColor": "#fefefe"
+        },
+        {
+          "axisAlpha": 0,
+          "dashLength": 0,
+          "position": "left",
+          "title": "Depth (MD - <%= unit(:ft, company_unit) %>)",
+          "gridAlpha": 0,
+          "color": "#fefefe",
+          "titleColor": "#fefefe",
+          "reversed": true,
+          "guides": [
+            {
+              "fillAlpha": 0.7,
+              "fillColor": "#455657",
+              "value": 0,
+              "toValue": 100000
+            }
+          ]
+        }
+      ],
+      "startDuration": 0,
+      "graphs": [
+        {
+          "title": "Current Well",
+          "balloonText": "",
+          "bullet": "circle",
+          "lineAlpha": 0,
+          "xField": "current_cost",
+          "yField": "current_depth",
+          "fillAlphas": 0,
+          "bulletColor": "#58c9c2",
+          "bulletSizeField": "current_size"
+        },
+        {
+          "title": "Similar",
+          "balloonText": "",
+          "bullet": "circle",
+          "lineAlpha": 0,
+          "xField": "other_cost",
+          "yField": "other_depth",
+          "fillAlphas": 0,
+          "bulletColor": "#898989",
+          "bulletSizeField": "other_size"
+        },
+        {
+          "title": "Offset Well  (<%= @job.well.offset_well.present? ? "#{@job.well.offset_well.rig.name} - #{@job.well.offset_well.name}" : 'Not Set'  %>)",
+          "balloonText": "",
+          "bullet": "circle",
+          "lineAlpha": 0,
+          "xField": "offset_cost",
+          "yField": "offset_depth",
+          "fillAlphas": 0,
+          "bulletColor": "#b858c9",
+          "bulletSizeField": "offset_size"
+        }
+      ],
+      "marginLeft": 64,
+      "marginBottom": 60,
+      "chartCursor": {},
+      "fontFamily": "orgonlightregular"
+    });
+  }(jQuery));
+</script>

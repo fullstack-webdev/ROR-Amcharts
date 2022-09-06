@@ -1,0 +1,91 @@
+<% provide(:title, I18n.t(".title")) %>
+
+
+<%= form_for(current_user) do |f| %>
+
+    <div class="page_header">
+      <h1><%= t ".title" %></h1>
+
+      <%= f.submit "Save Settings", class: "bluebtn pull-right" %>
+    </div>
+
+    <div class="page-header-small">
+      <br>
+      <h1>Language and Time</h1>
+    </div>
+
+    <div class="field">
+      <%= f.label :language, class: "field-title" %>
+      <%= f.select :language, options_for_select([["English", "en-US"], ["Spanish", "es-MX"]]),
+                   html: {class: "long-select"},
+                   default: "en-US" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :time_zone, class: "field-title" %>
+      <%= f.time_zone_select :time_zone, ActiveSupport::TimeZone.all,
+                             html: {class: "long-select"},
+                             default: "Central Time (US & Canada)" %>
+    </div>
+
+    <div class="page-header-small">
+      <br><br>
+      <h1>Units</h1>
+    </div>
+
+    <div class="field">
+      <%= label_tag "Length Outer", "Length Outer", class: "field-title" %>
+      <%= select_tag "length_outer", options_for_select(DynamicField.new.get_unit_options_full(DynamicField::LENGTH_FT)),
+                     html: {class: "long-select"},
+                     default: "english" %>
+    </div>
+
+    <div class="field">
+      <%= label_tag "Length Inner", "Length Inner", class: "field-title" %>
+      <%= select_tag "length_inner", options_for_select(DynamicField.new.get_unit_options_full(DynamicField::LENGTH_IN)),
+                     html: {class: "long-select"},
+                     default: "english" %>
+    </div>
+
+    <div class="field">
+      <%= label_tag "Temperature", "Temperature", class: "field-title" %>
+      <%= select_tag "temperature", options_for_select(DynamicField.new.get_unit_options_full(DynamicField::TEMPERATURE_F)),
+                     html: {class: "long-select"},
+                     default: "english" %>
+    </div>
+
+    <div class="field">
+      <%= label_tag "Pressure", "Pressure", class: "field-title" %>
+      <%= select_tag "pressure", options_for_select(DynamicField.new.get_unit_options_full(DynamicField::PRESSURE_PSI)),
+                     html: {class: "long-select"},
+                     default: "english" %>
+    </div>
+
+    <div class="field">
+      <%= label_tag "Rate", "Rate", class: "field-title" %>
+      <%= select_tag "rate", options_for_select(DynamicField.new.get_unit_options_full(DynamicField::RATE_BBLS)),
+                     html: {class: "long-select"},
+                     default: "english" %>
+    </div>
+
+    <div class="field">
+      <%= label_tag "Volume", "Volume", class: "field-title" %>
+      <%= select_tag "volume", options_for_select(DynamicField.new.get_unit_options_full(DynamicField::VOLUME_BBLS)),
+                     html: {class: "long-select"},
+                     default: "english" %>
+    </div>
+
+    <div class="field">
+      <%= label_tag "Area", "Area", class: "field-title" %>
+      <%= select_tag "area", options_for_select(DynamicField.new.get_unit_options_full(DynamicField::AREA_IN2)),
+                     html: {class: "long-select"},
+                     default: "english" %>
+    </div>
+
+    <br><br>
+
+    <%= f.submit "Save Settings", class: "bluebtn pull-right" %>
+
+    <%= f.button "Cancel", class: "bluebtn gray pull-right push-left-small" %>
+
+<% end %>

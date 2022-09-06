@@ -1,0 +1,54 @@
+<% if user.present? %>
+    <% names = user.present? ? user.name.split : [] %>
+    <!--<% if use_link %>
+        <%= link_to user, class: 'activity-user-link no-underline tooltip-info align-top push-up',
+                    target: "_blank",
+                    "data-placement" => "bottom",
+                    "data-html" => true,
+                    "data-title" => "<div class='activity-tooltip'><h2 class='white-text'>" +
+                            user.name + "</h2><h2>" +
+                            user.title.to_s + "</h2><p>" +
+                            (user.district.present? ? user.district.name : "-") + "</p></div>" do %>
+            <div style="height: 30px; pointer-events: none;">
+              <div class="member-icon align-top member-icon-day" style="background: #<%= user.present? ? user.color : '' %>;">
+                <p>
+                  <% if names.any? %>
+                      <%= names.count > 1 ? names.first[0, 1] + names.last[0, 1] : names.first[0, 1] %>
+                  <% else %>
+                      -
+                  <% end %>
+                </p>
+              </div>
+
+              <% if use_name %>
+                  <div class='inline-block align-top push-down-small' style='text-wrap: none; text-overflow: ellipsis; white-space: nowrap; overflow-y: hidden; max-width: 160px;'>
+                    <b><%= user.name %></b>
+                  </div>
+              <% end %>
+            </div>
+        <% end %>
+    <% else %>
+        <div class="member-icon align-top" style="background: #<%= user.present? ? user.color : '' %>;">
+          <p>
+            <% if names.any? %>
+                <%= names.count > 1 ? names.first[0, 1] + names.last[0, 1] : names.first[0, 1] %>
+            <% else %>
+                -
+            <% end %>
+          </p>
+        </div>
+        <% if use_name %>
+            <b><%= user.name %></b>
+        <% end %>
+    <% end %>-->
+
+    <div class="<%= table_cell ? 'inline-block title' : 'member-icon align-top' %>" style="<%= table_cell ? 'width: 7%' : '' %>">
+      <p>
+        <% if names.any? %>
+            <%= names.count > 1 ? names.first[0, 1] + names.last[0, 1] : names.first[0, 1] %>
+        <% else %>
+            -
+        <% end %>
+      </p>
+    </div>
+<% end %>

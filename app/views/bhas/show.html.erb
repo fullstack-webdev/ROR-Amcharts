@@ -1,0 +1,50 @@
+<% provide(:title, @document.name) %>
+
+<div class="page_header">
+  <h1 id="part_name"><%= @document.name %></h1>
+
+  <h3 class="inline">&nbsp;BHAs</h3>
+
+  <div class="push-right btn-group inline pull-right push-down">
+    <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+      Export
+    </a>
+    <ul class="dropdown-menu">
+      <li>
+        <%= link_to "Export as Excel", document_path(@document, format: "xlsx"),
+                    target: "_blank",
+                    class: "dropdown-menu-link tooltip-info submit-form",
+                    "data-placement" => "left",
+                    "data-title" => "Export log as Microsoft Excel file." %>
+      </li>
+    </ul>
+  </div>
+
+  <div class='pull-right'>
+    <%= render 'jobs/job_multi_link', job: @document.job %>
+  </div>
+
+</div>
+
+<br>
+
+<%= render "bhas/bha_header", job: @job, bhas: @bhas %>
+
+
+<div id="bha">
+
+  <% if @bhas.any? %>
+      <%= render "bhas/bha_tally", bha: @bha %>
+  <% end %>
+
+  <div id="bha_loader" class="push-down center hidden inline">
+    <br><br>
+
+    <div class="">
+      <span class="ajax-loading search-loading"><b>Loading..</b></span>
+    </div>
+  </div>
+
+</div>
+
+

@@ -1,0 +1,2 @@
+module CompanyFeatureHelper
+end

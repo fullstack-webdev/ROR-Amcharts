@@ -1,0 +1,31 @@
+$('#warning_detail_popup').html('<%= j render 'event_warnings/warning_detail', warning: @warning %>');
+$('#warning_detail_popup').css('visibility', 'visible');
+
+var height = ($(window).height() - 150).toString() + 'px';
+$('#warning_detail_popup .modal-popup').css('max-height', height);
+
+$('#add_annotation_comment_button').click(function(){
+    var comment = $('#annotation_comment').val();
+    if(comment.length > 0) {
+        $.ajax('/jobs/<%= @warning.job.id %>/create_annotation_comment', {
+            type: 'post',
+            dataType: 'script',
+            data: {
+                warning_id: <%= @warning.id %>,
+                comment: comment
+            }
+        });
+    }
+    return false;
+});
+
+$('#annotation_comment').focus(function() {
+    $('#new_annoation_comment_div').css('opacity', '1.0');
+});
+
+
+$('#annotation_comment').focusout(function() {
+    if($('#new_annoation_comment_div').val().length <= 0) {
+        $('#new_annoation_comment_div').css('opacity', '0.5');
+    }
+});

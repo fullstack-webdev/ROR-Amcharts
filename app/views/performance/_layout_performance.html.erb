@@ -1,0 +1,19 @@
+<% provide(:title, I18n.t("performance.index.title")) %>
+
+<% tabs = {'programs' => performance_programs_path, 'rigs' => performance_rigs_path, 'wells' => performance_wells_path, 'custom_queries' => performance_custom_queries_path} %>
+
+<div style='height: 52px;'>
+  <div style='position: absolute; left: 0; width: 100%; height: 52px; top: 54px; border-left: 11px solid #58c9c2; box-sizing: border-box;'>
+    <ul class="nav nav-pills alert alert-nav alert-nav-shrink parent-tray-nav" style='border-radius: 0px; border-width: 0px;'>
+      <% tabs.each do |key, path| %>
+        <li class="<%= key == @active_tab ? 'active' : '' %>">
+          <%= link_to key.titleize, path, class: 'custom-data-toggle' %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<div class="block">
+  <%= yield %>
+</div>

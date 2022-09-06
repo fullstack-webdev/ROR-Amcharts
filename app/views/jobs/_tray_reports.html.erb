@@ -1,0 +1,94 @@
+<div class="remote-tray" data-tray="reports">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading reports..." %>
+  </div>
+
+  <div class='' style="height: 48px;">
+    <div class="sub-nav">
+      <!--<div style='margin-left: 20px; margin-top: 8px;'>-->
+        <% jobs = @job.well.jobs.where(:shared => true) %>
+        <!--<div class='' style='margin-top: -2px;'>-->
+          <ul class="nav nav-tabs">
+            <li class='active'>
+              <%= link_to "Reports", "#", class: "job-tab job-sub-tab", id: "show_reports_list" %>
+            </li>
+            <li class='push-right-small'>
+              <%= link_to "Daily", "#", class: "job-tab job-sub-tab", id: "show_daily" %>
+            </li>
+            <li class='push-right-small'>
+              <%= link_to "Timesheet", "#", class: "job-tab job-sub-tab", id: "show_timesheet" %>
+            </li>
+          </ul>
+        <!--</div>-->
+      <!--</div>-->
+    </div>
+  </div>
+
+  <div class='tray-content content-loaded'>
+
+    <%= render 'jobs/reports_list' %>
+
+    <div id="daily" class='hidden' data-loaded="false">
+      <div class="push-down center inline">
+        <br>
+        <div class="" style="margin-top: 30px;">
+          <span class="ajax-loading search-loading"><b>Loading Daily..</b></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="timesheet" class='hidden' data-loaded="false">
+      <div class="push-down center inline">
+        <br>
+        <div class="" style="margin-top: 30px;">
+          <span class="ajax-loading search-loading"><b>Loading Timesheet..</b></span>
+        </div>
+      </div>
+    </div>
+
+    <script type='text/javascript'>
+        $('#show_daily').click(function () {
+            $('.job-sub-tab').each(function() { $(this).parent().removeClass('active');  });
+            $(this).parent().addClass('active');
+            $('#reports_list').addClass('hidden');
+            $('#timesheet').addClass('hidden');
+            $('#daily').removeClass('hidden');
+            if ($('#daily').attr('data-loaded') == 'false') {
+                window.auid++;
+                $.ajax("/jobs/<%= @job.id %>?section=daily" + "&auid=" + window.auid, {
+                    type: 'get',
+                    dataType: 'script'
+                });
+            }
+            return false;
+        });
+        $('#show_reports_list').click(function () {
+            $('.job-sub-tab').each(function() { $(this).parent().removeClass('active');  });
+            $(this).parent().addClass('active');
+            $('#reports_list').removeClass('hidden');
+            $('#daily').addClass('hidden');
+            $('#timesheet').addClass('hidden');
+            return false;
+        });
+        $('#show_timesheet').click(function () {
+            $('.job-sub-tab').each(function() { $(this).parent().removeClass('active');  });
+            $(this).parent().addClass('active');
+            $('#reports_list').addClass('hidden');
+            $('#daily').addClass('hidden');
+            $('#timesheet').removeClass('hidden');
+            if ($('#timesheet').attr('data-loaded') == 'false') {
+                window.auid++;
+                $.ajax("/jobs/<%= @job.id %>?section=timesheet" + "&auid=" + window.auid, {
+                    type: 'get',
+                    dataType: 'script'
+                });
+            }
+            return false;
+        });
+    </script>
+
+
+  </div>
+</div>

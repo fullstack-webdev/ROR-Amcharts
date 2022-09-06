@@ -1,0 +1,177 @@
+<% provide(:title, "Overview") %>
+
+<div style='height: 20px;'>
+  <div style='position: absolute; left: 0; width: 100%; height: 52px; top: 52px;'>
+    <ul class="nav nav-pills alert alert-nav" style='border-radius: 0px; border-width: 0px;'>
+
+      <li class="active">
+        <a href="#jobs" class="job-tray-toggle custom-data-toggle tooltip-info"
+           data-tray="jobs"
+           data-placement="bottom" data-title="Jobs overview">Jobs In-Progress
+        </a>
+      </li>
+
+      <li class="push-right-small">
+        <a href="#company" class="job-tray-toggle custom-data-toggle tooltip-info"
+           data-tray="company"
+           data-placement="bottom" data-title="Company general overview">Company
+        </a>
+      </li>
+
+      <li class="">
+        <a href="#rigs" id="custom_data_toggle" class="job-tray-toggle custom-data-toggle tooltip-info"
+           data-tray="rigs"
+           data-placement="bottom" data-title="Rigs Overview">Rigs</a>
+      </li>
+
+      <li class="">
+        <a href="#drilling" id="custom_data_toggle" class="job-tray-toggle custom-data-toggle tooltip-info"
+           data-tray="drilling"
+           data-placement="bottom" data-title="Drilling Overview">Drilling</a>
+      </li>
+
+      <li class="push-right-small">
+        <a href="#overview_npt" id="job_tools_toggle" class="job-tray-toggle custom-data-toggle tooltip-info"
+           data-tray="overview_npt"
+           data-placement="bottom" data-title="NPT overview">NPT</a>
+      </li>
+
+    </ul>
+  </div>
+</div>
+
+
+<%= render 'overview/filter' %>
+<hr>
+
+<br>
+
+<div id="overview_loading" class="loading center hidden">
+  <br>
+  <br>
+  <span class="ajax-loading search-loading  center"><b>Loading...</b></span>
+  <br>
+</div>
+
+<div id="overview_trays">
+
+  <div class="job-tray custom-data-closed" data-tray="company">
+    <div id="overview_company">
+      <br><br>
+
+      <div class="center">
+        <br><br>
+        <span class="ajax-loading search-loading"><b>Loading Company Overview...</b></span>
+        <br>
+      </div>
+    </div>
+  </div>
+
+  <div class="job-tray custom-data-closed" data-tray="rigs">
+    <div id="overview_rigs">
+      <br><br>
+
+      <div class="center">
+        <br><br>
+        <span class="ajax-loading search-loading"><b>Loading Rigs Overview...</b></span>
+        <br>
+      </div>
+    </div>
+  </div>
+
+  <div class="job-tray custom-data-closed" data-tray="drilling">
+    <div id="overview_drilling">
+      <br><br>
+
+      <div class="center">
+        <br><br>
+        <span class="ajax-loading search-loading"><b>Loading Drilling Overview...</b></span>
+        <br>
+      </div>
+    </div>
+  </div>
+
+  <div class="job-tray custom-data-closed" data-tray="failures">
+    <div id="overview_failures">
+      <br><br>
+
+      <div class="center">
+        <br><br>
+        <span class="ajax-loading search-loading"><b>Loading Failures Overview...</b></span>
+        <br>
+      </div>
+    </div>
+  </div>
+
+  <div class="job-tray custom-data-closed" data-tray="insight">
+    <div id="overview_insight">
+      <br><br>
+
+      <div class="center">
+        <br><br>
+        <span class="ajax-loading search-loading"><b>Loading Insight Overview...</b></span>
+        <br>
+      </div>
+    </div>
+  </div>
+
+  <div class="job-tray custom-data-closed" data-tray="overview_npt">
+    <div id="overview_npt">
+      <br><br>
+
+      <div class="center">
+        <br><br>
+        <span class="ajax-loading search-loading"><b>Loading NPT...</b></span>
+        <br>
+      </div>
+    </div>
+  </div>
+
+  <div class="job-tray" data-tray="jobs">
+    <div id="overview_jobs">
+      <br><br>
+
+      <div class="center">
+        <br><br>
+        <span class="ajax-loading search-loading"><b>Loading Jobs Overview...</b></span>
+        <br>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+
+    (function ($) {
+        $(document).ready(function () {
+
+            if (document.location.hash == '') {
+                tray = $(".job-tray[data-tray='jobs']");
+                tray.find('.content').hide();
+                tray.find('.remote-loading').removeClass('hidden');
+                tray.find('.loading').removeClass('hidden');
+                setTimeout(function () {
+                    window.auid++;
+                    $.ajax({
+                        url: "/overview?section=jobs" + "&auid=" + window.auid,
+                        type: "GET",
+                        dataType: "script"
+                    });
+                }, 1);
+            }
+
+
+            $('#person_filter').data("autocomplete")._renderItem = function (ul, item) {
+                return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                        "<a>" + (item.id > 0 ? "<div><img src='/assets/user_avatar_extrasmall.png' class='job-member-avatar pull-left'></div>" : "") + "<div class='job-user'><strong>" + item.value + " </strong>" + (item.id > 0 ? "<div><p class='job-user-title'>" + item.position_title + "</p><p class='job-user-district'>" + item.district + "</p></div>" : "") + "</div></a>").appendTo(ul)
+            }
+
+            $('#district_filter').data("autocomplete")._renderItem = function (ul, item) {
+                return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                        "<a>" + (item.id > 0 ? "<div><img src='/assets/district_extrasmall.png' class='job-member-avatar pull-left'></div>" : "") + "<div><div class='job-user'><strong>" + item.value + " </strong>" + (item.id > 0 ? "<div><p class='job-user-title'>" + item.country + ", " + item.state + "  " + item.city + "</p><p class='job-user-district'>" + item.region + "</p></div>" : "") + "</div></div></a>").appendTo(ul)
+            }
+
+        });
+    }(jQuery));
+</script>

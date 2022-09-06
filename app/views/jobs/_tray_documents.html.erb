@@ -1,0 +1,39 @@
+<div class="remote-tray" data-tray="documents">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading documents..." %>
+  </div>
+
+  <div class=' tray-content content-loaded'>
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Documents &amp; Files</h1>
+
+      <div id="multiuploader" class="inline-block align-top push-right-small" style="height: 34px;">
+        <%= s3_uploader_form post: "/documents/", as: "document[url]", class: "inline" do %>
+            <div class="upload-button-div inline-block">
+              <%= file_field_tag :file, multiple: true,
+                                 "data-job" => job.id.to_s,
+                                 class: "file-input inline-block",
+                                 id: "multifileupload",
+                                 style: "width: 142px; height: 34px;" %>
+              <%= link_to "#", class: "btn btn btn-primary white-text" do %>
+                  <i class="icon-upload icon-white"></i>
+                  <span>Upload File(s)</span>
+              <% end %>
+            </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="" id="documents">
+      <% job.documents_only.order("documents.name ASC").each do |d| %>
+          <%= render 'documents/document', document: d, in_job: true %>
+      <% end %>
+    </div>
+
+
+  </div>
+</div>
+

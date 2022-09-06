@@ -1,0 +1,24 @@
+<html>
+<link rel="stylesheet" type="text/css" href="/app/assets/stylesheets/application.css.scss"/>
+<body class="email-body">
+
+<h1>Post-Job Complete</h1>
+<p class="center">Job is ready to close</p>
+
+<hr>
+
+<p>Please <%= link_to @job.absolute_url, class: "activity-user-link" do %>Click here
+  <% end %> to review the Post-Job documents and make sure they are correct. Then, close the job.</p>
+
+<br><br>
+<%= link_to @job.absolute_url, class: "job-email-link" do %>
+    <%= render 'jobs/job_data_email', job: @job %>
+<% end %>
+
+<% if Rails.env.production? %>
+    <br><br><br><br>
+    <div class="center"><%= image_tag "corva-logo.png" %></div>
+<% end %>
+
+</body>
+</html>

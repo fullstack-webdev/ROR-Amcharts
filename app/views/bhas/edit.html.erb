@@ -1,0 +1,83 @@
+<% provide(:title, "Edit BHA") %>
+
+<div class="section-header">
+  <h1 id="part_name">Update Bottom Hole Assembly</h1>
+
+  <% df = DynamicField.new %>
+  <% df.value_type = DynamicField::LENGTH_IN %>
+  <div class='pull-right'>
+    <b class=''>Units</b>
+    <%= select_tag "Units",
+                   options_for_select(df.unit_options, df.value_type),
+                   class: " bha-units unit-tooltip custom-select-ajax", "data-placement" => "bottom",
+                   "data-html" => false, "data-title" => "Units, click to change" %>
+  </div>
+</div>
+
+
+<div class="form" data-form="new_bha">
+  <%= form_for @bha do |f| %>
+
+      <%= render 'shared/error_messages', object: f.object %>
+
+      <%= render 'bhas/fields', f: f %>
+      <hr>
+
+      <div class="" id="list">
+        <% @bha.bha_items.each do |bha_item| %>
+            <% if bha_item.tool.present? %>
+                <%= render 'bhas/bha_tool', bha_item: bha_item, tool: bha_item.tool, job: @job %>
+            <% end %>
+        <% end %>
+      </div>
+
+      <div class="form" id="add_tool" data-form="add_tool">
+        <% serial = '' %>
+        <% options = [] %>
+        <% # Includes only jobs with BHA  %>
+
+        <%= select_tag "Add Tool", options_for_select(options),
+                       id: "bha_tool_options",
+                       class: "inline-block custom-select custom-select-long tooltip-info",
+                       "data-form" => "add_tool",
+                       "data-placement" => "bottom",
+                       "data-title" => "Add tool to BHA",
+                       prompt: "Select asset to add..." %>
+
+        &nbsp;
+        <%= link_to  "#", id: "add_new_bha_item",
+                     "data-job" => @job.id.to_s,
+                     class: "btn btn-primary white-text align-top" do %>
+            <i class="icon-plus-sign icon-white"></i>
+            <span>Add Assets</span>
+        <% end %>
+      </div>
+      <div id="add_tool_loader" class="hidden" data-form="add_tool">
+        <span class="ajax-loading search-loading"><b>Adding Tool...</b></span>
+      </div>
+
+      <hr>
+
+      <%= f.submit "Save BHA", class: "btn btn-success pull-right push-right-small form-loading-on-click",
+                   "data-form" => "new_bha" %>
+
+      <%= link_to "Cancel", request.referer + '#bha', class: "btn btn-default pull-right" %>
+
+
+      <br><br>
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="new_bha">
+  <%= render 'layouts/inline_loading', title: "Updating Bottom Hole Assembly..." %>
+</div>
+
+
+<script type="text/javascript">
+    $('.custom-select-ajax').each(function () {
+        if (!$(this).hasClass('custom-select-added')) {
+            $(this).addClass('custom-select-added');
+            $(this).customSelect();
+        }
+    });
+</script>

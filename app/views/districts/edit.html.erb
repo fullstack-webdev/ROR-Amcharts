@@ -1,0 +1,36 @@
+<div class="page_header">
+  <h1>Update District</h1>
+
+  <div class="btn-group inline pull-right">
+    <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+      Advanced Actions
+    </a>
+    <ul class="dropdown-menu">
+
+      <li>
+        <%= link_to "Delete District", @district, method: :delete,
+                    data: {confirm: "Delete district " + @district.name + "?"},
+                    class: "dropdown-menu-link tooltip-info",
+                    "data-placement" => "left",
+                    "data-title" => "Permanently delete district. Warning, the can't be undone. This will cause any user associated with this district to may not work properly." %>
+      </li>
+
+
+    </ul>
+  </div>
+</div>
+
+
+<div class="form">
+<%= form_for @district do |f| %>
+
+    <%= render "fields", f: f %>
+
+    <div class="actions">
+      <%= f.submit "Save district", class: "bluebtn pull-right tooltip-info form-loading-on-click",
+                   "data-title" => "Save district and return to all districts"%>
+    </div>
+<% end %>
+</div>
+
+<%= render "layouts/inline_loading", title: "Saving district, please wait" %>

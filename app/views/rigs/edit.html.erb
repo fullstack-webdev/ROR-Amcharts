@@ -1,0 +1,30 @@
+<% provide(:title, "Edit Rig") %>
+
+<div class="section-header" style="margin-top: 10px;">
+  <h1>Edit Rig</h1>
+</div>
+
+
+<div class="form" data-form="edit-rig-form">
+  <%= form_for(@rig) do |f| %>
+    <%= render 'fields', f: f %>
+    <%= link_to button_tag("Cancel", class: "btn btn-sub push-left-small tooltip-info", "data-title" => "Cancel edit and go back", :type => 'button'), rig_path(@rig) %>
+    <%= f.submit "Save", class: "btn btn-primary tooltip-info form-loading-on-click",
+                 "data-form" => "edit-rig-form",
+                 "data-title" => "Update rig. You edit/add more rig information on next page." %>
+  <% end %>
+</div>
+
+<!--<div class="form-loading hidden" data-form="new-job-form">-->
+<!--<%= render "layouts/inline_loading", title: "Creating well, please wait" %>-->
+<!--</div>-->
+
+
+<!--<div id="modal_popup" class="modal-popup-background">-->
+<!--<div class="modal-popup modal-popup-fixed">-->
+<!--<%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal" %>-->
+<!--<div class="modal-content">-->
+<!--</div>-->
+<!--<%= render "layouts/inline_loading", title: "Loading..." %>-->
+<!--</div>-->
+<!--</div>-->

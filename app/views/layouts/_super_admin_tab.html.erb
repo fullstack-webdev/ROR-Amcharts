@@ -1,0 +1,7 @@
+<%= tabs_tag :builder => ApplicationHelper::MenuTabBuilder, open_tabs: {class: "admin_tab"} do |tab| %>
+    <%= tab.admin 'Overview', "/admin/company/#{@company.id}" %>
+    <%= tab.admin_users 'Users', "/admin/company/#{@company.id}/users" %>
+    <%= tab.csv_import 'Import', "/admin/company/#{@company.id}/import" %>
+    <%= tab.warnings 'Warnings', "/admin/company/#{@company.id}/warnings" %>
+    <%= tab.company 'Settings', "/admin/company/#{@company.id}/settings" %>
+<% end %>

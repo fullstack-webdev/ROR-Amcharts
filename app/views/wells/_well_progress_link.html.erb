@@ -1,0 +1,7 @@
+<%= link_to job, class: "job-status job-link job-link2 tooltip-info",
+            "data-status" => job.status,
+            "data-member" => job.user_is_member?(current_user),
+            "data-placement" => "left",
+            "data-title" => "Click to open job" do %>
+    <%= render 'wells/well_progress', job: job, show_summary_data: true, job_name: false %>
+<% end %>

@@ -1,0 +1,15 @@
+<div class='field'>
+  <div class="push-right-small">
+    <p class="help-text list-item-column">
+      <b class='blue-text'><%= entry.entry_at.strftime("%l:%M %p") %></b>
+    </p>
+
+    <p class="list-item-column3 long-column-text">
+      <b><%= entry.comment %></b>
+    </p>
+
+    <p class="help-text pull-right push-down-small">
+      <%= render "activities/user", user: entry.user %>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+
+ *= require token-input-facebook
+ *= require select2
+ *= require bootstrap-datepicker
+ *= require jquery.jqplot.min
+ *= require bootstrap-timepicker
+ *= require toastr
+ *= require jquery-ui-slider-pips
+ *= require font-awesome
+ *= require bootstrap-datetimepicker.min
+ *= require jquery.powertip
+ *= require bigvideo
+ *= require video-js.min
+ *= require s3_direct_upload_progress_bars
+ *= require addtohomescreen
+ */
+
+@import "variables";
+@import "admin";
+@import "analysis";
+@import "controls";
+@import "csv_import";
+@import "custom";
+@import "drillview";
+@import "events_warnings";
+@import "fonts";
+@import "forms";
+@import "job_membership";
+@import "jobs";
+@import "non_signed_in";
+@import "overview";
+@import "performance";
+@import "programs";
+@import "rig/style";
+@import "rigs";
+@import "system";
+@import "warnings";
+@import "wells";
+@import "scaffolds";
+@import "surveys";

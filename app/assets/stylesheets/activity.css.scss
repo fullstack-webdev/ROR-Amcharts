@@ -1,0 +1,286 @@
+.activity {
+  font-size: 21px;
+
+  margin: 20px;
+  padding: 0px;
+
+  border-style: dashed;
+  border-width: 0px 0px 1px 0px;
+  border-color: #ebebeb;
+}
+
+.activity-content {
+  width: 650px;
+  text-align: left;
+  min-height: 100px;
+  display: inline-block;
+  font-size: 13px;
+
+  a {
+    font-size: 13px;
+
+    &:active, &:link, &:visited {
+      color: #0058a8;
+      background: transparent;
+      text-decoration: none;
+    }
+    &:hover {
+      color: #0058a8;
+      background: transparent;
+      text-decoration: underline;
+    }
+  }
+}
+
+.activity-content2 {
+  width: 750px;
+  text-align: left;
+  min-height: 100px;
+  display: inline-block;
+  font-size: 13px;
+
+}
+
+.activity-avatar-box-small {
+  min-width: 100px;
+  min-height: 100px;
+  float: left;
+  margin-left: -10px;
+  margin-top: -10px;
+}
+
+.note-avatar-box-small {
+  min-width: 100px;
+  min-height: 100px;
+  float: left;
+}
+
+.activity-user-link {
+  display: inline-block;
+  margin-right: 0px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: bold;
+
+  &:active, &:link, &:visited {
+    color: #58c9c2;
+    background: transparent;
+    text-decoration: none;
+  }
+  &:hover {
+    color: #58c9c2;
+    background: transparent;
+    text-decoration: underline;
+  }
+}
+
+.no-underline {
+  &:active, &:link, &:visited {
+    text-decoration: none;
+  }
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.activity-link {
+  display: inline-block;
+  margin-right: 0px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: bold;
+
+  &:active, &:link, &:visited {
+    color: #a3a3a3;
+    background: transparent;
+    text-decoration: none;
+  }
+  &:hover {
+    color: #454545;
+    background: transparent;
+    text-decoration: underline;
+  }
+}
+
+.underline-link {
+  display: inline-block;
+  margin-right: 0px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: bold;
+
+  &:active, &:link, &:visited {
+    color: #1dbbfd;
+    background: transparent;
+    text-decoration: underline;
+  }
+  &:hover {
+    color: #166485;
+    background: transparent;
+    text-decoration: underline;
+  }
+}
+
+.no-bottom-margin {
+  margin-bottom: 0px;
+}
+
+.activity-user-link-div-short {
+  display: inline-block;
+  min-width: 200px;
+}
+
+.activity-user-link-div {
+  display: inline-block;
+  min-width: 300px;
+}
+
+.activity-date {
+  display: inline-block;
+  margin-right: 10px;
+  margin-top: 8px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-style: italic;
+  color: #737373;
+
+}
+
+.activity-message {
+  display: inline-block;
+  margin-right: 0px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #555555;
+  max-width: 600px;
+
+  p {
+    font-size: 13px;
+  }
+}
+
+.activity-message-content {
+  font-size: 14px;
+  font-family: "gothammediumregular";
+}
+
+.activity-note {
+  font-size: 13px;
+  font-weight: bold;
+  max-width: 600px;
+}
+
+.activity-document-name {
+  margin-top: 10px;
+
+}
+
+.activity-text {
+  display: inline;
+  font-weight: normal;
+  font-size: 12px;
+}
+
+.activity-user-link-hover {
+  display: none;
+
+  h2 {
+    font-size: 14px;
+    font-weight: bold;
+    color: #0058a8;
+    text-align: left;
+    margin: 0px;
+    padding: 0px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+}
+
+.activity-user-link:hover + .activity-user-link-hover {
+  width: 200px;
+  height: 45px;
+  margin-left: -20px;
+  margin-top: -5px;
+  padding: 5px;
+  padding-left: 20px;
+  background: #deebf7;
+  box-shadow: 4px 4px 5px #888;;
+  display: block;
+  position: absolute;
+}
+
+.light-text {
+  font-weight: normal !important;
+  color: #0058a8 !important;
+  opacity: 1;
+}
+
+.activity-tooltip {
+
+  padding: 8px;
+
+  h2 {
+    color: #FFFFFF;
+    font-size: 14px;
+    line-height: 14px;
+    height: auto;
+    display: block;
+    text-shadow: 1px 1px 2px #000000;
+    margin: 0px;
+    margin-bottom: 8px;
+    opacity: 1.0;
+  }
+
+  p {
+    color: #64a2da;
+    font-size: 13px;
+    line-height: 13px;
+    height: auto;
+    font-weight: normal;
+    display: block;
+    margin: 0px;
+  }
+}
+
+.well-tooltip {
+
+  padding: 8px;
+
+  text-align: left;
+
+  hr {
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+
+  h2 {
+    color: #FFFFFF;
+    font-size: 14px;
+    line-height: 14px;
+    height: auto;
+    font-weight: bold;
+    display: block;
+    margin: 0px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    opacity: 1.0;
+  }
+
+  p {
+    color: #FFFFFF;
+    font-size: 13px;
+    line-height: 13px;
+    height: auto;
+    font-weight: normal;
+    display: block;
+    margin: 0px;
+    margin-top: 5px;
+
+  }
+
+  h3 {
+    font-size: 10px;
+    color: #FFFFFF;
+    font-weight: normal;
+  }
+}

@@ -1,0 +1,21 @@
+<div class="page_header">
+  <h1>New <%= @master ? "Master" : "" %> District</h1>
+</div>
+
+<div class="form">
+  <%= form_for @district do |f| %>
+
+      <%= f.hidden_field :master, value: @master %>
+      <%= f.hidden_field :master_district_id, value: @master_district_id %>
+      <%= render "fields", f: f %>
+
+      <div class=" actions">
+        <%= f.submit "Create district", class: "bluebtn pull-right tooltip-info form-loading-on-click",
+                     "data-title" => "Save new district" %>
+      </div>
+
+  <% end %>
+</div>
+
+<%= render "layouts/inline_loading", title: "Creating district, please wait" %>
+

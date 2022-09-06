@@ -1,0 +1,78 @@
+<%= render 'shared/error_messages', object: f.object %>
+
+<div class="content">
+
+  <div>
+
+    <% if show_name %>
+        <div class="">
+          <b>Well Plan Name</b><br><br>
+          <%= f.text_field :name, placeholder: "Well Plan Name", class: "txtfield tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Well name" %>
+        </div>
+    <% end %>
+
+    <br>
+
+    <div class="">
+      <div>
+        <b>Tie-In Point</b>
+
+        <div class="inline-block align-top push-right">
+          <%= check_box_tag "import_tie_on", @import_tie_on, {},
+                            class: "regular-checkbox", id: "import_tie_on" %>
+          <label for="import_tie_on"></label>
+
+          <p class="checkbox-label">Import Tie-In from Well Points</p>
+        </div>
+      </div>
+
+      <div class="hidden well" id="tie_on_fields">
+        <div>
+          <%= text_field_tag "tie_on_md", "", placeholder: "Measured Depth", class: "txtfield small tooltip-info",
+                             "data-placement" => "bottom",
+                             "data-title" => "Measured Depth" %>
+          <%= text_field_tag "tie_on_i", "", placeholder: "Inclination", class: "txtfield small tooltip-info",
+                             "data-placement" => "bottom",
+                             "data-title" => "Inclination" %>
+          <%= text_field_tag "tie_on_a", "", placeholder: "Azimuth", class: "txtfield small tooltip-info",
+                             "data-placement" => "bottom",
+                             "data-title" => "Azimuth" %>
+        </div>
+        <div>
+          <%= text_field_tag "tie_on_tvd", "", placeholder: "True Vertical Depth", class: "txtfield small tooltip-info",
+                             "data-placement" => "bottom",
+                             "data-title" => "True Vertical Depth" %>
+          <%= text_field_tag "tie_on_ns", "", placeholder: "North/South", class: "txtfield small tooltip-info",
+                             "data-placement" => "bottom",
+                             "data-title" => "North/South" %>
+          <%= text_field_tag "tie_on_ew", "", placeholder: "East/West", class: "txtfield small tooltip-info",
+                             "data-placement" => "bottom",
+                             "data-title" => "East/West" %>
+        </div>
+      </div>
+
+    </div>
+
+    <div>
+      <%= f.select :north_type,
+                     options_for_select([["True North", Survey::TRUE], ["Magnetic North", Survey::MAGNETIC], ["Grid North", Survey::GRID]], @survey.north_type),
+                     {},
+                     class: "custom-select align-top push-down",
+                     placeholder: "North Type" %>
+    </div>
+
+    <br>
+
+    <div class="">
+      <b>Well Plan Points</b><br><br>
+      <%= text_area_tag "points", @survey_points,
+                        placeholder: "Well Plan Points",
+                        class: "txtfield new-message-body tooltip-info",
+                        "data-placement" => "bottom",
+                        "data-title" => "Well Plan Points" %>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,49 @@
+<div class="login">
+
+  <%= image_tag "corva-logo-big.png", class: "logo" %>
+
+  <p style='color: #c8e6d1;  font-size: 25px; font-family: orgonlightregular; margin-bottom: 80px;'>
+    Drilling Intelligence
+  </p>
+
+  <div class="form" data-form="login" style=''>
+
+    <%= form_for(:session, url: sessions_path, autocomplete: "on") do |f| %>
+
+      <%= f.text_field :email, placeholder: "Email",
+                       value: params[:email],
+                       class: "input-controls tooltip-info",
+                       "data-placement" => "bottom",
+                       "data-title" => "Email address" %>
+
+      <%= f.password_field :password, placeholder: "Password",
+                           class: "input-controls tooltip-info",
+                           "data-placement" => "bottom",
+                           "data-title" => "Password" %>
+
+      <div class="" style='width: 400px; margin-left: auto; margin-right: auto; text-align: center;'>
+
+        <%= link_to "Need help logging in?", reset_password_path,
+                    class: "need-help" %>
+
+        <%= f.submit "LOG IN", class: "btn-login form-loading-on-click",
+                     "data-form" => "login" %>
+      </div>
+
+      <% flash.each do |key, value| %>
+
+        <div class="">
+          <%= image_tag "error_red.png", style: "vertical-align: middle" %>
+          <b style='line-height: 25px; font-size: 15px;'><%= value %></b>
+        </div>
+
+      <% end %>
+
+    <% end %>
+  </div>
+
+  <div class="form-loading hidden" data-form="login">
+    <%= render 'layouts/inline_loading', title: "Signing In..." %>
+  </div>
+
+</div>

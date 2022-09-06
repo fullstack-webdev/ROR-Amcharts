@@ -1,0 +1,16 @@
+$('#add_tool').removeClass('hidden');
+$('#add_tool_loader').addClass('hidden');
+
+
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding Tool", message: "There was a problem adding that tool to the BHA." %>");
+$('#alert').modal({show:true});
+
+
+$('.custom-select-ajax').each( function() {
+    if(!$(this).hasClass('custom-select-added')) {
+        $(this).addClass('custom-select-added');
+        $(this).customSelect();
+    }
+});

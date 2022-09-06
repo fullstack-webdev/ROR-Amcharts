@@ -1,0 +1,52 @@
+<div class="" style="margin-top: 10px;">
+  <div class="chart-title align-top" style='height: auto; width: auto; margin-right: 20px; margin-top: 5px;'>Team</div>
+
+  <div class="job-members-div">
+    <div class="member-short-list">
+
+      <div class="inline-block" id="job_members_list_short">
+        <% job.job_memberships.includes(user: :district).each do |jm| %>
+            <% if jm.shift_type == 0 && jm.job_role_id != 6 %>
+                <%= render 'job_memberships/icon', job_membership: jm %>
+            <% end %>
+        <% end %>
+        <% job.job_memberships.reorder('').includes(user: :district).order("shift_type ASC").each do |jm| %>
+            <% if jm.shift_type > 0 && jm.job_role_id != 6 %>
+                <%= render 'job_memberships/icon', job_membership: jm %>
+            <% end %>
+        <% end %>
+      </div>
+
+      <% if false %>
+          <div class="inline-block push-right-small">
+            <%= link_to "Add", "#",
+                        class: "inline-block add-job-member tooltip-info",
+                        id: "add_job_member",
+                        "data-placement" => "bottom",
+                        "data-title" => "Add new project member" %>
+          </div>
+      <% end %>
+
+      <div class='inline-block push-right-small align-top'>
+        <%= link_to "#", class: "activity-user-link", id: "toggle_member_names" do %>
+            <span id="toggle_member_show"><i class="icon-chevron-down"></i></span>
+            <span id="toggle_member_hide" class="hidden"><i class="icon-chevron-up"></i></span>
+        <% end %>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<div class="member-full-list hidden">
+  <br>
+
+  <div class='well'>
+    <div id="team_list" data-job="<%= job.id %>" data-loaded="false">
+      <div class='center'>
+        <span class="ajax-loading search-loading"><b>Loading team...</b>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      </div>
+    </div>
+  </div>
+</div>

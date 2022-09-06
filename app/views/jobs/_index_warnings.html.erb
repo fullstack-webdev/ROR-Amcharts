@@ -1,0 +1,34 @@
+<% @warnings = current_user.warnings_list.per_page_kaminari().per(EventWarning::PER_PAGE) %>
+
+<div class='remote-tray' data-tray='warnings'>
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading events and warnings..." %>
+  </div>
+
+
+  <div class='tray-content content-loaded'>
+    <div class='section-header' style="margin-top: 15px;">
+      <h1 class='inline-block'>Events & Warnings</h1>
+    </div>
+
+    <%= render 'event_warnings/warning_tree', warnings: @warnings, active_jobs: current_user.active_jobs, current_warnings_list: current_user.current_warnings_list, prev_time: Time.now %>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    if ($('#infinite-scrolling').size() > 0) {
+      $(window).on('scroll', function () {
+        var more_posts_url;
+        more_posts_url = $('.pagination .next_page a').attr('href');
+        if (more_posts_url && $(window).scrollTop() > $(document).height() - $(window).height() - 60) {
+          $('.pagination').html('<img src="/assets/ajax-loader.gif" alt="Loading..." title="Loading..." />');
+          $.getScript(more_posts_url);
+        }
+      });
+    }
+  });
+</script>

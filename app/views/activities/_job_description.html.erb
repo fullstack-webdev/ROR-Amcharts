@@ -1,0 +1,14 @@
+<% if job.present? %>
+    <% if !inside_job and !job.nil? %>
+        <span class="inline">
+      <%= link_to job, class: "activity-user-link no-bottom-margin", "data-placement" => "right",
+                  "data-html" => true,
+                  "data-title" => render('jobs/well_tooltip', job: job, show_summary_data: true) do %>
+              <% if job.well.rig.present? %>
+             <b class='orange-text'><%= job.well.rig.name %></b>
+                  <% end %>
+              <%= job.field.name %> | <%= job.well.name %>
+      <% end %>
+    </span>
+    <% end %>
+<% end %>

@@ -1,0 +1,43 @@
+<% provide(:title, I18n.t(".title")) %>
+
+
+<%= form_for(@user, :url => "/settings/" + @user.id.to_s) do |f| %>
+
+    <div class="section-header">
+      <h1><%= t ".title" %></h1>
+
+      <%= f.submit "Save Settings", class: "btn btn-success pull-right" %>
+    </div>
+
+
+    <div class="page-header-small">
+      <br>
+
+      <h1>Account</h1>
+    </div>
+
+    <div class="content">
+      <div class="">
+        <%= link_to "Change password", update_password_path(email: current_user.email),
+                    class: "btn btn-default" %>
+      </div>
+      <br>
+
+      <div class="">
+        <%= f.text_field :phone_number, placeholder: "Phone Number", class: "txtfield tooltip-info",
+                         "data-placement" => "bottom",
+                         "data-title" => "Phone Number" %>
+        <p class="push-right-small inline help-text">*Used for urgent text message job alerts</p>
+      </div>
+    </div>
+
+
+
+
+    <br><br>
+
+    <%= f.submit "Save Settings", class: "btn btn-success pull-right" %>
+
+    <%= link_to "Cancel", root_path, class: "btn btn-default pull-right push-left-small" %>
+
+<% end %>

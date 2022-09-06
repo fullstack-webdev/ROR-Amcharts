@@ -1,0 +1,13 @@
+<div id="jobs_list">
+  <% jobs = @jobs.paginate(page: params[:page], limit: 30) %>
+  <% jobs_array = jobs.includes(:job_memberships).includes(well: :rig).includes(well: :drilling_log).to_a %>
+  <% jobs_array = jobs_array.uniq { |j| "#{j.well.rig.name} - #{j.well.name}" }.sort_by { |j| "#{j.well.rig.name} - #{j.well.name}" } %>
+  <div id="jobs" class="list">
+    <% jobs_array.each do |job| %>
+        <%= render 'jobs/job_progress_link', job: job %>
+    <% end %>
+  </div>
+
+  <%= will_paginate jobs %>
+
+</div>

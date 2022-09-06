@@ -1,0 +1,33 @@
+<div class="remote-tray" data-tray="maintenance">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading assets in maintenance..." %>
+  </div>
+
+  <div class=" tray-content content-loaded">
+
+
+
+    <% parts_grouped = part_redresses.group_by { |pr| pr.received_at.to_date } %>
+    <% parts_grouped = parts_grouped.sort_by { |g| g[0] } %>
+
+    <div class='section-header' style="margin-top: 20px;">
+      <h1 class="inline">In Maintenance</h1>
+    </div>
+    <br>
+
+    <div id="parts" class="list">
+      <% parts_grouped.each_with_index do |part_group, i| %>
+          <h3><%= distance_of_time_in_words(Time.zone.now, part_group[1].first.received_at) %></h3>
+          <hr>
+          <% part_group[1].each_with_index do |part_redress, index| %>
+              <%= render 'parts/sub_part2', part: part_redress.part, index: index, condensed: true, show_name: true %>
+          <% end %>
+          <br><br>
+      <% end %>
+    </div>
+
+  </div>
+
+</div>

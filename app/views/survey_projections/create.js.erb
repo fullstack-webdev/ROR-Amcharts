@@ -1,0 +1,29 @@
+$('#projections_result').removeClass('hidden');
+$('#projections_loading').addClass('hidden');
+
+$('#md').text("<%= number_with_delimiter(@md.round(2), :delimiter => ',') %>");
+$('#md_delta').text("<%= @md_delta.round(2) %>");
+
+<% if params[:type] == "bit" %>
+$('#md_bit').text("-");
+<% else %>
+$('#md_bit').text("<%= number_with_delimiter(@md_bit.round(2), :delimiter => ',') %>");
+<% end %>
+
+$('#inc').text("<%= @inc.round(2) %>");
+<% if false %>
+$('#inc_delta').text("<%= @inc_delta.round(2) %>");
+<% end %>
+
+$('#azi').text("<%= @azi.round(2) %>");
+<% if false %>
+$('#azi_delta').text("<%= @azi_delta.round(2) %>");
+<% end %>
+
+$('#tvd').text("<%= number_with_delimiter(@tvd.round(2), :delimiter => ',') %>");
+$('#tvd_delta').text("<%= @tvd_delta.round(2) %>");
+
+$('#dls').text("<%= @dls.round(2) %>");
+<% if false %>
+$('#dls_delta').text("<%= @dls_delta.round(2) %>");
+<% end %>

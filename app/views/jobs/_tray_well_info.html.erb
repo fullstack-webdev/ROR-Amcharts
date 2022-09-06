@@ -1,0 +1,111 @@
+<div class="remote-tray" data-tray="well_info">
+
+  <div class='' style="height: 48px;">
+    <div class="sub-nav">
+      <!--<div style='margin-left: 20px; margin-top: 8px;'>-->
+      <!--<div class='' style='margin-top: -2px;'>-->
+      <ul class="nav nav-tabs child-tray-nav">
+        <li class='active'>
+          <%= link_to "Status", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "overview",
+                      "data-tray-parent" => "well_info",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small'>
+          <%= link_to "General Info", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "info",
+                      "data-tray-parent" => "well_info",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <!--<li class='push-right-small'>
+          <%= link_to "Documents", "#",
+                      #                       "data-id" => @job.id,
+                      #                       "data-tray-controller" => "jobs",
+                      #                       "data-tray" => "documents",
+                      #                       "data-tray-parent" => "well_info",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>-->
+        <li class='push-right-small'>
+          <%= link_to "Costs", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "costs",
+                      "data-tray-parent" => "well_info",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small'>
+          <%= link_to "Map", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "well_maps",
+                      "data-tray-parent" => "well_info",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+      </ul>
+      <!--</div>-->
+      <!--</div>-->
+    </div>
+  </div>
+
+
+  <div class='tray-content content-loaded'>
+
+    <div class="remote-tray" data-tray="overview">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading overview..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="info">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading info..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="documents">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading documents..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="costs">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading costs..." %>
+      </div>
+    </div>
+    <div class="remote-tray custom-data-closed" data-tray="well_maps">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading maps..." %>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  (function ($) {
+    $(document).ready(function () {
+
+      if (document.location.hash == '') {
+        tray = $(".remote-tray[data-tray='overview']");
+        tray.find('.content').hide();
+        tray.find('.remote-loading').removeClass('hidden');
+        tray.find('.loading').removeClass('hidden');
+        setTimeout(function () {
+          window.auid++;
+          $.ajax({
+            url: "/jobs/<%= @job.id %>?section=overview" + "&auid=" + window.auid,
+            type: "GET",
+            dataType: "script"
+          });
+        }, 0);
+      }
+      
+    });
+  }(jQuery));
+</script>

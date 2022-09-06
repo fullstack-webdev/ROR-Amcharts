@@ -1,0 +1,53 @@
+$('#config_detail_popup').html('<%= j render 'annotations/new_annotation' %>');
+$('#config_detail_popup').css('visibility', 'visible');
+
+$('#add_annotation_button').click(function(){
+    $('#config_detail_popup').css('visibility', 'visible');
+    var depth = $('#annotation_depth').val();
+    var time = Math.floor((new Date($('#annotation_time').val()).getTime()) / 1000);
+    var use_depth = $('#use_type').val();
+    $.ajax('/jobs/<%= @job.id %>/create_annotation', {
+        type: 'post',
+        dataType: 'script',
+        data: {
+          use_hole_depth: use_depth,
+          hole_depth: depth,
+          time: time,
+          title: $('#annotation_title').val(),
+          description: $('#annotation_description').val()
+        }
+    });
+    return false;
+});
+
+$('#use_hole_depth').click(function() {
+    $('#ann_hole_depth_div').css('opacity', 1.0);
+    $('#ann_time_div').css('opacity', 0.5);
+    $('#use_type').val(true);
+});
+
+$('#use_time').click(function() {
+    $('#ann_hole_depth_div').css('opacity', 0.5);
+    $('#ann_time_div').css('opacity', 1.0);
+    $('#use_type').val(false);
+});
+
+$('#annotation_depth').focus(function() {
+    $('#ann_hole_depth_div').css('opacity', 1.0);
+    $('#ann_time_div').css('opacity', 0.5);
+    $('#use_hole_depth').trigger('click');
+    $('#use_type').val(true);
+});
+
+$('#annotation_time').focus(function() {
+    $('#ann_hole_depth_div').css('opacity', 0.5);
+    $('#ann_time_div').css('opacity', 1.0);
+    $('#use_time').trigger('click');
+    $('#use_type').val(false);
+});
+
+
+$('#config_detail_popup .dv-datetime-picker').datetimepicker({
+    language: 'en',
+    pick12HourFormat: false
+});

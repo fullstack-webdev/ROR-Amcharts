@@ -1,0 +1,768 @@
+<%
+   #Analysis - Process Time Page
+   @last_wits_cat_alloc = @job.wits_category_allocs.first
+   if @job.wits_activity_lists.present?
+     @wits_act_start_date = @job.wits_activity_lists.first.start_time
+     # @wits_act_end_date = @job.wits_activity_lists.first.start_time
+     @wits_act_end_date = @job.wits_activity_lists.last.end_time
+   else
+     @wits_act_start_date = DateTime.now
+     # @wits_act_end_date = @job.wits_activity_lists.first.start_time
+     @wits_act_end_date = DateTime.now
+   end
+   @obj = @job.wits_analysis_data(-1)
+   if @obj.present?
+     @wits_act_total_time = @obj['total_time']
+     @well_time_arr = @obj['well_time']
+     @wits_act_arr = @obj['act_arr']
+     @wits_act_alloc = @obj['act_alloc']
+
+   end
+   @disp_start_date = @wits_act_end_date.beginning_of_day
+   @disp_end_date = @wits_act_end_date.end_of_day
+   # @wits_act_total_time = @wits_act_total_time - (@wits_act_end_date.beginning_of_day.to_datetime - @wits_activity_list.first.start_time.to_datetime) * 24 * 3600 - (@wits_activity_list.last.end_time.to_datetime - @wits_act_end_date.end_of_day.to_datetime) * 24 * 3600
+   #debug(@wits_activity_list.first.start_time.to_datetime - @wits_act_end_date.beginning_of_day.to_datetime)
+   # if !@last_wits_cat_alloc.present?
+   #   @last_wits_cat_alloc = nil
+   #   @last_wits_cat_alloc = WitsCategoryAlloc.new
+   # end
+
+%>
+
+
+
+
+<div class="remote-tray" data-tray="activity_summary">
+
+<div class="remote-loading hidden" style="margin-top: 30px;">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading activity summary..." %>
+</div>
+
+<div class='tray-content'>
+
+<% filter_options = [] %>
+<% filter_options_js = [] %>
+<%
+
+   date = @wits_act_start_date.to_datetime
+   filter_options << ["Entire Well", -1]
+   filter_options_js << ["", ""]
+   begin
+     filter_options << [date.strftime("%A %m/%d/%Y"), date.strftime("%Y/%m/%d %H:%M:%S%z")]
+     filter_options_js << [date.strftime("%Y/%m/%d %H:%M:%S%z"), date.strftime("%A %-m/%d"), date.strftime("%A %m/%d/%Y")]
+     date = date + 1.days
+   end while (date <= @wits_act_end_date.end_of_day.to_datetime)
+
+%>
+
+
+<div class="section-header" style="margin-top: 15px;">
+  <h1>Activity Summary</h1>
+</div>
+
+<div class="time-analysis analysis-subtab">
+
+<div class="block">
+  <div class="analysis-filter">
+    <p style="font-size: 18px;">Timeframe</p>
+    <%= select_tag "#",
+                   options_for_select(filter_options, 0),
+                   id: "drilling_log_filter",
+                   class: "custom-select custom-select-ajax align-top push-right-small" %>
+    <span></span>
+
+  </div>
+
+</div>
+
+<div class="block" id="productive_well_time">
+  <p style="font-size: 14px; margin-bottom: 12px;">Productive Well Time</p>
+
+  <div class="overview-bar" style="height: 32px;">
+    <div style="background: #5dd94a; width: <%= @well_time_arr.present? ? (@well_time_arr['productive_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100):"0:00"%>%;" class="powertip-productive" data-title="Productive Time"  data-parts="Drilling Rotary, Drilling Slide"></div>
+    <div style="background: #efd34a; width: <%= @well_time_arr.present? ? (@well_time_arr['invisible_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100):"0:00"%>%;" class="powertip-productive" data-title="Non-Productive Time"  data-parts="Run In/Out Hole, Reaming Up/Down, Washing Up/Down, Circulation"></div>
+    <div style="background: #ee0000; width: <%= @well_time_arr.present? ? (@well_time_arr['down_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100):"0:00"%>%;" class="powertip-productive" data-title="Down Time" data-parts="Other"></div>
+  </div>
+  <div class="overview-bar" style="height: 32px;">
+    <div style="width: 60%;"><p style="margin-top: 7px; color: #5dd94a;">Productive Time
+      - <%= @well_time_arr.present? ? (@well_time_arr['productive_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100).round(2) : "0.00" %>
+      %</p></div>
+    <div style="width: 24%;"><p style="margin-top: 7px; color: #eeeeee;">Non Productive Time
+      - <%= @well_time_arr.present? ? (@well_time_arr['invisible_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100).round(2) : "0.00" %>
+      %</p></div>
+    <div style="width: 16%;"><p style="margin-top: 7px; color: #eeeeee;">Down Time
+      - <%= @well_time_arr.present? ? (@well_time_arr['down_time'].to_f / (@well_time_arr['productive_time'] + @well_time_arr['invisible_time'] + @well_time_arr['down_time']).to_f * 100).round(2) : "0.00" %>
+      %</p></div>
+  </div>
+</div>
+
+<div class="block" id="entire_well_time_activity">
+  <div class="overview-block">
+    <p style="font-size: 14px; margin-bottom: 12px;">Activity Well Time</p>
+
+    <div style="margin-top: 30px;">
+      <div class="" style="width: 100%; margin-top: 20px;">
+        <p class="inline-block align-top" style="font-size: 13px; margin-top: 3px; width: 200px; color: #fff;">Entire
+          Well</p>
+
+        <div class="overview-bar" style="width: 800px !important;">
+          <% @job.aggregate_activity(-1).each do |activity| %>
+            <div class="powertip-overiew" data-percent="<%= activity['percentage'].round(1) %>" data-activity="<%= activity['activity_name'] %>" style="background: <%= activity['color'] %>; width: <%= activity['percentage'] %>%;"></div>
+          <% end %>
+        </div>
+      </div>
+
+
+      <div style="margin-top: 40px;"></div>
+
+      <p style="font-size: 14px; margin-bottom: 12px;">Last 5 Days</p>
+
+      <% count = filter_options.count - 1 %>
+      <% filter_options.each_with_index do |option, index| %>
+        <% if index != 0 && index > count - 5 %>
+          <div class="" style="width: 100%;">
+            <p class="inline-block align-top" style="font-size: 13px; margin-top: 3px; width: 200px; font-family: orgonlightregular; color: #fff;"><%= option[0] %></p>
+
+            <div class="overview-bar" style="width: 800px !important;">
+              <% @job.aggregate_activity(index - 1).each do |activity| %>
+                <div class="powertip-overiew" data-percent="<%= activity['percentage'].round(1) %>" data-activity="<%= activity['activity_name'] %>" style="background: <%= activity['color'] %>; width: <%= activity['percentage'] %>%;"></div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+  </div>
+</div>
+<div class="block hidden" id="well_time_activity">
+  <p style="font-size: 14px; margin-bottom: 12px;">Activity Well Time</p>
+
+  <!-- old code -->
+  <!--
+  <div id="activityChart" class="activity-chart">
+
+  </div>
+  <div class="hour-axis">
+    <% (0..24).each do |i| %>
+      <div>
+        <span class="tick"></span>
+        <span class="axis-label"><%= i %></span>
+      </div>
+    <% end %>
+  </div>
+  <div class="well-activity-summary-horizon">
+
+  </div>
+  -->
+
+  <div class="time-axis">
+    <% (0..11).each do |i| %>
+      <div>
+        <span class="tick"></span>
+        <span class="axis-label"><%= i*5 %> <span class="minute-label">m</span></span>
+      </div>
+    <% end %>
+    <div style="width: 0px;">
+      <span class="tick"></span>
+      <span class="axis-label">60</span>
+    </div>
+  </div>
+  <div class="activity-chart-vertical">
+    <div id="vertical-activity-column" class="activity-column">
+    </div>
+    <div class="min-axis">
+      <% (0..24).each do |i| %>
+        <div>
+          <%= i %> <span class="hour-label">h</span>
+          <span class="tick"></span>
+        </div>
+      <% end %>
+    </div>
+    <div id="vertical-activityChart" class="stacked-bar">
+    </div>
+  </div>
+
+  <div id="activity-chart-control" class="activity-chart-control">
+    <a class="inline-block prev" id="activity-control-prev">
+      <span class="prev-date">Friday 5/52</span>
+      <i class="fa fa-chevron-left"></i>
+    </a>
+
+    <span class="current-date">Friday 5/52</span>
+
+    <a class="inline-block next" id="activity-control-next">
+      <span class="next-date">Friday 5/52</span>
+      <i class="fa fa-chevron-right"></i>
+    </a>
+  </div>
+
+</div>
+
+<% if @wits_act_alloc.present? %>
+
+
+  <div class="notes block" id="act_alloc" style="margin-top: 60px;">
+
+    <p style="font-size: 14px; margin-bottom: 12px;">Activity Percentages</p>
+    <hr>
+
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Drilling Rotary</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Drilling Rotary'].to_f ? (@wits_act_alloc['Drilling Rotary'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Drilling Rotary'] ? (@wits_act_alloc['Drilling Rotary'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #4840d1; width: <%= @wits_act_alloc['Drilling Rotary'].to_f ? (@wits_act_alloc['Drilling Rotary'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Ream Upwards</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Reaming Upwards'] ? (@wits_act_alloc['Reaming Upwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Reaming Upwards'] ? (@wits_act_alloc['Reaming Upwards'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #38732e; width: <%= @wits_act_alloc['Reaming Upwards'] ? (@wits_act_alloc['Reaming Upwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Drilling Sliding</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Drilling Slide'] ? (@wits_act_alloc['Drilling Slide'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Drilling Slide'] ? (@wits_act_alloc['Drilling Slide'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #0085e3; width: <%= @wits_act_alloc['Drilling Slide'] ? (@wits_act_alloc['Drilling Slide'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Ream Downwards</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Reaming Downwards'] ? (@wits_act_alloc['Reaming Downwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Reaming Downwards'] ? (@wits_act_alloc['Reaming Downwards'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #5dd94b; width: <%= @wits_act_alloc['Reaming Downwards'] ? (@wits_act_alloc['Reaming Downwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Circulation</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Circulating'] ? (@wits_act_alloc['Circulating'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Circulating'] ? (@wits_act_alloc['Circulating'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #9500b7; width: <%= @wits_act_alloc['Circulating'] ? (@wits_act_alloc['Circulating'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Wash Upwards</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Washing Upwards'] ? (@wits_act_alloc['Washing Upwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Washing Upwards'] ? (@wits_act_alloc['Washing Upwards'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #efd34b; width: <%= @wits_act_alloc['Washing Upwards'] ? (@wits_act_alloc['Washing Upwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Connection</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Connection'] ? (@wits_act_alloc['Connection'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Connection'] ? (@wits_act_alloc['Connection'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #909f98; width: <%= @wits_act_alloc['Connection'] ? (@wits_act_alloc['Connection'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Wash Downwards</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Washing Downwards'] ? (@wits_act_alloc['Washing Downwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Washing Downwards'] ? (@wits_act_alloc['Washing Downwards'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #e99100; width: <%= @wits_act_alloc['Washing Downwards'] ? (@wits_act_alloc['Washing Downwards'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Run in Hole</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Run in Hole'] ? (@wits_act_alloc['Run in Hole'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Run in Hole'] ? (@wits_act_alloc['Run in Hole'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #f70000; width: <%= @wits_act_alloc['Run in Hole'] ? (@wits_act_alloc['Run in Hole'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Other</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Other'] ? (@wits_act_alloc['Other'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Other'] ? (@wits_act_alloc['Other'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #d2dfd8; width: <%= @wits_act_alloc['Other'] ? (@wits_act_alloc['Other'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Run out of Hole</div>
+        <div class="bottom-text">
+          <div class="percentage"><%= @wits_act_alloc['Run out of Hole'].to_f ? (@wits_act_alloc['Run out of Hole'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>
+            <span>%</span></div>
+          <div class="hours"><%= @wits_act_alloc['Run out of Hole'].to_f ? (@wits_act_alloc['Run out of Hole'].to_f / 3600).round(1) : "0.00" %>
+            <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #940000; width: <%= @wits_act_alloc['Run out of Hole'].to_f ? (@wits_act_alloc['Run out of Hole'].to_f / @wits_act_total_time.to_f * 100).round(2) : "0.00" %>%;"></div>
+    </div>
+  </div>
+<% else %>
+
+
+    <p style="font-size: 14px; margin-bottom: 12px;">Activity Percentages</p>
+    <hr>
+
+  <div class="notes block" id="act_alloc">
+
+
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Drilling Rotary</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #4840d1"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Ream Upwards</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #38732e"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Drilling Sliding</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #0085e3"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Ream Downwards</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #5dd94b"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Circulation</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #9500b7"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Wash Upwards</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #efd34b"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Connection</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #909f98"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Wash Downwards</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #e99100"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Run in Hole</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #f70000"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Other</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #d2dfd8"></div>
+    </div>
+    <div class="color-note1">
+      <div class="text-bar">
+        <div class="name">Run out of Hole</div>
+        <div class="bottom-text">
+          <div class="percentage">0.0 <span>%</span></div>
+          <div class="hours">0.0 <span>hrs</span></div>
+        </div>
+      </div>
+      <div class="color-bar" style="background: #940000;"></div>
+    </div>
+  </div>
+<% end %>
+
+</div>
+
+</div>
+</div>
+
+
+
+<script type="text/javascript">
+  /* vertical activity */
+  (function ($) {
+    $(document).ready(function () {
+      var company_unit = "<%= company_unit %>";
+      var selected_index = 0;
+      var options = [];
+      <% filter_options_js.each do |option| %>
+      options.push({
+        label: "<%= option[1] %>",
+        date: "<%= option[0] %>",
+        label_long: "<%= option[2] %>"
+      });
+      <% end %>
+
+      // tooltip
+      $('.powertip-overiew').powerTip({
+        followMouse: true,
+        fadeInTime: 100,
+        fadeOutTime: 0
+      });
+      $('.powertip-overiew').on({
+        powerTipPreRender: function () {
+          var percent = $(this).attr('data-percent');
+          var activity = $(this).attr('data-activity');
+          $(this).data('powertip', '<div style="padding: 5px 10px; background-color: #333;"><p>' + activity + '</p><p><span>' + percent + '%</span></p></div>');
+        }
+      });
+
+        $('.powertip-productive').powerTip({
+            followMouse: true,
+            fadeInTime: 100,
+            fadeOutTime: 0
+        });
+        $('.powertip-productive').on({
+            powerTipPreRender: function () {
+                var title = $(this).attr('data-title');
+                var parts = $(this).attr('data-parts');
+                $(this).data('powertip', '<div style="padding: 5px 10px; background-color: #333;"><p>' + title + '</p><p><span style="font-size: 9px; color: #bababa;">' + parts + '</span></p></div>');
+            }
+        });
+
+      function ajax_call(time, index) {
+          tray = $(".remote-tray[data-tray='activity_summary']");
+          tray.find('.loading').removeClass("hidden");
+          tray.find('.remote-loading').removeClass("hidden");
+          tray.find('.tray-content').hide();
+
+          window.auid++;
+          $.ajax({
+            url: "<%= job_path(@job)%>?section=activity_summary&query_time=" + time + "&auid=" + window.auid,
+            type: "GET",
+            dataType: "json"
+          }).done(function (data) {
+
+            var productive_well_time_html = '<div class="block" id = "productive_well_time">';
+            productive_well_time_html += '<p style="font-size: 14px; margin-bottom: 12px;">Productive Well Time</p>';
+            productive_well_time_html += '<div class="overview-bar" style="height: 32px;">';
+            productive_well_time_html += '<div style="background: #5dd94a; width: ' + data.well_time.productive_per + '%;" class="powertip-productive" data-title="Productive Time"  data-parts="Drilling Rotary, Drilling Slide"></div>';
+            productive_well_time_html += '<div style="background: #efd34a; width: ' + data.well_time.invisible_per + '%;"  class="powertip-productive" data-title="Non-Productive Time"  data-parts="Run In/Out Hole, Reaming Up/Down, Washing Up/Down, Circulation"></div>';
+            productive_well_time_html += '<div style="background: #ee0000; width: ' + data.well_time.down_per + '%;"  class="powertip-productive" data-title="Down Time"  data-parts="Other"></div>';
+            productive_well_time_html += '</div>';
+            productive_well_time_html += '<div class="overview-bar" style="height: 32px;">';
+            productive_well_time_html += '<div style="width: 60%;"><p style="margin-top: 7px; color: #5dd94a;">Productive Time - ' + data.well_time.productive_per + '%</p></div>';
+            productive_well_time_html += '<div style="width: 24%;"><p style="margin-top: 7px; color: #eef4f0;">Non Productive Time - ' + data.well_time.invisible_per + '%</p></div>';
+            productive_well_time_html += '<div style="width: 16%;"><p style="margin-top: 7px; color: #eef4f0;">Down Time - ' + data.well_time.down_per + '%</p></div>';
+            productive_well_time_html += '</div>';
+            productive_well_time_html += '</div>';
+
+            if (data.start_time == "-1") {
+              $('#well_time_activity').addClass("hidden");
+              $('#entire_well_time_activity').removeClass("hidden");
+            } else {
+              $('#well_time_activity').removeClass("hidden");
+              $('#entire_well_time_activity').addClass("hidden");
+
+              var activity_chart_html = '';
+
+              var css_class_arr = {};
+              css_class_arr['Drilling Rotary'] = "drilling-rotary";
+              css_class_arr['Drilling Slide'] = "drilling-sliding";
+              css_class_arr['Connection'] = "connection";
+              css_class_arr['Circulating'] = "circulation";
+              css_class_arr['Run in Hole'] = "run-in-hole";
+              css_class_arr['Run out of Hole'] = "run-out-hole";
+              css_class_arr['Washing Upwards'] = "wash-upwards";
+              css_class_arr['Washing Downwards'] = "wash-downwards";
+              css_class_arr['Reaming Upwards'] = "ream-upwards";
+              css_class_arr['Reaming Downwards'] = "ream-downwards";
+              css_class_arr['Other'] = "other";
+              css_class_arr['No Activity'] = "no-activity";
+
+              var date_iterator = Date.parse(data.start_time);
+              var flag = false;
+              for (var i = 0; i < data.act_arr.length; i++) {
+                activity = data.act_arr[i];
+
+                if (Date.parse(activity.start_time) == date_iterator && flag == false) {
+                  date_iterator += 3600000;
+                  flag = true;
+                  activity_chart_html += ' <div class="horizon-bar">';
+                }
+
+                if (Date.parse(activity.start_time) == date_iterator && flag == true) {
+                  date_iterator += 3600000;
+                  activity_chart_html += ' </div>';
+                  activity_chart_html += ' <div class="horizon-bar">';
+
+                }
+                var data_attr = 'data-date="' + activity.date + '" data-activity="' + activity.activity + '"';
+                if (activity.depth) {
+                  data_attr += ' data-depth="' + activity.depth + '"';
+                }
+                activity_chart_html += '<div class="' + css_class_arr[activity.activity] + ' powertip" ' + data_attr + ' style="width:' + (activity.duration / 3600 * 100) + '%;"></div>';
+              }
+              activity_chart_html += ' </div>';
+
+              $('#productive_well_time').replaceWith(productive_well_time_html);
+              $('#vertical-activityChart').html(activity_chart_html);
+            }
+
+            // tooltip
+            $('.powertip').powerTip({
+              followMouse: true,
+              fadeInTime: 100,
+              fadeOutTime: 0
+            });
+            $('.powertip').on({
+              powerTipPreRender: function () {
+                var date = $(this).attr('data-date');
+                var depth = $u($(this).attr('data-depth'), 'ft').to(company_unit);
+                var activity = $(this).attr('data-activity');
+                $(this).data('powertip', '<div style="padding: 5px 10px; background-color: #333;"><p><span>' + date + '</span>&nbsp;&nbsp;&nbsp;<span>' + ( depth ? depth.value.round_to_decimal().with_delimiter() + '<span style="opacity: 0.5;">' + depth.unit + '</span>' : '') + '</span></p><p><div></div>' + activity + '</p></div>');
+              }
+            });
+
+            var act_alloc_html = '<div class="notes block" id = "act_alloc">';
+          act_alloc_html += '<p style="font-size: 14px; margin-bottom: 12px;">Activity Percentages</p>';
+          act_alloc_html += '<hr>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Drilling Rotary</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Drilling Rotary']) ? "0.00" : (data.act_alloc['Drilling Rotary'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Drilling Rotary']) ? "0.00" : (data.act_alloc['Drilling Rotary'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #4840d1; width: calc('  + (isNaN(data.act_alloc['Drilling Rotary']) ? "0.00" : (data.act_alloc['Drilling Rotary'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Ream Upwards</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Reaming Upwards']) ? "0.00" : (data.act_alloc['Reaming Upwards'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Reaming Upwards']) ? "0.00" : (data.act_alloc['Reaming Upwards'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #38732e; width: calc('  + (isNaN(data.act_alloc['Reaming Upwards']) ? "0.00" : (data.act_alloc['Reaming Upwards'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Drilling Sliding</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Drilling Slide']) ? "0.00" : (data.act_alloc['Drilling Slide'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Drilling Slide']) ? "0.00" : (data.act_alloc['Drilling Slide'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #0085e3; width: calc('  + (isNaN(data.act_alloc['Drilling Slide']) ? "0.00" : (data.act_alloc['Drilling Slide'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Ream Downwards</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Reaming Downwards']) ? "0.00" : (data.act_alloc['Reaming Downwards'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Reaming Downwards']) ? "0.00" : (data.act_alloc['Reaming Downwards'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #5dd94b; width: calc('  + (isNaN(data.act_alloc['Reaming Downwards']) ? "0.00" : (data.act_alloc['Reaming Downwards'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Circulation</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Circulating']) ? "0.00" : (data.act_alloc['Circulating'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Circulating']) ? "0.00" : (data.act_alloc['Circulating'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #9500b7; width: calc('  + (isNaN(data.act_alloc['Circulating']) ? "0.00" : (data.act_alloc['Circulating'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Wash Upwards</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Washing Upwards']) ? "0.00" : (data.act_alloc['Washing Upwards'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Washing Upwards']) ? "0.00" : (data.act_alloc['Washing Upwards'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #efd34b; width: calc('  + (isNaN(data.act_alloc['Washing Upwards']) ? "0.00" : (data.act_alloc['Washing Upwards'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Connection</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Connection']) ? "0.00" : (data.act_alloc['Connection'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Connection']) ? "0.00" : (data.act_alloc['Connection'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #909f98; width: calc('  + (isNaN(data.act_alloc['Connection']) ? "0.00" : (data.act_alloc['Connection'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Wash Downwards</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Washing Downwards']) ? "0.00" : (data.act_alloc['Washing Downwards'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Washing Downwards']) ? "0.00" : (data.act_alloc['Washing Downwards'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #e99100; width: calc('  + (isNaN(data.act_alloc['Washing Downwards']) ? "0.00" : (data.act_alloc['Washing Downwards'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Run in Hole</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Run in Hole']) ? "0.00" : (data.act_alloc['Run in Hole'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Run in Hole']) ? "0.00" : (data.act_alloc['Run in Hole'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #f70000; width: calc('  + (isNaN(data.act_alloc['Run in Hole']) ? "0.00" : (data.act_alloc['Run in Hole'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Other</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Other']) ? "0.00" : (data.act_alloc['Other'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Other']) ? "0.00" : (data.act_alloc['Other'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #d2dfd8; width: calc('  + (isNaN(data.act_alloc['Other']) ? "0.00" : (data.act_alloc['Other'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '<div class="color-note1">';
+            act_alloc_html += '<div class="text-bar"><div class="name">Run out of Hole</div>';
+            act_alloc_html += '<div class="bottom-text"><div class="percentage">' + (isNaN(data.act_alloc['Run out of Hole']) ? "0.00" : (data.act_alloc['Run out of Hole'] / data.total_time * 100).toFixed(2)) + ' <span>%</span></div>';
+            act_alloc_html += '<div class="hours">' + (isNaN(data.act_alloc['Run out of Hole']) ? "0.00" : (data.act_alloc['Run out of Hole'] / 3600).toFixed(2)) + ' <span>hrs</span></div></div></div>';
+                      act_alloc_html += '<div class="color-bar" style="background: #940000; width: calc('  + (isNaN(data.act_alloc['Run out of Hole']) ? "0.00" : (data.act_alloc['Run out of Hole'] / data.total_time * 100).toFixed(2)) + '% - 10px);"></div>';
+                      act_alloc_html += '</div>';
+            act_alloc_html += '</div>';
+            $("#act_alloc").replaceWith(act_alloc_html);
+
+            var act_summary_arr = ['Out of Hole', 'Tripping in', 'Tripping out', 'Drilling', 'Other', 'Circulation'];
+            var act_summary_html = '';
+            var start_time = Date.parse(data['start_time']);
+            act_summary_html += '<ul>';
+            for (var i = 0; i < data.act_summary_arr.length; i++) {
+              activity = data.act_summary_arr[i];
+
+              console.log(activity, act_summary_arr[activity['activity']]);
+
+              var top = 0;
+              var activity_start_time = Date.parse(activity['start_time']);
+
+              if (activity_start_time > start_time) {
+                top = (activity_start_time - start_time) / (24 * 60 * 60 * 1000) * 100;
+              }
+
+              var depth = Math.max(activity['bit_depth'], 0).convert('ft', company_unit);
+
+              act_summary_html += '<li style="top: ' + top + '%; position: absolute;">' +
+                  '<span class="activity-title">' + act_summary_arr[activity['activity']] + '</span>' +
+                  '<span class="height">' + depth.value.round_to_decimal().with_delimiter() + '</span>' +
+                  '<span class="circle"></span>';
+
+            }
+            act_summary_html += '</ul>';
+
+            $("#vertical-activity-column").html(act_summary_html);
+
+            if (index - 1 > 0) {
+              $("#activity-chart-control .prev").html('<i class="fa fa-chevron-left"></i>' +
+                  '<span class="prev-date">' + options[index - 1].label + '</span>');
+            } else {
+              $("#activity-chart-control .prev").html('');
+            }
+
+            $("#activity-chart-control .current-date").html(options[index].label);
+
+            if (index + 1 < options.length) {
+              $("#activity-chart-control .next").html('<span class="next-date">' + options[index + 1].label + '</span>' +
+                  '<i class="fa fa-chevron-right"></i>');
+            } else {
+              $("#activity-chart-control .next").html('');
+            }
+
+            tray = $(".remote-tray[data-tray='activity_summary']");
+            tray.find('.loading').addClass("hidden");
+            tray.find('.remote-loading').addClass("hidden");
+            tray.find('.tray-content').show();
+
+              $('.powertip-productive').powerTip({
+                  followMouse: true,
+                  fadeInTime: 100,
+                  fadeOutTime: 0
+              });
+              $('.powertip-productive').on({
+                  powerTipPreRender: function () {
+                      var title = $(this).attr('data-title');
+                      var parts = $(this).attr('data-parts');
+                      $(this).data('powertip', '<div style="padding: 5px 10px; background-color: #333;"><p>' + title + '</p><p><span style="font-size: 9px; color: #bababa;">' + parts + '</span></p></div>');
+                  }
+              });
+          });
+      }
+
+      $('#drilling_log_filter').customSelect();
+
+      $('#drilling_log_filter').change(function () {
+        selected_index = $('#drilling_log_filter')[0].selectedIndex;
+        ajax_call($(this).val(), selected_index);
+      });
+
+      $('#activity-control-prev').click(function () {
+        if (selected_index - 1 > 0) {
+          selected_index = selected_index - 1;
+          ajax_call(options[selected_index].date, selected_index);
+        }
+      });
+
+      $('#activity-control-next').click(function () {
+        if (selected_index + 1 < options.length) {
+          selected_index = selected_index + 1;
+          ajax_call(options[selected_index].date, selected_index);
+        }
+      });
+    });
+  }(jQuery));
+</script>

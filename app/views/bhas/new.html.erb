@@ -1,0 +1,81 @@
+<% provide(:title, "New BHA") %>
+
+<div class="section-header">
+  <% if !@master_bha.present? %>
+      <h1 id="part_name">New Bottom Hole Assembly</h1>
+  <% else %>
+      <h1 id="part_name">New BHA Tool String</h1>
+  <% end %>
+</div>
+
+
+<div class="form" data-form="new_bha">
+  <%= form_for @bha do |f| %>
+
+      <%= render 'shared/error_messages', object: f.object %>
+
+      <%= hidden_field_tag "[bha][job_id]", @job.id %>
+      <% if @master_bha.present? %>
+          <%= hidden_field_tag "[bha][master_bha_id]", @master_bha.id %>
+      <% end %>
+
+      <%= render 'bhas/fields', f: f %>
+
+      <hr>
+
+      <div class="" id="list">
+
+      </div>
+
+      <div class="form" id="add_tool" data-form="add_tool">
+        <% options = [] %>
+        <% # Includes only jobs with BHA       %>
+
+
+
+
+            <%= select_tag "Add Tool", options_for_select(options),
+                           id: "bha_tool_options",
+                           class: "inline-block custom-select custom-select-long tooltip-info",
+                           "data-form" => "add_tool",
+                           "data-placement" => "bottom",
+                           "data-title" => "Add tool to BHA",
+                           prompt: "Select asset to add..." %>
+
+            &nbsp;
+            <%= link_to  "#", id: "add_new_bha_item",
+                        "data-job" => @job.id.to_s,
+                        class: "btn btn-primary white-text align-top" do %>
+                <i class="icon-plus-sign icon-white"></i>
+                <span>Add Assets</span>
+            <% end %>
+
+
+      </div>
+      <div id="add_tool_loader" class="hidden" data-form="add_tool">
+        <span class="ajax-loading search-loading"><b>Adding Tool...</b></span>
+      </div>
+
+      <hr>
+
+      <%= f.submit "Save BHA", class: "btn btn-success pull-right push-right-small form-loading-on-click",
+                   "data-form" => "new_bha" %>
+
+      <% if request.referrer.present? %>
+          <%= link_to "Cancel", request.referer + '#bha', class: "btn btn-default pull-right " %>
+      <% else %>
+          <% @drilling_log = DrillingLog.includes(job: :well).where("wells.id = ?", @job.well_id).first %>
+          <% if @drilling_log.present? %>
+              <%= link_to "Cancel", "/drilling_logs/#{@drilling_log.id}#drilling-bha", class: "bluebtn red pull-right " %>
+          <% end %>
+      <% end %>
+
+
+
+      <br><br>
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="new_bha">
+  <%= render 'layouts/inline_loading', title: "Creating Bottom Hole Assembly..." %>
+</div>

@@ -1,0 +1,229 @@
+<div class="upload-metadata inline-block align-top">
+
+<% if !document.template? %>
+    <% last_entry = document.document_type == Document::JOB_LOG ? JobLog.where(:company_id => current_user.company_id).where(:document_id => document.id).last : nil %>
+    <% drilling_log_sql = DrillingLog.where(:company_id => current_user.company_id).where(:document_id => document.id).select(:id).to_sql %>
+    <% last_drilling_entry = document.document_type == Document::DRILLING_LOG ? DrillingLogEntry.where("drilling_log_entries.drilling_log_id IN (#{drilling_log_sql})").order("drilling_log_entries.created_at DESC").limit(1).first : nil %>
+    <% bha = document.document_type == Document::BOTTOM_HOLE_ASSEMBLY ? Bha.includes(document: {job: :well}).where("wells.id = ?", document.job.well_id).order("bhas.updated_at DESC").limit(1).first : nil %>
+    <% asset_list = document.document_type == Document::ASSET_LIST ? AssetList.where("asset_lists.job_id = ?", document.job_id).limit(1).first : nil %>
+    <% if  document.document_type == Document::SURVEY %>
+        <% survey = Survey.includes(document: {job: :well}).where(:company_id => current_user.company_id).where(:plan => false).where("wells.id = ?", document.job.well_id).limit(1).first %>
+    <% elsif document.document_type == Document::WELL_PLAN %>
+        <% survey = Survey.includes(document: {job: :well}).where(:company_id => current_user.company_id).where(:plan => true).where("wells.id = ?", document.job.well_id).limit(1).first %>
+    <% end %>
+<% end %>
+
+<% if false %>
+<% if !document.template? && document.job_id.present? %>
+    <div class="document-status">
+      <% if !document.empty? %>
+          <%= image_tag "document_complete.png", class: "tooltip-info",
+                        "data-placement" => "bottom",
+                        "data-title" => "Complete" %>
+      <% elsif document.category == Document::NOTICES %>
+          <%= image_tag "warning.png" %>
+      <% end %>
+    </div>
+<% end %>
+    <% end %>
+
+<% if !document.template? %>
+    <% if document.document_type == Document::DOCUMENT %>
+        <% if document.url.present? %>
+            <%= link_to document.name, document.full_url, class: "document-name tooltip-info download-link",
+                        "data-placement" => "bottom",
+                        "data-title" => "Click to download document" %>
+
+        <% elsif !document.document_template.nil? && document.document_template.url.present? %>
+            <%= link_to document.name, document.document_template.full_url, class: "document-name tooltip-info download-link " + (!document.template? && document.category == Document::NOTICES ? "long-column-text" : ""),
+                        "data-placement" => "bottom",
+                        "data-title" => "Click to download document" %>
+        <% else %>
+            <p class="document-name push-down"><%= document.name %></p>
+        <% end %>
+    <% elsif document.document_type == Document::JOB_LOG %>
+        <%= link_to document.name, job_logs_path(document: document.id),
+                    class: "document-name tooltip-info",
+                    "data-placement" => "bottom",
+                    "data-title" => "Open " + document.document_type_string %>
+    <% elsif document.document_type == Document::ASSET_LIST %>
+        <%= link_to document.name, asset_lists_path(document: document.id),
+                    class: "document-name tooltip-info",
+                    "data-placement" => "bottom",
+                    "data-title" => "Open " + document.document_type_string %>
+    <% elsif document.document_type == Document::DRILLING_LOG %>
+        <%= link_to document.name, drilling_logs_path(document: document.id, :anchor => "log"),
+                    class: "document-name tooltip-info",
+                    "data-placement" => "bottom",
+                    "data-title" => "Open " + document.document_type_string %>
+    <% elsif document.document_type == Document::BOTTOM_HOLE_ASSEMBLY %>
+        <% drilling_log_document = Document.where("documents.job_id = ?", document.job_id).where("documents.document_type = ?", Document::DRILLING_LOG).first %>
+        <% if !drilling_log_document.nil? %>
+            <%= link_to document.name, drilling_logs_path(document: drilling_log_document.id, :anchor => "drilling-bha"),
+                        class: "document-name tooltip-info",
+                        "data-placement" => "bottom",
+                        "data-title" => "Open " + document.document_type_string %>
+        <% else %>
+            <%= link_to document.name, bha_path(document),
+                        class: "document-name tooltip-info",
+                        "data-placement" => "bottom",
+                        "data-title" => "Open " + document.document_type_string %>
+        <% end %>
+    <% elsif document.document_type == Document::WELL_PLAN %>
+        <%= link_to document.name, surveys_path(document: document),
+                    class: "document-name tooltip-info",
+                    "data-placement" => "bottom",
+                    "data-title" => "Open " + document.document_type_string %>
+    <% elsif document.document_type == Document::SURVEY %>
+        <% drilling_log_document = Document.where("documents.job_id = ?", document.job_id).where("documents.document_type = ?", Document::DRILLING_LOG).first %>
+        <% if !drilling_log_document.nil? %>
+            <%= link_to document.name, drilling_logs_path(document: drilling_log_document.id, :anchor => "survey"),
+                        class: "document-name tooltip-info",
+                        "data-placement" => "bottom",
+                        "data-title" => "Open " + document.document_type_string %>
+        <% else %>
+            <%= link_to document.name, surveys_path(document: document),
+                        class: "document-name tooltip-info",
+                        "data-placement" => "bottom",
+                        "data-title" => "Open " + document.document_type_string %>
+        <% end %>
+    <% end %>
+<% else %>
+    <% if document.url.present? %>
+        <%= link_to document.name, document.full_url, class: "document-name tooltip-info",
+                    "data-placement" => "bottom",
+                    "data-title" => "Download document" %>
+    <% else %>
+        <p class="document-name align-top push-down"><%= document.name %></p>
+    <% end %>
+<% end %>
+
+<div class="document-info <%= (!document.template? && document.category == Document::NOTICES ? "hidden" : "") %>">
+  <% if !document.template? and !document.read_only? %>
+      <div class="document-modified2">
+        <% if document.document_type == Document::DOCUMENT %>
+            <% if document.updated_at != document.created_at %>
+                <p class="inline tooltip-info" data-placement="bottom" data-title="Last updated"><%= document.updated_at.strftime("%m/%d/%Y %l:%M %p") %></p>
+            <% else %>
+                <p class="warning-text tooltip-info push-down"
+                   data-placement="bottom"
+                   data-title="No document uploaded, please download the document by clicking the document name and upload the completed one">No
+                  Document Uploaded</p>
+            <% end %>
+        <% elsif document.document_type == Document::JOB_LOG %>
+            <% if last_entry.present? %>
+                <p class="">
+                  <%= last_entry.entry_at.strftime("%m/%d/%Y %l:%M %p") %>
+                </p>
+            <% else %>
+                <p class="warning-text tooltip-info push-down"
+                   data-placement="bottom"
+                   data-title="No entries have been added to <%= document.document_type_string %>">
+                  No Entries Added</p>
+            <% end %>
+        <% elsif document.document_type == Document::ASSET_LIST %>
+            <% if asset_list.present? && asset_list.asset_list_enrties.any? %>
+                <p class="">
+                  <%= asset_list.asset_list_enrties.last.created_at.strftime("%m/%d/%Y %l:%M %p") %>
+                </p>
+            <% else %>
+                <p class="warning-text tooltip-info push-down"
+                   data-placement="bottom"
+                   data-title="No entries have been added to <%= document.document_type_string %>">
+                  No Entries Added</p>
+            <% end %>
+        <% elsif document.document_type == Document::DRILLING_LOG %>
+            <% if last_drilling_entry.present? %>
+                <p class="inline">
+                  <%= last_drilling_entry.entry_at.strftime("%m/%d/%Y %l:%M %p") %>
+                </p>
+            <% else %>
+                <p class="warning-text tooltip-info push-down"
+                   data-placement="bottom"
+                   data-title="No entries have been added to <%= document.document_type_string %>">
+                  No Entries Added</p>
+            <% end %>
+        <% elsif document.document_type == Document::BOTTOM_HOLE_ASSEMBLY %>
+            <% if bha.present? %>
+                <p class="push-down">
+                  <%= bha.updated_at.strftime("%m/%d/%Y %l:%M %p") %>
+                </p>
+            <% else %>
+                <p class="warning-text tooltip-info push-down"
+                   data-placement="bottom"
+                   data-title="No assemblies have been added to <%= document.document_type_string %>">
+                  No Assemblies Added</p>
+            <% end %>
+        <% elsif document.document_type == Document::SURVEY %>
+            <% if survey.present? && survey.survey_points.any? %>
+                <p class="push-down">
+                  <%= survey.survey_points.last.updated_at.strftime("%m/%d/%Y %l:%M %p") %>
+                </p>
+            <% else %>
+                <p class="warning-text tooltip-info push-down"
+                   data-placement="bottom"
+                   data-title="No survey points have been added to <%= document.document_type_string %>">
+                  No Survey Points</p>
+            <% end %>
+        <% elsif document.document_type == Document::WELL_PLAN %>
+            <% if survey.present? && survey.survey_points.any? %>
+                <p class="push-down">
+                  <%= survey.survey_points.order("created_at DESC").first.updated_at.strftime("%m/%d/%Y %l:%M %p") %>
+                </p>
+            <% else %>
+                <p class="warning-text tooltip-info push-down"
+                   data-placement="bottom"
+                   data-title="No plan imported for <%= document.document_type_string %>">
+                  No Plan Added</p>
+            <% end %>
+        <% end %>
+      </div>
+
+      <div class="document-file-name-box">
+        <%= render 'documents/user', document: document, last_entry: last_entry, bha: bha, survey: survey, last_drilling_entry: last_drilling_entry %>
+
+        <% if document.access_level > 1 %>
+            <%= image_tag "lock_icon.png", class: "document-restricted tooltip-info",
+                          "data-placement" => "bottom",
+                          "data-title" => "Restricted Access" %>
+        <% end %>
+      </div>
+  <% else %>
+      <div class="document-modified">
+        <% if document.url.present? %>
+            <p class="inline tooltip-info" data-placement="bottom" data-title="Last updated"><%= document.updated_at.strftime("%m/%d/%Y %l:%M %p") %></p>
+        <% end %>
+      </div>
+
+
+      <div class="document-file-name-box">
+        <% if document.document_type == Document::DOCUMENT %>
+            <% if document.template? or !document.read_only? %>
+                <% if !document.url.nil? %>
+                    <p class="document-file-name"><%= '"' + document.file_name + '"' %></p>
+                <% else %>
+                    <p class="warning-text tooltip-info align-top push-down"
+                       data-placement="bottom"
+                       data-title="No document uploaded, please upload a template">
+                      No Document Uploaded</p>
+                <% end %>
+            <% end %>
+        <% else %>
+            <p class="tooltip-info align-top push-down"
+               data-placement="bottom"
+               data-title="Job Log document type"><b><%= document.document_type_string %></b></p>
+        <% end %>
+      </div>
+
+      <% if document.access_level > 1 %>
+          <%= image_tag "lock_icon.png", class: "document-restricted tooltip-info",
+                        "data-placement" => "bottom",
+                        "data-title" => "Restricted Access" %>
+      <% end %>
+  <% end %>
+
+
+</div>
+
+</div>
+

@@ -1,0 +1,13 @@
+en:
+  enumerize:
+    event_warning_type:
+      severity:
+        low: 'Low'
+        moderate: 'Moderate'
+        high: 'High'
+      category:
+        hole_cleaning: 'Hole Cleaning'
+        wellbore_stability: 'Wellbore Stability'
+        torque_drag: 'Torque + Drag'
+        gain_loss: 'Gain/Loss'
+        drilling_efficiency: 'Drilling Efficiency'

@@ -1,0 +1,138 @@
+/**
+ * Global variables
+ */
+var PROGRAM_ID = -1,
+    PROGRAM_HISTORY = -1,
+    PROGRAMS = {},
+    UPDATED_PROGRAMS = {},
+    _COLOR_PALETTE = <%= raw @color_palette %>;
+
+
+/**
+ * Filter programs when select in dropdown.
+ */
+var programs_updated = function () {
+  UPDATED_PROGRAMS = {};
+
+  if (PROGRAM_HISTORY != -1) {
+    var start_from = (Date.now() || new Date().getTime()) - PROGRAM_HISTORY * 30 * 24 * 60 * 60 * 1000;
+
+    for (var key in PROGRAMS) {
+      var program = PROGRAMS[key];
+      var updated_program = {
+        name: program.name,
+        graph_color: program.graph_color,
+        wells: {}
+      };
+      for (var k in program.wells) {
+        var well = program.wells[k];
+        if (well.finished_at > start_from) {
+          updated_program.wells[well.id] = well;
+        }
+      }
+      UPDATED_PROGRAMS[key] = updated_program;
+    }
+  } else {
+    UPDATED_PROGRAMS = PROGRAMS;
+  }
+
+  if (PROGRAM_ID != -1) {
+    var temp = UPDATED_PROGRAMS[PROGRAM_ID]
+    UPDATED_PROGRAMS = {};
+    UPDATED_PROGRAMS[PROGRAM_ID] = temp;
+  }
+};
+
+(function ($) {
+  var init_programs = function () {
+    /**
+     * Load all programs
+     */
+    <% @programs.each_with_index do |program, index| %>
+    PROGRAMS[<%= program.id %>] = {};
+    PROGRAMS[<%= program.id %>].name = "<%= program.name %>";
+    PROGRAMS[<%= program.id %>].graph_color = _COLOR_PALETTE[<%= index % 9%>];
+    PROGRAMS[<%= program.id %>].wells = {};
+    <%# wells = program.wells.to_a.sort_by { |j| "#{j.finished_at}" } %>
+    <% program.wells.each do |well| %>
+    PROGRAMS[<%= program.id %>].wells[<%= well.id %>] = {
+      id: "<%= well.id %>",
+      name: "<%= well.name %>",
+      job_id: "<%= well.job.id%>",
+      finished_at: <%= well.finished_at.to_i * 1000 %>,
+      depth: <%= well.hole_depth.to_f %>,
+      rig_name: "<%= well.rig.name %>",
+      rig_id: "<%= well.rig.id %>",
+      total_well_time: <%= well.total_time / 3600.0 / 24.0 %>,
+      drilling_time: <%= well.drilling_time.to_f %>,
+      rop: <%= well.drilling_rop.to_f %>,
+      total_cost: <%= well.total_cost.to_f %>,
+      total_warnings: <%= well.total_warnings.to_i %>,
+      hole_size: "<%= well.hole_size %>",
+      savings_potential: <%= well.potential_savings.to_f %>
+    };
+    <% end %>
+    <% end %>
+  };
+
+  /**
+   * Initialize drilling programs.
+   */
+  var init = function () {
+
+    init_programs();
+    programs_updated();
+
+    /**
+     * Activate a button on click.
+     *
+     * Buttons: Well-Time, Cost, Warnings, Operation buttons
+     */
+    $('.btn-programs-perf').click(function () {
+      $('.btn-programs-perf').removeClass('active');
+      $(this).addClass('active');
+    });
+
+    /**
+     * Click event on history list item
+     */
+    $('#history_list li a').on('click', function () {
+      $('#history_selected').html($(this).html() + ' <span class="caret"></span>');
+      $('#history_selected').data('id', $(this).attr('data-id'));
+      PROGRAM_HISTORY = $(this).attr('data-id');
+      programs_updated();
+    });
+
+    /**
+     * Click event on programs list item
+     */
+    $('#program_list li a').on('click', function () {
+      $('#program_selected').html($(this).html() + ' <span class="caret"></span>');
+      $('#program_selected').data('id', $(this).attr('data-id'));
+      PROGRAM_ID = $(this).attr('data-id');
+      if (PROGRAM_ID != -2) {
+        programs_updated();
+      }
+    });
+
+    /**
+     * Load child view.
+     */
+    if (document.location.hash == '') {
+      setTimeout(function () {
+        tray = $(".remote-tray[data-tray='programs_well_time']");
+        tray.find('.content').hide();
+        tray.find('.remote-loading').removeClass('hidden');
+        tray.find('.loading').removeClass('hidden');
+        $.ajax({
+          url: "/performance/programs?section=programs_well_time",
+          type: "GET",
+          dataType: "script"
+        });
+        $(".remote-tray-toggle[data-tray='programs']").attr("data-tray-child", "programs_well_time");
+      }, 0);
+    }
+  };
+
+  init();
+}(jQuery));

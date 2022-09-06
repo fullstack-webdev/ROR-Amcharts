@@ -1,0 +1,30 @@
+<% fluid ||= {} %>
+<div class="section-sub-header">
+  Rheometer Readings
+</div>
+
+<div class="block">
+  <table class="table-normal">
+    <tbody>
+    <tr>
+      <td>600 rpm</td>
+      <td class="text-bold">
+        <input id="fluids_form_600rpm" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['rpm600'] unless fluid['rpm600'].nil? %>"/></td>
+      <td>300 rpm</td>
+      <td><input id="fluids_form_300rpm" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['rpm300'] unless fluid['rpm300'].nil? %>"/></td>
+    </tr>
+    <tr>
+      <td>200 rpm</td>
+      <td><input id="fluids_form_200rpm" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['rpm200'] unless fluid['rpm200'].nil? %>"/></td>
+      <td>100 rpm</td>
+      <td><input id="fluids_form_100rpm" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['rpm100'] unless fluid['rpm100'].nil? %>"/></td>
+    </tr>
+    <tr>
+      <td>6 rpm</td>
+      <td><input id="fluids_form_6rpm" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['rpm6'] unless fluid['rpm6'].nil? %>"/></td>
+      <td>3 rpm</td>
+      <td><input id="fluids_form_3rpm" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['rpm3'] unless fluid['rpm3'].nil? %>"/></td>
+    </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,115 @@
+<div id="sequence_chart_<%= title %>" class="amChart" style="width: 100%; height: 520px;"></div>
+<!--<div class='amChart_balloon balloon-header'>-->
+  <!--<div class='inline-block'>HP920</div>-->
+  <!--<div class='spacer'></div>-->
+  <!--<div class='inline-block'>Muddy Water</div>-->
+<!--</div>-->
+<!--<div class='amChart_balloon balloon-body'>-->
+  <!--<div>-->
+    <!--<div class='inline-block text-blue'><b>14</b> days</div>-->
+    <!--<div class='spacer'></div>-->
+    <!--<div class='inline-block text-blue'><b>14</b> days</div>-->
+    <!--<div class='spacer'></div>-->
+    <!--<div class='inline-block text-blue'><b>14</b> days</div>-->
+  <!--</div>-->
+  <!--<div>-->
+    <!--<div class='triangle-down inline-block'><span>*</span></div>-->
+    <!--<div class='text-red inline-block'>14</div>-->
+    <!--<div class='spacer'></div>-->
+    <!--<div class='inline-block'>16<span class="index">3/4</span></div>-->
+  <!--</div>-->
+<!--</div>-->
+
+<script type="text/javascript">
+    var chart = AmCharts.makeChart("sequence_chart_<%= title %>", {
+        "type": "serial",
+        "theme": "none",
+        "pathToImages": "https://www.amcharts.com/lib/3/images/",
+        "backgroundColor": "#475959",
+        "backgroundAlpha": 0,
+        "marginLeft": 30,
+        "marginBottom": 60,
+        "balloon": {
+            "adjustBorderColor": true,
+            "color": "#000000",
+            "cornerRadius": 5,
+            "fillColor": "#FFFFFF",
+            "borderThickness": 0,
+            "horizontalPadding": 0,
+            "cornerRadius": 0,
+            "verticalPadding": 0,
+            "borderAlpha": 0,
+            "fillAlpha": 1,
+            "fillColor": "#323a3a"
+        },
+        "legend": {
+            "align": "right",
+            "position": "bottom",
+            "markerType": "circle",
+            "markerSize": 8,
+            "equalWidths": false,
+            "fontSize": 11,
+            "periodValueText": "",
+            "valueAlign": "left",
+            "valueWidth": 100,
+            "valueText": "",
+            "color": "#fefefe"
+        },
+        "dataProvider": [{
+            "year": "1",
+            "value": 2300
+        }, {
+            "year": "2",
+            "value": 3200
+        }, {
+            "year": "3",
+            "value": 3500
+        }],
+        "valueAxes": [{
+            "axisAlpha": 0,
+            "position": "left",
+            "reversed": false,
+            "title": "<%= title %>",
+            "gridAlpha": 0,
+            "color": "#fefefe",
+            "titleColor": "#fefefe",
+            "guides": [{
+                "fillAlpha": 0.8,
+                "fillColor": "#455657",
+                "inside": true,
+                "lineAlpha": 0,
+                "toValue": 40000,
+                "value": 0
+            }],
+        }],
+        "graphs": [{
+            "title": "Drilling Program A",
+            "balloonText": "<div class='amChart_balloon balloon-header'><div class='inline-block'>HP920</div><div class='spacer'></div><div class='inline-block'>Muddy Water</div></div><div class='amChart_balloon balloon-body'><div><div class='inline-block text-blue'><b>14</b> days</div><div class='spacer'></div><div class='inline-block text-blue'><b>14</b> days</div><div class='spacer'></div><div class='inline-block text-blue'><b>14</b> days</div></div><div><div class='triangle-down inline-block'><span>*</span></div><div class='text-red inline-block'>14</div><div class='spacer'></div><div class='inline-block'>16<span class='index'>3/4</span></div></div></div>",
+            "lineColor": "#b858c9",
+            "lineThickness": 2,
+            "negativeLineColor": "#637bb6",
+            "type": "smoothedLine",
+            "valueField": "value",
+            "bullet": "round",
+            "bulletSize": 10,
+        }],
+        "chartCursor": {
+            "cursorAlpha": 0,
+            "categoryBalloonEnabled": false
+        },
+        "categoryField": "year",
+        "categoryAxis": {
+            "parseDates": false,
+            "minorGridAlpha": 0,
+            "minorGridEnabled": true,
+            "title": "Sequence",
+            "color": "#fefefe",
+            "titleColor": "#fefefe",
+            "axisColor": "#fefefe",
+            "axisAlpha": 0,
+            "gridAlpha": 0,
+            "gridColor": "#fefefe",
+            "labelsEnabled": false
+        }
+    });
+</script>

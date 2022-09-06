@@ -1,0 +1,186 @@
+<div id="map_header" style='height: 166px;'>
+  <% if in_form %>
+      <div class="map-container"
+           style='position:absolute; left: 0; top: 54px; width:100%; height:202px; box-shadow: 0px 1px 3px #979797; background: #5b5b5b;'>
+        <div id='map' class='dark'></div>
+      </div>
+
+
+      <div id="job_header" style='position: absolute; width: 100%; left: 0; right: 0; top: 208px; background-color:rgba(0, 0, 0, 0.4); padding-top: 10px;'>
+
+        <div class="btn-group inline pull-right" style='margin-right: 10px; margin-top: 5px;'>
+          <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#" style='color: #d3d3d3; padding-left: 50px;'>
+            Advanced Actions
+          </a>
+          <ul class="dropdown-menu">
+
+            <li>
+              <%= link_to "Create New Job (Rig Skid)", new_job_path(job: @job.id),
+                          remote: true,
+                          class: "dropdown-menu-link tooltip-info show-modal-button",
+                          "data-placement" => "left",
+                          "data-title" => "This will allow you to create a new job and transfer all assets, information, and people." %>
+            </li>
+
+
+            <% if @job.status == Job::COMPLETE %>
+                <li>
+                  <%= link_to "Reopen Job", @job,
+                              class: "dropdown-menu-link tooltip-info",
+                              "data-placement" => "left",
+                              "data-title" => "This will reopen the job for edit." %>
+
+                  <!--<li class="divider"></li>-->
+                </li>
+            <% end %>
+
+
+            <% if current_user.role != UserRole::ROLE_FIELD_ENGINEER %>
+
+                <li class="divider"></li>
+
+
+                <li>
+                  <%= link_to "Delete Job", @job, method: :delete,
+                              class: "btn btn-danger white-text tooltip-info",
+                              style: "margin-left: 10px; ",
+                              data: {confirm: "Delete Job? Permanently delete job. All data and documents will be lost. This can't be undone."},
+                              "data-placement" => "left",
+                              "data-title" => "Permanently delete job. All data and documents will be lost. This can't be undone." %>
+                </li>
+            <% end %>
+
+
+          </ul>
+        </div>
+
+        <% if job.well.rig.present? %>
+            <%= link_to job.well.rig.name, job.well.rig, class: "job-title inline job-type-description-target orange-text",
+                        style: "margin-left: 10px; font-size: 18px;",
+                        "data-placement" => "bottom",
+                        "data-html" => true,
+                        "data-title" => "<div>Rig <b>" + job.well.rig.name + "</b></div>" %>
+        <% end %>
+        <%= link_to job.field.name, job.field, class: "job-title inline job-type-description-target white-text",
+                    style: "margin-left: 10px;",
+                    "data-placement" => "bottom",
+                    "data-html" => true,
+                    "data-title" => "<div>Field <b>" + job.field.name + "</b></div>" %>
+        <p class="job-well-field-title">Field</p>
+
+
+        <p class="job-title-divider">|</p>
+
+        <div class="inline-block">
+          <%= link_to job.well.name, job.well, class: "job-title inline job-type-description-target white-text",
+                      "data-placement" => "bottom",
+                      "data-html" => true,
+                      "data-title" => "<div>Well <b>" + job.well.name + "</b>, Click to view all jobs</div>" %>
+          <p class="job-well-field-title">Well</p>
+        </div>
+      </div>
+  <% end %>
+
+
+
+</div>
+
+
+<script type='text/javascript'>
+
+    var oldHide = $.fn.popover.Constructor.prototype.hide;
+
+    $.fn.popover.Constructor.prototype.hide = function () {
+        if (this.options.trigger === "hover" && this.tip().is(":hover")) {
+            var that = this;
+            // try again after what would have been the delay
+            setTimeout(function () {
+                return that.hide.call(that, arguments);
+            }, that.options.delay.hide);
+            return;
+        }
+        oldHide.call(this, arguments);
+    };
+
+    var map = L.mapbox.map('map', 'elephant.map-vum3on5g', { zoomControl: false });
+    map.attributionControl = false;
+    map.scrollWheelZoom.disable();
+
+    <% if @job.well.x_location.present? && @job.well.x_location != 0.0 %>
+    var geoJson = [];
+    geoJson.push({
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [<%= @job.well.x_location %>, <%= @job.well.y_location %>]
+        },
+        "properties": {
+            title: '<%= @job.well.field.name + ' | ' + @job.well.name %>',
+            'marker-size': 'medium',
+            'marker-color': '#0058a8'
+            //'marker-symbol': '1'
+        }
+    });
+
+    map.markerLayer.setGeoJSON(geoJson);
+
+    map.markerLayer.on('click', function (e) {
+        ///map.panTo(e.layer.getLatLng());
+    });
+
+
+    var bounds = [];
+    bounds.push([<%= @job.well.y_location %>, <%= @job.well.x_location %>]);
+    map.fitBounds(bounds);
+    map.setZoom(6);
+    //zoom = Math.round(map.getZoom());
+    //if (zoom > 8) {
+    //    map.setZoom(8);
+    //}
+
+    <% end %>
+
+
+    map.markerLayer.on('mouseover', function (e) {
+        //e.layer.openPopup();
+    });
+    map.markerLayer.on('mouseout', function (e) {
+        //e.layer.closePopup();
+    });
+
+    $('.expand-map-box').live("click", function () {
+        if ($('.expand-text').text() == 'expand') {
+            $('.expand-text').text('collapse');
+            $('.map-container').css('height', '500px');
+            $('.map-views').removeClass('hidden');
+        }
+        else {
+            $('.expand-text').text('expand');
+            $('.map-container').css('height', '80px');
+            $('.map-views').addClass('hidden');
+        }
+        map._onResize();
+        return false;
+    });
+
+    $('.map-area-view').live("click", function () {
+        layer = L.mapbox.tileLayer('elephant.map-vum3on5g');
+        layer.addTo(map);
+        map.setZoom(6);
+        map._onResize();
+        return false;
+    });
+
+    $('.map-site-view').live("click", function () {
+        layer = L.mapbox.tileLayer('elephant.map-6f5p6pfx');
+        layer.addTo(map);
+        map.setZoom(13);
+        map.fitBounds(bounds);
+        map._onResize();
+        return false;
+    });
+
+    $('.mapbox-info-toggle').remove();
+
+
+</script>

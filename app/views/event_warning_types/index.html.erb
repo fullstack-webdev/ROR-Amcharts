@@ -1,0 +1,54 @@
+<div class="company-overview">
+  <div class="section-header">
+    <h1>Warnings</h1>
+
+    <div class='inline-block align-top pull-right'>
+      <%= link_to "New", new_event_warning_type_path, class: "btn btn-sub tooltip-info align-top" %>
+    </div>
+  </div>
+
+  <div id="wells_list">
+    <div style="font-size: 13px; color: #7C9B8F; margin: 15px;">
+      <div class="inline-block" style="width: 10%;">ID</div>
+      <div class="inline-block" style="width: 20%;">Name</div>
+      <div class="inline-block" style="width: 10%;">Severity</div>
+      <div class="inline-block" style="width: 20%;">Category</div>
+      <div class="inline-block" style="width: auto;">Description</div>
+    </div>
+
+    <div id="jobs" class="list">
+      <% @warning_types.each do |type| %>
+        <%= link_to type, class: "well-link tooltip-info" do %>
+          <div>
+
+            <div class='inline-block well-name' style="width: 10%;">
+              <%= type.warning_id %>
+            </div>
+
+            <div class='inline-block rig-name' style="width: 20%;">
+              <%= type.name %>
+            </div>
+
+            <div class='inline-block rig-name' style="width: 10%;">
+              <%= type.severity %>
+            </div>
+
+            <div class='inline-block drilling-program' style="width: 20%;">
+              <%= type.category_label %>
+            </div>
+
+            <div class='inline-block drilling-program' style="width: auto;">
+              <%= truncate(type.description, length: 30) %>
+            </div>
+
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+  </div>
+
+  <div style="text-align: center;">
+    <%= paginate @warning_types %>
+  </div>
+</div>

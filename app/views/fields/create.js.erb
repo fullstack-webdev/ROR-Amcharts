@@ -1,0 +1,31 @@
+<% if @field.new_record? %>
+
+$('#modal_popup').find('.loading').addClass('hidden');
+$('#modal_popup').find('.form').show();
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding Field", message: @field.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show:true});
+
+<% else %>
+
+$('#modal_popup').css('visibility', 'hidden');
+$('#modal_popup').find(".modal-content").children().remove();
+$('#modal_popup').height(0);
+
+$('#job_field_id').append($("<option></option>")
+        .attr("value", '<%= @field.id %>')
+        .text('<%= @field.name %>'));
+$('#job_field_id').find(" option[value='<%= @field.id %>']").attr('selected','selected');
+
+$('#job_field_id').trigger("change");
+
+//$('#job_field_id').removeAttr("disabled");
+//$('#job_field_id').css("opacity", "1");
+
+//$('#job_well_id').attr("disabled");
+//$('#job_well_id').css("opacity", ".3");
+//$('#job_well_id').empty();
+
+
+<% end %>

@@ -1,0 +1,15 @@
+<div class="remote-tray" data-tray="lwd_logs">
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading Logs..." %>
+  </div>
+
+  <div class='tray-content'>
+    <div class='section-header' style='margin-top: 15px;'>
+      <h1>Logs</h1>
+    </div>
+
+    <% @lwd_log = LwdLog.new %>
+    <%= render 'lwd_logs/new', job: job %>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+tray = $(".remote-tray[data-tray='<%= params[:section] %>']");
+setTimeout(function () {
+  <% if params[:section] == "custom_queries_well_time" %>
+  tray.replaceWith("<%= j render 'performance/custom_queries/well_time/index.html' %>");
+  <% elsif params[:section] == "custom_queries_cost" %>
+  tray.replaceWith("<%= j render 'performance/custom_queries/cost/index_cost.html' %>");
+  <% elsif params[:section] == "custom_queries_warnings" %>
+  tray.replaceWith("<%= j render 'performance/custom_queries/warnings/index.html' %>");
+  <% elsif params[:section] == "custom_queries_operations" %>
+  tray.replaceWith("<%= j render 'performance/custom_queries/operations/index.html' %>");
+  <% end %>
+}, 0);

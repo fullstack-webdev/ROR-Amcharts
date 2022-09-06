@@ -1,0 +1,2 @@
+module SurveyProjectionsHelper
+end

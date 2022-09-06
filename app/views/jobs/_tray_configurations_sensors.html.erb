@@ -1,0 +1,79 @@
+<div class="remote-tray" data-tray="sensors">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading sensors..." %>
+  </div>
+
+  <div class='tray-content'>
+
+
+    <div class='section-header' style='margin-top: 15px;'>
+      <h1>Sensors</h1>
+    </div>
+
+
+    <div>
+
+      <div id="wells_list">
+
+
+        <% sensors = @job.get_sensors  %>
+
+
+        <div style="font-size: 13px; color: #7C9B8F; margin: 15px;">
+          <div class="inline-block" style="width: 16%;">Status</div>
+          <div class="inline-block" style="width: 28%;">Name</div>
+          <div class="inline-block" style="width: 20%;">Sensor Error</div>
+          <div class="inline-block" style="width: 20%;">Adjusted Calibration</div>
+          <div class="inline-block" style="width: 10%;">Average</div>
+        </div>
+
+        <div id="sensors" class="list">
+          <% sensors.each do |sensor| %>
+
+              <%= link_to "#", class: "well-link" do %>
+
+                  <div>
+
+
+                    <div class='inline-block well-name' style="width: 16%;">
+                      <div style="width:88px; height: 20px; text-align: left; background-color: <%= sensor[2] > 0 ? "#f72a2a" : "#5bc714" %>"></div>
+                    </div>
+
+                    <div class='inline-block rig-name' style="width: 28%;">
+                      <%= sensor[0] %>
+                    </div>
+
+                    <div class='inline-block drilling-program' style="width: 20%; font-family: orgonboldregular;">
+                      <span style="<%= sensor[2] == 3 ? "color:#f72a2a;" : ""  %>"><%= sensor[2] == 3 ? "Offline" : "-" %></span>
+                    </div>
+
+                    <div class='inline-block drilling-program' style="width: 20%;">
+                      -
+                    </div>
+
+                    <div class='inline-block drilling-program' style="width: 10%; font-size: 13px;">
+                      <%= sensor[1] != nil && sensor[1] > -900 ? number_with_delimiter(sensor[1].round(0), :delimiter => ',') : "-" %>
+                    </div>
+
+                  </div>
+
+              <% end %>
+          <% end %>
+        </div>
+
+        <% if sensors == nil || sensors.empty? %>
+            <div style="margin-top:100px;">
+              <p class='help-text'>No data to show...</p><div style="margin-top:10px; text-align: center;"><%= image_tag("no_data_icon.PNG", style:"width:40px;")%></div>
+            </div>
+        <% end %>
+
+      </div>
+
+
+    </div>
+
+
+  </div>
+</div>

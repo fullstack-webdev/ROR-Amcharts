@@ -1,0 +1,3 @@
+$("#documents").append("<%= j render @document, in_job: true %>");
+var doc = $('.root-document:last')
+doc.attr("data-temp-id", "<%= @temp_id %>");

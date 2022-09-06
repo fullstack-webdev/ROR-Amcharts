@@ -1,0 +1,35 @@
+<% provide(:title, "Edit Program") %>
+
+<div class="section-header" style="margin-top: 10px;">
+  <h1><%= @program.name %></h1>
+</div>
+
+
+<div class="form" data-form="edit-program-form">
+  <%= form_for(@program) do |f| %>
+    <%= render 'fields', f: f %>
+
+      <br>
+  <%= link_to button_tag("Cancel", class: "btn btn-sub push-left-small tooltip-info","data-title" => "Cancel edit and go back", :type => 'button'), :back
+  %>
+    <%= f.submit "Save", class: "btn btn-primary tooltip-info form-loading-on-click",
+                 "data-form" => "edit-program-form",
+                 "data-title" => "Edit drilling program." %>
+
+
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="new-program-form">
+  <%= render "layouts/inline_loading", title: "Creating drilling program, please wait" %>
+</div>
+
+
+<div id="modal_popup" class="modal-popup-background">
+  <div class="modal-popup modal-popup-fixed">
+    <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal" %>
+    <div class="modal-content">
+    </div>
+    <%= render "layouts/inline_loading", title: "Loading..." %>
+  </div>
+</div>

@@ -1,0 +1,126 @@
+<% if job.present? %>
+    <table width="100%" style="margin-top: 10px;" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="100%">
+          <%= link_to "https://www.corva.ai/jobs/" + job.id.to_s, class: "empty-link" do %>
+              <b class='job-title4 orange-text'><%= job.well.rig.present? ? job.well.rig.name : "" %></b>
+              &nbsp;&nbsp;
+              <span class="job-title4"><%= job.field.name %></span>
+              <span class="job-title-divider2">|</span>
+              <span class="job-title4"><%= job.well.name %></span>
+          <% end %>
+        </td>
+      </tr>
+      <tr>
+        <td width="100%">
+          <table width="100%" style="margin-left: 10px;">
+            <tr>
+              <td width="140">
+                <% if job.status == Job::ON_JOB %>
+                    <% drilling_log = DrillingLog.includes(job: :well).where("wells.id = ?", job.well_id).first %>
+                    <% if drilling_log.present? %>
+                        <p class='inline-block' style="margin-left: 10px;">
+                          <b><%= drilling_log.nil? || drilling_log.max_depth.nil? ? "0" : number_with_delimiter(drilling_log.max_depth.to_i, :delimiter => ',') %></b>
+                          / <%= drilling_log.nil? || drilling_log.td_depth.nil? ? "0" : number_with_delimiter(drilling_log.td_depth.to_i, :delimiter => ',') %>
+                          ft</p>
+
+                        <p class='inline-block push-right-small'>
+                          <b><%= drilling_log.below_rotary.present? && drilling_log.above_rotary.present? ? ((drilling_log.above_rotary + drilling_log.below_rotary) / 24).to_i : 0 %></b>
+                          days
+                        </p>
+                    <% end %>
+                <% end %>
+              </td>
+              <td width="140">
+                <span>Job #</span>
+                <b><%= job.job_number %></b>
+              </td>
+              <td width="140">
+                <b class='orange-text'><%= job.client.present? ? job.client.name : "" %></b>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <% if false %>
+        <div class='push-down'>
+          <%= link_to "https://www.corva.ai/jobs/" + job.id.to_s, class: "job-status job-link" do %>
+              <div class='inline-block list-item-column-long'>
+                <h2 class="job-title4 inline"><%= job.field.name %></h2>
+
+                <p class="job-title-divider2">|</p>
+
+                <h2 class="job-title4 inline"><%= job.well.name %></h2>
+              </div>
+              <div>
+                <div class='inline-block list-item-column4'>
+                  <span>Rig</span>
+                  <b><%= job.well.rig.present? ? job.well.rig.name : "-" %></b>
+                </div>
+                <div class='inline-block list-item-column4'>
+                  <span>Job #</span>
+                  <b><%= job.job_number %></b>
+                </div>
+                <div class='inline-block list-item-column4'>
+                  <b class='orange-text'><%= job.client.present? ? job.client.name : "" %></b>
+                </div>
+              </div>
+          <% end %>
+        </div>
+    <% end %>
+    <% if job.status == Job::ON_JOB %>
+        <table width="100%" style="margin-left: 10px;" border="0" cellpadding="0" cellspacing="0">
+
+
+          <tr>
+            <td width="120">
+              <span class='help-text align-top'>Asset Requests</span>
+            </td>
+            <td>
+              <p><%= assets_string.present? ? assets_string : "-" %></p>
+            </td>
+          </tr>
+          <tr>
+            <td width="120">
+              <span class='help-text align-top'>Notes</span>
+            </td>
+            <td>
+              <p><%= notes_string.present? ? notes_string : "-" %></p>
+            </td>
+          </tr>
+        </table>
+
+        <% job_memberships = job.job_memberships.includes(user: :district).order("job_role_id ASC").to_a %>
+        <% worked_job_memberships = [] %>
+        <
+        <% job_memberships.each do |jm| %>
+
+            <% worked_job_memberships << jm %>
+        <% end %>
+        <% if worked_job_memberships.any? %>
+            <table width="100%" style="margin-left: 10px; margin-top: 10px;" border="0" cellpadding="0" cellspacing="0">
+              <% job_memberships_array = worked_job_memberships.select { |jm| jm.job_role_id != JobMembership::CREATOR && jm.job_role_id != JobMembership::MANAGER && jm.job_role_id != JobMembership::TOOL_COORDINATOR && jm.job_role_id != JobMembership::OBSERVER && jm.job_role_id != JobMembership::SHOP } %>
+              <% real_index = -1 %>
+              <% job_memberships_array.each_with_index do |jm, index| %>
+                  <% if real_index < job_memberships_array.length %>
+                      <tr height="35">
+                        <% real_index = real_index + 1 %>
+                        <%= render 'user_mailer/job_report_user', real_index: real_index, job_memberships_array: job_memberships_array %>
+
+                        <% real_index = real_index + 1 %>
+                        <%= render 'user_mailer/job_report_user', real_index: real_index, job_memberships_array: job_memberships_array %>
+
+                        <% real_index = real_index + 1 %>
+                        <%= render 'user_mailer/job_report_user', real_index: real_index, job_memberships_array: job_memberships_array %>
+
+                      </tr>
+                  <% end %>
+              <% end %>
+            </table>
+        <% end %>
+        </table>
+    <% end %>
+    <hr>
+<% end %>

@@ -1,0 +1,467 @@
+<div class="remote-tray" data-tray="performance_analysis">
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading time analysis..." %>
+</div>
+
+<div class='tray-content'>
+
+<% well = @job.well %>
+<% sections = @job.section_rops %>
+
+<% offset_job = @job.well.offset_well.present? ? @job.well.offset_well.jobs.first : nil %>
+<% if offset_job.present? %>
+  <% offset_sections = offset_job.section_rops %>
+<% end %>
+
+<div class="section-header" style="margin-top: 15px;">
+  <h1>Performance</h1>
+</div>
+
+<div class="performance-analysis analysis-subtab">
+
+  <div class="block">
+    <div class="analysis-filter">
+      <p style="font-size: 18px;">Crew Shift</p>
+      <%
+         crew_shift_filters = []
+         crew_shift_filters << ["Combined Shifts", 0]
+         crew_shift_filters << ["Both Shifts", 1]
+         # crew_shift_filters << ["6AM - 6PM", 1]
+         # crew_shift_filters << ["6PM - 6AM", 2]
+      %>
+      <%= select_tag "#",
+                     options_for_select(crew_shift_filters, 0),
+                     id: "performance_filter",
+                     class: "custom-select custom-select-ajax align-top push-right-small" %>
+    </div>
+  </div>
+
+
+  <div class="block">
+    <div class="inline-block" style="width: 30%;">
+      <div class="title" style="font-size: 20px;">Drilled</div>
+      <div class="value"><%= number_with_delimiter(@job.total_depth.to_f.convert(:ft, company_unit).round(0), :delimiter => ',') %>
+        <span><%= unit(:ft, company_unit) %></span></div>
+    </div>
+    <div class="inline-block" style="width: 30%;">
+      <div class="title" style="font-size: 20px;">Day ROP</div>
+      <div class="value"><%= number_with_delimiter((@job.rop * 24.0).to_f.convert(:ft, company_unit).round(1), :delimiter => ',') %>
+        <span><%= unit(:ft, company_unit) %>/day</span></div>
+    </div>
+    <div class="inline-block" style="width: 30%;">
+      <div class="title" style="font-size: 20px;">Avg Drilling ROP</div>
+      <div class="value"><%= number_with_delimiter(@job.drilling_rop.to_f.convert(:ft, company_unit).round(1), :delimiter => ',') %>
+        <span><%= unit(:ft, company_unit) %>/hr</span></div>
+    </div>
+  </div>
+
+
+  <div id="drillingRopChart" class="amChart block" style="width: 100%;height: 400px;font-size: 11px;/*background-color: #475959;*/"></div>
+
+</div>
+
+<div>
+  <div class="invisible-lost-time block" style="margin: 5px 0px;">
+    <div style="width: 100%;">
+      <div class="inline-block" style="width: 20%;">
+        <p class="title">Section</p>
+      </div>
+      <div class="inline-block" style="width: 20%;">
+        <p class="title">MD</p>
+      </div>
+      <div class="inline-block" style="width: 20%;">
+        <p class="title">Actual</p>
+      </div>
+      <div class="inline-block" style="width: 20%;">
+        <p class="title">Offset</p>
+      </div>
+      <div class="inline-block" style="width: 20%;">
+        <p class="title">Difference</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="invisible-lost-time block" style="margin: 5px 0px;">
+
+    <div class="block" style="width: 100%;">
+      <div class="inline-block" style="width: 20%; font-size: 16px;">
+        <p class="value" style="font-size: 16px; line-height: 30px;">Surface</p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:surface][:md].convert(:ft, company_unit).round(0), :delimiter => ',') %>
+          <span><%= unit(:ft, company_unit) %></span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:surface][:rop].convert(:ft, company_unit).round(1), :delimiter => ',') %>
+          <span><%= unit(:ft, company_unit) %>/hr</span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= offset_job.present? ? offset_sections[:surface][:rop].convert(:ft, company_unit).round(1) : "-" %>
+          <span><%= unit(:ft, company_unit) %>/hr</span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <% difference_present = offset_job.present? && sections[:surface][:rop] > 0 && offset_sections[:surface][:rop] > 0 %>
+        <% red_text = difference_present && (100 - (offset_sections[:surface][:rop] / sections[:surface][:rop]) * 100).round(2) < 0 ? true : false %>
+        <% green_text = difference_present && (100 - (offset_sections[:surface][:rop] / sections[:surface][:rop]) * 100).round(2) > 0 ? true : false %>
+        <p class="value <%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %> line-height: 30px;">
+          <%= green_text ? "+" : "" %>
+          <%= red_text ? "" : "" %>
+          <%= difference_present ? (100 - (offset_sections[:surface][:rop] / sections[:surface][:rop]) * 100).round(2) : "-" %>
+          <% if difference_present %>
+            <span class="<%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %>">%</span>
+          <% end %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="invisible-lost-time block" style="margin: 5px 0px;">
+    <div class="block" style="width: 100%;">
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="font-size: 16px; line-height: 30px;">Intermediate</p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:intermediate][:md].convert(:ft, company_unit).round(0), :delimiter => ',') %>
+          <span><%= unit(:ft, company_unit) %></span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:intermediate][:rop].convert(:ft, company_unit).round(1), :delimiter => ',') %>
+          <span><%= unit(:ft, company_unit) %>/hr</span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= offset_job.present? ? offset_sections[:intermediate][:rop].convert(:ft, company_unit).round(1) : "-" %>
+          <span><%= unit(:ft, company_unit) %>/hr</span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <% difference_present = offset_job.present? && sections[:intermediate][:rop] > 0 && offset_sections[:intermediate][:rop] > 0 %>
+        <% red_text = difference_present && (100 - (offset_sections[:intermediate][:rop] / sections[:intermediate][:rop]) * 100).round(2) < 0 ? true : false %>
+        <% green_text = difference_present && (100 - (offset_sections[:intermediate][:rop] / sections[:intermediate][:rop]) * 100).round(2) > 0 ? true : false %>
+        <p class="value <%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %> line-height: 30px;">
+          <%= green_text ? "+" : "" %>
+          <%= red_text ? "" : "" %>
+          <%= difference_present ? (100 - (offset_sections[:intermediate][:rop] / sections[:intermediate][:rop]) * 100).round(2) : "-" %>
+          <% if difference_present %>
+            <span class="<%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %>">%</span>
+          <% end %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="invisible-lost-time block" style="margin: 5px 0px;">
+    <div class="block" style="width: 100%;">
+      <div class="inline-block" style="width: 20%; font-size: 16px;">
+        <p class="value" style="font-size: 16px; line-height: 30px;">Curve</p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:curve][:md].convert(:ft, company_unit).round(0), :delimiter => ',') %>
+          <span><%= unit(:ft, company_unit) %></span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:curve][:rop].convert(:ft, company_unit).round(1), :delimiter => ',') %>
+          <span><%= unit(:ft, company_unit) %>/hr</span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= offset_job.present? ? offset_sections[:curve][:rop].convert(:ft, company_unit).round(1) : "-" %>
+          <span><%= unit(:ft, company_unit) %>/hr</span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <% difference_present = offset_job.present? && sections[:curve][:rop] > 0 && offset_sections[:curve][:rop] > 0 %>
+        <% red_text = difference_present && (100 - (offset_sections[:curve][:rop] / sections[:curve][:rop]) * 100).round(2) < 0 ? true : false %>
+        <% green_text = difference_present && (100 - (offset_sections[:curve][:rop] / sections[:curve][:rop]) * 100).round(2) > 0 ? true : false %>
+        <p class="value <%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %> line-height: 30px;">
+          <%= green_text ? "+" : "" %>
+          <%= red_text ? "" : "" %>
+          <%= difference_present ? (100 - (offset_sections[:curve][:rop] / sections[:curve][:rop]) * 100).round(2) : "-" %>
+          <% if difference_present %>
+            <span class="<%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %>">%</span>
+          <% end %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="invisible-lost-time block" style="margin: 5px 0px;">
+    <div class="block" style="width: 100%;">
+
+      <div class="inline-block" style="width: 20%; font-size: 16px;">
+        <p class="value" style="font-size: 16px; line-height: 30px;">Lateral</p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:lateral][:md].convert(:ft, company_unit).round(0), :delimiter => ',') %>
+          <span><%= unit(:ft, company_unit) %></span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:lateral][:rop].convert(:ft, company_unit).round(1), :delimiter => ',') %>
+          <span><%= unit(:ft, company_unit) %>/hr</span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <p class="value" style="line-height: 30px;"><%= offset_job.present? ? offset_sections[:lateral][:rop].convert(:ft, company_unit).round(1) : "-" %>
+          <span><%= unit(:ft, company_unit) %>/hr</span></p>
+      </div>
+
+      <div class="inline-block" style="width: 20%;">
+        <% difference_present = offset_job.present? && sections[:lateral][:rop] > 0 && offset_sections[:lateral][:rop] > 0 %>
+        <% red_text = difference_present && (100 - (offset_sections[:lateral][:rop] / sections[:lateral][:rop]) * 100).round(2) < 0 ? true : false %>
+        <% green_text = difference_present && (100 - (offset_sections[:lateral][:rop] / sections[:lateral][:rop]) * 100).round(2) > 0 ? true : false %>
+        <p class="value <%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %> line-height: 30px;">
+          <%= green_text ? "+" : "" %>
+          <%= red_text ? "" : "" %>
+          <%= difference_present ? (100 - (offset_sections[:lateral][:rop] / sections[:lateral][:rop]) * 100).round(2) : "-" %>
+          <% if difference_present %>
+            <span class="<%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %>">%</span>
+          <% end %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<script type='text/javascript'>
+  var graph_data = [];
+  <% @job.footage_logs.each_with_index do |log, index| %>
+  graph_data.push({
+    "time": "<%= index %>",
+    "depth": <%= log.to_i.convert(:ft, company_unit) %>
+  });
+  <% end %>
+
+
+  <% if well.offset_well.present? %>
+  <% well.offset_well.job.footage_logs.each_with_index do |log, index| %>
+  if (!graph_data[<%= index %>]) {
+    graph_data.push({
+      "time": "<%= index %>",
+      "offset_depth": <%= log.to_i %>,
+      "depth": 0
+    });
+  } else {
+    graph_data[<%= index %>].time = "<%= index %>";
+    graph_data[<%= index %>].offset_depth = <%= log.to_i.convert(:ft, company_unit) %>;
+  }
+  <% end %>
+  <% end %>
+
+  graph_data[0].padding = -50;
+
+  var both_graph_data = <%= well.footage_logs_both_shifts.to_json.html_safe%>;
+  both_graph_data[0].padding = -50;
+
+
+  (function ($) {
+
+    $('#performance_filter').change(function () {
+      if ($(this).val() == "0") {
+        var chart1 = AmCharts.makeChart("drillingRopChart", {
+          "type": "serial",
+          "theme": "none",
+          "pathToImages": "https://www.amcharts.com/lib/3/images/",
+          "backgroundColor": "#475959",
+          "backgroundAlpha": 0,
+          "marginLeft": 30,
+          "marginBottom": 60,
+          "legend": {
+            "align": "right",
+            "position": "top",
+            "markerType": "circle",
+            "markerSize": 8,
+            "equalWidths": false,
+            "fontSize": 11,
+
+            "valueAlign": "left",
+            "valueWidth": 100,
+            "color": "#fefefe"
+          },
+          "dataProvider": graph_data,
+          "valueAxes": [
+            {
+              "axisAlpha": 0,
+              "position": "left",
+              "reversed": true,
+              "title": "Footage (<%= unit(:ft, company_unit) %>/day)",
+              "gridAlpha": 0,
+              "color": "#fefefe",
+              "titleColor": "#fefefe",
+              "guides": [
+                {
+                  "fillAlpha": 0.8,
+                  "fillColor": "#455657",
+                  "inside": true,
+                  "lineAlpha": 0,
+                  "toValue": 40000,
+                  "value": -50000
+                }
+              ],
+              "labelFunction": function labelFunction(value, valueText, valueAxis) {
+                if (value < 0) {
+                  return "";
+                } else {
+                  return value.toString();
+                }
+              }
+            }
+          ],
+          "graphs": [
+            {
+              "lineColor": "#b858c9",
+              "lineThickness": 2,
+              "type": "smoothedLine",
+              "valueField": "depth",
+              "title": "Current Well"
+            },
+            {
+              "lineThickness": 0,
+              "valueField": "padding",
+              "legendAlpha": 0,
+              "legendValueText": "",
+              "visibleInLegend": false
+            },
+            {
+              "lineColor": "#4d8482",
+              "lineThickness": 2,
+              "type": "smoothedLine",
+              "valueField": "offset_depth",
+              "title": "Offset Well"
+            }
+          ],
+          "chartCursor": {
+            "zoomable": false,
+            "enabled": false,
+            "selectWithoutZooming": true
+          },
+          "categoryField": "time",
+          "categoryAxis": {
+            "parseDates": false,
+            "minorGridAlpha": 1,
+            "minorGridEnabled": true,
+            "title": "Day",
+            "color": "#fefefe",
+            "titleColor": "#fefefe",
+            "axisColor": "#fefefe",
+            "axisAlpha": 0,
+            "gridAlpha": 1,
+            "gridColor": "#fefefe"
+          },
+          "fontFamily": "orgonlightregular"
+        });
+
+      } else {
+        var chart2 = AmCharts.makeChart("drillingRopChart", {
+          "type": "serial",
+          "theme": "none",
+          "pathToImages": "https://www.amcharts.com/lib/3/images/",
+          "backgroundColor": "#475959",
+          "backgroundAlpha": 0,
+          "marginLeft": 30,
+          "marginBottom": 60,
+          "legend": {
+            "align": "right",
+            "position": "top",
+            "markerType": "circle",
+            "markerSize": 8,
+            "equalWidths": false,
+            "fontSize": 11,
+
+            "valueAlign": "left",
+            "valueWidth": 100,
+            "color": "#fefefe"
+          },
+          "dataProvider": both_graph_data,
+          "valueAxes": [
+            {
+              "axisAlpha": 0,
+              "position": "left",
+              "reversed": true,
+              "title": "Footage (<%= unit(:ft, company_unit) %>/day)",
+              "gridAlpha": 0,
+              "color": "#fefefe",
+              "titleColor": "#fefefe",
+              "guides": [
+                {
+                  "fillAlpha": 0.8,
+                  "fillColor": "#455657",
+                  "inside": true,
+                  "lineAlpha": 0,
+                  "toValue": 40000,
+                  "value": -5000
+                }
+              ],
+              "labelFunction": function labelFunction(value, valueText, valueAxis) {
+                if (value < 0) {
+                  return "";
+                } else {
+                  return value.toString();
+                }
+              }
+            }
+          ],
+          "graphs": [
+            {
+              "lineColor": "#b858c9",
+              "lineThickness": 2,
+              "type": "smoothedLine",
+              "valueField": "first_half",
+              "title": "6AM-6PM"
+            },
+            {
+              "lineThickness": 0,
+              "valueField": "padding",
+              "legendAlpha": 0,
+              "legendValueText": "",
+              "visibleInLegend": false
+            },
+            {
+              "lineColor": "#4d8482",
+              "lineThickness": 2,
+              "type": "smoothedLine",
+              "valueField": "second_half",
+              "title": "6PM-6AM"
+            }
+          ],
+          "chartCursor": {
+            "zoomable": false,
+            "enabled": false,
+            "selectWithoutZooming": true
+          },
+          "categoryField": "time",
+          "categoryAxis": {
+            "parseDates": false,
+            "minorGridAlpha": 1,
+            "minorGridEnabled": true,
+            "title": "Day",
+            "color": "#fefefe",
+            "titleColor": "#fefefe",
+            "axisColor": "#fefefe",
+            "axisAlpha": 0,
+            "gridAlpha": 1,
+            "gridColor": "#fefefe"
+          },
+          "fontFamily": "orgonlightregular"
+        });
+
+      }
+    });
+
+
+  }(jQuery))
+</script>

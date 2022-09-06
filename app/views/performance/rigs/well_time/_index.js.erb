@@ -1,0 +1,273 @@
+(function ($) {
+  var chart;
+  var graph_data = [];
+  var graphs = [];
+  var tray = $(".remote-tray[data-tray='rigs_well_time']");
+
+  var filter_graph_data = function () {
+    graph_data = [];
+    graphs = [];
+
+    for (var key in UPDATED_RIGS) {
+      var rig = UPDATED_RIGS[key];
+      var index = 0;
+      var total_drilling_time = 0;
+      var total_well_time = 0;
+
+      UPDATED_RIGS[key].total_depth = 0;
+
+      for (var k in rig.wells) {
+        var well = rig.wells[k];
+        var data = {};
+
+        if (!graph_data[index]) {
+          data = {
+            "sequence": index
+          };
+        } else {
+          data = graph_data[index];
+        }
+
+        data[key] = well.total_well_time;
+        data[key + '_well_name'] = well.name;
+        data[key + '_job_id'] = well.job_id;
+        data[key + '_rig_id'] = well.rig_id;
+        data[key + '_well_id'] = well.id;
+        data[key + '_rig_name'] = well.rig_name;
+        data[key + '_rop'] = well.rop;
+        data[key + '_total_cost'] = well.total_cost;
+        data[key + '_total_warnings'] = well.total_warnings;
+        graph_data[index] = data;
+        index++;
+
+        UPDATED_RIGS[key].total_depth += parseFloat(well.depth);
+        total_well_time += parseFloat(well.total_well_time);
+        total_drilling_time += parseFloat(well.drilling_time);
+      };
+
+      UPDATED_RIGS[key].avg_day_rop = total_well_time == 0 ? 0 : UPDATED_RIGS[key].total_depth / total_well_time;
+      UPDATED_RIGS[key].avg_drilling_rop = total_drilling_time == 0 ? 0 : UPDATED_RIGS[key].total_depth / total_drilling_time / 24;
+
+      graphs.push({
+        "title": rig.name,
+        "balloonFunction": function (graphDataItem, graph) {
+          var rig_name = graphDataItem.dataContext[graph.valueField + '_rig_name'];
+          var well_name = graphDataItem.dataContext[graph.valueField + '_well_name'];
+          var rop = graphDataItem.dataContext[graph.valueField + '_rop'].round_to_decimal().number_with_delimiter();
+          var total_cost = parseInt(graphDataItem.dataContext[graph.valueField + '_total_cost']).number_with_delimiter();
+          var total_warnings = graphDataItem.dataContext[graph.valueField + '_total_warnings'];
+          var total_well_time = graphDataItem.values.value.round_to_decimal().number_with_delimiter();
+          return "<div class='amChart_balloon'>" +
+              "<div class='block'>" +
+              "<div class='inline-block text-blue rig-name'>" +
+              rig_name +
+              "</div>" + "<div class='spacer'></div>" +
+              "<div class='inline-block text-white well-name'>" +
+              well_name +
+              "</div>" +
+              "</div>" +
+              "<div class='block stats-block-3'>" +
+              "<div class='inline-block text-lightblue' style='font-size: 13px;'><b>" +
+              total_well_time +
+              "</b> <span>days</span></div>" +
+              "<div class='spacer'></div>" +
+              "<div class='inline-block text-lightblue'>$<b>" +
+              total_cost + "</b></div>" +
+              "<div class='spacer'></div>" +
+              "<div class='inline-block text-lightblue'><b>" +
+              parseFloat(rop).convert('ft', company_unit).val().round_to_decimal().with_delimiter() + "</b> " + "ft".unit(company_unit) + "/hr</div>" +
+              "<div class='spacer'></div>" +
+              "<div class='inline-block text-red'>" +
+              "<span class='text-red'>*</span>&nbsp;<span>" + total_warnings + "</span>" +
+              "</div>" +
+              "<div class='spacer'></div>" +
+              "</div>" +
+              "</div>";
+        },
+        "lineColor": rig.graph_color,
+        "lineThickness": 2,
+        "type": "smoothedLine",
+        "valueField": key,
+        "bullet": "round",
+        "bulletSize": 10
+      });
+    }
+  };
+
+  var update_rigs_list = function() {
+    tray.find('.rigs-list').html('');
+    for (var key in UPDATED_RIGS) {
+      var rig = UPDATED_RIGS[key];
+      tray.find('.rigs-list').append('<div class="programs_cost_bottom">' +
+          '<div class="block">' +
+          '<div style="width: 10px; height:27px; background: ' + rig.graph_color + '; display: inline-block; line-height: 30px;"></div>' +
+          '<div style="vertical-align: top; line-height: 27px; height:27px; margin-left: 10px; display: inline-block; color: #fefefe; font-size: 22px;">' +
+          rig.name +
+          '</div>' +
+          '</div>' +
+          '<div class="divider"></div>' +
+          '<div class="block">' +
+          '<div class="inline-block kpi-block" style="width: 30%;">' +
+          '<div class="title">Total Depth</div>' +
+          '<div class="value">' +
+          rig.total_depth.convert('ft', company_unit).val().round_to_decimal().number_with_delimiter() + ' <span>' + 'ft'.unit(company_unit) + '</span>' +
+          '</div>' +
+          '</div>' +
+          '<div class="inline-block kpi-block" style="width: 30%;">' +
+          '<div class="title">Day ROP</div>' +
+          '<div class="value">' +
+          rig.avg_day_rop.convert('ft', company_unit).val().round_to_decimal(1).number_with_delimiter() + ' <span>' + 'ft'.unit(company_unit) + '/day</span>' +
+          '</div>' +
+          '</div>' +
+          '<div class="inline-block kpi-block" style="width: 30%;">' +
+          '<div class="title">Avg Drilling ROP</div>' +
+          '<div class="value">' +
+          rig.avg_drilling_rop.convert('ft', company_unit).val().round_to_decimal(1).number_with_delimiter() + ' <span>' + 'ft'.unit(company_unit) + '/hr</span>' +
+          '</div>' +
+          '</div>' +
+          '</div>' +
+          '<div class="divider divider-lg"></div>' +
+          '</div>');
+    }
+  };
+
+  var update_chart = function () {
+    if (graph_data.length == 0) {
+      tray.find('.content-view').hide();
+      tray.find('.no-content').show();
+    } else {
+      tray.find('.content-view').show();
+      tray.find('.no-content').hide();
+      chart.dataProvider = graph_data;
+      chart.graphs = graphs;
+      chart.validateData();
+    }
+  };
+
+  var on_click_chart_bullet = function (event) {
+    UPDATE_WELL_TIME_TOOLTIP('rigs_well_time_chart', event);
+    chart.balloon.hide();
+  };
+
+  var create_chart = function() {
+    chart = AmCharts.makeChart("rigs_well_time_chart", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#475959",
+      "backgroundAlpha": 0,
+      "marginLeft": 30,
+      "marginBottom": 60,
+      "autoMargins": false,
+      "marginLeft": 70,
+      "marginTop": 20,
+      "balloon": {
+        "adjustBorderColor": true,
+        "color": "#000000",
+        "cornerRadius": 5,
+        "fillColor": "#323a3a",
+        "borderThickness": 0,
+        "horizontalPadding": 0,
+        "cornerRadius": 0,
+        "verticalPadding": 0,
+        "borderAlpha": 0,
+        "fillAlpha": 0.8,
+        "maxWidth": 266,
+        "fadeOutDuration": 0
+      },
+      "legend": {
+        "align": "right",
+        "position": "bottom",
+        "markerType": "circle",
+        "markerSize": 8,
+        "equalWidths": false,
+        "fontSize": 11,
+        "periodValueText": "",
+        "valueAlign": "left",
+        "valueWidth": 100,
+        "valueText": "",
+        "color": "#fefefe"
+      },
+      "dataProvider": graph_data,
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "left",
+          "reversed": false,
+          "title": "Days",
+          "gridAlpha": 0,
+          "color": "#fefefe",
+          "titleColor": "#fefefe",
+          "guides": [
+            {
+              "fillAlpha": 0.8,
+              "fillColor": "#455657",
+              "inside": true,
+              "lineAlpha": 0,
+              "toValue": 40000,
+              "value": 0
+            }
+          ],
+        }
+      ],
+      "graphs": graphs,
+      "chartCursor": {
+        "cursorAlpha": 0,
+        "categoryBalloonEnabled": false,
+        "oneBalloonOnly": true
+      },
+      "categoryField": "year",
+      "categoryAxis": {
+        "parseDates": false,
+        "minorGridAlpha": 0,
+        "minorGridEnabled": true,
+        "title": "Sequence",
+        "color": "#fefefe",
+        "titleColor": "#fefefe",
+        "axisColor": "#fefefe",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "gridColor": "#fefefe",
+        "labelsEnabled": false
+      },
+      "fontFamily": "orgonlightregular",
+      "fontSize": 13
+    });
+
+    chart.addListener("rollOutGraphItem", function (event) {
+      $('.well_time_tooltip_container').hide();
+    });
+
+    chart.addListener("clickGraphItem", on_click_chart_bullet);
+  };
+
+  var init = function() {
+    // click event on rigs list
+    $('#rig_list li a').on('click', function () {
+      analysis_well_id = -1;
+      analysis_rig_id = -1
+      filter_graph_data();
+      update_chart();
+      update_rigs_list();
+    });
+
+    // click event on history list
+    $('#history_list li a').on('click', function () {
+      filter_graph_data();
+      update_chart();
+      update_rigs_list();
+    });
+
+    $(".remote-tray-toggle[data-tray='rigs_well_time']").on('click', function () {
+      setTimeout(function() {
+        chart.validateNow();
+      }, 0);
+    });
+
+    filter_graph_data();
+    create_chart();
+    update_rigs_list();
+  };
+
+  init();
+}(jQuery));

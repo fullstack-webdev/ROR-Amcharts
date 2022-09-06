@@ -1,0 +1,227 @@
+<div class="remote-tray" data-tray="warnings_overview">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading warnings overview..." %>
+  </div>
+
+  <div class='tray-content content-loaded'>
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Warnings Overview</h1>
+    </div>
+
+    <div class="invisible-lost-time">
+      <div class="inline-block" style="width: 30%;">
+        <p class="title" style="font-size: 20px; color: #9abeaa;">Last 4 hours</p>
+
+        <p class="value">3</p>
+      </div>
+
+      <div class="inline-block" style="width: 30%;">
+        <p class="title" style="font-size: 20px; color: #9abeaa;">Last 12 hours</p>
+
+        <p class="value">4</p>
+      </div>
+
+      <div class="inline-block" style="width: 30%;">
+        <p class="title" style="font-size: 20px; color: #9abeaa;">Total for Well</p>
+
+        <p class="value">12</p>
+      </div>
+    </div>
+
+    <div class="block warnings-overview">
+
+      <div class="inline-block" style="width: 30%; vertical-align: top;">
+
+        <ul class="list">
+          <li>
+            <div class="metrics">2:30pm 8,355ft</div>
+            <div class="warning">
+              <span>1</span>
+
+              <p>Lost Circulation</p>
+            </div>
+          </li>
+          <li>
+            <div class="metrics">2:30pm 8,355ft</div>
+            <div class="warning">
+              <span>1</span>
+
+              <p>Lost Circulation</p>
+            </div>
+          </li>
+          <li>
+            <div class="metrics">2:30pm 8,355ft</div>
+            <div class="warning">
+              <span>1</span>
+
+              <p>Lost Circulation</p>
+            </div>
+          </li>
+        </ul>
+
+      </div>
+
+      <div class="inline-block chart-container" style="width:65%;">
+        <div id="depthChart" class="amChart" class="block"  style="width: 780px; height: 330px;">
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+    // Depth chart
+    var chart = AmCharts.makeChart("depthChart", {
+        "type": "serial",
+        "theme": "none",
+        "pathToImages": "https://www.amcharts.com/lib/3/images/",
+        "dataProvider": [{
+            "date": "2009-10-02 00:00",
+            "1stBoneSpring": 6100,
+            "2ndBoneSpring": 6700,
+            "3rdBoneSpring": 7800,
+            "brushyCanyon": 8600,
+        },{
+            "date": "2009-10-02 12:11",
+            "value": 8000,
+            "no": "1"
+        }, {
+            "date": "2009-10-03 00:00",
+            "value": 8200,
+            "no": "2"
+        }, {
+            "date": "2009-10-04 00:00",
+            "value": 8900,
+            "no": "3"
+        }, {
+            "date": "2009-10-02 00:00",
+            "1stBoneSpring": 6100,
+            "2ndBoneSpring": 6700,
+            "3rdBoneSpring": 7800,
+            "brushyCanyon": 8600,
+            //"1stBoneSpringLabel": "1st Bone Spring"
+        }],
+        "valueAxes": [{
+            "id": "depthAxis",
+            "axisAlpha": 0,
+            "gridAlpha": 0,
+            "position": "left",
+            "reversed": true,
+            "color": "#bee9d0",
+            "fontSize": 14,
+            "boldLabels": false,
+            "minimum": 6000,
+            "maximum": 9000,
+            "autoGridCount": false,
+            "gridCount": 30,
+            "labelFrequency":10,
+            "offset": -80
+        }, {
+            "id": "descAxis",
+            "axisAlpha": 0,
+            "gridAlpha": 0,
+            "position": "right",
+            "reversed": true,
+            "color": "#bee9d0",
+            "fontSize": 9,
+            "boldLabels": false,
+            "labelFunction": function(value, valueText, valueAxis) {
+                if ( value == 6100 )
+                    return '1st Bone Spring';
+                else if ( value == 6700 )
+                    return '2nd Bone Spring';
+                else if ( value == 7800 )
+                    return '3rd Bone Spring';
+                else if ( value == 8600 )
+                    return 'Brushy Canyon';
+                else
+                    return '';
+            },
+            "minimum": 6000,
+            "maximum": 9000,
+            "autoGridCount": false,
+            "gridCount": 30,
+            "offset": -80
+        }],
+        "graphs": [{
+            "bulletSize": 20,
+            "bullet": "triangleDown",
+            "bulletColor": "#fe0000",
+            //"customBullet": "https://www.amcharts.com/lib/3/images/star.png",
+            //"customBulletField": "customBullet",
+            "valueField": "value",
+            "lineColor": "#b1dac3",
+            //"descriptionField": "no",
+            "labelPosition": "middle",
+            "labelText": "[[no]]",
+            "fontSize": 12,
+            "valueAxis": "depthAxis",
+            "labelOffset": 0.5
+            //"pointPosition": "start"
+        }, {
+            "bullet": "none",
+            "valueField": "1stBoneSpring",
+            "balloonText": "",
+            "color": "#bee9d0",
+            "fontSize": 12,
+            "lineColor": "#76855e",
+            //"pointPosition": "start",
+            //"startOnAxis": true,
+            "valueAxis": "descAxis"
+        }, {
+            "bullet": "none",
+            "valueField": "2ndBoneSpring",
+            "balloonText": "",
+            "color": "#bee9d0",
+            "fontSize": 12,
+            "lineColor": "#76855e",
+            //"pointPosition": "start",
+            //"startOnAxis": true,
+            "valueAxis": "descAxis"
+        }, {
+            "bullet": "none",
+            "valueField": "3rdBoneSpring",
+            "balloonText": "",
+            "color": "#bee9d0",
+            "fontSize": 12,
+            "lineColor": "#76855e",
+            //"pointPosition": "start",
+            //"startOnAxis": true,
+            "valueAxis": "descAxis"
+        }, {
+            "bullet": "none",
+            "valueField": "brushyCanyon",
+            "balloonText": "",
+            "color": "#bee9d0",
+            "fontSize": 12,
+            "lineColor": "#76855e",
+            //"pointPosition": "start",
+            //"startOnAxis": true,
+            "valueAxis": "descAxis"
+        }],
+        "marginTop": 20,
+        "marginRight": 50,
+        "marginLeft": 0,
+        "marginBottom": 20,
+        "chartCursor": {graphBulletSize:1.2},
+        "autoMargins": false,
+        "dataDateFormat": "YYYY-MM-DD H:NN",
+        "categoryField": "date",
+        "categoryAxis": {
+            "parseDates": false,
+            "minPeriod": "DD",
+            "axisAlpha": 0,
+            "gridAlpha": 0,
+            "tickLength": 0,
+            "axisColor": "#76855e",
+            "labelFunction": function (value, valueString, axis) {
+                return ''
+            }
+        }
+    });
+</script>

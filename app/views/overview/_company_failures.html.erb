@@ -1,0 +1,39 @@
+<div id="company_failures">
+  <div class="chart-block tooltip-info align-top"
+       data-title="'Job Success Rate' shows the percentage of jobs that are successful.">
+    <div class="chart-title">Job Failure-Free Rate</div>
+    <div class="donut-chart-div">
+      <div id="failure_rate" class="donut-chart "></div>
+      <div class="donut-inner-circle <%= @job_success_rate > 70 ? "" : "inner-circle-red" %>"></div>
+      <div class="donut-text <%= @job_success_rate > 70 ? "" : "chart-text-red" %>"><%= @job_success_rate %></div>
+      <div class="percentage-circle <%= @job_success_rate > 70 ? "" : "chart-text-red" %>">%</div>
+    </div>
+  </div>
+</div>
+
+<script>
+    $.jqplot('failure_rate', [
+        [
+            ['a', <%= @job_success_rate %>],
+            ['b', 100 - <%= @job_success_rate %>]
+        ]
+    ], {
+        animate: true,
+        background: "#FFFFFF",
+        seriesColors: [ "<%= @job_success_rate > 70 ? "#458fd2" : "#e4472e" %>", "#FFFFFF"],
+        seriesDefaults: {
+            textColor: " #00ff0000",
+            shadow: false,
+            renderer: $.jqplot.DonutRenderer,
+            rendererOptions: {
+                padding: 0,
+                innerDiameter: 95,
+                sliceMargin: 0,
+                startAngle: -90,
+                showDataLabels: true,
+                dataLabels: 'value'
+            }
+        }
+    });
+
+</script>

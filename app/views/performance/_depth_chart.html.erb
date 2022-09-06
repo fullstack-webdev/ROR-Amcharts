@@ -1,0 +1,111 @@
+<% graph_data = graph_data || nil %>
+<% if graph_data.present? %>
+  <% graph_data = graph_data.group_by { |i| i['range'] } %>
+  <div id="warnings_depth_chart" class="amChart" style="width: 100%; height: <%= graph_data.length * 30 + 50 %>px; background-color: #3d4f50; font-family: inherit; font-size: 15px;"></div>
+
+  <div class='pull-right' style="margin-top: 10px; margin-right: 10px;">
+    <div class="chart-legend inline-block">
+      <div class="circle inline-block" style="background: #e52909; width: 12px; height: 12px;">
+      </div>
+      <div class="legend-label inline-block">
+        <p>High</p>
+      </div>
+    </div>
+
+    <div class="chart-legend inline-block push-right-small">
+      <div class="circle inline-block" style="background: #ef891b; width: 12px; height: 12px;">
+      </div>
+      <div class="legend-label inline-block" style="margin-left: 5px;">
+        <p>Moderate</p>
+      </div>
+    </div>
+
+    <div class="chart-legend inline-block push-right-small">
+      <div class="circle inline-block" style="background: #f7e625; width: 12px; height: 12px;">
+      </div>
+      <div class="legend-label inline-block" style="margin-left: 5px;">
+        <p>Low</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var graph_data = [];
+      var item = {};
+
+
+      <% graph_data.each do |key, value| %>
+          item = {};
+          item.range = "<%= number_with_delimiter(key.to_f.convert(:ft, company_unit).round) %> - <%= number_with_delimiter(key.to_f.convert(:ft, company_unit).round + 1000.convert(:ft, company_unit).round) %>";
+          <% value.each do |item| %>
+          item["<%= item['severity'] %>"] = <%= item['count'] %>
+          <% end %>
+          graph_data.push(item);
+      <% end %>
+
+      var chart = AmCharts.makeChart("warnings_depth_chart", {
+        "type": "serial",
+        "theme": "none",
+        "dataProvider": graph_data,
+        "valueAxes": [
+          {
+            "stackType": "regular",
+            "axisAlpha": 0,
+            "gridAlpha": 0,
+            "labelsEnabled": false
+          }
+        ],
+        "graphs": [
+          {
+            "fillAlphas": 1,
+            "lineAlpha": 0,
+            "title": "",
+            "type": "column",
+            "color": "#fefefe",
+            "valueField": "high",
+            "lineColor": "#e52909",
+            "fixedColumnWidth": 20,
+            "balloonText": "<bold>[[high]]</bold> high warnings"
+
+          },
+          {
+            "fillAlphas": 1,
+            "lineAlpha": 0,
+            "title": "",
+            "type": "column",
+            "color": "#fefefe",
+            "valueField": "low",
+            "lineColor": "#f7e625",
+            "fixedColumnWidth": 20,
+            "balloonText": "<bold>[[low]]</bold> low warnings"
+          },
+          {
+            "fillAlphas": 1,
+            "lineAlpha": 0,
+            "title": "",
+            "type": "column",
+            "color": "#fefefe",
+            "valueField": "moderate",
+            "lineColor": "#ef891b",
+            "fixedColumnWidth": 20,
+            "balloonText": "<bold>[[moderate]]</bold> moderate warnings"
+          }
+        ],
+        "rotate": true,
+        "categoryField": "range",
+        "categoryAxis": {
+          "title": "Depth (MD - <%= unit(:ft, company_unit) %>)",
+          "titleColor": "#fefefe",
+          "gridPosition": "start",
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "position": "left",
+          "fontSize": 15,
+          "color": "#fefefe"
+        },
+        "fontFamily": "orgonlightregular"
+      });
+    });
+  </script>
+<% end %>

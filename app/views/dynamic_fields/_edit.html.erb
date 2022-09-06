@@ -1,0 +1,43 @@
+<div class="job-template-dynamic-field-edit inline" id="edit_dynamic_field_<%= dynamic_field.id.to_s %>">
+  <%= form_for dynamic_field, remote: true do |f| %>
+
+      <%= render 'shared/error_messages', object: f.object %>
+
+      <div class="inline-form job-dynamic-field-div well">
+
+        <%= f.text_field :name, placeholder: "Name of Field", class: "txtfield small", id: "new_dynamic_field_name" %>
+        <%= f.select :value_type, options_for_select(dynamic_field.units, dynamic_field.value_type) %>
+
+        <%= f.submit "Save", class: "bluebtn btnsmall" %>
+        <%= link_to "Cancel", "#", id: "cancel_edit_" + dynamic_field.id.to_s, class: "bluebtn btnsmall btn-fix red" %>
+
+        <br>
+
+        <div class="inline tooltip-info" data-placement="bottom"
+             data-title="This data is pre-defined and non-editable on the job page">
+          <%= f.label "Preset Value?", class: "checkbox-label" %>
+
+
+          <%= f.text_field :value,
+                           placeholder: "-",
+                           value: dynamic_field.value_type == DynamicField::VALUES ? dynamic_field.values : dynamic_field.value,
+                           class: "job-field-value-editable push-right-small" %>
+        </div>
+
+        <div class="inline push-right">
+          <%= f.check_box :priority,
+                          class: "regular-checkbox", id: "checkbox_1" %>
+          <label for="checkbox_1"></label>
+          <%= f.label nil, "Show in Job Summary", class: "checkbox-label" %>
+        </div>
+
+        <div class="inline push-right">
+          <%= f.check_box :optional,
+                          class: "regular-checkbox", id: "checkbox_2" %>
+          <label for="checkbox_2"></label>
+          <%= f.label nil, "Optional", class: "checkbox-label" %>
+        </div>
+
+      </div>
+  <% end %>
+</div>

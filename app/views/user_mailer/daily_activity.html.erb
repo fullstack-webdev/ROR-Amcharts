@@ -1,0 +1,42 @@
+<html>
+<link rel="stylesheet" type="text/css" href="/app/assets/stylesheets/application.css.scss"/>
+<body class="email-body">
+
+<h1>Daily Recap</h1>
+
+<p class="center">An activity summary of your jobs</p>
+
+<p class="center">Recap for <b><%= 1.days.ago.to_date.strftime("%m/%d/%Y") %></b></p>
+<hr>
+
+
+<% current_job = nil %>
+<div id="activities" class="list">
+  <% @activities.each do |activity| %>
+
+      <% if current_job.nil? || current_job != activity.job %>
+          <% current_job = activity.job %>
+
+          <% if current_job.present? %>
+              <%= link_to "https://www.corva.ai/jobs/" + current_job.id.to_s, class: "job-status job-link tooltip-info",
+                          "data-placement" => "left",
+                          "data-title" => "Click to open job" do %>
+                  <%= render 'jobs/job_progress_email', job: current_job, show_summary_data: true, job_name: false %>
+              <% end %>
+          <% end %>
+      <% end %>
+
+      <%= render 'activities/job_activity_email', activity: activity, inside_job: false %>
+
+  <% end %>
+</div>
+
+
+<% if Rails.env.production? %>
+    <hr>
+    <div class="center"><%= image_tag "corva-logo.png" %></div>
+    <br>
+<% end %>
+
+</body>
+</html>

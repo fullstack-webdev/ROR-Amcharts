@@ -1,0 +1,20 @@
+// Place all the styles related to the rigs controller here.
+// They will automatically be included in application.css.scss.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+.rig-field-div {
+  display: inline-block;
+  width: 350px;
+}
+.rig-field-title {
+  font-size: 16px;
+  display: inline-block;
+  width: 160px;
+  margin-right: 0px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: top;
+  margin-top: 15px;
+  color: #c8e6d0;
+  font-family: "orgonlightregular";
+}

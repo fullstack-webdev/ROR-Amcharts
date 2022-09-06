@@ -1,0 +1,152 @@
+<div id="inventory_overview">
+  <div class="content">
+    <div class="chart-block tooltip-info"
+         data-title="Total assets in district inventory">
+      <div class="chart-title">Assets</div>
+      <div class="donut-chart-div">
+        <div class="donut-text "><%= number_with_delimiter(parts_count, :delimiter => ",") %></div>
+        <div class="percentage ">assets</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info"
+         data-title="Total assets in district currently in use.">
+      <div class="chart-title">Assets In Use</div>
+      <div class="donut-chart-div">
+        <div id="in_use_chart" class="donut-chart "></div>
+        <div class="donut-inner-circle"></div>
+        <div class="donut-text"><%= parts.any? ? ((in_use_count.to_f / parts_count.to_f) * 100).round(0) : "0" %></div>
+        <div class="percentage-circle">%</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info"
+         data-title="Total assets in district currently in maintenance.">
+      <div class="chart-title">Assets In Maintenance</div>
+      <div class="donut-chart-div">
+        <div id="in_redress_chart" class="donut-chart "></div>
+        <div class="donut-inner-circle"></div>
+        <div class="donut-text"><%= parts.any? ? ((in_redress_count.to_f / parts_count.to_f) * 100).round(0) : "0" %></div>
+        <div class="percentage-circle">%</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info"
+         data-title="Average days for asset maintenance.">
+      <div class="chart-title">Average Asset Maintenance</div>
+      <div class="donut-chart-div">
+        <div class="donut-text "><%= average_redress %></div>
+        <div class="percentage ">days</div>
+      </div>
+    </div>
+
+    <% if show_rentals %>
+        <hr>
+        <div class="chart-block tooltip-info"
+             data-title="Number of rentals in use">
+          <div class="chart-title">Current Rentals</div>
+          <div class="donut-chart-div">
+            <% if district.present? %>
+
+                <div class="donut-text "><%= Part.where(:rental => true).where(:status => Part::AVAILABLE).where(:district_id => district.id).count() %></div>
+            <% else %>
+                <div class="donut-text "><%= Part.where(:rental => true).where(:status => Part::AVAILABLE).count() %></div>
+            <% end %>
+            <div class="percentage ">assets</div>
+          </div>
+        </div>
+
+        <% if false %>
+            <div class="chart-block tooltip-info"
+                 data-title="Number of rentals not returned after 5 days after job completes">
+              <div class="chart-title">Overdue Rentals</div>
+              <div class="donut-chart-div">
+
+                <div class="percentage chart-text-red">assets</div>
+              </div>
+            </div>
+        <% end %>
+
+        <canvas id="usage_graph" height="200" width="400" class="tooltip-info" data-title="Asset Usage By Month"></canvas>
+        <div class='pull-right'>
+          <span class='help-text'>Trailing Year Asset Usage</span>
+        </div>
+    <% end %>
+  </div>
+
+  <script>
+      var plot3 = $.jqplot('in_use_chart', [
+          [
+              ['a', <%= in_use_count %>],
+              ['b', <%= parts_count - in_use_count %>]
+          ]
+      ], {
+          animate: true,
+          animateReplot: true,
+          background: "#FFFFFF",
+          seriesColors: [ "#458fd2", "#FFFFFF"],
+          seriesDefaults: {
+              textColor: " #00ff0000",
+              shadow: false,
+              renderer: $.jqplot.DonutRenderer,
+              rendererOptions: {
+                  animation: {
+                      show: true,
+                      speed: 2500
+                  },
+                  padding: 0,
+                  innerDiameter: 95,
+                  sliceMargin: 0,
+                  startAngle: -90,
+                  showDataLabels: true,
+                  dataLabels: 'value'
+              }
+          }
+      });
+
+      var plot3 = $.jqplot('in_redress_chart', [
+          [
+              ['a', <%= in_redress_count %>],
+              ['b', <%= parts_count - in_redress_count  %>]
+          ]
+      ], {
+          animate: true,
+          animateReplot: true,
+          background: "#FFFFFF",
+          seriesColors: [ "#458fd2", "#FFFFFF"],
+          seriesDefaults: {
+              textColor: " #00ff0000",
+              shadow: false,
+              renderer: $.jqplot.DonutRenderer,
+              rendererOptions: {
+                  animation: {
+                      show: true,
+                      speed: 2500
+                  },
+                  padding: 0,
+                  innerDiameter: 95,
+                  sliceMargin: 0,
+                  startAngle: -90,
+                  showDataLabels: true,
+                  dataLabels: 'value'
+              }
+          }
+      });
+
+      <% if show_rentals  %>
+      var lineChartData = {
+          labels: <%= raw (1..12).map { |i| Date::ABBR_MONTHNAMES[i] }.to_json.html_safe %>,
+          datasets: [
+              {
+                  fillColor: "rgba(151,187,205,0.5)",
+                  strokeColor: "rgba(151,187,205,1)",
+                  pointColor: "rgba(151,187,205,1)",
+                  pointStrokeColor: "#fff",
+                  data: <%= raw (1..12).map { |month| (part_memberships && part_memberships[month]) || 0 }.to_json.html_safe %>
+              }
+          ]
+      }
+      var myLine = new Chart(document.getElementById("usage_graph").getContext("2d")).Line(lineChartData);
+      <% end %>
+  </script>
+</div>

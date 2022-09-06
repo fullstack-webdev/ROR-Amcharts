@@ -1,0 +1,402 @@
+<div class="remote-tray" data-tray="well_time">
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading well time analysis..." %>
+</div>
+
+<div class='tray-content '>
+
+<div class="section-header" style="margin-top: 15px;">
+  <h1>Well Time</h1>
+
+  <div class='inline-block align-top pull-right' style="margin-top: 0px;">
+    <a href="/performance/wells?id=<%= @job.well.id %>" class="btn btn-sub align-top" style="background-color: #02d0c5;">Compare Different Offset</a>
+  </div>
+</div>
+
+<% well = @job.well %>
+<% sections = @job.section_rops %>
+<% offset_job = @job.well.offset_well.present? ? @job.well.offset_well.jobs.first : nil %>
+<% if offset_job.present? %>
+  <% offset_sections = offset_job.section_rops %>
+<% end %>
+
+<% if true %>
+
+  <div id="depth_chart1" class="amChart block" style="width: 100%;height: 700px;font-size: 11px;/*background-color: #475959;*/"></div>
+
+  <div class="divider divider-lg"></div>
+
+  <% survey = @job.survey %>
+  <% survey_point = survey != nil ? survey.calculated_points(0).last : nil %>
+
+  <div class="block">
+    <div class="inline-block kpi-block align-top" style="width: 30%;">
+      <div class="title">Measured Depth</div>
+      <div class="value"><%= number_with_delimiter(number_with_precision(convert(@job.total_depth, :ft, company_unit), precision: 0)) %>
+        <span><%= unit(:ft, company_unit) %></span>
+      </div>
+    </div>
+    <div class="inline-block kpi-block align-top" style="width: 30%;">
+      <div class="title">True Vertical Depth</div>
+      <div class="value"><%= survey_point.nil? ? "-" : number_with_delimiter(number_with_precision(survey_point.true_vertical_depth.convert(:ft, company_unit), precision: 0)) %>
+        <span><%= survey_point.nil? ? "" : unit(:ft, company_unit) %></span>
+      </div>
+    </div>
+    <div class="inline-block kpi-block align-top" style="width: 30%;">
+      <div class="title">Horizontal Deviation</div>
+      <div class="value"><%= survey_point.nil? ? "-" : number_with_delimiter(number_with_precision(survey_point.vertical_section.convert(:ft, company_unit), precision: 0)) %>
+        <span><%= survey_point.nil? ? "" : unit(:ft, company_unit) %></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider divider-lg"></div>
+
+
+  <div style="margin-top: 10px;">
+    <div class="invisible-lost-time block" style="margin: 5px 0px;">
+      <div style="width: 100%;">
+        <div class="inline-block" style="width: 20%;">
+          <p class="title">Section</p>
+        </div>
+        <div class="inline-block" style="width: 20%;">
+          <p class="title">MD</p>
+        </div>
+        <div class="inline-block" style="width: 20%;">
+          <p class="title">Actual</p>
+        </div>
+        <div class="inline-block" style="width: 20%;">
+          <p class="title">Offset</p>
+        </div>
+        <div class="inline-block" style="width: 20%;">
+          <p class="title">Difference</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="invisible-lost-time block" style="margin: 5px 0px;">
+
+      <div class="block" style="width: 100%;">
+        <div class="inline-block" style="width: 20%; font-size: 16px;">
+          <p class="value" style="font-size: 16px; line-height: 30px;">Surface</p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:surface][:md].convert(:ft, company_unit).round(0), :delimiter => ',') %>
+            <span><%= unit(:ft, company_unit) %></span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:surface][:days].round(1), :delimiter => ',') %>
+            <span>days</span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= offset_job.present? ? offset_sections[:surface][:days].round(1).round(1) : "-" %>
+            <span>days</span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <% difference_present = offset_job.present? && sections[:surface][:days] > 0 && offset_sections[:surface][:days] > 0 %>
+          <% red_text = difference_present && (100 - (offset_sections[:surface][:days] / sections[:surface][:days]) * 100).round(2) > 0 ? true : false %>
+          <% green_text = difference_present && (100 - (offset_sections[:surface][:days] / sections[:surface][:days]) * 100).round(2) < 0 ? true : false %>
+          <p class="value <%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %> line-height: 30px;">
+            <%= green_text ? "+" : "" %>
+            <%= red_text ? "-" : "" %>
+            <%= difference_present ? (100 - (offset_sections[:surface][:days] / sections[:surface][:days]) * 100).abs.round(2) : "-" %>
+            <% if difference_present %>
+              <span class="<%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %>">%</span>
+            <% end %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="invisible-lost-time block" style="margin: 5px 0px;">
+      <div class="block" style="width: 100%;">
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="font-size: 16px; line-height: 30px;">Intermediate</p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:intermediate][:md].convert(:ft, company_unit).round(0), :delimiter => ',') %>
+            <span><%= unit(:ft, company_unit) %></span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:intermediate][:days].round(1), :delimiter => ',') %>
+            <span>days</span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= offset_job.present? ? offset_sections[:intermediate][:days].round(1).round(1) : "-" %>
+            <span>days</span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <% difference_present = offset_job.present? && sections[:intermediate][:days] > 0 && offset_sections[:intermediate][:days] > 0 %>
+          <% red_text = difference_present && (100 - (offset_sections[:intermediate][:days] / sections[:intermediate][:days]) * 100).round(2) > 0 ? true : false %>
+          <% green_text = difference_present && (100 - (offset_sections[:intermediate][:days] / sections[:intermediate][:days]) * 100).round(2) < 0 ? true : false %>
+          <p class="value <%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %> line-height: 30px;">
+            <%= green_text ? "+" : "" %>
+            <%= red_text ? "-" : "" %>
+            <%= difference_present ? (100 - (offset_sections[:intermediate][:days] / sections[:intermediate][:days]) * 100).abs.round(2) : "-" %>
+            <% if difference_present %>
+              <span class="<%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %>">%</span>
+            <% end %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="invisible-lost-time block" style="margin: 5px 0px;">
+      <div class="block" style="width: 100%;">
+        <div class="inline-block" style="width: 20%; font-size: 16px;">
+          <p class="value" style="font-size: 16px; line-height: 30px;">Curve</p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:curve][:md].convert(:ft, company_unit).round(0), :delimiter => ',') %>
+            <span><%= unit(:ft, company_unit) %></span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:curve][:days].round(1), :delimiter => ',') %>
+            <span>days</span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= offset_job.present? ? offset_sections[:curve][:days].round(1).round(1) : "-" %>
+            <span>days</span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <% difference_present = offset_job.present? && sections[:curve][:days] > 0 && offset_sections[:curve][:days] > 0 %>
+          <% red_text = difference_present && (100 - (offset_sections[:curve][:days] / sections[:curve][:days]) * 100).round(2) > 0 ? true : false %>
+          <% green_text = difference_present && (100 - (offset_sections[:curve][:days] / sections[:curve][:days]) * 100).round(2) < 0 ? true : false %>
+          <p class="value <%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %> line-height: 30px;">
+            <%= green_text ? "+" : "" %>
+            <%= red_text ? "-" : "" %>
+            <%= difference_present ? (100 - (offset_sections[:curve][:days] / sections[:curve][:days]) * 100).abs.round(2) : "-" %>
+            <% if difference_present %>
+              <span class="<%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %>">%</span>
+            <% end %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="invisible-lost-time block" style="margin: 5px 0px;">
+      <div class="block" style="width: 100%;">
+
+        <div class="inline-block" style="width: 20%; font-size: 16px;">
+          <p class="value" style="font-size: 16px; line-height: 30px;">Lateral</p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:lateral][:md].convert(:ft, company_unit).round(0), :delimiter => ',') %>
+            <span><%= unit(:ft, company_unit) %></span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= number_with_delimiter(sections[:lateral][:days].round(1), :delimiter => ',') %>
+            <span>days</span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <p class="value" style="line-height: 30px;"><%= offset_job.present? ? offset_sections[:lateral][:days].round(1).round(1) : "-" %>
+            <span>days</span></p>
+        </div>
+
+        <div class="inline-block" style="width: 20%;">
+          <% difference_present = offset_job.present? && sections[:lateral][:days] > 0 && offset_sections[:lateral][:days] > 0 %>
+          <% red_text = difference_present && (100 - (offset_sections[:lateral][:days] / sections[:lateral][:days]) * 100).round(2) > 0 ? true : false %>
+          <% green_text = difference_present && (100 - (offset_sections[:lateral][:days] / sections[:lateral][:days]) * 100).round(2) < 0 ? true : false %>
+          <p class="value <%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %> line-height: 30px;">
+            <%= green_text ? "+" : "" %>
+            <%= red_text ? "-" : "" %>
+            <%= difference_present ? (100 - (offset_sections[:lateral][:days] / sections[:lateral][:days]) * 100).abs.round(2) : "-" %>
+            <% if difference_present %>
+              <span class="<%= red_text ? "text-red" : "" %>" style="<%= green_text ? "color:#55ff55;" : "" %>">%</span>
+            <% end %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="divider divider-lg"></div>
+    <hr>
+    <div class="divider divider-lg"></div>
+
+
+<% @drilling_log_entries = DrillingLogEntry.where(:job_id => @job.id).order(:entry_at).to_a %>
+<% @drilling_log_entry_summary = @drilling_log_entries.any? ? @drilling_log_entries.select { |e| e.additional == true } : nil %>
+<% last_date = nil %>
+
+    <div class="" id="list">
+      <% if @drilling_log_entries.any? %>
+          <% @drilling_log_entries.select { |e| e.additional == false }.each_with_index do |drilling_log_entry, index| %>
+              <% if last_date != drilling_log_entry.entry_at.strftime("%m/%d/%Y") %>
+                  <% last_date = drilling_log_entry.entry_at.strftime("%m/%d/%Y") %>
+                  <div style="margin-top: 25px; font-family: orgonboldregular; font-size: 18px; color: #d1ea72;"><%= last_date %></div>
+                  <% summary = @drilling_log_entry_summary.select { |e| last_date == e.entry_at.strftime("%m/%d/%Y") }.first %>
+                  <% if summary.present? %>
+                    <%= render 'drilling_log_entries/drilling_log_entry', entry: summary %>
+                  <% end %>
+              <% end %>
+              <%= render 'drilling_log_entries/drilling_log_entry', entry: drilling_log_entry %>
+        <% end %>
+      <% end %>
+    </div>
+
+
+<% else %>
+  <p class='help-text'>No drilling info...</p>
+<% end %>
+</div>
+</div>
+
+
+<script type='text/javascript'>
+  (function ($) {
+    var graph_data = [];
+    var section_curve_start = <%= @job.section_curve_start || 0 %>;
+    var section_tangent_start = <%= @job.section_tangent_start || 0 %>;
+
+    <% @job.depth_vs_time_logs.each_with_index do |log, index| %>
+    <% if @job.section_curve_start.to_i == log.to_i %>
+    graph_data.push({
+      "time": "<%= index %>",
+      "depth": <%= log.to_f.convert(:ft, company_unit).round %>,
+      "bullet": "round",
+      "description": "KOP"
+    });
+    <% else %>
+    graph_data.push({
+      "time": "<%= index %>",
+      "depth": <%= log.to_f.convert(:ft, company_unit).round %>
+    });
+    <% end %>
+
+    <% end %>
+
+    <% if well.offset_well.present? %>
+    <% well.offset_well.job.depth_vs_time_logs.each_with_index do |log, index| %>
+    if (graph_data[<%= index %>]) {
+      graph_data[<%= index %>].offset_depth = <%= log.to_f.convert(:ft, company_unit).round %>;
+      graph_data[<%= index %>].time = "<%= index %>";
+    } else {
+      graph_data.push({
+        "time": "<%= index %>",
+        "offset_depth": <%= log.to_f.convert(:ft, company_unit).round %>
+      });
+    }
+    <% end %>
+    <% end %>
+
+    graph_data[0].padding = -1000;
+
+    var chart = AmCharts.makeChart("depth_chart1", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#475959",
+      "backgroundAlpha": 0,
+      "marginLeft": 30,
+      "marginBottom": 60,
+      "legend": {
+        "align": "right",
+        "position": "top",
+        "markerType": "circle",
+        "markerSize": 8,
+        "equalWidths": false,
+        "fontSize": 11,
+        "valueAlign": "left",
+        "valueWidth": 100,
+        "color": "#fefefe"
+      },
+      "dataProvider": graph_data,
+      "balloon": {
+        "borderThickness": 1,
+        "shadowAlpha": 0
+      },
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "left",
+          "reversed": true,
+          "title": "Depth (MD - <%= unit(:ft, company_unit) %>)",
+          "gridAlpha": 0,
+          "color": "#fefefe",
+          "titleColor": "#fefefe",
+          "guides": [
+            {
+              "fillAlpha": 0.8,
+              "fillColor": "#455657",
+              "inside": true,
+              "lineAlpha": 0,
+              "toValue": 40000,
+              "value": -5000
+            }
+          ],
+          "labelFunction": function labelFunction(value, valueText, valueAxis) {
+            if (value < 0) {
+              return "";
+            } else {
+              return value.toString();
+            }
+          }
+        }
+      ],
+      "graphs": [
+        {
+          "title": "Current Well",
+          "lineColor": "#58c9c2",
+          "lineThickness": 2,
+          "type": "line",
+          "valueField": "depth",
+          "balloonText": "Day <b>[[time]]</b>, MD <b>[[depth]]</b> <%= unit(:ft, company_unit) %>"
+        },
+//        {
+//          "lineThickness": 0,
+//          "valueField": "padding",
+//          "legendAlpha": 0,
+//          "legendValueText": "",
+//          "visibleInLegend": false
+//        },
+        {
+          "title": "Offset Well (<%= offset_job.present? ? "#{offset_job.well.rig.name} - #{offset_job.well.name}" : 'Not Set'  %>)",
+          "lineColor": "#b858c9",
+          "lineThickness": 2,
+          "type": "line",
+          "valueField": "offset_depth",
+          "balloonText": "Day <b>[[time]]</b>, MD <b>[[offset_depth]]</b> <%= unit(:ft, company_unit) %>"
+        }
+      ],
+      "chartCursor": {
+        "categoryBalloonEnabled": false,
+        "zoomable": false,
+        "cursorAlpha": 1,
+        "bulletsEnabled": false
+      },
+      "categoryField": "time",
+      "categoryAxis": {
+        "parseDates": false,
+        "minorGridAlpha": 1,
+        "minorGridEnabled": true,
+        "title": "Time (days)",
+        "color": "#fefefe",
+        "titleColor": "#fefefe",
+        "axisColor": "#fefefe",
+        "axisAlpha": 0,
+        "gridAlpha": 1,
+        "gridColor": "#fefefe"
+      },
+      "fontFamily": "orgonlightregular"
+    });
+  }(jQuery))
+</script>

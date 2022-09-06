@@ -1,0 +1,45 @@
+class WitsData < ActiveRecord::Base
+  attr_accessible :company_id,
+                  :job_id,
+                  :entry_at,
+                  :hook_load,
+                  :rotary_torque,
+                  :rotary_rpm,
+                  :standpipe_pressure,
+                  :block_height,
+                  :bit_depth,
+                  :hole_depth,
+                  :weight_on_bit,
+                  :total_gas,
+                  :mud_flow_in,
+                  :mud_flow_out,
+                  :mud_temp_in,
+                  :mud_temp_out,
+                  :pump_spm_total,
+                  :gain_loss,
+                  :gamma_ray,
+                  :mud_volume,
+                  :strks_pump_1,
+                  :strks_pump_2,
+                  :strks_pump_3,
+                  :strks_total,
+                  :svy_azimuth,
+                  :svy_depth,
+                  :svy_inclination,
+                  :pump_spm_1,
+                  :pump_spm_2,
+                  :pump_spm_3,
+                  :pit_volume_1,
+                  :pit_volume_2,
+                  :pit_volume_3,
+                  :pit_volume_4,
+                  :pit_volume_5,
+                  :pit_volume_6,
+                  :pit_volume_7,
+                  :pit_volume_8
+
+  acts_as_tenant(:company)
+
+  belongs_to :company
+  belongs_to :job
+end

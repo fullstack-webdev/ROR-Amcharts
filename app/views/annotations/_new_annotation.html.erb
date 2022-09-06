@@ -1,0 +1,64 @@
+<div class="modal-popup modal-popup-fixed" style="min-height: 300px; width: 90%; padding: 0; border-radius: 0; margin-top: 90px; max-width: 1025px; box-sizing: border-box; z-index: 1032;">
+  <div style="padding: 24px; background: #435f60;">
+    <h2 style="font-size: 20px;
+            font-family: orgonlightregular;
+            color: #ffffff;
+            text-align: left;
+            padding: 0;
+            margin: 0;">Add New Annotation</h2>
+    <a href="#" class="modal-popup-close" id="close_config_detail_popup" style="right: 24px;
+            font-size: 20px;
+            margin-top: 24px;
+            position: absolute;
+            top: 0;
+            float: right;"><i class="fa fa-times"></i></a>
+  </div>
+
+  <div class="modal-content" style="overflow: auto; width: 100%; height: 100%; padding-bottom: 30px; box-sizing: border-box;">
+
+    <div style="border-bottom: 1px solid #667474; line-height: 64px; font-size: 14px; padding: 0 24px; color: #ffffff; background-color: #263334;">
+      <div class="inline-block">
+        <div class="inline-block align-top" style="margin-right: 10px;">Members</div>
+
+        <div class="inline-block" style="margin-top: 10px;">
+            <%= render 'users/user_icon2', user: current_user %>
+        </div>
+      </div>
+
+      <div style="float: right;">
+        <input type="hidden" id="use_type" name="use_hole_depth" value="true">
+
+        <div id="ann_hole_depth_div" class="inline-block align-top" style="opacity: 1.0;">
+          <input id="use_hole_depth" type="radio" value="depth" style="margin-right: 5px;" checked="true" tabindex="-1">
+          <div class="inline-block align-top" style="margin-right: 10px;">Hole Depth</div>
+          <input id="annotation_depth" class="depth align-top" type="text" placeholder="Hole depth" style="height: 30px; width: 100px; margin: 0; margin-top: 10px; border-radius: 0; background-color: #686d71; color: #ffffff;" value="<%= @hole_depth %>"  tabindex="-1"/>
+        </div>
+
+        <div id="ann_time_div" class="inline-block align-top" style="margin-left: 30px; opacity: 0.5;">
+          <input id="use_time" type="radio" value="depth" style="margin-right: 5px;"  tabindex="-1">
+          <div class="inline-block align-top" style="margin-right: 10px;">Time</div>
+          <div class="dv-datetime-picker datetimepicker input-append date align-top" style="margin-top: 10px;">
+            <input id="annotation_time" class="datetime align-top" type="text" data-format="MM/dd/yyyy hh:mm" style="height: 30px; width: 200px; border-radius: 0; background-color: #686d71; color: #ffffff;" value="<%= Time.at(@time).strftime('%m/%d/%Y %H:%M') %>"  tabindex="-1"/>
+            <span class="add-on align-top" style="height: 40px; box-sizing: border-box; border-radius: 0px; border: none; background: #58C9C2;">
+            <i data-time-icon="icon-time" data-date-icon="icon-calendar" style="margin-top: 10px;"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div style="margin: 20px;">
+      <input id="annotation_title" class="align-top" type="text" placeholder="Annotation Title..." style="height: 30px; width: 98%; margin: 0; margin-top: 10px; border-radius: 0; font-family: orgonboldregular; color: #000000;"/>
+
+      <textarea id="annotation_description" class="align-top" type="text" placeholder="Annotation Description/Note..." style="height: 100px; width: 98%; margin: 0; margin-top: 20px; border-radius: 0; padding: 10px; font-family: orgonboldregular;  color: #000000;"/>
+
+      <div style="float: right; margin-top: 30px;">
+        <a id="add_annotation_button" href="#" class="btn btn-primary">Add Annotation</a>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+<div style="position: fixed; margin-top: 55px; width: 100%; height: 100vh; z-index: 1031; left: 0; top: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0.6;"></div>

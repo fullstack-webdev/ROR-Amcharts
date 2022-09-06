@@ -1,0 +1,16 @@
+<div class="company-overview">
+  <div class="section-header">
+    <h1>New Warning</h1>
+  </div>
+
+  <div class="form">
+    <%= form_for(@warning_type) do |f| %>
+      <%= render 'fields', f: f %>
+
+      <div class="divider divider-md"></div>
+
+      <%= f.submit "Create", class: "btn btn-primary tooltip-info push-right-small form-loading-on-click" %>
+      <%= link_to button_tag("Cancel", class: "btn btn-sub push-left-small tooltip-info","data-title" => "Cancel edit and go back", :type => 'button'), event_warning_types_path %>
+    <% end %>
+  </div>
+</div>

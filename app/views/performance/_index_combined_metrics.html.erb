@@ -1,0 +1,248 @@
+<div class='remote-tray' data-tray='combined_metrics'>
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading performance combined metrics..." %>
+  </div>
+
+
+  <div class='tray-content content-loaded '>
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Combined Metrics</h1>
+    </div>
+
+    <div class="combined-container">
+
+      <div class="block toolbar-top">
+
+        <p class="title">Show</p>
+
+        <div class="content-block block">
+
+          <div style="display: inline-block; margin: 0px; padding: 0;">
+            <button type="button" class="btn-sub active">Rigs</button>
+
+            <div class="dropdown dropdown-styled" style="display: inline-block">
+              <button class="btn" type="button" id="rig" data-toggle="dropdown" aria-expanded="true">
+                All Rigs <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="rig1">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">H&P 200</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Lariat 10</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Lariat 15</a></li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div style="display: inline-block; margin: 0px;  padding: 0; vertical-align: top;">
+            <button type="button" class="btn-sub" style=" display: inline-block; float: none; margin-left: 10px; vertical-align: top;">
+              Crews
+            </button>
+          </div>
+
+          <div style="display: inline-block; margin: 0px;  padding: 0; vertical-align: top;">
+            <button type="button" class="btn-sub" style=" dispaly: inline-block; float: none; margin-left: 10px; vertical-align: top;">
+              Wells
+            </button>
+          </div>
+
+          <div style="display: inline-block; margin: 0px;  padding: 0; vertical-align: top;">
+            <button type="button" class="btn-sub" style=" dispaly: inline-block; float: none; margin-left: 10px; vertical-align: top;">
+              Counties
+            </button>
+          </div>
+
+          <div style="display: inline-block; margin: 0px;  padding: 0; vertical-align: top;">
+            <button type="button" class="btn-sub" style=" dispaly: inline-block; float: none; margin-left: 10px; vertical-align: top;">
+              Contractors
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="block" style="width: 100%; margin-top: 35px;">
+        <div class="toolbar-top inline-block" style="width: 50%;">
+          <p class="title">Timeframe</p>
+          <div class="dropdown dropdown-styled content-block inline-block">
+            <button class="btn" type="button" id="rig" data-toggle="dropdown" aria-expanded="true">
+              Last 6 months <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="rig1">
+              <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Last 6 months</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="toolbar-top inline-block" style="width: auto;">
+          <p class="title">Section</p>
+          <div class="dropdown dropdown-styled content-block inline-block">
+            <button class="btn" type="button" id="rig" data-toggle="dropdown" aria-expanded="true">
+              Combined Sections <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="rig1">
+              <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Combined Sections</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="block stats-block" style="margin-top:45px;">
+        <div class="block block-header">
+          <div class="block-cell">Metric</div>
+          <div class="block-cell">Benchmark</div>
+          <div class="block-cell">10%</div>
+          <div class="block-cell">50%</div>
+          <div class="block-cell">90%</div>
+        </div>
+
+        <div class="block block-row">
+          <div class="block-cell first">
+            <span class="square-blue"></span>
+            <div>ROP</div>
+          </div>
+          <div class="block-cell">210
+            <span class="param">ft/hr</span></div>
+          <div class="block-cell">196
+            <span class="param">ft/hr</span></div>
+          <div class="block-cell">214
+            <span class="param">ft/hr</span></div>
+          <div class="block-cell">112
+            <span class="param">ft/hr</span></div>
+        </div>
+
+        <div class="block block-row">
+          <div class="block-cell first">
+            <span class="square-purple"></span>
+            <div>Cost/ft</div>
+          </div>
+          <div class="block-cell">$ 45</div>
+          <div class="block-cell">$ 49</div>
+          <div class="block-cell">$ 40</div>
+          <div class="block-cell">$ 89</div>
+        </div>
+      </div>
+
+      <div class="block metrics_chart amChart" id="metrics_chart">
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+
+            $('#outer_container').height($('#inner_container').height());
+
+            // draw metrics chart
+            var chart = AmCharts.makeChart("metrics_chart", {
+                "type": "serial",
+                "theme": "none",
+                "dataProvider": [
+                    {
+                        "rig": "H&P 200",
+                        "rop": 2.5,
+                        "cost": 2.5
+                    },
+                    {
+                        "rig": "Lariat 10",
+                        "rop": 2.6,
+                        "cost": 2.7
+                    },
+                    {
+                        "rig": "Lariat 15",
+                        "rop": 2.8,
+                        "cost": 2.9
+                    },
+                    {
+                        "rig": "Lariat 16",
+                        "rop": 2.5,
+                        "cost": 2
+                    },
+                    {
+                        "rig": "Mattlock 3",
+                        "rop": 2.6,
+                        "cost": 2.7
+                    },
+                    {
+                        "rig": "Mattlock 4",
+                        "rop": 2.8,
+                        "cost": 2.9
+                    },
+                    {
+                        "rig": "Mattlock 5",
+                        "rop": 2.5,
+                        "cost": 2.5
+                    },
+                    {
+                        "rig": "Mattlock 6",
+                        "rop": 2.6,
+                        "cost": 2.7
+                    },
+                    {
+                        "rig": "Precision 305",
+                        "rop": 1.5,
+                        "cost": 3
+                    },
+                    {
+                        "rig": "Unit 325",
+                        "rop": 2.1,
+                        "cost": 2.6
+                    },
+                    {
+                        "rig": "Viking 20",
+                        "rop": 2.8,
+                        "cost": 1.3
+                    }
+                ],
+                "valueAxes": [
+                    {
+                        "stackType": "regular",
+                        "axisAlpha": 0,
+                        "gridAlpha": 0,
+                        "labelsEnabled": false
+                    }
+                ],
+                "graphs": [
+                    {
+                        "fillAlphas": 0.8,
+                        "lineAlpha": 0.3,
+                        "title": "Cost/ft",
+                        "type": "column",
+                        "color": "#fefefe",
+                        "valueField": "cost",
+                        "lineColor": "#aa58c9",
+                        "fixedColumnWidth": 25
+                    },
+                    {
+                        "fillAlphas": 0.8,
+                        "lineAlpha": 0.3,
+                        "title": "ROP",
+                        "type": "column",
+                        "color": "#fefefe",
+                        "valueField": "rop",
+                        "lineColor": "#58c9c2",
+                        "fixedColumnWidth": 25
+                    }
+                ],
+                "rotate": true,
+                "categoryField": "rig",
+                "categoryAxis": {
+                    "gridPosition": "start",
+                    "axisAlpha": 0,
+                    "gridAlpha": 0,
+                    "position": "left",
+                    "fontSize": 15,
+                    "color": "#fefefe"
+                },
+                "fontFamily": "orgonlightregular"
+            });
+
+        });
+    }(jQuery));
+</script>

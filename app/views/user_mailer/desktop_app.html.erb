@@ -1,0 +1,24 @@
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<link rel="stylesheet" type="text/css" href="/app/assets/stylesheets/application.css.scss"/>
+<body class="email-body">
+
+<h1>Work Offline</h1>
+<p class="center">Access Corva Jobs &amp; Documents Offline in Field</p>
+
+<hr>
+
+<br>
+<p>In order to provide constant access to the latest job documents and procedures, Corva offers an <b>Offline Windows desktop App</b>.</p>
+<br>
+<p>Corva Desktop app will sync your jobs and documents automatically when connected to the internet, so you can use them offline. You can also place documents to upload while you are offline and they will sync once you come back online, automatically.</p>
+<br>
+
+<br>
+
+<% if Rails.env.production? %>
+    <hr>
+    <div class="center"><%= image_tag "corva-logo.png" %></div>
+    <br>
+<% end %>
+</body>
+</html>

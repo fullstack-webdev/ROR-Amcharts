@@ -1,0 +1,134 @@
+<%= render 'shared/error_messages', object: f.object %>
+
+<div class="job-creating-part2">
+  <div class="">
+    <div class="">
+      <div class='hidden'>
+        <%= f.hidden_field :district_id, id: "district_id" %>
+        <%= image_tag "district_extrasmall.png", class: "job-status-avatar" %>
+        <%= text_field_tag "", "", data: {autocomplete_source: districts_path},
+                           value: !@job.district.nil? ? @job.district.name : nil,
+                           placeholder: "Type a district name...",
+                           id: "district_name", class: "txtfield small tooltip-info",
+                           "data-placement" => "top",
+                           "data-title" => "District Name, select from drop down based on search results" %>
+      </div>
+    </div>
+
+    <div class="">
+      <div class="">
+        <p class='job-field-title inline-block'>Well Name</p>
+
+        <div class="inline-block">
+          <%= text_field_tag "well_name", "", placeholder: "Well Name",
+                             value: "",
+                             id: "well_name_id",
+                             style: "min-width: 450px;",
+                             class: "job-field-value-editable" %>
+
+          <br>
+
+          <div class="alert-box hidden">
+            &nbsp;&nbsp;
+            <p class='inline-block'><b class='orange-text'>Warning!</b> Wells that already exist</p>
+
+            <p class='inline-block push-right-small' style='font-family: orgonboldregular ;' id="similar_well"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class='push-down'>
+        <div class='inline-block align-top'>
+          <p class='job-field-title inline-block'>Rig</p>
+
+          <%= hidden_field_tag "rig_id", {}, id: "rig_id", name: "rig_id", value: @rig.present? ? @rig.id : nil %>
+
+          <div id="rig_combobox_div" class="inline-block align-top">
+            <select id="rig_combobox">
+              <option value="">Select rig...</option>
+              <% @rigs.each do |rig| %>
+                  <option value="<%= rig.id %>"><%= rig.name %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <%= hidden_field_tag "create_rig", {}, id: "create_rig", name: "create_rig", value: false %>
+
+
+          <div id="new_rig_box" class="inline-block align-top hidden">
+            <%= text_field_tag "new_rig_name", "", placeholder: "Rig Name",
+                               value: "",
+                               id: "new_rig_name",
+                               style: "min-width: 230px; width: 230px;",
+                               class: "job-field-value-editable" %>
+
+            <a id="cancel_new_rig" href="#" style="color: #ff0000; margin-left: 10px; margin-top: 10px;">x</a>
+          </div>
+
+          <div id="create_rig_div" class="inline-block align-top hidden" style="margin-left: 30px; margin-top: 15px;">
+            <div class="inline-block">Rig doesn't exist.</div>
+            <a href="#" id="create_rig_button" class=" align-top" style="text-decoration: underline; color: #36d1f8;">Create?</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script type="text/javascript">
+    (function ($) {
+
+        LAST_RIG_VALUE = '';
+        ALL_RIGS = [];
+
+        <% @rigs.each do |r| %>
+        ALL_RIGS.push('<%= r.name %>');
+        <% end %>
+
+        $("#rig_combobox").autocompletecombo({
+            defaultValue: "<%= @rig.present? ? @rig.name : '' %>",
+            placeholder: "Type rig name...",
+            select: function (event, data) {
+                $('#rig_id').val(data.item.value).trigger('change');
+            },
+            remove: function (event, data) {
+                $('#rig_id').val("").trigger('change');
+            }
+        });
+
+        $(".ui-autocomplete-input").live("keyup", function () {
+            if ($(this).parent('#rig_combobox')) {
+                if ($(this).val().trim().length > 0) {
+                    LAST_RIG_VALUE = $(this).val();
+                }
+
+                setTimeout(function () {
+                    if (LAST_RIG_VALUE.trim().length > 0) {
+                        if (ALL_RIGS.indexOf(LAST_RIG_VALUE) == -1) {
+                            $("#create_rig_div").removeClass('hidden');
+                        }
+                        else {
+                            $("#create_rig_div").addClass('hidden');
+                        }
+                    }
+                }, 1000);
+            }
+        });
+
+        $('#create_rig_button').live("click", function() {
+            $('#rig_combobox_div').addClass('hidden');
+            $('#new_rig_box').removeClass('hidden');
+            $('#create_rig_div').addClass('hidden');
+            $('#new_rig_name').val(LAST_RIG_VALUE);
+            $('#create_rig').val(true);
+        });
+
+        $('#cancel_new_rig').live("click", function() {
+            $('#rig_combobox_div').removeClass('hidden');
+            $('#new_rig_box').addClass('hidden');
+        });
+
+    })(jQuery);
+</script>

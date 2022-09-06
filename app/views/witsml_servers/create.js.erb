@@ -1,0 +1,20 @@
+$('#server_loading').addClass('hidden');
+
+
+<% if @witsml_server.new_record? %>
+
+$('#add_server').removeClass('hidden');
+$('#new_server').removeClass('hidden');
+
+<% else %>
+
+$('#witsml_servers').append("<%= j render 'witsml_servers/witsml_server', witsml_server: @witsml_server %>");
+
+$('#no_servers').addClass('hidden');
+$('#add_server').removeClass('hidden');
+
+$('#witsml_servers').css("padding-top", "20px");
+$('#witsml_servers').css("padding-bottom", "10px");
+
+<% end %>
+

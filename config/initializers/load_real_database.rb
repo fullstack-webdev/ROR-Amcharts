@@ -1,0 +1,1 @@
+RealDBConfig = YAML.load_file("#{Rails.root}/config/real_database.yml")[Rails.env]

@@ -1,0 +1,53 @@
+<fieldset class="field" id="dynamic_field_<%= dynamic_field.id %>">
+  <div class="inline-form">
+
+    <div class="dynamic-field-name">
+      <%= label_tag nil, dynamic_field.name, class: "" %>
+    </div>
+
+    <div class="dynamic-field-type">
+      <%= label_tag nil, dynamic_field.value_type_unit_full, class: "" %>
+    </div>
+
+
+    <div class="dynamic-field-summary-div">
+
+      <% if dynamic_field.predefined? %>
+          <%= dynamic_field.value_type == DynamicField::STRING ? dynamic_field.value : dynamic_field.value.to_f.round(3).to_s %>
+      <% end %>
+      <% if dynamic_field.priority? %>
+          <div class="summary-text">
+            <%= label_tag nil, "Shown in Summary", class: "warning-text tooltip-info",
+                          "data-placement" => "bottom",
+                          "data-title" => "This field is shown in the summary of the job" %>
+          </div>
+      <% end %>
+
+      <% if dynamic_field.optional? %>
+          <div class="summary-text">
+            <%= label_tag nil, "Optional", class: "tooltip-info",
+                          "data-placement" => "bottom",
+                          "data-title" => "This field is optional" %>
+          </div>
+      <% end %>
+    </div>
+
+    <div class="push-right">
+      <%= link_to "edit", edit_dynamic_field_path(dynamic_field), remote: true,
+                  class: "edit-dynamic-field-name tooltip-info",
+                  "data-placement" => "bottom",
+                  "data-title" => "Edit field info" %>
+
+      <%= link_to "remove", dynamic_field, method: :delete, remote: true,
+                  data: {confirm: "Remove Custom Field?"}, class: "delete-button tooltip-info",
+                  "data-placement" => "bottom",
+                  "data-title" => "Delete field" %>
+
+      <%= link_to "order", dynamic_field_path(dynamic_field, reorder: "-1"), move_up: "true", remote: true, class: "order-button tooltip-info",
+                  "data-placement" => "bottom",
+                  "data-title" => "Move field up by 1 row" %>
+    </div>
+
+  </div>
+</fieldset>
+

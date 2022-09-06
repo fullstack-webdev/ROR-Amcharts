@@ -1,0 +1,46 @@
+<%= render 'shared/error_messages', object: f.object %>
+
+<div class="">
+
+
+  <div class="">
+    <div class='job-field-title'>Field Name</div>
+    <%= f.text_field :name, placeholder: "Field Name",
+                     class: "txtfield ",
+                     autofocus: true %>
+  </div>
+
+  <div class="hidden">
+    <%= f.label :district, class: "field-title" %>
+    <h3 class="inline"> <%= @district.name %></h3>
+    <%= f.hidden_field :district_id, value: @district.id %>
+  </div>
+
+  <div class="hidden">
+    <%= f.label "Country", class: "field-title" %>
+    <%= f.select :country_id, options_for_select(@countries.sort_by { |c| c.name }.collect { |p| [p.name, p.id] }, @district.country_id),
+                 {},
+                 class: "custom-select custom-select-ajax",
+                 prompt: "Select a Country..." %>
+  </div>
+
+  <div class="" style="margin-top: 10px;">
+    <div class='job-field-title'>State</div>
+    <div class='inline-block align-top'>
+      <%= f.select :state_id, options_for_select(@states.select { |s| s.country_id == @district.country_id}.collect { |p| [p.name, p.id] }, @district.state_id),
+                   {},
+                   class: "custom-select custom-select-ajax",
+                   prompt: "Select a State..." %>
+    </div>
+  </div>
+
+  <div class="push-down" >
+    <div class='job-field-title'>County</div>
+    <%= f.text_field :county, placeholder: "County Name", class: "txtfield small" %>
+  </div>
+
+
+  <br>
+
+</div>
+

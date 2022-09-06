@@ -1,0 +1,357 @@
+<div>
+
+  <div class="page-header-small">
+    <h1>Rotating</h1>
+  </div>
+  <div>
+    <div class="chart-block tooltip-info align-top" style="margin-right: 0px;"
+         data-title="Rotary Length Percentage.">
+      <div class="chart-title">Feet %</div>
+      <div class="donut-chart-div">
+        <div id="rotary_footage_pct" class="donut-chart "></div>
+        <div class="donut-inner-circle"></div>
+        <div class="donut-text"><%= drilling_log.nil? || drilling_log.rotary_footage_pct.nil? ? "-" : (drilling_log.rotary_footage_pct * 100).round(0).to_i %></div>
+        <div class="percentage-circle">%</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info align-top" style="margin-right: 0px;"
+         data-title="Rotary Time Percentage.">
+      <div class="chart-title">Time %</div>
+      <div class="donut-chart-div">
+        <div id="rotary_hours_pct" class="donut-chart "></div>
+        <div class="donut-inner-circle"></div>
+        <div class="donut-text"><%= drilling_log.nil? || drilling_log.rotary_hours_pct.nil? ? "-" : (drilling_log.rotary_hours_pct * 100).round(0).to_i %></div>
+        <div class="percentage-circle">%</div>
+      </div>
+    </div>
+    <div class="chart-block tooltip-info" style="margin-right: 0px;"
+         data-title="Rotate Rate of Penetration.">
+      <div class="chart-title">ROP</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.rotate_rop.nil? ? "-" : drilling_log.rotate_rop.round(1) %></div>
+        <div class="percentage ">ft/hr</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info" style="margin-right: 0px;"
+         data-title="Total rotary feet drilled.">
+      <div class="chart-title">Drilled</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.rotate_footage.nil? ? "-" : number_with_delimiter(drilling_log.rotate_footage.to_i, :delimiter => ',') %></div>
+        <div class="percentage "><span class="push-right-small">ft</span></div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info align-top" style="margin-right: 0px;"
+         data-title="Time in hours spent in rotary drilling.">
+      <div class="chart-title">Time</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.rotate_hours.nil? ? "-" : drilling_log.rotate_hours.round(1) %></div>
+        <div class="percentage ">hours</div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="page-header-small">
+    <h1>Sliding</h1>
+  </div>
+
+  <div>
+    <div class="chart-block tooltip-info" style="margin-right: 0px;"
+         data-title="Slide Length Percentage.">
+      <div class="chart-title">Feet %</div>
+      <div class="donut-chart-div">
+        <div id="slide_footage_pct" class="donut-chart "></div>
+        <div class="donut-inner-circle"></div>
+        <div class="donut-text"><%= drilling_log.nil? || drilling_log.slide_footage_pct.nil? ? "-" : (drilling_log.slide_footage_pct * 100).round(0).to_i %></div>
+        <div class="percentage-circle">%</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info" style="margin-right: 0px;"
+         data-title="Slide Time Percentage.">
+      <div class="chart-title">Time %</div>
+      <div class="donut-chart-div">
+        <div id="slide_hours_pct" class="donut-chart "></div>
+        <div class="donut-inner-circle"></div>
+        <div class="donut-text"><%= drilling_log.nil? || drilling_log.slide_hours_pct.nil? ? "-" : (drilling_log.slide_hours_pct * 100).round(0).to_i %></div>
+        <div class="percentage-circle">%</div>
+      </div>
+    </div>
+    <div class="chart-block tooltip-info align-top" style="margin-right: 0px;"
+         data-title="Slide Rate of Penetration.">
+      <div class="chart-title">ROP</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.slide_rop.nil? ? "-" : drilling_log.slide_rop.round(1) %></div>
+        <div class="percentage ">ft/hr</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info align-top" style="margin-right: 0px;"
+         data-title="Total slide feet drilled.">
+      <div class="chart-title">Drilled</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.slide_footage.nil? ? "-" : number_with_delimiter(drilling_log.slide_footage.to_i, :delimiter => ',') %></div>
+        <div class="percentage "><span class="push-right-small">ft</span></div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info align-top" style="margin-right: 0px;"
+         data-title="Time in hours spent in slide drilling.">
+      <div class="chart-title">Time</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.slide_hours.nil? ? "-" : drilling_log.slide_hours.round(1) %></div>
+        <div class="percentage ">hours</div>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+
+  <div>
+
+    <div class="chart-block tooltip-info"
+         data-title="Reaming Hours.">
+      <div class="chart-title">Reaming Hours</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.ream_hours.nil? ? "-" : drilling_log.ream_hours.round(1) %></div>
+        <div class="percentage ">hours</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info"
+         data-title="Circulation Hours.">
+      <div class="chart-title">Circulation Hours</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.circulation_hours.nil? ? "-" : drilling_log.circulation_hours.round(1) %></div>
+        <div class="percentage ">hours</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info"
+         data-title="Time in hours spent below the rotary table.">
+      <div class="chart-title">In-hole</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.below_rotary.nil? ? "-" : drilling_log.below_rotary.round(1) %></div>
+        <div class="percentage ">hours</div>
+      </div>
+    </div>
+
+    <div class="chart-block tooltip-info"
+         data-title="Time in hours spent above the rotary table.">
+      <div class="chart-title">Out-hole</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.above_rotary.nil? ? "-" : drilling_log.above_rotary.round(1) %></div>
+        <div class="percentage ">hours</div>
+      </div>
+    </div>
+  </div>
+
+  <div style='margin-top: 30px;'>
+    <div class="chart-block tooltip-info"
+         data-title="Total feet drilled.">
+      <div class="chart-title">Total Drilled</div>
+      <div class="donut-chart-div job-donut-chart-div">
+        <div class="donut-text "><%= drilling_log.nil? || drilling_log.total_drilled.nil? ? "-" : number_with_delimiter(drilling_log.total_drilled.to_i, :delimiter => ',') %></div>
+        <div class="percentage "><span class="push-right-small">ft</span></div>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+
+  <div class='inline-block'>
+    <div class="chart-title">Time Breakdown</div>
+    <div class="time-chart amChart" id="overview_time_chart" style="width: 200px; height: 200px;"></div>
+  </div>
+
+  <div class='inline-block align-top'>
+    <b>ROP Over Time</b>
+    <br><br>
+
+    <div class="tooltip-info" data-title="ROP">
+      <canvas id="rop_overview" height="160" width="700"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<script type="text/javascript">
+    chart = new AmCharts.AmPieChart();
+    chart.dataProvider = <%= raw drilling_log.get_times.map{ |k, v| {time: v[:time].round(2), text: v[:activity_code_string], color: DrillingLogEntry.activity_code_color(k)} }.to_a.to_json.html_safe %>;
+    chart.colorField = "color";
+    chart.titleField = "activity";
+    chart.valueField = "time";
+    chart.sequencedAnimation = false;
+    chart.startDuration = 0;
+    chart.innerRadius = "30%";
+    chart.labelsEnabled = false;
+    chart.balloonText = "<b>[[text]]</b><br><span style='font-size:14px'>([[time]] hours)</span>";
+    chart.write("overview_time_chart");
+
+</script>
+
+
+<script>
+    <% if drilling_log.drilling_log_entries.any? %>
+    <% rops = [] %>
+    <% last_entry = drilling_log.drilling_log_entries.first %>
+    <% drilling_log.drilling_log_entries.each do |dl| %>
+    <% time = (dl.entry_at - last_entry.entry_at).to_f / 60.0 / 60.0 %>
+    <% if dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING || time > 0.1 %>
+    <% rops << [dl.entry_at, dl.activity_code == DrillingLogEntry::DRILLING || dl.activity_code == DrillingLogEntry::SLIDING ? ((dl.depth - last_entry.depth).to_f / (dl.entry_at - last_entry.entry_at).to_f * 60.0) : 0.0] %>
+    <% end %>
+    <% last_entry = dl %>
+    <% end %>
+
+    var lineChartData = {
+        labels: <%= raw rops.map { |dl| "" }.to_json.html_safe %>,
+        datasets: [
+            {
+                fillColor: "rgba(220,220,220,0.5)",
+                strokeColor: "rgba(220,220,220,1)",
+                pointColor: "rgba(220,220,220,1)",
+                pointStrokeColor: "#fff",
+                data: <%= raw rops.map { |dl| dl[1] }.to_json.html_safe %>
+            }
+        ]
+    }
+
+    var myLine = new Chart(document.getElementById("rop_overview").getContext("2d")).Line(lineChartData, { pointDot: false, scaleShowGridLines: false, animation: false, scaleOverride: true, scaleSteps: 4, scaleStepWidth: 5, scaleStartValue: -4 });
+    <% end %>
+</script>
+
+<script>
+    $(document).ready(function () {
+
+        <% if !drilling_log.nil? %>
+        <% if !drilling_log.rotary_footage_pct.nil? %>
+        $.jqplot('rotary_footage_pct', [
+            [
+                ['a', <%= drilling_log.rotary_footage_pct * 100 %>],
+                ['b', 100 - <%= drilling_log.rotary_footage_pct * 100 %>]
+            ]
+        ], {
+            animate: true,
+            animateReplot: true,
+            background: "#FFFFFF",
+            seriesColors: [ "#458fd2", "#FFFFFF"],
+            seriesDefaults: {
+                textColor: " #00ff0000",
+                shadow: false,
+                renderer: $.jqplot.DonutRenderer,
+                rendererOptions: {
+                    animation: {
+                        show: true,
+                        speed: 2500
+                    },
+                    padding: 0,
+                    innerDiameter: 95,
+                    sliceMargin: 0,
+                    startAngle: -90,
+                    showDataLabels: true,
+                    dataLabels: 'value'
+                }
+            }
+        });
+        <% end %>
+
+        <% if !drilling_log.rotary_hours_pct.nil? %>
+        $.jqplot('rotary_hours_pct', [
+            [
+                ['a', <%= drilling_log.rotary_hours_pct * 100 %>],
+                ['b', 100 - <%= drilling_log.rotary_hours_pct * 100  %>]
+            ]
+        ], {
+            animate: true,
+            animateReplot: true,
+            background: "#FFFFFF",
+            seriesColors: [ "#458fd2", "#FFFFFF"],
+            seriesDefaults: {
+                textColor: " #00ff0000",
+                shadow: false,
+                renderer: $.jqplot.DonutRenderer,
+                rendererOptions: {
+                    animation: {
+                        show: true,
+                        speed: 2500
+                    },
+                    padding: 0,
+                    innerDiameter: 95,
+                    sliceMargin: 0,
+                    startAngle: -90,
+                    showDataLabels: true,
+                    dataLabels: 'value'
+                }
+            }
+        });
+        <% end %>
+
+        <% if !drilling_log.slide_footage_pct.nil? %>
+        $.jqplot('slide_footage_pct', [
+            [
+                ['a', <%= drilling_log.slide_footage_pct * 100 %>],
+                ['b', 100 - <%= drilling_log.slide_footage_pct * 100 %>]
+            ]
+        ], {
+            animate: true,
+            animateReplot: true,
+            background: "#FFFFFF",
+            seriesColors: [ "#458fd2", "#FFFFFF"],
+            seriesDefaults: {
+                textColor: " #00ff0000",
+                shadow: false,
+                renderer: $.jqplot.DonutRenderer,
+                rendererOptions: {
+                    animation: {
+                        show: true,
+                        speed: 2500
+                    },
+                    padding: 0,
+                    innerDiameter: 95,
+                    sliceMargin: 0,
+                    startAngle: -90,
+                    showDataLabels: true,
+                    dataLabels: 'value'
+                }
+            }
+        });
+        <% end %>
+
+        <% if !drilling_log.slide_hours_pct.nil? %>
+        $.jqplot('slide_hours_pct', [
+            [
+                ['a', <%= drilling_log.slide_hours_pct * 100 %>],
+                ['b', 100 - <%= drilling_log.slide_hours_pct * 100  %>]
+            ]
+        ], {
+            animate: true,
+            animateReplot: true,
+            background: "#FFFFFF",
+            seriesColors: [ "#458fd2", "#FFFFFF"],
+            seriesDefaults: {
+                textColor: " #00ff0000",
+                shadow: false,
+                renderer: $.jqplot.DonutRenderer,
+                rendererOptions: {
+                    animation: {
+                        show: true,
+                        speed: 2500
+                    },
+                    padding: 0,
+                    innerDiameter: 95,
+                    sliceMargin: 0,
+                    startAngle: -90,
+                    showDataLabels: true,
+                    dataLabels: 'value'
+                }
+            }
+        });
+        <% end %>
+        <% end %>
+    });
+</script>

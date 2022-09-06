@@ -1,0 +1,176 @@
+# Sample localization file for English. Add more files in this directory for other locales.
+# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
+
+en:
+  alerts:
+    index:
+      title: "Alerts"
+      new: "New Alerts"
+      past: "Past Alerts"
+      no-new: "No new alerts..."
+      none: "You don't have any alerts right now..."
+    alert:
+      added_to_job: "added you to a job"
+      waiting_to_ship: "Job is waiting for your approval to ship"
+      waiting_to_close: "Job is waiting for your approval to complete and close"
+      assigned_task: "assigned you a task"
+
+  performance:
+    inex:
+      title: "Performance"
+
+  jobs:
+    index:
+      title: "Jobs"
+      new: "Add New Job"
+      no_jobs: "You don't have any jobs right now..."
+      inactive_jobs: "Completed Jobs"
+
+    job_data:
+      other_jobs: "Other Jobs on Well"
+      field_name: "Field Name"
+      well_name: "Well Name"
+      status: "Status"
+      division: "Division"
+      segment: "Segment"
+      product_line: "Product Line"
+      job_type: "Job Type"
+      district: "District"
+      created_date: "Created Date"
+      start_date: "Start Date"
+      end_date: "End Date"
+      client_name: "Client Name"
+      status_complete: "Complete"
+      status_pre_job: "Pre-Job"
+      status_post_job: "Post-Job"
+      status_in_field: "In Progress in field"
+
+    show:
+      members: "Project Members"
+      new_member_prompt: "Type a name..."
+      new_member_role_prompt: "Select a job role..."
+      more_details: "More Job Details"
+      documents: "Documents"
+      add_custom_document: "Add Custom Document"
+      notices: "Notices"
+      pre_job: "Pre-Job"
+      post_job: "Post-Job"
+      notes: "Notes/Action Items"
+      new_note_prompt: "Type note here..."
+      new_assign_prompt: "Type a name to assign..."
+      no_notes: "No job notes..."
+
+
+  history:
+    index:
+      title: "History"
+
+
+
+  job_roles:
+    observer: "Observer"
+    supervisor: "Supervisor"
+    coordinator: "Coordinator"
+    field: "Field"
+    shop: "Shop"
+
+  job_note_types:
+    note: "Note"
+    task: "Task"
+    warning: "Warning"
+    failure: "Failure"
+
+  document_types:
+    document: "Document"
+    checklist: "Checklist"
+
+
+
+  job_templates:
+    show:
+      title: "Update Job Type"
+      job_type_name: "Job Type Name"
+      description_prompt: "Type description/special notes here..."
+      custom_data: "Custom Data"
+      job_type_specifics: "Job type specifics"
+      document_templates: "Document Templates"
+      delete_job_template: "Delete Job Template"
+      add_document: "Add Document"
+
+    document_fields:
+      name: "Name of Document"
+
+    dynamic_field_fields:
+      name: "Name of Field"
+      show_in_summary: "Show in Summary"
+
+    edit:
+      title: "Edit Job Type"
+      save: "Save Job type"
+
+    index:
+      title: "Job Types"
+
+    new:
+      title: "Create New Job Type"
+      save: "Create Job Type"
+
+
+  product_lines:
+    index:
+      title: "Product Lines"
+      new: "Add New Product Line"
+
+
+
+  clients:
+    index:
+      title: "Customers"
+      add: "Add New Customer"
+      search: "Search Customers"
+
+    edit:
+      title: "Update Customer"
+      save: "Save Customer"
+      delete: "Delete Customer"
+
+    new:
+      title: "New Customer"
+      save: "Create Customer"
+
+    show:
+      jobs: "Jobs"
+      add_job: "Add New Job"
+
+
+
+  conversations:
+    you: "You"
+    reply_prompt: "Type reply message here..."
+    reply: "Reply"
+
+    messages:
+      title: "Messages"
+      new: "New Message"
+      no_conversations: "You don't have any conversations..."
+
+    new:
+      title: "New Message"
+      recipients: "Recipients"
+
+  users:
+    show:
+      jobs: "Jobs"
+
+
+  settings:
+    edit:
+      title: "Settings"
+
+  global:
+    done: "Done"
+    delete: "Delete"
+    add: "Add"
+    save: "Save"
+    information: "Information"
+

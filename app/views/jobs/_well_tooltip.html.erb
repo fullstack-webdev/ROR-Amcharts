@@ -1,0 +1,11 @@
+<% if false %>
+<% if !job.nil? %>
+<%="<div class='well-tooltip' style='font-family: orgonlightregular;'>" +
+           (job.well.rig.present? ? "<h2 class='light-blue-text'>#{job.well.rig.name}</h2>" : "") +
+           "<h2 class='orange-text'>" + job.field.name + "<br>" + job.well.name + "</h2>" +
+           (job.client.present? ? "<br><h3>" + job.client.name + "</h3>" : "") +
+           "<h3 class='push-down-small'>" + (job.start_date.present? ? job.start_date.strftime("%m/%d/%Y") : job.created_at.strftime("%m/%d/%Y")) + "</h3>" +
+           "<h3 class='inline-block'>Job #</h3> <span>" + (job.job_number.nil? ? "-" : job.job_number) + "</span>" +
+           "</div>" %>
+<% end %>
+<% end %>

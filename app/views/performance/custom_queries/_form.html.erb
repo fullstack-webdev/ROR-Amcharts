@@ -1,0 +1,399 @@
+<% @query = Query.new %>
+
+<div style="background-color: #5c7173; width: 100%; padding-bottom: 10px;">
+
+
+  <ul id="categories_menu" class="nav nav-pills alert alert-nav alert-nav-shrink parent-tray-nav" style='border-radius: 0px; border-width: 0px; background-color: #819698;vertical-align: top;'>
+    <% @query.constraints.each do |key, path| %>
+        <li class="<%= key == 'general' ? 'active' : '' %>" data-id='<%= key %>'>
+          <%= link_to key.titleize, "#", class: 'custom-data-toggle constraint-category' %>
+        </li>
+    <% end %>
+  </ul>
+
+
+  <div style="width: 100%; vertical-align: top;">
+
+    <div query-tab="general">
+
+      <div class="dropdown dropdown-styled" style="display: inline-block; margin-left: 20px; ">
+        <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="constraint_selected" style="background-color: #5c7172; border-color: #58c9c2;">
+          Select constraint... <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" id="constraint_list">
+        </ul>
+      </div>
+
+
+      <div class="inline-block align-top">
+        <div class="inline-block constraint-option hidden">
+          <input type="text" placeholder="From" id="constraint_from" class="job-field-value-editable tooltip-info text-field align-top" style="width: 200px; height: 32px; background-color: #5c7172 !important; border-color: #58c9c2; margin-left: 20px;"/>
+        </div>
+        <div class="inline-block constraint-option hidden">
+          <input type="text" placeholder="To" id="constraint_to" class="job-field-value-editable tooltip-info text-field  align-top" style="width:200px; height: 32px; background-color: #5c7172 !important; border-color: #58c9c2; margin-left: 20px;"/>
+        </div>
+
+        <div class="inline-block constraint-option hidden">
+          <input type="text" placeholder="Value" id="constraint_value" class="job-field-value-editable tooltip-info text-field align-top" style="width:200px; height: 32px; background-color: #5c7172 !important; border-color: #58c9c2; margin-left: 20px;"/>
+        </div>
+
+        <div class="inline-block constraint-option datetimepicker input-append date hidden" style="width: 260px; margin-left: 20px;">
+          <input id="constraint_from_date" data-format="MM/dd/yyyy hh:mm:ss" class="job-field-value-editable" style="width: 200px; height: 32px; background-color: #5c7172 !important; border-color: #58c9c2;" type="text" placeholder="Date From"></input>
+                        <span class="add-on" style="height: 42px; box-sizing: border-box; border-radius: 0px; border: none; background: #58C9C2;">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar" style="margin-top: 10px;">
+                </i>
+              </span>
+        </div>
+
+        <div class="inline-block constraint-option datetimepicker input-append date hidden" style="width: 260px; margin-left: 20px;">
+          <input id="constraint_to_date" data-format="MM/dd/yyyy hh:mm:ss" class="job-field-value-editable" style="width: 200px; height: 32px; background-color: #5c7172 !important; border-color: #58c9c2;" type="text" placeholder="Date To"></input>
+                        <span class="add-on" style="height: 42px; box-sizing: border-box; border-radius: 0px; border: none; background: #58C9C2;">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar" style="margin-top: 10px;">
+                </i>
+              </span>
+        </div>
+      </div>
+
+      <a id="add_to_query" href="javascript:void(null)" class="btn btn-primary pull-right align-top" style="margin-right: 20px; margin-top: -3px;">Add
+        to Query</a>
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="current_constraints" style="margin-top: 20px; margin-bottom: 20px; min-height: 50px;">
+
+
+  <a id="run_query2" href="javascript:void(null)" class="btn btn-primary pull-right align-top hidden" style="margin-right: 0px; margin-top: -3px; background-color: #43b9ef;">Run
+    Query &nbsp; ►</a>
+</div>
+
+
+<div id="run_query_big_button" class="center" style="margin-top: 110px; width: 100%;">
+  <div style="height: 40px;">
+    <div id="add_constraints" class="hidden" style="margin-bottom: 50px; color: #fec439; font-family: orgonlightregular; font-size: 15px;">
+      <div class='inline-block' color="margin-top: 10; margin-left: 10px;">Please add constraints before running a query...</div>
+    </div>
+  </div>
+  <a id="run_query" href="javascript:void(null)" class="inline-block" style="width: 180px; height: 180px; text-decoration: none;">
+    <div style="width: 180px; height: 180px; background-color: #4a5b5c; -webkit-border-radius: 100px; -moz-border-radius: 100px; border-radius: 100px; ">
+      <div clas="inline-block" style="padding-top: 78px; font-size: 20px; font-family: orgonboldregular;">Run
+        Query &nbsp;&nbsp; ►
+      </div>
+    </div>
+  </a>
+</div>
+
+
+<script type="text/javascript">
+
+    (function ($) {
+
+        var constraint_category = 'general';
+        var constraints = [];
+        var constraint_categories = JSON.parse('<%= @query.constraints.to_json.html_safe %>');
+
+
+        var generate_query_string = function () {
+
+            query_string = ""
+
+            for (var i = 0; i < constraints.length; i++) {
+                if (i > 0) {
+                    query_string += ","
+                }
+                query_string += constraints[i][0] + "=" + (constraints[i][1] || 'true');
+            }
+
+            return query_string;
+        }
+
+        var set_document_hash = function() {
+            document.location.hash = generate_query_string();
+        }
+
+        var load_query_string = function () {
+
+        }
+
+        var add_to_query = function (id, name, constraint, constraint_type, value) {
+
+            $('#current_constraints').append(
+                    '<div class="inline-block current_constraint" style="background-color: #43b9ef; border-radius: 4px; color: #ffffff; margin-right: 20px; margin-bottom: 10px; font-family: orgonlightregular;">' +
+                            '<div class="inline-block" style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px; padding-right: 20px;">' +
+                            '<div class="inline-block">' +
+                            name +
+                            '</div>' +
+                            '<div class="inline-block" style="margin-left: 20px;  font-family: orgonboldregular;">' +
+                            value.replace('[', '').replace(']', '') +
+                            '</div>' +
+                            '</div>' +
+                            '<a class="inline-block current_constraint_remove" style="width: 25px; height: 26px; cursor: pointer; text-decoration: none; margin: 0px; background-color: #41a9d8; text-align: center; border-radius: 0px 4px 4px 0px; padding-top: 10px;">x</a>' +
+                            '</div>'
+            );
+
+            element = $('#current_constraints .current_constraint:last');
+            element.attr('data-id', id);
+            element.attr('data-name', name);
+            element.attr('data-constraint', constraint);
+            element.attr('data-constraint-type', constraint_type);
+            element.attr('data-value', value);
+
+            constraints.push([id, value, name, constraint, constraint_type]);
+            set_document_hash();
+
+            clear_values();
+
+            if(!$('#add_constraints').hasClass('hidden')) {
+                $('#add_constraints').addClass('hidden');
+            }
+
+            if($('#run_query_big_button').hasClass('hidden')) {
+                $('#run_query2').removeClass('hidden');
+            }
+        }
+
+        var remove_from_query = function (id, name, constraint, constraint_type, value) {
+
+            for (var i = 0; i < constraints.length; i++) {
+                var c = constraints[i];
+                if (c[0] == id && c[1] == value) {
+                    constraints.splice(i, 1);
+                    break;
+                }
+            }
+
+            set_document_hash();
+
+            if($('#run_query_big_button').hasClass('hidden') && constraints.length > 0) {
+                $('#run_query2').removeClass('hidden');
+            }
+        }
+
+        var clear_values = function () {
+            $('#constraint_from').val('');
+            $('#constraint_to').val('');
+            $('#constraint_value').val('');
+            $('#constraint_from_date').val('');
+            $('#constraint_to_date').val('');
+        }
+
+        var update_box = function () {
+
+            option = $('#constraint_selected');
+            constraint_type = parseInt(option.attr('data-constraint-type'));
+
+            $('.constraint-option').each(function () {
+                if (!$(this).hasClass('hidden')) {
+                    $(this).addClass('hidden');
+                }
+            });
+
+            if (constraint_type == <%= QueryConstraint::VALUE_RANGE %>) {
+                $('#constraint_from').parent().removeClass('hidden');
+                $('#constraint_to').parent().removeClass('hidden');
+            }
+            if (constraint_type == <%= QueryConstraint::VALUE %>) {
+                $('#constraint_value').parent().removeClass('hidden');
+            }
+            if (constraint_type == <%= QueryConstraint::DATE_RANGE %>) {
+                $('#constraint_from_date').parent().removeClass('hidden');
+                $('#constraint_to_date').parent().removeClass('hidden');
+            }
+            if (constraint_type == <%= QueryConstraint::INCLUSION %>) {
+            }
+
+            clear_values();
+
+        }
+
+        var init_add_to_query = function () {
+
+            $('#add_to_query').live('click', function () {
+
+                id = $('#constraint_selected').attr('data-id');
+                name = $('#constraint_selected').attr('data-name');
+                constraint = $('#constraint_selected').attr('data-constraint');
+                constraint_type = $('#constraint_selected').attr('data-constraint-type');
+                value = ''
+
+                if (constraint_type == <%= QueryConstraint::VALUE_RANGE %>) {
+                    value = '[' + $('#constraint_from').val() + ' - ' + $('#constraint_to').val() + ']';
+                }
+                if (constraint_type == <%= QueryConstraint::VALUE %>) {
+                    value = '[' + $('#constraint_value').val() + ']';
+                }
+                if (constraint_type == <%= QueryConstraint::DATE_RANGE %>) {
+                    value = '[' + $('#constraint_from_date').val() + ' - ' + $('#constraint_to_date').val() + ']';
+                }
+                if (constraint_type == <%= QueryConstraint::INCLUSION %>) {
+                }
+
+                add_to_query(id, name, constraint, constraint_type, value);
+            });
+
+
+            $('.current_constraint_remove').live('click', function () {
+
+                item = $(this).closest('.current_constraint');
+                id = item.attr('data-id');
+                name = item.attr('data-name');
+                constraint = item.attr('data-constraint');
+                constraint_type = item.attr('data-constraint-type');
+                value = item.attr('data-value');
+
+                remove_from_query(id, name, constraint, constraint_type, value);
+
+                $(this).closest('.current_constraint').remove();
+            });
+
+
+            $('.constraint-category').live('click', function () {
+
+                $('#categories_menu li').each(function () {
+                    if ($(this).hasClass('active')) {
+                        $(this).removeClass('active');
+                    }
+                });
+
+                item = $(this).closest('li');
+                item.addClass('active');
+                constraint_category = item.attr('data-id');
+                update_category();
+            });
+
+        }
+
+        var init_autocomplete = function () {
+
+
+            $(".datetimepicker").datetimepicker({
+                language: 'en',
+                pick12HourFormat: false
+            });
+
+
+            $('#constraint_list li a').live('click', function () {
+
+                $('#constraint_selected').html($(this).html() + ' <span class="caret"></span>');
+                $('#constraint_selected').attr('data-id', $(this).attr('data-id'));
+                $('#constraint_selected').attr('data-name', $(this).attr('data-name'));
+                $('#constraint_selected').attr('data-constraint', $(this).attr('data-constraint'));
+                $('#constraint_selected').attr('data-constraint-type', $(this).attr('data-constraint-type'));
+
+
+                update_box();
+
+            });
+
+
+            update_box();
+        };
+
+
+        var update_category = function () {
+            var categories = constraint_categories[constraint_category];
+
+
+            $('#constraint_list').empty();
+
+            for (var i = 0; i < categories.length; i++) {
+                var category = categories[i];
+
+                $('#constraint_list').append(
+                        '<li role="presentation">' +
+                                '<a role="menuitem" tabindex="-1" href="javascript:void(0);" data-constraint="' + constraint_category + '" data-id="' + category['id'] + '" data-name="' + category['name'] + '" data-constraint-type="' + category['constraint_type'] + '">' +
+                                category['name'] +
+                                '</a>' +
+                                '</li>'
+                );
+
+                if (i == 0) {
+                    var element = $('#constraint_list a:first');
+                    $('#constraint_selected').html(element.html() + ' <span class="caret"></span>');
+                    $('#constraint_selected').attr('data-id', element.attr('data-id'));
+                    $('#constraint_selected').attr('data-name', element.attr('data-name'));
+                    $('#constraint_selected').attr('data-constraint', element.attr('data-constraint'));
+                    $('#constraint_selected').attr('data-constraint-type', element.attr('data-constraint-type'));
+                }
+            }
+
+            update_box();
+        }
+
+
+        var run_query = function () {
+            if (constraints.length > 0) {
+                var query_string = generate_query_string();
+
+                var section = 'custom_queries_well_time';
+                tray = $(".remote-tray[data-tray='" + section + "']");
+                var tray_content = tray.find('.tray-content');
+                if(tray_content.hasClass('content-loaded')) {
+                    tray.find('.remote-loading').removeClass('hidden');
+                    tray_content.removeClass('content-loaded');
+                    tray_content.empty();
+                }
+
+                $('#run_query_big_button').addClass('hidden');
+                $('#query_results').removeClass('hidden');
+                $.ajax({
+                    url: "/performance/custom_queries?section=" + section + "&" + query_string,
+                    type: "GET",
+                    dataType: "script",
+                    complete: function() {
+
+                    }
+                });
+            }
+            else {
+                $('#add_constraints').removeClass('hidden');
+            }
+        }
+
+
+        /**
+         * Initialize drilling wells.
+         */
+        var init = function () {
+
+            update_category();
+
+            init_autocomplete();
+
+            init_add_to_query();
+
+
+            $('#run_query').live('click', function () {
+                run_query();
+            });
+            $('#run_query2').live('click', function () {
+                run_query();
+            });
+
+
+            /**
+             * Load child view initially.
+             */
+            if (document.location.hash == '') {
+                setTimeout(function () {
+                    tray = $(".remote-tray[data-tray='custom_queries_well_time']");
+                    tray.find('.content').hide();
+                    tray.find('.remote-loading').removeClass('hidden');
+                    tray.find('.loading').removeClass('hidden');
+                    $.ajax({
+                        url: "/performance/custom_queries?section=custom_queries_well_time",
+                        type: "GET",
+                        dataType: "script"
+                    });
+                    $(".remote-tray-toggle[data-tray='wells']").attr("data-tray-child", "custom_queries_well_time");
+                }, 0);
+            }
+        };
+
+        init();
+    }(jQuery));
+
+</script>

@@ -1,0 +1,387 @@
+<div class='remote-tray' data-tray='counties'>
+
+  <div class='tray-content content-loaded '>
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Drilling Counties</h1>
+    </div>
+
+    <div class="block">
+
+      <div class="inline-block">
+        <div class="dropdown dropdown-styled" style="display: inline-block">
+          <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="county_selected" data-id="-1">
+            All Counties <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="county_list">
+            <% if @counties.empty? then %>
+              <li role="presentation"><a href="javascript:void(0);">No Counties</a></li>
+            <% else %>
+              <li role="presentation"><a href="javascript:void(0);" data-id="-1">All Counties</a></li>
+              <% @counties.each do |county| %>
+                <li role="presentation"><%= link_to county.name, "javascript:void(0);", "data-id" => county.id, "tabindex" => "-1" %></li>
+              <% end %>
+            <% end %>
+          </ul>
+        </div>
+
+        <div class="dropdown dropdown-styled" style="display: inline-block; margin-left: 20px;">
+          <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="history_selected" data-id="-1">
+            Full History <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="history_list">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="-1">Full History</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="3">Last 3 months</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="6">Last 6 months</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:void(0);" data-id="12">Last year</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!--<ul class="btn-group inline-block">-->
+      <!--<li>
+          <%= link_to "Well Time", "#",
+                      #                       "data-tray-controller" => "performance",
+                      #                       "data-tray" => "counties_well_time",
+                      #                       "data-tray-parent" => "counties",
+                      class: "remote-tray-toggle" %>
+              <button type="button" class="btn-sub" style=" display: inline-block; float: none; margin-left: 10px; vertical-align: top;">-->
+      <!--Well Time-->
+      <!--</button>-->
+      <!--</li>-->
+
+      <!--<li>
+          <%= link_to "Cost", "#",
+                      #                       "data-tray-controller" => "performance",
+                      #                       "data-tray" => "counties_cost",
+                      #                       "data-tray-parent" => "counties",
+                      class: "remote-tray-toggle" %>
+        </li>-->
+
+      <!--</ul>-->
+
+      <div class="inline-block" style="margin-left: 30px; vertical-align: top;">
+        <a href="#" data-tray-controller="performance" data-tray="counties_well_time" data-tray-parent="counties" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-counties-perf active">
+            Well Time
+          </button>
+        </a>
+
+        <a href="#" data-tray-controller="performance" data-tray="counties_cost" data-tray-parent="counties" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-counties-perf  ">
+            Cost
+          </button>
+        </a>
+
+        <a href="#" data-tray-controller="performance" data-tray="counties_warnings" data-tray-parent="counties" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-counties-perf  ">
+            Warnings
+          </button>
+        </a>
+
+        <a href="#" data-tray-controller="performance" data-tray="counties_process_time" data-tray-parent="counties" class="remote-tray-toggle no-underline">
+          <button type="button" class="btn-sub btn-group-sm btn-counties-perf  ">
+            Operations
+          </button>
+        </a>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="tray-content content-loaded">
+
+      <!--<div class="remote-tray" data-tray="counties_well_time">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </div>
+
+      <div class="remote-tray custom-data-closed" data-tray="counties_cost">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </div>
+
+      <div class="remote-tray custom-data-closed" data-tray="counties_warnings">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </div>
+
+      <div class="remote-tray custom-data-closed" data-tray="counties_process_time">
+        <div class="remote-loading" style="margin-top: 30px;">
+          <%= render 'layouts/inline_loading', title: "Please wait while loading..." %>
+        </div>
+      </di>-->
+      <div style="margin-top:100px;">
+        <p class='help-text'>No data to show...</p><div style="margin-top:10px; text-align: center;"><%= image_tag("no_data_icon.PNG", style:"width:40px;")%></div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script type="text/javascript">
+    var current_id = -1;
+    var current_history = -1;
+  (function ($) {
+    $(document).ready(function () {
+
+      $('#outer_container').height($('#inner_container').height());
+
+      // draw metrics chart
+        var drilling_chart = AmCharts.makeChart("metrics_chart", {
+            "type": "serial",
+            "theme": "none",
+            "dataProvider": [
+                {
+                    "rig": "H&P 200",
+                    "rop": 2.5,
+                    "cost": 2.5
+                },
+                {
+                    "rig": "Lariat 10",
+                    "rop": 2.6,
+                    "cost": 2.7
+                },
+                {
+                    "rig": "Lariat 15",
+                    "rop": 2.8,
+                    "cost": 2.9
+                },
+                {
+                    "rig": "Lariat 16",
+                    "rop": 2.5,
+                    "cost": 2
+                },
+                {
+                    "rig": "Mattlock 3",
+                    "rop": 2.6,
+                    "cost": 2.7
+                },
+                {
+                    "rig": "Mattlock 4",
+                    "rop": 2.8,
+                    "cost": 2.9
+                },
+                {
+                    "rig": "Mattlock 5",
+                    "rop": 2.5,
+                    "cost": 2.5
+                },
+                {
+                    "rig": "Mattlock 6",
+                    "rop": 2.6,
+                    "cost": 2.7
+                },
+                {
+                    "rig": "Precision 305",
+                    "rop": 1.5,
+                    "cost": 3
+                },
+                {
+                    "rig": "Unit 325",
+                    "rop": 2.1,
+                    "cost": 2.6
+                },
+                {
+                    "rig": "Viking 20",
+                    "rop": 2.8,
+                    "cost": 1.3
+                }
+            ],
+            "valueAxes": [
+                {
+                    "stackType": "regular",
+                    "axisAlpha": 0,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false
+                }
+            ],
+            "graphs": [
+                {
+                    "fillAlphas": 0.8,
+                    "lineAlpha": 0.3,
+                    "title": "Cost/ft",
+                    "type": "column",
+                    "color": "#fefefe",
+                    "valueField": "cost",
+                    "lineColor": "#aa58c9",
+                    "fixedColumnWidth": 25
+                },
+                {
+                    "fillAlphas": 0.8,
+                    "lineAlpha": 0.3,
+                    "title": "ROP",
+                    "type": "column",
+                    "color": "#fefefe",
+                    "valueField": "rop",
+                    "lineColor": "#58c9c2",
+                    "fixedColumnWidth": 25
+                }
+            ],
+            "rotate": true,
+            "categoryField": "rig",
+            "categoryAxis": {
+                "gridPosition": "start",
+                "axisAlpha": 0,
+                "gridAlpha": 0,
+                "position": "left",
+                "fontSize": 15,
+                "color": "#fefefe"
+            },
+            "fontFamily": "orgonlightregular"
+        });
+      var chart = AmCharts.makeChart("metrics_chart", {
+        "type": "serial",
+        "theme": "none",
+        "dataProvider": [
+          {
+            "rig": "H&P 200",
+            "rop": 2.5,
+            "cost": 2.5
+          },
+          {
+            "rig": "Lariat 10",
+            "rop": 2.6,
+            "cost": 2.7
+          },
+          {
+            "rig": "Lariat 15",
+            "rop": 2.8,
+            "cost": 2.9
+          },
+          {
+            "rig": "Lariat 16",
+            "rop": 2.5,
+            "cost": 2
+          },
+          {
+            "rig": "Mattlock 3",
+            "rop": 2.6,
+            "cost": 2.7
+          },
+          {
+            "rig": "Mattlock 4",
+            "rop": 2.8,
+            "cost": 2.9
+          },
+          {
+            "rig": "Mattlock 5",
+            "rop": 2.5,
+            "cost": 2.5
+          },
+          {
+            "rig": "Mattlock 6",
+            "rop": 2.6,
+            "cost": 2.7
+          },
+          {
+            "rig": "Precision 305",
+            "rop": 1.5,
+            "cost": 3
+          },
+          {
+            "rig": "Unit 325",
+            "rop": 2.1,
+            "cost": 2.6
+          },
+          {
+            "rig": "Viking 20",
+            "rop": 2.8,
+            "cost": 1.3
+          }
+        ],
+        "valueAxes": [
+          {
+            "stackType": "regular",
+            "axisAlpha": 0,
+            "gridAlpha": 0,
+            "labelsEnabled": false
+          }
+        ],
+        "graphs": [
+          {
+            "fillAlphas": 0.8,
+            "lineAlpha": 0.3,
+            "title": "Cost/ft",
+            "type": "column",
+            "color": "#fefefe",
+            "valueField": "cost",
+            "lineColor": "#aa58c9",
+            "fixedColumnWidth": 25
+          },
+          {
+            "fillAlphas": 0.8,
+            "lineAlpha": 0.3,
+            "title": "ROP",
+            "type": "column",
+            "color": "#fefefe",
+            "valueField": "rop",
+            "lineColor": "#58c9c2",
+            "fixedColumnWidth": 25
+          }
+        ],
+        "rotate": true,
+        "categoryField": "rig",
+        "categoryAxis": {
+          "gridPosition": "start",
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "position": "left",
+          "fontSize": 15,
+          "color": "#fefefe"
+        },
+        "fontFamily": "orgonlightregular"
+      });
+
+    });
+
+    $('.btn-counties-perf').click(function() {
+      console.log('button clicked');
+      $('.btn-counties-perf').removeClass('active');
+      $(this).addClass('active');
+
+    });
+
+    // click even on counties list
+    $('#county_list li a').on('click', function () {
+//            alert($(this).attr('data-id'));
+      $('#county_selected').html($(this).html() + ' <span class="caret"></span>');
+      $('#county_selected').data('id', $(this).attr('data-id'));
+    });
+
+    // click event on history list
+    $('#history_list li a').on('click', function () {
+      $('#history_selected').html($(this).html() + ' <span class="caret"></span>');
+      $('#history_selected').data('id', $(this).attr('data-id'));
+    });
+  }(jQuery));
+</script>
+<script type="text/javascript">
+//    var color_palette = ["#58c9c2", "#b858c9", "#589dc9", "#9babee", "#23c9ff", "#9aea6a", "#9eddde", "#987cf4", "#23fcff" ];
+    (function ($) {
+        $(document).ready(function () {
+            setTimeout(function () {
+                tray = $(".remote-tray[data-tray='counties_well_time']");
+                console.log(tray);
+                tray.find('.content').hide();
+                tray.find('.remote-loading').removeClass('hidden');
+                tray.find('.loading').removeClass('hidden');
+
+
+                    $.ajax({
+                        url: "/performance?section=counties_well_time",
+                        type: "GET",
+                        dataType: "script"
+                    });
+                $(".remote-tray-toggle[data-tray='counties']").attr("data-tray-child","counties_well_time");
+                }, 0);
+
+        });
+    }(jQuery));
+</script>

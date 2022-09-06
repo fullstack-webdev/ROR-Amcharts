@@ -1,0 +1,3142 @@
+var DV_CHARTS = {};
+var DV_CURRENT_WITS = null;
+var DV_CURRENT_DRILLER_NOTES = null;
+var DV_CURRENT_TORQUE = null;
+var DV_CURRENT_ECD = null;
+var DV_CURRENT_ACTIVITY = null;
+var DV_CURRENT_GACTIVITY = null;
+var DV_CURRENT_VIBRATION = null;
+var DV_CURRENT_BIT_SCORE = null;
+var DV_CURRENT_MOTOR_SCORE = null;
+var DV_CURRENT_EFFICIENCY = null;
+var DV_CURRENT_CLEANING = null;
+var DV_MENU_HEIGHT = 0;
+var DV_CURSOR_POS = -1;
+var initial_load = true;
+
+var DV_TAB_OVERVIEW = 0;
+var DV_TAB_WELLBORE = 1;
+var DV_TAB_TORQUE = 2;
+var DV_TAB_CLEANING = 3;
+var DV_TAB_LOSS = 4;
+var DV_TAB_FLOWBACK = 5;
+var DV_TAB_FORMATION = 6;
+var DV_TAB_BIT_FUNCTION = 7;
+var DV_TAB_RAW = 8;
+var DV_TAB_BIT = 9;
+var DV_TAB_MOTOR = 10;
+
+var DV_CURRENT_TAB = DV_TAB_OVERVIEW;
+var DV_CURRENT_TORQUE_TAB;
+
+var DV_WARNINGS = []; // filtered
+var DV_WARNINGS_ALL = [];
+
+var job_status = <%= @job.status %>;
+var lastDate = <%= @job.last_date().to_time.to_i %>,
+    firstDate = <%= @job.start_date.to_time.to_i %>;
+
+var DV_BIT_CIRCLE, DV_MOTOR_CIRCLE, DV_BIT_FUNCTION_CIRCLE;
+
+var DV_VIBRATION_COUNT;
+var DV_HOLE_SIZES = null;
+
+var company_unit = "<%= company_unit %>";
+
+function update_warning_alert(elem_id, date, family, out_mod) {
+  var has_warning = false;
+  var current_warning;
+  $("#" + elem_id.toString()).html('');
+  $("#" + elem_id.toString() + '_chart').html('');
+  for (var i = 0; i < DV_WARNINGS.length; i++) {
+    var warning = DV_WARNINGS[i];
+    if (family && warning.family != family) {
+      continue;
+    }
+    if (warning.opened_at <= date && (warning.closed_at == 0 || warning.closed_at >= date)) {
+      has_warning = true;
+      current_warning = warning;
+      $("#" + elem_id).append('<div class="alert-box alert-warning alert-mobile color-' + warning.severity + '">' +
+          '<div class="clearfix block">' +
+          '<span class="warning-title"><i class="fa fa-exclamation-triangle"></i> &nbsp;&nbsp; ' + warning.name + '</span>' +
+          (warning.duration ? '<span class="duration color-' + warning.severity + '">' + warning.duration + '</span>' : '') +
+          '</div>' +
+          (warning.short_resolution == '' ? '' : '<p class="info-text">' + warning.short_resolution + '<span class="spacer"></span><a href="#" class="warning-detail-btn" data-id="' + warning.id + '">Details</a></p>') +
+          '</div>');
+      $("#" + elem_id + '_chart').append('<div class="alert-box alert-warning alert-mobile color-' + warning.severity + '">' +
+          '<div class="clearfix block">' +
+          '<span class="warning-title"><i class="fa fa-exclamation-triangle"></i> &nbsp;&nbsp; ' + warning.name + '</span>' +
+          (warning.duration ? '<span class="duration color-' + warning.severity + '">' + warning.duration + '</span>' : '') +
+          '</div>' +
+          (warning.short_resolution == '' ? '' : '<p class="info-text">' + warning.short_resolution + '<span class="spacer"></span><a href="#" class="warning-detail-btn" data-id="' + warning.id + '">Details</a></p>') +
+          '</div>');
+    }
+  }
+
+  if (out_mod) {
+    return current_warning;
+  } else {
+    return has_warning;
+  }
+}
+
+function update_dv_overview(pos) {
+
+  var offline = true;
+
+  var current_record = {};
+  if (DV_CURRENT_WITS) {
+    current_record = pos == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[pos];
+  }
+
+  var current_activity;
+  if (DV_CURRENT_ACTIVITY) {
+    var t = new Date(current_record.entry_at).getTime() / 1000;
+    for (var i = 0; i < DV_CURRENT_ACTIVITY.length; i++) {
+      if (DV_CURRENT_ACTIVITY[i].start_time_ts <= t && t <= DV_CURRENT_ACTIVITY[i].end_time_ts) {
+        current_activity = DV_CURRENT_ACTIVITY[i];
+        break;
+      }
+    }
+  } else {
+    current_activity = {};
+  }
+
+  var gactivity;
+  if (DV_CURRENT_GACTIVITY) {
+    for (var i = 0; i < DV_CURRENT_GACTIVITY.length; i++) {
+      if (DV_CURRENT_GACTIVITY[i].start_time_ts <= t && t <= DV_CURRENT_GACTIVITY[i].end_time_ts) {
+        gactivity = DV_CURRENT_GACTIVITY[i];
+        break;
+      }
+    }
+  } else {
+    gactivity = {};
+  }
+
+  // Overview / WOB
+  if (typeof current_record.weight_on_bit != 'undefined' && typeof current_record.weight_on_bit != null) {
+    offline = false;
+    var wob = parseFloat(current_record.weight_on_bit).non_negative().convert('klbf', company_unit).val().round_to_decimal().number_with_delimiter();
+    $("#dv_overview_wob_label").removeClass("value-gray");
+    $("#dv_overview_wob").html(wob + " <span>" + "klbf".unit(company_unit) + "</span>");
+  } else {
+    $("#dv_overview_wob").html("-");
+    $("#dv_overview_wob_label").addClass("value-gray");
+  }
+
+  // Overview / RPM
+  if (typeof current_record.rotary_rpm != 'undefined' && typeof current_record.rotary_rpm != null) {
+    offline = false;
+    var rpm = parseFloat(current_record.rotary_rpm).non_negative().round_to_decimal().number_with_delimiter();
+    $("#dv_overview_rpm").html(rpm + " <span>rpm</span>");
+    $("#dv_overview_rpm_label").removeClass("value-gray");
+  } else {
+    $("#dv_overview_rpm").html("-");
+    $("#dv_overview_rpm_label").addClass("value-gray");
+  }
+
+  // Overview / Flow rate
+  if (typeof current_record.mud_flow_in != 'undefined' && typeof current_record.mud_flow_in != null) {
+    offline = false;
+    var flow_rate = parseFloat(current_record.mud_flow_in).non_negative().convert('gpm', company_unit).val().round_to_decimal().number_with_delimiter();
+    $("#dv_overview_flowrate").html(flow_rate + " <span>" + "gpm".unit(company_unit) + "</span>");
+    $("#dv_overview_flowrate_label").removeClass("value-gray");
+  } else {
+    $("#dv_overview_flowrate").html("-");
+    $("#dv_overview_flowrate_label").addClass("value-gray");
+  }
+
+  // Overview / Activity
+  if (current_activity) {
+    $("#dv_overview_activity_rect").css({"background": current_activity.color || "rgb(24, 28, 28)"});
+    $("#dv_overview_gactivity_depth").html(gactivity ? gactivity.gactivity_name || "" : "");
+    $("#dv_overview_activity").html(current_activity.activity_name || "");
+  }
+
+  // Overview / actual rop
+  if (typeof current_record.rop != 'undefined' && typeof current_record.rop != null) {
+    offline = false;
+    var rop = parseFloat(current_record.rop).non_negative().convert('ft', company_unit).val().round_to_decimal().number_with_delimiter();
+    $("#dv_overview_actual_rop").html(rop + " <span>" + 'ft'.unit(company_unit) + "/hr</span>");
+    $("#dv_overview_actual_rop_label").removeClass("value-gray");
+
+    $("#dv_overview_predicted_rop").html("-");
+    $("#dv_overview_predicted_rop_label").addClass("value-gray");
+  } else {
+    $("#dv_overview_actual_rop").html("-");
+    $("#dv_overview_actual_rop_label").addClass("value-gray");
+
+    $("#dv_overview_predicted_rop").html("-");
+    $("#dv_overview_predicted_rop_label").addClass("value-gray");
+  }
+
+  /*
+   // Overview / predicted rop
+   var predicted_rop = rop / 5 * 6;
+   predicted_rop = parseFloat(predicted_rop).toFixed(0);
+   predicted_rop = parseInt(predicted_rop).number_with_delimiter();
+   $("#dv_overview_predicted_rop").html(predicted_rop + " <span>ft/hr</span>");
+   $("#dv_overview_predicted_rop").html("-");
+   $("#dv_overview_predicted_rop_label").addClass("value-gray");
+
+   // Overview / rop behind
+   var behind_percent = rop == 0 ? 0 : (rop - predicted_rop) / rop * 100;
+   behind_percent = parseFloat(behind_percent).toFixed(0);
+   behind_percent = parseInt(behind_percent).number_with_delimiter();
+   $("#dv_overview_rop_behind").html(behind_percent + "%");
+   */
+  $("#dv_overview_rop_behind").html("");
+
+  // Info / bit depth
+  if (typeof current_record.bit_depth != 'undefined' && typeof current_record.bit_depth != null) {
+    offline = false;
+    var bit_depth = parseFloat(current_record.bit_depth).non_negative().convert('ft', company_unit).val().round_to_decimal().number_with_delimiter();
+    $("#dv_info_bit_depth").html(bit_depth + " <span>" + "ft".unit(company_unit) + "</span>");
+    $("#dv_info_bit_depth_label").removeClass("value-gray");
+  } else {
+    $("#dv_info_bit_depth").html("-");
+    $("#dv_info_bit_depth_label").addClass("value-gray");
+  }
+
+  // Info / hole depth
+  if (typeof current_record.hole_depth != 'undefined' && typeof current_record.hole_depth != null) {
+    offline = false;
+    var hole_depth = parseFloat(current_record.hole_depth).non_negative().convert('ft', company_unit).val().round_to_decimal().number_with_delimiter();
+    $("#dv_info_hole_depth").html(hole_depth + " <span>" + "ft".unit(company_unit) + "</span>");
+    $("#dv_info_bit_hole_label").removeClass("value-gray");
+  } else {
+    $("#dv_info_hole_depth").html("-");
+    $("#dv_info_bit_hole_label").addClass("value-gray");
+  }
+
+//    if (offline == true) {
+//      $("#dv_overview_offline_box").show();
+//    } else {
+//      $("#dv_overview_offline_box").hide();
+//    }
+
+  // warning
+  var current_date = Math.floor((new Date(current_record.entry_at).getTime()) / 1000);
+  var has_warning = update_warning_alert('dv_overview_warning_box', current_date, false);
+  if (has_warning == false && job_status == 6) {
+    $("#dv_overview_warning_box").html('<div class="alert-box alert-success">All systems are operating normally</div>');
+  }
+
+  update_right_menu(current_date);
+
+  return offline;
+}
+
+function draw_dv_overview() {
+  var offline_graph = true;
+
+  if (DV_CURRENT_WITS) {
+    // Overview / Graph
+    if (DV_CHARTS['overview']) {
+      var graph_data = [];
+      var j = 0;
+      for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+        var record = DV_CURRENT_WITS[i];
+        var rop = parseFloat(record.rop).non_negative().convert('ft', company_unit).val();
+        var predicted_rop = 0;
+
+        var trend;
+        if (j % 10 == 0 || j == (DV_CURRENT_WITS.length - 1)) {
+          trend = rop;
+        } else {
+          trend = undefined;
+        }
+
+        if (rop > 0) {
+          offline_graph = false;
+        }
+
+        graph_data.push({
+          id: i,
+          time: record.entry_at,
+          rop: rop,
+          //predicted_rop: predicted_rop,
+          trend: trend
+        });
+        j++;
+      }
+
+      // End of well alert
+      var current_record = DV_CURSOR_POS == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[DV_CURSOR_POS];
+      current_record = current_record || {};
+      var on_job =
+      <%= @job.status %> ==
+      <%= Job::ON_JOB %>;
+      if ((new Date(current_record.entry_at).getTime() / 1000) == lastDate && offline_graph == true && !on_job) {
+        $('#dv_overview_end_well_alert').show();
+        $('#chart_drillview_overview_offline').show();
+        $('#chart_drillview_overview').hide();
+      } else {
+        $('#dv_overview_end_well_alert').hide();
+        $('#chart_drillview_overview_offline').hide();
+        $('#chart_drillview_overview').show();
+      }
+
+      var max_value = _.max(graph_data, 'rop').rop,
+          min_value = _.min(graph_data, 'rop').rop;
+
+      var padding_value = (max_value - min_value) == 0 ? 1000 : Math.round((max_value - min_value) / 100 * 10);
+      min_value = Math.round(min_value) - padding_value;
+      min_value = Math.max(Math.round(min_value), 0);
+      max_value = Math.round(max_value) + padding_value;
+      max_value = Math.max(max_value, padding_value);
+
+      var valueAxis = DV_CHARTS['overview'].getValueAxisById('overview_axis');
+
+      valueAxis.minimum = min_value;
+      valueAxis.maximum = max_value;
+
+      DV_CHARTS['overview'].dataProvider = graph_data;
+      DV_CHARTS['overview'].validateData();
+      DV_CHARTS['overview'].validateNow();
+
+      min_value = valueAxis.min || valueAxis.minimum;
+      max_value = valueAxis.max || valueAxis.maximum;
+
+      var spacing = (max_value - min_value) / 5;
+
+      var html_str = "";
+      for (var i = 0; i < 5; i++) {
+        var axis_value = min_value + i * spacing + (spacing / 2);
+        axis_value = parseFloat(axis_value).toFixed(0);
+        html_str += "<span style='width:20%;'>" + axis_value + "</span>";
+      }
+      $("#dv_overview_rop_axis").html(html_str);
+    }
+  } else {
+    // overview / Graph
+    if (DV_CHARTS['overview']) {
+      DV_CHARTS['overview'].dataProvider = [];
+      DV_CHARTS['overview'].validateData();
+    }
+    $("#dv_overview_rop_axis").html("");
+  }
+
+  if (update_dv_overview(DV_CURSOR_POS) == true && offline_graph == true) {
+    $("#dv_overview_offline_box").show();
+  } else {
+    $("#dv_overview_offline_box").hide();
+  }
+}
+
+function update_dv_wellbore(pos) {
+  var offline = true;
+  var current_record = {};
+
+  if (DV_CURRENT_WITS) {
+    current_record = pos == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[pos];
+  }
+
+  // ECD
+  if (typeof current_record.ecd != 'undefined' && typeof current_record.ecd != null) {
+    offline = false;
+    var ecd = parseFloat(current_record.ecd).non_negative().convert('ppg', company_unit).val().round_to_decimal(1).with_delimiter();
+    $("#dv_wellbore_ecd").html(ecd + " <span>" + "ppg".unit(company_unit) + "</span>");
+    $("#dv_wellbore_ecd_label").removeClass("value-gray");
+  } else {
+    $("#dv_wellbore_ecd").html("-");
+    $("#dv_wellbore_ecd_label").addClass("value-gray");
+  }
+
+  // Pore Pressure
+  //if (typeof current_record.porepressure_emw != 'undefined' && typeof current_record.porepressure_emw != null) {
+  if (false) {
+    offline = false;
+    var pore_pressure = parseFloat(current_record.porepressure_emw).non_negative().convert('ppg', company_unit).val().round_to_decimal(1).with_delimiter();
+    $("#dv_wellbore_pore_pressure").html(pore_pressure + " <span>" + "ppg".unit(company_unit) + "</span>");
+    $("#dv_wellbore_pore_pressure_label").removeClass("value-gray");
+  } else {
+    $("#dv_wellbore_pore_pressure").html("-");
+    $("#dv_wellbore_pore_pressure_label").addClass("value-gray");
+  }
+
+  // Shear Failure
+  //if (typeof current_record.shearfailure_emw != 'undefined' && typeof current_record.shearfailure_emw != null) {
+  if (false) {
+    offline = false;
+    var shear_failure = parseFloat(current_record.shearfailure_emw).non_negative().convert('ppg', company_unit).val().round_to_decimal(1).with_delimiter();
+    $("#dv_wellbore_shear_failure").html(shear_failure + " <span>" + "ppg".unit(company_unit) + "</span>");
+    $("#dv_wellbore_shear_failure_label").removeClass("value-gray");
+  } else {
+    $("#dv_wellbore_shear_failure").html("-");
+    $("#dv_wellbore_shear_failure_label").addClass("value-gray");
+  }
+
+  // Minimum stress
+  //if (typeof current_record.minstress_emw != 'undefined' && typeof current_record.minstress_emw != null) {
+  if (false) {
+    offline = false;
+    var minstress_emw = parseFloat(current_record.minstress_emw).non_negative().convert('ppg', company_unit).val().round_to_decimal(1).with_delimiter();
+    $("#dv_wellbore_min_stress").html(minstress_emw + " <span>" + "ppg".unit(company_unit) + "</span>");
+    $("#dv_wellbore_min_stress_label").removeClass("value-gray");
+  } else {
+    $("#dv_wellbore_min_stress").html("-");
+    $("#dv_wellbore_min_stress_label").addClass("value-gray");
+  }
+
+  // Fracture Pressure
+  //if (typeof current_record.fracturepressure_emw != 'undefined' && typeof current_record.fracturepressure_emw != null) {
+  if (false) {
+    offline = false;
+    var fracturepressure_emw = parseFloat(current_record.fracturepressure_emw).non_negative().convert('ppg', company_unit).val().round_to_decimal(1).with_delimiter();
+    $("#dv_wellbore_fracture_pressure").html(fracturepressure_emw + " <span>" + "ppg".unit(company_unit) + "</span>");
+    $("#dv_wellbore_fracture_pressure_label").removeClass("value-gray");
+  } else {
+    $("#dv_wellbore_fracture_pressure").html("-");
+    $("#dv_wellbore_fracture_pressure_label").addClass("value-gray");
+  }
+
+  // warning
+  var current_date = Math.floor((new Date(current_record.entry_at).getTime()) / 1000);
+  var has_warning = update_warning_alert('dv_stability_warning_box', current_date, '<%= CompanyFeature::WELLBORE_STABILITY %>');
+  if (has_warning == false) {
+    $("#dv_stability_warning_box").hide();
+  } else {
+    $("#dv_stability_warning_box").show();
+  }
+
+  update_right_menu(current_date);
+
+  return offline;
+}
+
+function draw_dv_wellbore() {
+  var offline_graph = true;
+
+  if (DV_CURRENT_ECD) {
+
+    // Wellbore / Graph
+    if (DV_CHARTS['wellbore']) {
+      var max_value = 0,
+          max_depth = 0;
+
+      var graph_data = [];
+      for (var i = 0; i < DV_CURRENT_ECD.length; i++) {
+        var record = DV_CURRENT_ECD[i];
+        var depth = parseFloat(record.depth).convert('ft', company_unit).val();
+        var ecd = parseFloat(record.ecd).convert('ppg', company_unit).val();
+        var pore_pressure = parseFloat(record.emw_pore_pressure).convert('ppg', company_unit).val();
+        var fracture_pressure = parseFloat(record.emw_fracture_pressure).convert('ppg', company_unit).val();
+        var min_stress = parseFloat(record.emw_min_stress).convert('ppg', company_unit).val();
+        var shear_failure = parseFloat(record.emw_shear_failure).convert('ppg', company_unit).val();
+        /* old code */
+        /*
+         var depth = parseFloat(record[0]);
+         var ecd = parseFloat(record[1] || 0).non_negative();
+         var pore_pressure = parseFloat(record[2]);
+         var fracture_pressure = parseFloat(record[5]);
+         var min_stress = parseFloat(record[4]);
+         var shear_failure = parseFloat(record[3]);
+         */
+
+        if (pore_pressure > 0 || fracture_pressure > 0 || min_stress > 0 || shear_failure > 0) {
+          offline_graph = false;
+        }
+
+        max_value = Math.max(max_value, ecd, pore_pressure, fracture_pressure, min_stress, shear_failure);
+        max_depth = Math.max(max_depth, depth);
+
+        graph_data.push({
+          id: i,
+          time: record.entry_at || '',
+          depth: depth,
+          ecd: ecd,
+          pore_pressure: pore_pressure,
+          fracture_pressure: fracture_pressure,
+          min_stress: min_stress,
+          shear_failure: shear_failure,
+          max: undefined
+        });
+      }
+
+      for (var i = 0; i < graph_data.length; i++) {
+        graph_data[i].depth = graph_data[i].depth / max_depth * 20000;
+      }
+
+//        var valueAxis = DV_CHARTS['wellbore'].getValueAxisById('depth_axis');
+//
+//        var max = Math.ceil(Math.round(max_depth)/10)*10;
+//
+//        valueAxis.minimum = 0;
+//        valueAxis.maximum = max_depth;
+
+      var padding_value = max_value == 0 ? 100 : Math.round(max_value / 100 * 10);
+      max_value = Math.max(max_value, padding_value);
+      max_value = Math.ceil(max_value);
+
+      var valueAxis = DV_CHARTS['wellbore'].getValueAxisById('wellbore_axis');
+
+      valueAxis.minimum = 0;
+      valueAxis.maximum = max_value;
+
+      if (offline_graph == false) {
+        graph_data[0].max = max_value;
+        graph_data[graph_data.length - 1].max = max_value;
+      }
+
+      DV_CHARTS['wellbore'].dataProvider = graph_data;
+      DV_CHARTS['wellbore'].validateData();
+      DV_CHARTS['wellbore'].validateNow();
+
+      var min_value = valueAxis.min || valueAxis.minimum;
+      var max_value = valueAxis.max || valueAxis.maximum;
+
+      var spacing = (max_value - min_value) / 5;
+
+      var html_str = "";
+      for (var i = 0; i < 5; i++) {
+        var axis_value = min_value + i * spacing + (spacing / 2);
+        axis_value = parseFloat(axis_value).toFixed(0);
+        html_str += "<span style='width:20%;'>" + axis_value + "</span>";
+      }
+      $("#dv_wellbore_emw_axis").html(html_str);
+
+      // Update depth row
+      $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row").html("");
+      var bottom = 10;
+      for (var i = 1; i <= 5; i++) {
+        var depth = max_depth / 100 * bottom;
+        depth = Math.round(depth);
+        depth = depth.number_with_delimiter();
+        $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row").append("<span class='depth-pip' style='bottom: calc(" + (100 - bottom) + "%);'>" + depth + "</span>");
+        bottom += 20;
+      }
+    }
+
+  } else {
+    // Wellbore stability / Graph
+    if (DV_CHARTS['wellbore']) {
+      DV_CHARTS['wellbore'].dataProvider = [];
+      DV_CHARTS['wellbore'].validateData();
+      DV_CHARTS['wellbore'].validateNow();
+    }
+
+    $("#dv_wellbore_emw_axis").html("");
+
+    if (DV_CURRENT_WITS && DV_CURRENT_WITS.length > 0) {
+      var current_record = DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1];
+      var max_depth = current_record.hole_depth;
+
+      // Update depth row
+      $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row").html("");
+      var bottom = 10;
+      for (var i = 1; i <= 5; i++) {
+        var depth = max_depth / 100 * bottom;
+        depth = Math.round(depth);
+        depth = depth.number_with_delimiter();
+        $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row").append("<span class='depth-pip' style='bottom: calc(" + (100 - bottom) + "%);'>" + depth + "</span>");
+        bottom += 20;
+      }
+    }
+  }
+
+  if (update_dv_wellbore(DV_CURSOR_POS) == true && offline_graph == true) {
+    $('#dv_stability_offline_box').show();
+    $('#chart_drillview_wellbore').show();
+    $('#chart_drillview_wellbore_offline').hide();
+    $('#dv_stability_no_mud_alert').hide();
+  } else if (offline_graph == true) {
+    $('#dv_stability_offline_box').hide();
+    $('#chart_drillview_wellbore').hide();
+    $('#chart_drillview_wellbore_offline').show();
+    $('#dv_stability_no_mud_alert').show();
+  } else {
+    $('#dv_stability_offline_box').hide();
+    $('#chart_drillview_wellbore').show();
+    $('#chart_drillview_wellbore_offline').hide();
+    $('#dv_stability_no_mud_alert').hide();
+  }
+}
+
+function update_dv_torque_broomstick(depth) {
+  var offline = true;
+
+  if (!DV_CURRENT_TORQUE || !DV_CURRENT_TORQUE['broomstick']) {
+    return offline;
+  }
+
+  var data = DV_CURRENT_TORQUE['broomstick'];
+
+  // Torque / rotating
+  if (data.all_Rotating_Actual && data.all_Rotating_Actual.length != 0) {
+    offline = false;
+    var rotating = depth < 0 ? data.all_Rotating_Actual.last().HL_Actual : data.all_Rotating_Actual.find_closest(depth, 'measured_depth').HL_Actual;
+    rotating = parseFloat(rotating).non_negative().convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_rotating").html(rotating);
+    $("#dv_torque_rotating_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_rotating").html("-");
+    $("#dv_torque_rotating_label").addClass("value-gray");
+  }
+
+  // Torque / rotating predict
+  if (data.all_Rotating_Predicted && data.all_Rotating_Predicted.length != 0) {
+    offline = false;
+    var rotating = depth < 0 ? data.all_Rotating_Predicted.last().HL_Predicted : data.all_Rotating_Predicted.find_closest(depth, 'measured_depth').HL_Predicted;
+    rotating = parseFloat(rotating).non_negative().convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_rotating_predict").html(rotating);
+  } else {
+    $("#dv_torque_rotating_predict").html("-");
+  }
+
+  // Torque / Pickup
+  if (data.all_PickUp_Actual && data.all_PickUp_Actual.length != 0) {
+    offline = false;
+    var pickup = depth < 0 ? data.all_PickUp_Actual.last().HL_Actual : data.all_PickUp_Actual.find_closest(depth, 'measured_depth').HL_Actual;
+    pickup = parseFloat(pickup).non_negative().convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_pickup").html(pickup);
+    $("#dv_torque_pickup_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_pickup").html("-");
+    $("#dv_torque_pickup_label").addClass("value-gray");
+  }
+
+  // Torque / Pickup predict
+  if (data.all_PickUp_Predicted && data.all_PickUp_Predicted.length != 0) {
+    offline = false;
+    var pickup = depth < 0 ? data.all_PickUp_Predicted.last().HL_Predicted : data.all_PickUp_Predicted.find_closest(depth, 'measured_depth').HL_Predicted;
+    pickup = parseFloat(pickup).non_negative().convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_pickup_predict").html(pickup);
+  } else {
+    $("#dv_torque_pickup_predict").html("-");
+  }
+
+  // Torque / Slackoff
+  if (data.all_SlackOff_Actual && data.all_SlackOff_Actual.length != 0) {
+    offline = false;
+    var slackoff = depth < 0 ? data.all_SlackOff_Actual.last().HL_Actual : data.all_SlackOff_Actual.find_closest(depth, 'measured_depth').HL_Actual;
+    slackoff = parseFloat(slackoff).non_negative().convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_slackoff").html(slackoff);
+    $("#dv_torque_slackoff_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_slackoff").html("-");
+    $("#dv_torque_slackoff_label").addClass("value-gray");
+  }
+
+  // Torque / Slackoff predict
+  if (data.all_SlackOff_Predicted && data.all_SlackOff_Predicted.length != 0) {
+    offline = false;
+    var slackoff = depth < 0 ? data.all_SlackOff_Predicted.last().HL_Predicted : data.all_SlackOff_Predicted.find_closest(depth, 'measured_depth').HL_Predicted;
+    slackoff = parseFloat(slackoff).non_negative().convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_slackoff_predict").html(slackoff);
+  } else {
+    $("#dv_torque_slackoff_predict").html("-");
+  }
+
+  return offline;
+}
+
+function update_dv_torque_axial_load(depth) {
+  var offline = true;
+
+  if (!DV_CURRENT_TORQUE || !DV_CURRENT_TORQUE['axial_load'] || DV_CURRENT_TORQUE['axial_load'].length == 0) {
+    return offline;
+  }
+
+  var data = DV_CURRENT_TORQUE['axial_load'];
+  var record = depth < 0 ? data.last() : data.find_closest(depth.convert_default('ft', company_unit).val(), 'measured_depth');
+
+  // Torque / Axial Load Plot / Sin buckling
+  if (record.sinBucklingForce) {
+    offline = false;
+    var sin_buckling = parseFloat(record.sinBucklingForce).convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_sin_buckling").html(sin_buckling + " <span>" + 'klbf'.unit(company_unit) + "</span>");
+    $("#dv_torque_sin_buckling_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_sin_buckling").html("-");
+    $("#dv_torque_sin_buckling_label").addClass("value-gray");
+  }
+
+  // Torque / Axial Load Plot / Hel Buckling Force
+  if (record.helBucklingForce) {
+    offline = false;
+    var hel_buckling = parseFloat(record.helBucklingForce).convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_hel_buckling").html(hel_buckling + " <span>" + 'klbf'.unit(company_unit) + "</span>");
+    $("#dv_torque_hel_buckling_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_hel_buckling").html("-");
+    $("#dv_torque_hel_buckling_label").addClass("value-gray");
+  }
+
+  // Torque / Axial Load Plot / Axial Load
+  if (record.axialLoad) {
+    offline = false;
+    var axial_load = parseFloat(record.axialLoad).convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_axial_load").html(hel_buckling + " <span>" + 'klbf'.unit(company_unit) + "</span>");
+    $("#dv_torque_axial_load_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_axial_load").html("-");
+    $("#dv_torque_axial_load_label").addClass("value-gray");
+  }
+
+  return offline;
+}
+
+function update_dv_torque_stress(depth) {
+  var offline = true;
+
+  if (!DV_CURRENT_TORQUE || !DV_CURRENT_TORQUE['stress'] || DV_CURRENT_TORQUE['stress'].length == 0) {
+    return offline;
+  }
+
+  var data = DV_CURRENT_TORQUE['stress'];
+  var record = depth < 0 ? data.last() : data.find_closest(depth, 'measured_depth');
+
+  // Torque / Stress Plot / Bending Stress
+  if (record.bendingStress) {
+    offline = false;
+    var bending = parseFloat(record.bendingStress).convert('psi', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_bending_stress").html(bending + " <span>" + 'psi'.unit(company_unit) + "</span>");
+    $("#dv_torque_bending_stress_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_bending_stress").html("-");
+    $("#dv_torque_bending_stress_label").addClass("value-gray");
+  }
+
+  // Torque / Stress Plot / 80% yield stress
+  if (record.yieldStress80) {
+    offline = false;
+    var yield80 = parseFloat(record.yieldStress80).convert('psi', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_80_yield_stress").html(yield80 + " <span>" + 'psi'.unit(company_unit) + "</span>");
+    $("#dv_torque_80_yield_stress_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_80_yield_stress").html("-");
+    $("#dv_torque_80_yield_stress_label").addClass("value-gray");
+  }
+
+  // Torque / Stress Plot / 60% yield stress
+  if (record.yieldStress60) {
+    offline = false;
+    var yield60 = parseFloat(record.yieldStress60).convert('psi', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_60_yield_stress").html(yield60 + " <span>" + 'psi'.unit(company_unit) + "</span>");
+    $("#dv_torque_60_yield_stress_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_60_yield_stress").html("-");
+    $("#dv_torque_60_yield_stress_label").addClass("value-gray");
+  }
+
+  // Torque / Stress Plot / twist stress
+  if (record.twistStress) {
+    offline = false;
+    var twist_stress = parseFloat(record.twistStress).convert('psi', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_twist_stress").html(twist_stress + " <span>" + 'psi'.unit(company_unit) + "</span>");
+    $("#dv_torque_twist_stress_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_twist_stress").html("-");
+    $("#dv_torque_twist_stress_label").addClass("value-gray");
+  }
+
+  // Torque / Stress Plot / axial stress
+  if (record.axialStress) {
+    offline = false;
+    var axial_stress = parseFloat(record.axialStress).convert('psi', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_axial_stress").html(axial_stress + " <span>" + 'psi'.unit(company_unit) + "</span>");
+    $("#dv_torque_axial_stress_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_axial_stress").html("-");
+    $("#dv_torque_axial_stress_label").addClass("value-gray");
+  }
+
+  // Torque / Stress Plot / yield stress
+  if (record.yieldStress) {
+    offline = false;
+    var yield_stress = parseFloat(record.yieldStress).convert('psi', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_yield_stress").html(yield_stress + " <span>" + 'psi'.unit(company_unit) + "</span>");
+    $("#dv_torque_yield_stress_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_yield_stress").html("-");
+    $("#dv_torque_yield_stress_label").addClass("value-gray");
+  }
+
+  // Torque / Stress Plot / von mises stress
+  if (record.vonMisesStress) {
+    offline = false;
+    var von_mises_stress = parseFloat(record.vonMisesStress).convert('psi', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_von_mises_stress").html(von_mises_stress + " <span>" + 'psi'.unit(company_unit) + "</span>");
+    $("#dv_torque_von_mises_stress_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_von_mises_stress").html("-");
+    $("#dv_torque_von_mises_stress_label").addClass("value-gray");
+  }
+
+  return offline;
+}
+
+function update_dv_torque_surface_torque(depth) {
+  var offline = true;
+
+  if (!DV_CURRENT_TORQUE || !DV_CURRENT_TORQUE['surface_torque'] || DV_CURRENT_TORQUE['surface_torque'].length == 0) {
+    return offline;
+  }
+
+  var data = DV_CURRENT_TORQUE['surface_torque'];
+  var record = depth < 0 ? data.last() : data.find_closest(depth, 'measured_depth');
+
+  // Torque / Torque Surface Plot / torque
+  if (record.torque) {
+    offline = false;
+    var torque = parseFloat(record.torque).convert('kft-lbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_torque").html(torque + " <span>" + 'kft-lbf'.unit(company_unit) + "</span>");
+    $("#dv_torque_torque_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_torque").html("-");
+    $("#dv_torque_torque_label").addClass("value-gray");
+  }
+
+  // Torque / Torque Surface Plot / Torsional Yield
+  if (record.torsionalYield) {
+    offline = false;
+    var torsional_yield = parseFloat(record.torsionalYield).convert('kft-lbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_torque_torsional_yield").html(torsional_yield + " <span>" + 'kft-lbf'.unit(company_unit) + "</span>");
+    $("#dv_torque_torsional_yield_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_torsional_yield").html("-");
+    $("#dv_torque_torsional_yield_label").addClass("value-gray");
+  }
+
+  return offline;
+}
+
+function update_dv_torque_ff(depth) {
+  var offline = true;
+
+  if (!DV_CURRENT_TORQUE || !DV_CURRENT_TORQUE['ff'] || DV_CURRENT_TORQUE['ff'].length == 0) {
+    return offline;
+  }
+
+  var data = DV_CURRENT_TORQUE['ff'];
+  var record = depth < 0 ? data.last() : data.find_between(depth, 'measured_depth_top', 'measured_depth_bottom');
+
+  // Torque / Friction Factor Plot / slackoff
+  if (record.ff_slackoff) {
+    offline = false;
+    var ff_slackoff = parseFloat(record.ff_slackoff).round_to_decimal(3).with_delimiter();
+    $("#dv_torque_ff_slackoff").html(ff_slackoff);
+    $("#dv_torque_ff_slackoff_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_ff_slackoff").html("-");
+    $("#dv_torque_ff_slackoff_label").addClass("value-gray");
+  }
+
+  // Torque / Friction Factor Plot / Rotating
+  if (record.ff_rot) {
+    offline = false;
+    var ff_rotating = parseFloat(record.ff_rot).round_to_decimal(3).with_delimiter();
+    $("#dv_torque_ff_rotating").html(ff_rotating);
+    $("#dv_torque_ff_rotating_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_ff_rotating").html("-");
+    $("#dv_torque_ff_rotating_label").addClass("value-gray");
+  }
+
+  // Torque / Friction Factor Plot / Pick up
+  if (record.ff_pickup) {
+    offline = false;
+    var ff_pickup = parseFloat(record.ff_pickup).round_to_decimal(3).with_delimiter();
+    $("#dv_torque_ff_pickup").html(ff_pickup);
+    $("#dv_torque_ff_pickup_label").removeClass("value-gray");
+  } else {
+    $("#dv_torque_ff_pickup").html("-");
+    $("#dv_torque_ff_pickup_label").addClass("value-gray");
+  }
+
+  return offline;
+}
+
+function update_dv_torque(depth) {
+  var offline = true;
+  depth = depth || -1;
+
+  switch (DV_CURRENT_TORQUE_TAB) {
+    case 'broomstick':
+      offline = update_dv_torque_broomstick(depth);
+      break;
+    case 'axial_load':
+      offline = update_dv_torque_axial_load(depth);
+      break;
+    case 'stress':
+      offline = update_dv_torque_stress(depth);
+      break;
+    case 'surface_torque':
+      offline = update_dv_torque_surface_torque(depth);
+      break;
+    case 'ff':
+      offline = update_dv_torque_ff(depth);
+      break;
+  }
+
+  var current_date = Math.floor((new Date(DV_CURRENT_WITS.last().entry_at).getTime()) / 1000);
+  var current_warning = update_warning_alert('dv_torque_warning_box', current_date, '<%= CompanyFeature::TORQUE_AND_DRAG %>', true);
+
+  if (!offline && DV_HOLE_SIZES != null) {
+    $('#dv_torque_casing_depth_container').html('');
+    $('#dv_torque_casing_chart_container .left_bar').html('');
+    $('#dv_torque_casing_chart_container .right_bar').html('');
+
+    var depthAxis = DV_CHARTS['torque'].getValueAxisById('depth_axis');
+    var max_depth = parseFloat(DV_CURRENT_WITS.last().bit_depth).non_negative().non_zero();
+    var current_depth = depth < 0 ? max_depth : Math.min(depth.convert_default('ft', company_unit).val(), depthAxis.maximum.convert_default('ft', company_unit).val());
+
+    for (var i = 0; i < DV_HOLE_SIZES.length; i++) {
+      var hole_size = DV_HOLE_SIZES[i]
+      var depth = hole_size.depth || 0;
+      var size = hole_size.diameter || 0;
+      var percentage = depth / current_depth * 100;
+      if (percentage >= 100) {
+        percentage = 100;
+      } else {
+        $('#dv_torque_casing_depth_container').append('<div style="position: absolute; top: ' + percentage + '%; font-size: 10px; color: #fefefe; right: ' + (size + 3) + 'px; margin-top: -5px;">' + depth.convert('ft', company_unit).val().round_to_decimal(0).with_delimiter() + '</div>');
+      }
+      $('#dv_torque_casing_chart_container .left_bar').append('<div style="width: ' + size + 'px; height: ' + percentage + '%; background:#747777; position: absolute; top: 0; right: 0;"></div>');
+      $('#dv_torque_casing_chart_container .right_bar').append('<div style="width: ' + size + 'px; height: ' + percentage + '%; background:#747777; position: absolute; top: 0; left: 0;"></div>');
+    }
+
+    if (current_depth && current_depth > 0) {
+      var first_hole_size, last_hole_size;
+      if (DV_HOLE_SIZES[0]) {
+        first_hole_size = DV_HOLE_SIZES[0].diameter || 0;
+      }
+      if (DV_HOLE_SIZES[DV_HOLE_SIZES.length - 1]) {
+        last_hole_size = DV_HOLE_SIZES[DV_HOLE_SIZES.length - 1].diameter || 0;
+      }
+      $('#dv_torque_casing_depth_container').append('<div style="position: absolute; top: 0%; font-size: 10px; color: #fefefe; right: ' + (first_hole_size + 3) + 'px; margin-top: -5px;">' + 0 + '</div>');
+      $('#dv_torque_casing_depth_container').append('<div style="position: absolute; top: 100%; font-size: 10px; color: #fefefe; right: ' + (last_hole_size + 3) + 'px; margin-top: -5px;">' + current_depth.convert('ft', company_unit).val().round_to_decimal().with_delimiter() + '</div>');
+    }
+
+    $('#dv_torque_casing_chart_container .warning-bar').html('<div style="width: 7px; height: 100%; background-color: #6bd21e;"></div>');
+    if (current_warning) {
+      var depth_from = parseFloat(current_warning.depth_from);
+      var depth_to = parseFloat(current_warning.depth_to);
+      var top = depth_from / current_depth * 100;
+      var height = (Math.min(depth_to || current_depth, current_depth) - depth_from) / current_depth * 100;
+      if (parseInt(current_warning.type) == 213) {
+        $('#dv_torque_casing_chart_container .warning-bar').append('<div style="position: absolute; width: 7px; height: 100%; top:' + top + '%; height: ' + height + '%; background-color: #fe0000;"></div>');
+      } else if (parseInt(current_warning.type) == 212) {
+        $('#dv_torque_casing_chart_container .warning-bar').append('<div style="position: absolute; width: 7px; height: 100%; top:' + top + '%; height: ' + height + '%; background-color: #ffc618;"></div>');
+      }
+    }
+
+    $('#dv_torque_casing_chart_container').show();
+  } else {
+    $('#dv_torque_casing_depth_container').html('');
+    $('#dv_torque_casing_chart_container').hide();
+  }
+
+  if (!current_warning) {
+    $(".dv_torque_warning_box").hide();
+  } else {
+    $(".dv_torque_warning_box").show();
+  }
+
+  update_right_menu(current_date);
+
+  return offline;
+}
+
+function get_dv_broomstick_graph_data() {
+  var max_value = 0,
+      max_depth = 0,
+      graph_data = [],
+      graphs = [];
+
+  if (!DV_CURRENT_TORQUE['broomstick'] || DV_CURRENT_TORQUE['broomstick'].length == 0) {
+    return [graph_data, graphs, max_depth];
+  }
+
+  for (var i = 0; i < DV_CURRENT_TORQUE['broomstick'].all_SlackOff_Predicted.length; i++) {
+    var record = DV_CURRENT_TORQUE['broomstick'].all_SlackOff_Predicted[i];
+    var slackoff_offset = parseFloat(record.HL_Predicted).non_negative().convert('klbf', company_unit).val();
+    var bit_depth = parseFloat(record.measured_depth).non_negative().convert('ft', company_unit).val();
+
+    max_value = slackoff_offset > max_value ? slackoff_offset : max_value;
+    max_depth = Math.max(max_depth, bit_depth);
+
+    graph_data.push({
+      slackoff_offset_x: slackoff_offset,
+      slackoff_offset_y: bit_depth
+    });
+  }
+
+  for (var i = 0; i < DV_CURRENT_TORQUE['broomstick'].all_Rotating_Predicted.length; i++) {
+    var record = DV_CURRENT_TORQUE['broomstick'].all_Rotating_Predicted[i];
+    var drilling_offset = parseFloat(record.HL_Predicted).non_negative().convert('klbf', company_unit).val();
+    var bit_depth = parseFloat(record.measured_depth).non_negative().convert('ft', company_unit).val();
+
+    max_value = drilling_offset > max_value ? drilling_offset : max_value;
+    max_depth = Math.max(max_depth, bit_depth);
+
+    graph_data.push({
+      drilling_offset_x: drilling_offset - 2,
+      drilling_offset_y: bit_depth
+    });
+  }
+
+  for (var i = 0; i < DV_CURRENT_TORQUE['broomstick'].all_PickUp_Predicted.length; i++) {
+    var record = DV_CURRENT_TORQUE['broomstick'].all_PickUp_Predicted[i];
+    var pickup_offset = parseFloat(record.HL_Predicted).non_negative().convert('klbf', company_unit).val();
+    var bit_depth = parseFloat(record.measured_depth).non_negative().convert('ft', company_unit).val();
+
+    max_value = pickup_offset > max_value ? pickup_offset : max_value;
+    max_depth = Math.max(max_depth, bit_depth);
+
+    graph_data.push({
+      pickup_offset_x: pickup_offset,
+      pickup_offset_y: bit_depth
+    });
+  }
+  for (var i = 0; i < DV_CURRENT_TORQUE['broomstick'].all_PickUp_Actual.length; i++) {
+    var record = DV_CURRENT_TORQUE['broomstick'].all_PickUp_Actual[i];
+    var pickup = parseFloat(record.HL_Actual).non_negative().convert('klbf', company_unit).val();
+    var bit_depth = parseFloat(record.measured_depth).non_negative().convert('ft', company_unit).val();
+
+    max_value = pickup > max_value ? pickup : max_value;
+    max_depth = Math.max(max_depth, bit_depth);
+
+    graph_data.push({
+      pickup_x: pickup,
+      pickup_y: bit_depth
+    });
+  }
+
+  for (var i = 0; i < DV_CURRENT_TORQUE['broomstick'].all_Rotating_Actual.length; i++) {
+    var record = DV_CURRENT_TORQUE['broomstick'].all_Rotating_Actual[i];
+    var drilling = parseFloat(record.HL_Actual).non_negative().convert('klbf', company_unit).val();
+    var bit_depth = parseFloat(record.measured_depth).non_negative().convert('ft', company_unit).val();
+
+    max_value = drilling > max_value ? drilling : max_value;
+    max_depth = Math.max(max_depth, bit_depth);
+
+    graph_data.push({
+      drilling_x: drilling,
+      drilling_y: bit_depth
+    });
+  }
+
+  for (var i = 0; i < DV_CURRENT_TORQUE['broomstick'].all_SlackOff_Actual.length; i++) {
+    var record = DV_CURRENT_TORQUE['broomstick'].all_SlackOff_Actual[i];
+    var slackoff = parseFloat(record.HL_Actual).non_negative().convert('klbf', company_unit).val();
+    var bit_depth = parseFloat(record.measured_depth).non_negative().convert('ft', company_unit).val();
+
+    max_value = slackoff > max_value ? slackoff : max_value;
+    max_depth = Math.max(max_depth, bit_depth);
+
+    graph_data.push({
+      slackoff_x: slackoff,
+      slackoff_y: bit_depth
+    });
+  }
+
+  graphs = [
+    {
+      "xField": "slackoff_offset_x",
+      "yField": "slackoff_offset_y",
+      "lineColor": "#58c9c2",
+      "lineThickness": 1.5,
+      "dashLength": 3,
+      "lineAlpha": 1
+    },
+    {
+      "xField": "drilling_offset_x",
+      "yField": "drilling_offset_y",
+      "lineColor": "#da7d1a",
+      "lineThickness": 1.5,
+      "dashLength": 3,
+      "lineAlpha": 1
+    },
+    {
+      "xField": "pickup_offset_x",
+      "yField": "pickup_offset_y",
+      "lineColor": "#b3ed37",
+      "lineThickness": 1.5,
+      "dashLength": 3,
+      "lineAlpha": 1
+    },
+    {
+      "xField": "pickup_x",
+      "yField": "pickup_y",
+      "lineColor": "#b3ed37",
+      "lineThickness": 1.5,
+      "lineAlpha": 1
+    },
+    {
+      "xField": "drilling_x",
+      "yField": "drilling_y",
+      "lineColor": "#da7d1a",
+      "lineThickness": 1.5,
+      "lineAlpha": 1
+    },
+    {
+      "xField": "slackoff_x",
+      "yField": "slackoff_y",
+      "lineColor": "#58c9c2",
+      "lineThickness": 1.5,
+      "lineAlpha": 1
+    }
+  ];
+
+  return [graph_data, graphs, max_depth];
+}
+
+function get_dv_axial_load_graph_data() {
+  var max_value = 0,
+      max_depth = 0,
+      graph_data = [],
+      graphs = [];
+
+  if (!DV_CURRENT_TORQUE['axial_load'] || DV_CURRENT_TORQUE['axial_load'].length == 0) {
+    return [graph_data, graphs, max_depth];
+  }
+
+  for (var i = 0; i < DV_CURRENT_TORQUE['axial_load'].length; i++) {
+    var record = DV_CURRENT_TORQUE['axial_load'][i];
+    var sin_buckling = parseFloat(record.sinBucklingForce).convert('klbf', company_unit).val();
+    var hel_buckling = parseFloat(record.helBucklingForce).convert('klbf', company_unit).val();
+    var axial_load = parseFloat(record.axialLoad).convert('klbf', company_unit).val();
+    var depth = parseFloat(record.measured_depth).non_negative().convert('ft', company_unit).val();
+
+    max_depth = Math.max(max_depth, depth);
+
+    graph_data.push({
+      sin_buckling: sin_buckling,
+      hel_buckling: hel_buckling,
+      axial_load: axial_load,
+      depth: depth
+    });
+  }
+
+  var graphs = [
+    {
+      "yField": "depth",
+      "xField": "sin_buckling",
+      "lineColor": "#9aea6a",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "hel_buckling",
+      "lineColor": "#23c9ff",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "axial_load",
+      "lineColor": "#b858c9",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    }
+  ];
+
+  return [graph_data, graphs, max_depth];
+}
+
+function get_dv_stress_graph_data() {
+  var max_value = 0,
+      max_depth = 0,
+      graph_data = [],
+      graphs = [];
+
+  if (!DV_CURRENT_TORQUE['stress'] || DV_CURRENT_TORQUE['stress'].length == 0) {
+    return [graph_data, graphs, max_depth];
+  }
+
+  for (var i = 0; i < DV_CURRENT_TORQUE['stress'].length; i++) {
+    var record = DV_CURRENT_TORQUE['stress'][i];
+    var bending_stress = parseFloat(record.bendingStress).convert('psi', company_unit).val();
+    var yield_stress_80 = parseFloat(record.yieldStress80).convert('psi', company_unit).val();
+    var twist_stress = parseFloat(record.twistStress).convert('psi', company_unit).val();
+    var axial_stress = parseFloat(record.axialStress).convert('psi', company_unit).val();
+    var yield_stress = parseFloat(record.yieldStress).convert('psi', company_unit).val();
+    var von_mises_stress = parseFloat(record.vonMisesStress).convert('psi', company_unit).val();
+    var yield_stress_60 = parseFloat(record.yieldStress60).convert('psi', company_unit).val();
+    var depth = parseFloat(record.measured_depth).non_negative().convert('ft', company_unit).val();
+
+    max_depth = Math.max(max_depth, depth);
+
+    graph_data.push({
+      bending_stress: bending_stress,
+      yield_stress_80: yield_stress_80,
+      twist_stress: twist_stress,
+      axial_stress: axial_stress,
+      yield_stress: yield_stress,
+      von_mises_stress: von_mises_stress,
+      yield_stress_60: yield_stress_60,
+      depth: depth
+    });
+  }
+
+  var graphs = [
+    {
+      "yField": "depth",
+      "xField": "yield_stress",
+      "lineColor": "#f64363",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "yield_stress_60",
+      "lineColor": "#b858c9",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "yield_stress_80",
+      "lineColor": "#589dc9",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "axial_stress",
+      "lineColor": "#23fcff",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "twist_stress",
+      "lineColor": "#9aea6a",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "bending_stress",
+      "lineColor": "#9eddde",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "von_mises_stress",
+      "lineColor": "#9babee",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    }
+  ];
+
+  return [graph_data, graphs, max_depth];
+}
+
+function get_dv_surface_torque_graph_data() {
+  var max_value = 0,
+      max_depth = 0,
+      graph_data = [],
+      graphs = [];
+
+  if (!DV_CURRENT_TORQUE['surface_torque'] || DV_CURRENT_TORQUE['surface_torque'].length == 0) {
+    return [graph_data, graphs, max_depth];
+  }
+
+  for (var i = 0; i < DV_CURRENT_TORQUE['surface_torque'].length; i++) {
+    var record = DV_CURRENT_TORQUE['surface_torque'][i];
+    var torque = parseFloat(record.torque).convert('kft-lbf', company_unit).val();
+    var torsional_yield = parseFloat(record.torsionalYield).convert('kft-lbf', company_unit).val();
+    var depth = parseFloat(record.measured_depth).non_negative().convert('ft', company_unit).val();
+
+    max_depth = Math.max(max_depth, depth);
+
+    graph_data.push({
+      torque: torque,
+      torsional_yield: torsional_yield,
+      depth: depth
+    });
+  }
+
+  var graphs = [
+    {
+      "yField": "depth",
+      "xField": "torque",
+      "lineColor": "#9aea6a",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "torsional_yield",
+      "lineColor": "#b858c9",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    }
+  ];
+
+  return [graph_data, graphs, max_depth];
+}
+
+function get_dv_ff_graph_data() {
+  var max_value = 0,
+      max_depth = 0,
+      graph_data = [],
+      graphs = [];
+
+  if (!DV_CURRENT_TORQUE['ff'] || DV_CURRENT_TORQUE['ff'].length == 0) {
+    return [graph_data, graphs, max_depth];
+  }
+
+  for (var i = 0; i < DV_CURRENT_TORQUE['ff'].length; i++) {
+    var record = DV_CURRENT_TORQUE['ff'][i];
+    var ff_slackoff = parseFloat(record.ff_slackoff);
+    var ff_rotating = parseFloat(record.ff_rot);
+    var ff_pickup = parseFloat(record.ff_pickup);
+    var depth_bottom = parseFloat(record.measured_depth_bottom).non_negative().convert('ft', company_unit).val();
+    var depth_top = parseFloat(record.measured_depth_top).non_negative().convert('ft', company_unit).val();
+
+    max_depth = Math.max(max_depth, depth_bottom);
+
+    graph_data.push({
+      ff_slackoff: ff_slackoff,
+      ff_rotating: ff_rotating,
+      ff_pickup: ff_pickup,
+      depth: depth_top
+    }, {
+      ff_slackoff: ff_slackoff,
+      ff_rotating: ff_rotating,
+      ff_pickup: ff_pickup,
+      depth: depth_bottom
+    });
+  }
+
+  var graphs = [
+    {
+      "yField": "depth",
+      "xField": "ff_slackoff",
+      "lineColor": "#58c9c2",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "ff_rotating",
+      "lineColor": "#da7d1a",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    },
+    {
+      "yField": "depth",
+      "xField": "ff_pickup",
+      "lineColor": "#b3ed37",
+      "lineThickness": 3,
+      "lineAlpha": 1
+    }
+  ];
+
+  return [graph_data, graphs, max_depth];
+}
+
+function draw_dv_torque() {
+  var offline_graph = true;
+
+  if (DV_CURRENT_TORQUE) {
+
+    // Torque and drag / Graph
+    if (DV_CHARTS['torque']) {
+      var data;
+
+      switch (DV_CURRENT_TORQUE_TAB) {
+        case 'broomstick':
+          data = get_dv_broomstick_graph_data();
+          break;
+        case 'axial_load':
+          data = get_dv_axial_load_graph_data();
+          break;
+        case 'stress':
+          data = get_dv_stress_graph_data();
+          break;
+        case 'surface_torque':
+          data = get_dv_surface_torque_graph_data();
+          break;
+        case 'ff':
+          data = get_dv_ff_graph_data();
+          break;
+      }
+
+      var graph_data = data[0],
+          graphs = data[1]
+      max_depth = data[2];
+
+      if (graph_data.length > 0) {
+        offline_graph = false;
+      }
+
+      var depthAxis = DV_CHARTS['torque'].getValueAxisById('depth_axis');
+      depthAxis.minimum = 0;
+      depthAxis.maximum = max_depth.round_to_decimal();
+
+      DV_CHARTS['torque'].dataProvider = graph_data;
+      DV_CHARTS['torque'].graphs = graphs;
+      DV_CHARTS['torque'].validateData();
+      DV_CHARTS['torque'].validateNow();
+
+      var valueAxis = DV_CHARTS['torque'].getValueAxisById('torque_axis');
+      var min_value = valueAxis.min || valueAxis.minimum || 0;
+      var max_value = valueAxis.max || valueAxis.maximum || 0;
+
+      var spacing = (max_value - min_value) / 5;
+
+      var html_str = "";
+      for (var i = 0; i < 5; i++) {
+        var axis_value = min_value + i * spacing + (spacing / 2);
+        axis_value = parseFloat(axis_value).round_to_decimal(2);
+        html_str += "<span style='width:20%;'>" + axis_value + "</span>";
+      }
+      $("#dv_torque_hookload_axis").html(html_str);
+
+      var valueAxis = DV_CHARTS['torque'].getValueAxisById('depth_axis');
+      max_depth = valueAxis.max || valueAxis.maximum;
+      $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row").html("");
+      var bottom = 10;
+      for (var i = 1; i <= 5; i++) {
+        var depth = (max_depth / 100 * bottom).round_to_decimal().with_delimiter();
+        $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row").append("<span class='depth-pip' style='bottom: calc(" + (100 - bottom) + "%);'>" + depth + "</span>");
+        bottom += 20;
+      }
+    }
+  } else {
+    // Torque / Graph
+    if (DV_CHARTS['torque']) {
+      DV_CHARTS['torque'].dataProvider = [
+        {
+          slackoff_offset_x: undefined,
+          slackoff_offset_y: undefined
+        }
+      ];
+      DV_CHARTS['torque'].validateData();
+      DV_CHARTS['torque'].validateNow();
+    }
+    $("#dv_torque_hookload_axis").html("");
+  }
+
+  if (update_dv_torque(-1) == true && offline_graph == true) {
+    console.log('offline');
+    $('#dv_torque_offline_box').show();
+  } else {
+    $('#dv_torque_offline_box').hide();
+  }
+}
+
+function update_dv_cleaning(pos) {
+  var offline = true;
+  var current_record = {};
+  var entry_at;
+
+  if (DV_CURRENT_WITS) {
+    var record = pos == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[pos];
+    entry_at = record.entry_at;
+  }
+
+  current_record = DV_CURRENT_HC || {};
+
+  var alert_offline = false;
+
+  function get_min_tr(range) {
+    var arr = JSON.parse(range);
+    var min_value;
+    arr.forEach(function (item) {
+      min_value = min_value || item[4];
+      min_value = item[4] < min_value ? item[4] : min_value;
+    });
+    return min_value;
+  }
+
+  // Hole cleaning / Cuttings Transport Ratio
+  if (typeof current_record.transport_ratio != 'undefined' && current_record.transport_ratio != null) {
+    offline = false;
+    //var cuttings_transport_ratio = current_record.transport_ratio || 0;
+    var cuttings_transport_ratio = get_min_tr(current_record.cuttings_transport_range);
+    if (cuttings_transport_ratio < 0.5 && cuttings_transport_ratio > 0) {
+      alert_offline = true;
+    }
+    cuttings_transport_ratio = parseFloat(cuttings_transport_ratio).non_negative().round_to_decimal(2).with_delimiter();
+    $("#dv_cleaning_cuttings_transport_ratio").html(cuttings_transport_ratio);
+    $("#dv_cleaning_cuttings_transport_ratio_label").removeClass("value-gray");
+    if (alert_offline) {
+      $("#dv_cleaning_cuttings_transport_ratio").addClass("red-text");
+    } else {
+      $("#dv_cleaning_cuttings_transport_ratio").removeClass("red-text");
+    }
+  } else {
+    $("#dv_cleaning_cuttings_transport_ratio").html("-");
+    $("#dv_cleaning_cuttings_transport_ratio_label").addClass("value-gray");
+    $("#dv_cleaning_cuttings_transport_ratio").removeClass("red-text");
+  }
+
+  // Hole cleaning / Net Cuttings Velocity
+  if (typeof current_record.cuttings_velocity != 'undefined' && current_record.cuttings_velocity != null) {
+    offline = false;
+    var net_cuttings_velocity = parseFloat(current_record.cuttings_velocity).non_negative().convert('ft', company_unit).val().round_to_decimal(1).with_delimiter();
+    $("#dv_cleaning_net_cuttings_velocity").html(net_cuttings_velocity + " <span>" + "ft".unit(company_unit) + "/min</span>");
+    $("#dv_cleaning_net_cuttings_velocity_label").removeClass("value-gray");
+    if (alert_offline) {
+      $("#dv_cleaning_net_cuttings_velocity").addClass("red-text");
+    } else {
+      $("#dv_cleaning_net_cuttings_velocity").removeClass("red-text");
+    }
+  } else {
+    $("#dv_cleaning_net_cuttings_velocity").html("-");
+    $("#dv_cleaning_net_cuttings_velocity_label").addClass("value-gray");
+    $("#dv_cleaning_net_cuttings_velocity").removeClass("red-text");
+  }
+
+  // Hole cleaning / Annular Velocity
+  if (typeof current_record.fluid_velocity != 'undefined' && current_record.fluid_velocity != null) {
+    offline = false;
+    var annular_velocity = parseFloat(current_record.fluid_velocity).non_negative().convert('ft', company_unit).val().round_to_decimal(1).with_delimiter();
+    $("#dv_cleaning_annular_velocity").html(annular_velocity + " <span>" + "ft".unit(company_unit) + "/min</span>");
+    $("#dv_cleaning_annular_velocity_label").removeClass("value-gray");
+    if (alert_offline) {
+      $("#dv_cleaning_annular_velocity").addClass("red-text");
+    } else {
+      $("#dv_cleaning_annular_velocity").removeClass("red-text");
+    }
+  } else {
+    $("#dv_cleaning_annular_velocity").html("-");
+    $("#dv_cleaning_annular_velocity_label").addClass("value-gray");
+    $("#dv_cleaning_annular_velocity").removeClass("red-text");
+  }
+
+  /*
+   // Hole cleaning / Alert
+   if (alert_offline == true) {
+   $(".abnormal-list").hide();
+   $("#dv_cleaning_alert_depth").html("-");
+   $("#dv_cleaning_alert_date").html("-");
+   $("#dv_cleaning_alert_duration").html("-");
+   $("#dv_cleaning_abnormal_box").show();
+   $("#dv_toggle_cleaning").removeClass("normal");
+   $("#dv_toggle_cleaning").addClass("abnormal");
+   } else {
+   $("#dv_cleaning_abnormal_box").hide();
+   $("#dv_toggle_cleaning").removeClass("abnormal");
+   $("#dv_toggle_cleaning").addClass("normal");
+   }
+   */
+
+  // warning
+  var current_date = Math.floor((new Date(entry_at).getTime()) / 1000);
+  var has_warning = update_warning_alert('dv_cleaning_warning_box', current_date, '<%= CompanyFeature::HOLE_CLEANING %>');
+  if (has_warning == false) {
+    $("#dv_cleaning_warning_box").hide();
+  } else {
+    $("#dv_cleaning_warning_box").show();
+  }
+
+  var diff = 5; // minutes
+  var hc_date = (new Date(current_record.entry_at).getTime()) / 1000;
+  if ((!offline || current_record.cuttings_transport_range) && current_date - diff * 60 > hc_date) {
+    $("#dv_cleaning_stale .time-diff").html((current_date - hc_date).format_time_short() + ' ago');
+    $("#dv_cleaning_stale").show();
+  } else {
+    $("#dv_cleaning_stale").hide();
+  }
+
+  var current_date = Math.floor((new Date(entry_at).getTime()) / 1000);
+  update_right_menu(current_date);
+
+  return offline;
+}
+
+function draw_dv_cleaning() {
+  var offline_graph = true;
+
+  if (DV_CURRENT_WITS) {
+
+    // Hole Cleanning / Graph
+    if (DV_CHARTS['cleaning']) {
+      var max_depth = 1;
+
+      var graph_data = [];
+
+      //var current_record = DV_CURSOR_POS == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[DV_CURSOR_POS];
+      var current_record = DV_CURRENT_HC || {};
+      var transports = current_record.cuttings_transport_range ? JSON.parse(current_record.cuttings_transport_range) : null;
+
+      if (transports != null && transports.length > 0) {
+        offline_graph = false;
+
+        for (var i = 0; i < transports.length; i++) {
+          var record = transports[i];
+          var depth_top = parseFloat(record[0]).non_negative().convert('ft', company_unit).val();
+          var depth_bottom = parseFloat(record[1]).non_negative().convert('ft', company_unit).val();
+          var transport_ratio = parseFloat(record[4]);
+          max_depth = Math.max(max_depth, depth_bottom, depth_top);
+          graph_data.push({
+            depth: depth_top,
+            actual: transport_ratio
+          });
+          graph_data.push({
+            depth: depth_bottom,
+            actual: transport_ratio
+          });
+        }
+
+//        for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+//          var record = DV_CURRENT_WITS[i];
+//          var actual = parseFloat(record.transport_ratio).non_negative();
+//
+//          if (actual > 0) {
+//            offline_graph = false;
+//          }
+//
+//          graph_data.push({
+//            id: i,
+//            time: record.entry_at || '',
+//            actual: actual
+//          });
+//        }
+
+        for (var i = 0; i < graph_data.length; i++) {
+          graph_data[i].depth = graph_data[i].depth / max_depth * 20000;
+        }
+
+        DV_CHARTS['cleaning'].dataProvider = graph_data;
+        DV_CHARTS['cleaning'].validateData();
+        DV_CHARTS['cleaning'].validateNow();
+
+        var html_str = "";
+        html_str += "<span class='left'>0</span>";
+        html_str += "<span class='right'>1</span>";
+        $("#dv_cleaning_transport_ratio_axis").html(html_str);
+
+        $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row").html("");
+        var bottom = 10;
+        for (var i = 1; i <= 5; i++) {
+          var depth = (max_depth / 100 * bottom).round_to_decimal().with_delimiter();
+          $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row").append("<span class='depth-pip' style='bottom: calc(" + (100 - bottom) + "%);'>" + depth + "</span>");
+          bottom += 20;
+        }
+      } else {
+        DV_CHARTS['cleaning'].dataProvider = [
+          {
+            depth: undefined,
+            actual: undefined
+          }
+        ];
+        DV_CHARTS['cleaning'].validateData();
+        DV_CHARTS['cleaning'].validateNow();
+      }
+    }
+  } else {
+    // Hole Cleaning / Graph
+    if (DV_CHARTS['cleaning']) {
+      DV_CHARTS['cleaning'].dataProvider = [
+        {
+          depth: undefined,
+          actual: undefined
+        }
+      ];
+      DV_CHARTS['cleaning'].validateData();
+      DV_CHARTS['cleaning'].validateNow();
+    }
+    $("#dv_cleaning_transport_ratio_axis").html("");
+  }
+
+  if (update_dv_cleaning(DV_CURSOR_POS) == true && offline_graph == true) {
+    $('#dv_cleaning_offline_box').show();
+  } else {
+    $('#dv_cleaning_offline_box').hide();
+  }
+}
+
+function update_dv_losses(pos) {
+  var offline = true;
+  var current_record = {};
+  if (DV_CURRENT_WITS) {
+    current_record = pos == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[pos];
+  }
+
+  // Losses / Losses
+  if ((typeof current_record.mud_flow_in != 'undefined' && typeof current_record.mud_flow_in != null) || (typeof current_record.mud_flow_out != 'undefined' && typeof current_record.mud_flow_out != null)) {
+    offline = false;
+    var losses = current_record.gain_loss == -999.25 ? 0 : current_record.gain_loss;
+    losses = parseFloat(losses).round_to_decimal(1).with_delimiter();
+    $("#dv_losses_losses").html(losses + "%");
+    $("#dv_losses_losses_label").removeClass("value-gray");
+  } else {
+    $("#dv_losses_losses").html("-");
+    $("#dv_losses_losses_label").addClass("value-gray");
+  }
+
+  // Losses / Flow In
+  if (typeof current_record.mud_flow_in != 'undefined' && typeof current_record.mud_flow_in != null) {
+    offline = false;
+    var flow_in = parseFloat(current_record.mud_flow_in).non_negative().convert('gpm', company_unit).val().round_to_decimal(1).with_delimiter();
+    $("#dv_losses_flowin").html(flow_in + " <span>" + "gpm".unit(company_unit) + "</span>");
+    $("#dv_losses_flowin_label").removeClass("value-gray");
+  } else {
+    $("#dv_losses_flowin").html("-");
+    $("#dv_losses_flowin_label").addClass("value-gray");
+  }
+
+  // Losses / Flow Out
+  if (typeof current_record.mud_flow_out != 'undefined' && typeof current_record.mud_flow_out != null && current_record.mud_flow_out != 0) {
+    offline = false;
+    var flow_out = parseFloat(current_record.mud_flow_out).non_negative().convert('gpm', company_unit).val().round_to_decimal(1).with_delimiter();
+    $("#dv_losses_flowout").html(flow_out + " <span>" + "gpm".unit(company_unit) + "</span>");
+    $("#dv_losses_flowout_label").removeClass("value-gray");
+  } else {
+    if (typeof current_record.mud_flow_in != 'undefined' && typeof current_record.mud_flow_in != null) {
+      var flow_in = parseFloat(current_record.mud_flow_in).non_negative().convert('gpm', company_unit).val();
+      var losses = current_record.gain_loss == -999.25 ? 0 : parseFloat(current_record.gain_loss);
+      var flow_out = flow_in + flow_in * losses / 100;
+      flow_out = flow_out.non_negative().round_to_decimal(1).number_with_delimiter();
+      $("#dv_losses_flowout").html(flow_out + " <span>" + "gpm".unit(company_unit) + "</span>");
+      $("#dv_losses_flowout_label").removeClass("value-gray");
+    } else {
+      $("#dv_losses_flowout").html("-");
+      $("#dv_losses_flowout_label").addClass("value-gray");
+    }
+  }
+
+
+  // Losses / Mud volume
+  if (typeof current_record.mud_volume != 'undefined' && typeof current_record.mud_volume != null) {
+    offline = false;
+    var mud_volume = parseFloat(current_record.mud_volume).non_negative().convert('bbl', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_losses_mud_volume").html(mud_volume + " <span>" + "bbl".unit(company_unit) + "</span>");
+    $("#dv_losses_mud_volume_label").removeClass("value-gray");
+  } else {
+    $("#dv_losses_mud_volume").html("-");
+    $("#dv_losses_mud_volume_label").addClass("value-gray");
+  }
+
+
+  // Losses / Pit Volume
+  if ((typeof current_record.pit_volume_1 != 'undefined' && typeof current_record.pit_volume_1 != null) ||
+      (typeof current_record.pit_volume_2 != 'undefined' && typeof current_record.pit_volume_2 != null) ||
+      (typeof current_record.pit_volume_3 != 'undefined' && typeof current_record.pit_volume_3 != null) ||
+      (typeof current_record.pit_volume_4 != 'undefined' && typeof current_record.pit_volume_4 != null) ||
+      (typeof current_record.pit_volume_5 != 'undefined' && typeof current_record.pit_volume_5 != null) ||
+      (typeof current_record.pit_volume_6 != 'undefined' && typeof current_record.pit_volume_6 != null) ||
+      (typeof current_record.pit_volume_7 != 'undefined' && typeof current_record.pit_volume_7 != null) ||
+      (typeof current_record.pit_volume_8 != 'undefined' && typeof current_record.pit_volume_8 != null)) {
+    offline = false;
+    var pit_volume = 0;
+    for (var i = 1; i <= 8; i++) {
+      pit_volume += parseFloat(current_record['pit_volume_' + i]).non_negative();
+    }
+    pit_volume = pit_volume.convert('bbl', company_unit).val().round_to_decimal().number_with_delimiter();
+    $("#dv_losses_pit_volume").html(pit_volume + " <span>" + "bbl".unit(company_unit) + "</span>");
+    $("#dv_losses_pit_volume_label").removeClass("value-gray");
+  } else {
+    $("#dv_losses_pit_volume").html("-");
+    $("#dv_losses_pit_volume_label").addClass("value-gray");
+  }
+
+  // Warnings
+  var current_date = Math.floor((new Date(current_record.entry_at).getTime()) / 1000);
+  var has_warning = update_warning_alert('dv_losses_warning_box', current_date, '<%= CompanyFeature::GAIN_LOSS %>');
+  if (has_warning == false || offline == true) {
+    $("#dv_losses_warning_box").hide();
+  } else {
+    $("#dv_losses_warning_box").show();
+  }
+
+  update_right_menu(current_date);
+
+  return offline;
+}
+
+function draw_dv_losses() {
+  var graph_offline = true;
+  if (DV_CURRENT_WITS) {
+
+    // Losses / Graph
+    if (DV_CHARTS['losses']) {
+      var max_value = null,
+          min_value = null;
+
+      var graph_data = [];
+      for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+        var record = DV_CURRENT_WITS[i];
+        var flowin = parseFloat(record.mud_flow_in).non_negative().convert('gpm', company_unit).val();
+        var flowout = parseFloat(record.mud_flow_out).non_negative().convert('gpm', company_unit).val();
+        var mud_volume = parseFloat(record.mud_volume).non_negative().convert('bbl', company_unit).val();
+
+        if (flowin && !flowout) {
+          var losses = parseFloat(record.gain_loss);
+          flowout = parseFloat(flowin) + parseFloat(flowin) * losses / 100;
+        }
+
+        min_value = min_value || flowin || flowout;
+        max_value = max_value || flowin || flowout;
+
+        graph_offline = false;
+
+        max_value = Math.max(flowin, flowout, max_value, mud_volume);
+        min_value = Math.min(flowin, flowout, min_value, mud_volume);
+
+        var fill_color;
+        if (flowout < flowin) {
+          fill_color = "#d9421a";
+        } else {
+          fill_color = "#dac61a";
+        }
+
+        graph_data.push({
+          id: i,
+          time: record.entry_at || '',
+          flowin: flowin,
+          flowout: flowout,
+          fillColor: fill_color,
+          mud_volume: mud_volume
+        });
+      }
+
+      var padding_value = (max_value - min_value) == 0 ? 1000 : Math.round((max_value - min_value) / 100 * 10);
+      min_value = Math.round(min_value) - padding_value;
+      min_value = Math.max(min_value, 0);
+      max_value = Math.round(max_value) + padding_value;
+      max_value = Math.max(max_value, padding_value);
+
+      var valueAxis = DV_CHARTS['losses'].getValueAxisById('losses_axis');
+
+      valueAxis.minimum = min_value;
+      valueAxis.maximum = max_value;
+
+      DV_CHARTS['losses'].dataProvider = graph_data;
+      DV_CHARTS['losses'].validateData();
+      DV_CHARTS['losses'].validateNow();
+
+      min_value = valueAxis.min || valueAxis.minimum;
+      max_value = valueAxis.max || valueAxis.maximum;
+
+      var spacing = (max_value - min_value) / 5;
+
+      var html_str = "";
+      for (var i = 0; i < 5; i++) {
+        var axis_value = min_value + i * spacing + (spacing / 2);
+        html_str += "<span style='width:20%;'>" + axis_value.round_to_decimal() + "</span>";
+      }
+      $("#dv_losses_flow_axis").html(html_str);
+    }
+  } else {
+    // Losses / Graph
+    if (DV_CHARTS['losses']) {
+      DV_CHARTS['losses'].dataProvider = [];
+      DV_CHARTS['losses'].validateData();
+    }
+    $("#dv_losses_flow_axis").html("");
+  }
+
+  if (update_dv_losses(DV_CURSOR_POS) == true && graph_offline == true) {
+    $("#dv_losses_offline_box").show();
+  } else {
+    $("#dv_losses_offline_box").hide();
+  }
+}
+
+/* ############################################# */
+/* ############### Bit Function ################ */
+/* ############################################# */
+
+function update_dv_bit_function(pos) {
+  var offline = true;
+  var current_record = {};
+  if (DV_CURRENT_WITS) {
+    current_record = pos == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[pos];
+  }
+
+  // Circle
+  /*
+   var bit_depth = parseFloat(current_record.bit_depth || 0);
+   var circle_value = Math.max(100 - Math.min(Math.round(bit_depth / 20000 * 100), 100) - Math.random(), 0);
+   */
+  if (DV_CURRENT_EFFICIENCY != null) {
+    offline = false;
+
+    var circle_value = parseFloat(DV_CURRENT_EFFICIENCY);
+    var circle_colors = ['#454949'];
+    if (circle_value > 50) {
+      circle_colors.push('#00e64a');
+    } else if (circle_value > 20) {
+      circle_colors.push('#f5d91c');
+    } else {
+      circle_colors.push('#f52b1c');
+    }
+
+    circle_value = circle_value.toFixed(0);
+
+    DV_BIT_FUNCTION_CIRCLE.updateColors(circle_colors);
+    DV_BIT_FUNCTION_CIRCLE.update(circle_value, 50);
+    $('#dv_bit_function .circles-text').css('color', circle_colors[1]);
+    $('#dv_bit_function_efficiency').show();
+  } else {
+    $('#dv_bit_function_efficiency').hide();
+  }
+
+  // String Whirl
+  /*
+   $('#dv_bit_function_string_whirl').html('');
+   for (var i = 0; i < 50; i++) {
+   var rand = Math.random() * 50;
+   var color;
+   if (rand >= 9) {
+   color = '#5be430';
+   } else if (rand >= 2) {
+   color = '#f5d91c';
+   } else {
+   color = '#f5451c';
+   }
+   $('#dv_bit_function_string_whirl').append('<div style="float: left; display: inline-block; width: 1.5%; margin-right: 0.5%; height: 11px; background: ' + color + ';"></div>');
+   }
+   */
+
+  // Bit function / MSE
+  if (typeof current_record.current_mse != 'undefined' && current_record.current_mse != null) {
+    offline = false;
+    var mse = parseFloat(current_record.current_mse).non_negative().convert('ksi', company_unit).val().round_to_decimal(1).with_delimiter();
+    $("#dv_bit_function_mse").html(mse + " <span>" + "ksi".unit(company_unit) + "</span>");
+    $("#dv_bit_function_mse_label").removeClass("value-gray");
+  } else {
+    $("#dv_bit_function_mse").html("-");
+    $("#dv_bit_function_mse_label").addClass("value-gray");
+  }
+
+  // Warnings
+  var current_date = Math.floor((new Date(current_record.entry_at).getTime()) / 1000);
+  var has_warning = update_warning_alert('dv_bit_function_warning_box', current_date, '<%= CompanyFeature::DRILLING_OPTIMIZATION %>');
+  if (has_warning == false || offline == true) {
+    $("#dv_bit_function_warning_box").hide();
+  } else {
+    $("#dv_bit_function_warning_box").show();
+  }
+
+  update_right_menu(current_date);
+
+  return offline;
+}
+
+function draw_dv_bit_function() {
+  var offline_graph = false;
+
+  if (DV_CURRENT_WITS) {
+    // Bit function / Graph
+    if (DV_CHARTS['bit_function']) {
+      var max_value = parseFloat(DV_CURRENT_WITS[0].current_mse) || 0,
+          min_value = parseFloat(DV_CURRENT_WITS[0].current_mse) || 0;
+
+      var graph_data = [];
+      for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+        var record = DV_CURRENT_WITS[i];
+        var mse = parseFloat(record.current_mse).non_negative().convert('ksi', company_unit).val();
+        var erratic_mse = parseFloat(record.unstable_drilling_score).non_negative().convert('ksi', company_unit).val();
+
+        if (mse > 0) {
+          offline_graph = false;
+        }
+
+        max_value = mse > max_value ? mse : max_value;
+        min_value = mse < min_value ? mse : min_value;
+
+        graph_data.push({
+          id: i,
+          time: record.entry_at || '',
+          mse: mse,
+          erratic_mse: erratic_mse
+        });
+      }
+
+      var padding_value = (max_value - min_value) == 0 ? 1000 : Math.round((max_value - min_value) / 100 * 10);
+      min_value = Math.round(min_value) - padding_value;
+      min_value = Math.max(min_value, 0);
+      max_value = Math.round(max_value) + padding_value;
+      max_value = Math.max(max_value, padding_value);
+
+      var valueAxis = DV_CHARTS['bit_function'].getValueAxisById('bit_function_mse_axis');
+
+      valueAxis.minimum = min_value;
+      valueAxis.maximum = max_value;
+
+      DV_CHARTS['bit_function'].dataProvider = graph_data;
+      DV_CHARTS['bit_function'].validateData();
+      DV_CHARTS['bit_function'].validateNow();
+
+      min_value = valueAxis.min || valueAxis.minimum;
+      max_value = valueAxis.max || valueAxis.maximum;
+
+      var html_str = "";
+      html_str += "<span class='left'>" + Math.round(min_value) + "</span>";
+      html_str += "<span class='right'>" + Math.round(max_value) + "</span>";
+      $("#dv_bit_function_mse_axis").html(html_str);
+    }
+  } else {
+    // Bit function / Graph
+    if (DV_CHARTS['bit_function']) {
+      DV_CHARTS['bit_function'].dataProvider = [];
+      DV_CHARTS['bit_function'].validateData();
+    }
+    $("#dv_bit_function_mse_axis").html("");
+
+  }
+
+  if (update_dv_bit_function(DV_CURSOR_POS) == true && offline_graph == true) {
+    $('#dv_bit_function_offline_box').show();
+  } else {
+    $('#dv_bit_function_offline_box').hide();
+  }
+}
+
+/* ############################################# */
+/* #################### Bit #################### */
+/* ############################################# */
+
+function update_dv_bit(pos) {
+  var offline = false;
+  var current_record = {};
+  if (DV_CURRENT_WITS) {
+    current_record = pos == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[pos];
+  }
+
+  if (DV_CURRENT_VIBRATION) {
+    var vibration_pos, width_px;
+    var color_low = '#5be430',
+        color_moderate = '#f5d91c',
+        color_high = '#f5451c',
+        color_orange = '#fc8100',
+        color_gray = '#354849';
+
+    if (pos == -1) {
+      vibration_pos = DV_CURRENT_VIBRATION.length - DV_VIBRATION_COUNT;
+    } else {
+      vibration_pos = DV_CURRENT_VIBRATION.length - (DV_CURRENT_WITS.length - pos) - DV_VIBRATION_COUNT;
+    }
+    width_px = 100 / DV_VIBRATION_COUNT;
+
+    function get_vibration_color(value) {
+      var color;
+      value = parseInt(value);
+      if (value > 100) {
+        color = color_high;
+      } else if (value > 65) {
+        color = color_orange;
+      } else if (value > 32) {
+        color = color_moderate;
+      } else {
+        color = color_low;
+      }
+      return color;
+    }
+
+    // Axial
+    $('#dv_bit_axial').html('');
+    for (var i = vibration_pos; i < vibration_pos + DV_VIBRATION_COUNT; i++) {
+      if (DV_CURRENT_VIBRATION[i] && DV_CURRENT_VIBRATION[i].axial_vibration_score != null && typeof DV_CURRENT_VIBRATION[i].axial_vibration_score != undefined) {
+        offline = false;
+        $('#dv_bit_axial').append('<div style="float: left; display: inline-block; width: calc(' + width_px + '% - 2px); margin-right: 2px; height: 11px; background: ' + get_vibration_color(DV_CURRENT_VIBRATION[i].axial_vibration_score) + ';"></div>');
+      } else {
+        $('#dv_bit_axial').append('<div style="float: left; display: inline-block; width: calc(' + width_px + '% - 2px); margin-right: 2px; height: 11px; background: ' + color_gray + ';"></div>');
+      }
+    }
+
+    // Torsional
+    $('#dv_bit_torsional').html('');
+    for (var i = vibration_pos; i < vibration_pos + DV_VIBRATION_COUNT; i++) {
+      if (DV_CURRENT_VIBRATION[i] && DV_CURRENT_VIBRATION[i].torsional_vibration_score != null && typeof DV_CURRENT_VIBRATION[i].torsional_vibration_score != undefined) {
+        offline = false;
+        $('#dv_bit_torsional').append('<div style="float: left; display: inline-block; width: calc(' + width_px + '% - 2px); margin-right: 2px; height: 11px; background: ' + get_vibration_color(DV_CURRENT_VIBRATION[i].torsional_vibration_score) + ';"></div>');
+      } else {
+        $('#dv_bit_torsional').append('<div style="float: left; display: inline-block; width: calc(' + width_px + '% - 2px); margin-right: 2px; height: 11px; background: ' + color_gray + ';"></div>');
+      }
+    }
+
+    // Lateral
+    $('#dv_bit_lateral').html('');
+    for (var i = vibration_pos; i < vibration_pos + DV_VIBRATION_COUNT; i++) {
+      if (DV_CURRENT_VIBRATION[i] && DV_CURRENT_VIBRATION[i].lateral_vibration_score != null && typeof DV_CURRENT_VIBRATION[i].lateral_vibration_score != undefined) {
+        offline = false;
+        $('#dv_bit_lateral').append('<div style="float: left; display: inline-block; width: calc(' + width_px + '% - 2px); margin-right: 2px; height: 11px; background: ' + get_vibration_color(DV_CURRENT_VIBRATION[i].lateral_vibration_score) + ';"></div>');
+      } else {
+        $('#dv_bit_lateral').append('<div style="float: left; display: inline-block; width: calc(' + width_px + '% - 2px); margin-right: 2px; height: 11px; background: ' + color_gray + ';"></div>');
+      }
+    }
+  } else {
+    $('#dv_bit_axial').html('');
+    $('#dv_bit_torsional').html('');
+    $('#dv_bit_lateral').html('');
+  }
+
+  /* old code */
+  /*
+   // Axial
+   $('#dv_bit_axial').html('');
+   for (var i = 0; i < 50; i++) {
+   var rand = Math.random() * 50;
+   var color;
+   if (rand >= 9) {
+   color = '#5be430';
+   } else if (rand >= 2) {
+   color = '#f5d91c';
+   } else {
+   color = '#f5451c';
+   }
+   $('#dv_bit_axial').append('<div style="float: left; display: inline-block; width: 1.5%; margin-right: 0.5%; height: 11px; background: ' + color + ';"></div>');
+   }
+
+   // Lateral
+   $('#dv_bit_lateral').html('');
+   for (var i = 0; i < 50; i++) {
+   var rand = Math.random() * 50;
+   var color;
+   if (rand >= 9) {
+   color = '#5be430';
+   } else if (rand >= 2) {
+   color = '#f5d91c';
+   } else {
+   color = '#f5451c';
+   }
+   $('#dv_bit_lateral').append('<div style="float: left; display: inline-block; width: 1.5%; margin-right: 0.5%; height: 11px; background: ' + color + ';"></div>');
+   }
+
+   // Torsional
+   $('#dv_bit_torsional').html('');
+   for (var i = 0; i < 50; i++) {
+   var rand = Math.random() * 50;
+   var color;
+   if (rand >= 9) {
+   color = '#5be430';
+   } else if (rand >= 2) {
+   color = '#f5d91c';
+   } else {
+   color = '#f5451c';
+   }
+   $('#dv_bit_torsional').append('<div style="float: left; display: inline-block; width: 1.5%; margin-right: 0.5%; height: 11px; background: ' + color + ';"></div>');
+   }
+   */
+
+  // warning
+  var current_date = Math.floor((new Date(current_record.entry_at).getTime()) / 1000);
+  var current_warning = update_warning_alert('dv_vibration_warning_box', current_date, '<%= CompanyFeature::VIBRATION %>', true);
+  var has_warning = current_warning ? true : false;
+
+  // Total Vibration
+  if ((typeof current_record.torsional_vibration_score != undefined && current_record.torsional_vibration_score != null ) || (typeof current_record.axial_vibration_score != undefined && current_record.axial_vibration_score != null) || (typeof current_record.lateral_vibration_score != undefined && current_record.lateral_vibration_score != null)) {
+    offline = false;
+    var vibration = Math.max(current_record.torsional_vibration_score || 0, current_record.axial_vibration_score || 0, current_record.lateral_vibration_score || 0);
+    var total_vibration = vibration == 0 ? 'None' : 'Low';
+    if (current_warning && current_warning.severity == 'moderate') {
+      total_vibration = 'Mod';
+    } else if (current_warning && current_warning.severity == 'high') {
+      total_vibration = 'High';
+    }
+    $("#dv_bit_total_vibration").html(total_vibration);
+    $("#dv_bit_total_vibration_label").removeClass("value-gray");
+  } else {
+    $("#dv_bit_total_vibration").html("-");
+    $("#dv_bit_total_vibration_label").addClass("value-gray");
+  }
+
+  // Circle
+  if (DV_CURRENT_BIT_SCORE != null) {
+    offline = false;
+    $('#dv_bit_bit_wear').show();
+    var bit_depth = parseFloat(current_record.bit_depth || 0);
+    var circle_value = parseFloat(DV_CURRENT_BIT_SCORE);
+    var circle_colors = ['#454949'];
+    if (circle_value > 50) {
+      circle_colors.push('#f52b1c');
+    } else if (circle_value > 20) {
+      circle_colors.push('#f5d91c');
+    } else {
+      circle_colors.push('#00e64a');
+    }
+    circle_value = circle_value.toFixed(0);
+    DV_BIT_CIRCLE.updateColors(circle_colors);
+    DV_BIT_CIRCLE.update(circle_value, 50);
+    $('#dv_bit .circles-text').css('color', circle_colors[1]);
+  } else {
+    $('#dv_bit_bit_wear').hide();
+  }
+
+  if (has_warning == false || offline == true) {
+    $("#dv_vibration_warning_box").hide();
+  } else {
+    $("#dv_vibration_warning_box").show();
+  }
+
+  // Update right menu
+  var current_date = Math.floor((new Date(current_record.entry_at).getTime()) / 1000);
+  update_right_menu(current_date);
+
+  return offline;
+}
+
+function draw_dv_bit() {
+  var offline_graph = false;
+
+  if (DV_CURRENT_WITS) {
+    // Bit / Graph
+    if (DV_CHARTS['bit']) {
+      var max_value = 0,
+          min_value = 0;
+
+      var graph_data = [];
+      for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+        var record = DV_CURRENT_WITS[i];
+
+        /* real data */
+        var torsional = parseFloat(record.torsional_vibration_score).non_negative();
+        var axial = parseFloat(record.axial_vibration_score).non_negative();
+        var lateral = parseFloat(record.lateral_vibration_score).non_negative();
+
+        max_value = Math.max(max_value, torsional, axial, lateral);
+
+        graph_data.push({
+          id: i,
+          time: record.entry_at || '',
+          torsional: torsional,
+          axial: axial,
+          lateral: lateral
+        });
+      }
+
+      offline_graph = max_value > 0;
+
+      var valueAxis = DV_CHARTS['bit'].getValueAxisById('bit_axis');
+
+      valueAxis.minimum = min_value;
+      valueAxis.maximum = max_value;
+
+      DV_CHARTS['bit'].dataProvider = graph_data;
+      DV_CHARTS['bit'].validateData();
+      DV_CHARTS['bit'].validateNow();
+
+      min_value = valueAxis.min || valueAxis.minimum;
+      max_value = valueAxis.max || valueAxis.maximum;
+
+      var html_str = "";
+      html_str += "<span class='left'>" + Math.round(min_value) + "</span>";
+      html_str += "<span class='right'>" + Math.round(max_value) + "</span>";
+//        $("#dv_bit_total_vibration_axis").html(html_str);
+    }
+  } else {
+    // Bit function / Graph
+    if (DV_CHARTS['bit']) {
+      DV_CHARTS['bit'].dataProvider = [];
+      DV_CHARTS['bit'].validateData();
+    }
+    $("#dv_bit_total_vibration_axis").html("");
+  }
+
+  if (update_dv_bit(DV_CURSOR_POS) == true && offline_graph == true) {
+    $('#dv_bit_offline_box').show();
+  } else {
+    $('#dv_bit_offline_box').hide();
+  }
+}
+
+/* ############################################# */
+/* ################### Motor ################### */
+/* ############################################# */
+
+function update_dv_motor(pos) {
+  var offline = false;
+  var current_record = {};
+  if (DV_CURRENT_WITS) {
+    current_record = pos == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[pos];
+  }
+
+  // Stall
+//    if (typeof current_record.full_stall_score != 'undefined' && current_record.full_stall_score != null) {
+  if (false) {
+    offline = false;
+    var stall = current_record.unstable_drilling_score || 0;
+    stall = Math.abs(parseFloat(stall) / 1000 + (Math.random() * 30 - 65));
+    stall = parseFloat(stall).non_negative().toFixed(0);
+    stall = parseFloat(stall).number_with_delimiter();
+    $("#dv_motor_stall").html(stall);
+    $("#dv_motor_stall_label").removeClass("value-gray");
+  } else {
+    $("#dv_motor_stall").html("-");
+    $("#dv_motor_stall_label").addClass("value-gray");
+  }
+
+  // Trip Necessary
+  if (false) {
+
+  } else {
+    $("#dv_motor_trip").html("-");
+    $("#dv_motor_trip_label").addClass("value-gray");
+  }
+
+  // Warnings
+  var current_date = Math.floor((new Date(current_record.entry_at).getTime()) / 1000);
+  var has_warning = update_warning_alert('dv_motor_warning_box', current_date, '<%= CompanyFeature::MOTOR %>');
+
+  // Circle
+  if (DV_CURRENT_MOTOR_SCORE != null) {
+    offline = false;
+    $('#dv_motor_health').show();
+    var bit_depth = parseFloat(current_record.bit_depth || 0);
+    var circle_value = parseFloat(DV_CURRENT_MOTOR_SCORE);
+    var circle_colors = ['#454949'];
+    if (circle_value > 50) {
+      circle_colors.push('#f52b1c');
+    } else if (circle_value > 20) {
+      circle_colors.push('#f5d91c');
+    } else {
+      circle_colors.push('#00e64a');
+    }
+    circle_value = circle_value.toFixed(0);
+    DV_MOTOR_CIRCLE.updateColors(circle_colors);
+    DV_MOTOR_CIRCLE.update(circle_value, 50);
+    $('#dv_motor .circles-text').css('color', circle_colors[1]);
+  } else {
+    $('#dv_motor_health').hide();
+  }
+
+  if (has_warning == false || offline == true) {
+    $("#dv_motor_warning_box").hide();
+  } else {
+    $("#dv_motor_warning_box").show();
+  }
+
+  var current_date = Math.floor((new Date(current_record.entry_at).getTime()) / 1000);
+  update_right_menu(current_date);
+
+  return offline;
+}
+
+function draw_dv_motor() {
+  var offline_graph = false;
+
+  if (DV_CURRENT_WITS) {
+    // Motor / Graph
+    if (DV_CHARTS['motor']) {
+      var max_value = 100,
+          min_value = 0;
+
+      var graph_data = [];
+      for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+        var record = DV_CURRENT_WITS[i];
+
+        var stall = parseFloat(record.unstable_drilling_score).non_negative();
+        var microstall = parseFloat(record.micro_stall_score).non_negative();
+
+        if (stall > 0 || microstall > 0) {
+          //offline_graph = false;
+        }
+
+        max_value = Math.max(stall, microstall, max_value);
+
+        graph_data.push({
+          id: i,
+          time: record.entry_at || '',
+          stall: stall,
+          microstall: microstall
+        });
+      }
+
+      var valueAxis = DV_CHARTS['motor'].getValueAxisById('motor_axis');
+
+      valueAxis.minimum = min_value;
+      valueAxis.maximum = max_value;
+
+      DV_CHARTS['motor'].dataProvider = graph_data;
+      DV_CHARTS['motor'].validateData();
+      DV_CHARTS['motor'].validateNow();
+
+      min_value = valueAxis.min || valueAxis.minimum;
+      max_value = valueAxis.max || valueAxis.maximum || 100;
+
+      var html_str = "";
+      html_str += "<span class='left'>" + Math.round(min_value) + "</span>";
+      html_str += "<span class='right'>" + Math.round(max_value) + "</span>";
+      $("#dv_motor_stall_axis").html(html_str);
+    }
+
+  } else {
+    // Bit function / Graph
+    if (DV_CHARTS['motor']) {
+      DV_CHARTS['motor'].dataProvider = [];
+      DV_CHARTS['motor'].validateData();
+    }
+    $("#dv_motor_stall_axis").html("");
+  }
+
+  if (update_dv_motor(DV_CURSOR_POS) == true && offline_graph == true) {
+    $('#dv_motor_offline_box').show();
+  } else {
+    $('#dv_motor_offline_box').hide();
+  }
+}
+
+/* ############################################# */
+/* ################# Raw Data ################## */
+/* ############################################# */
+
+function update_dv_raw(pos) {
+  var offline = true;
+  var current_record = {};
+  if (DV_CURRENT_WITS) {
+    current_record = pos == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[pos];
+  }
+
+  // Raw / WOB
+  if (typeof current_record.weight_on_bit != 'undefined' && typeof current_record.weight_on_bit != null) {
+    offline = false;
+    var wob = parseFloat(current_record.weight_on_bit).non_negative().convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_raw_wob").html(wob + " <span>" + "klbf".unit(company_unit) + "</span>");
+    $("#dv_raw_wob_label").removeClass("value-gray");
+  } else {
+    $("#dv_raw_wob").html("-");
+    $("#dv_raw_wob_label").addClass("value-gray");
+  }
+
+  // Raw / Hookload
+  if (typeof current_record.hook_load != 'undefined' && typeof current_record.hook_load != null) {
+    offline = false;
+    var hook_load = parseFloat(current_record.hook_load).non_negative().convert('klbf', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_raw_hookload").html(hook_load + " <span>" + "klbf".unit(company_unit) + "</span>");
+    $("#dv_raw_hookload_label").removeClass("value-gray");
+  } else {
+    $("#dv_raw_hookload").html("-");
+    $("#dv_raw_hookload_label").addClass("value-gray");
+  }
+
+
+  // Raw / RPM
+  if (typeof current_record.rotary_rpm != 'undefined' && typeof current_record.rotary_rpm != null) {
+    offline = false;
+    var rpm = parseFloat(current_record.rotary_rpm).non_negative().round_to_decimal().with_delimiter();
+    $("#dv_raw_rpm").html(rpm);
+    $("#dv_raw_rpm_label").removeClass("value-gray");
+  } else {
+    $("#dv_raw_rpm").html("-");
+    $("#dv_raw_rpm_label").addClass("value-gray");
+  }
+
+  // Raw / Torque
+  if (typeof current_record.rotary_torque != 'undefined' && typeof current_record.rotary_torque != null) {
+    offline = false;
+    var torque = parseFloat(current_record.rotary_torque).non_negative().convert('klbm', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_raw_torque").html(torque + " <span>" + "ft-lbf".unit(company_unit) + "</span>");
+    $("#dv_raw_torque_label").removeClass("value-gray");
+  } else {
+    $("#dv_raw_torque").html("-");
+    $("#dv_raw_torque_label").addClass("value-gray");
+  }
+
+
+  // Raw / ROP
+  if (typeof current_record.rop != 'undefined' && typeof current_record.rop != null) {
+    offline = false;
+    var rop = parseFloat(current_record.rop).non_negative().convert('ft', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_raw_rop").html(rop + " <span>" + "ft".unit(company_unit) + "/hr</span>");
+    $("#dv_raw_rop_label").removeClass("value-gray");
+  } else {
+    $("#dv_raw_rop").html("-");
+    $("#dv_raw_rop_label").addClass("value-gray");
+  }
+
+  // Raw / Flow
+  if (typeof current_record.mud_flow_in != 'undefined' && typeof current_record.mud_flow_in != null) {
+    offline = false;
+    var mud_flow_in = parseFloat(current_record.mud_flow_in).non_negative().convert('gpm', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_raw_flow").html(mud_flow_in + " <span>" + "gpm".unit(company_unit) + "</span>");
+    $("#dv_raw_flow_label").removeClass("value-gray");
+  } else {
+    $("#dv_raw_flow").html("-");
+    $("#dv_raw_flow_label").addClass("value-gray");
+  }
+
+  // Raw / Pump Press
+  if (typeof current_record.standpipe_pressure != 'undefined' && typeof current_record.standpipe_pressure != null) {
+    offline = false;
+    var standpipe_pressure = parseFloat(current_record.standpipe_pressure).non_negative().convert('psi', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_raw_pump_press").html(standpipe_pressure + " <span>" + "psi".unit(company_unit) + "</span>");
+    $("#dv_raw_pump_press_label").removeClass("value-gray");
+  } else {
+    $("#dv_raw_pump_press").html("-");
+    $("#dv_raw_pump_press_label").addClass("value-gray");
+  }
+
+  if (typeof current_record.pump_spm_1 != 'undefined' && typeof current_record.pump_spm_1 != null) {
+    var spm = 0;
+    spm += current_record.pump_spm_1 || 0;
+    spm += current_record.pump_spm_2 || 0;
+    spm += current_record.pump_spm_3 || 0;
+    spm = parseFloat(spm).non_negative().toFixed(0);
+    spm = parseFloat(spm).number_with_delimiter();
+    $("#dv_raw_spm").html(spm + " <span>spm</span>");
+    $("#dv_raw_spm_label").removeClass("value-gray");
+  } else {
+    $("#dv_raw_spm").html("-");
+    $("#dv_raw_spm_label").addClass("value-gray");
+  }
+
+  if (typeof current_record.mud_volume != 'undefined' && typeof current_record.mud_volume != null) {
+    var mud_volume = parseFloat(current_record.mud_volume).non_negative().convert('bbl', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_raw_mv").html(mud_volume + " <span>" + "bbl".unit(company_unit) + "</span>");
+    $("#dv_raw_mv_label").removeClass("value-gray");
+  }
+  else {
+    $("#dv_raw_mv").html("-");
+    $("#dv_raw_mv_label").addClass("value-gray");
+  }
+
+  if (typeof current_record.diff_press != 'undefined' && typeof current_record.diff_press != null) {
+    var diff_press = parseFloat(current_record.diff_press).non_negative().convert('psi', company_unit).val().round_to_decimal().with_delimiter();
+    $("#dv_raw_diff_press").html(diff_press + " <span>" + "psi".unit(company_unit) + "</span>");
+    $("#dv_raw_diff_press_label").removeClass("value-gray");
+  }
+  else {
+    $("#dv_raw_diff_press").html("-");
+    $("#dv_raw_diff_press_label").addClass("value-gray");
+  }
+
+  var current_date = Math.floor((new Date(current_record.entry_at).getTime()) / 1000);
+  update_right_menu(current_date);
+
+  return offline;
+}
+
+function draw_dv_raw() {
+  var offline_graph = true;
+
+  if (DV_CURRENT_WITS) {
+
+    // Raw / WOB chart
+    if (DV_CHARTS['raw_wob']) {
+      var max_value = parseFloat(DV_CURRENT_WITS[0].weight_on_bit) || 0,
+          min_value = parseFloat(DV_CURRENT_WITS[0].weight_on_bit) || 0;
+
+      var graph_data = [];
+      for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+        var record = DV_CURRENT_WITS[i];
+        var wob = parseFloat(record.weight_on_bit).non_negative().convert('klbm', company_unit).val();
+        var hookload = parseFloat(record.hook_load).non_negative().convert('klbm', company_unit).val();
+        var rpm = parseFloat(record.rotary_rpm).non_negative();
+
+        if (wob > 0) {
+          offline_graph = false;
+        }
+
+        max_value = wob > max_value ? wob : max_value;
+        min_value = wob < min_value ? wob : min_value;
+        graph_data.push({
+          id: i,
+          time: record.entry_at || '',
+          wob: wob,
+          hookload: hookload,
+          rpm: rpm
+        });
+      }
+
+      DV_CHARTS['raw_wob'].dataProvider = graph_data;
+      DV_CHARTS['raw_wob'].validateData();
+      DV_CHARTS['raw_wob'].validateNow();
+    }
+
+    // Raw / RPM chart
+    if (DV_CHARTS['raw_rop']) {
+
+      var graph_data = [];
+      for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+        var record = DV_CURRENT_WITS[i];
+        var rop = parseFloat(record.rop).non_negative().convert('ft', company_unit).val();
+        var mud_flow_in = parseFloat(record.mud_flow_in).non_negative().convert('gpm', company_unit).val();
+        var torque = parseFloat(record.rotary_torque).non_negative().convert('ft-lbf', company_unit).val();
+
+        if (rop > 0) {
+          offline_graph = false;
+        }
+
+        graph_data.push({
+          time: record.entry_at || '',
+          flow: mud_flow_in,
+          rop: rop,
+          torque: torque
+        });
+      }
+
+      DV_CHARTS['raw_rop'].dataProvider = graph_data;
+      DV_CHARTS['raw_rop'].validateData();
+      DV_CHARTS['raw_rop'].validateNow();
+    }
+
+    // Raw / WOB chart
+    if (DV_CHARTS['raw_spp']) {
+      var max_value = parseFloat(DV_CURRENT_WITS[0].mud_flow_in) || 0,
+          min_value = parseFloat(DV_CURRENT_WITS[0].mud_flow_in) || 0;
+
+      var graph_data = [];
+      for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+        var record = DV_CURRENT_WITS[i];
+        var pump_pressure = parseFloat(record.standpipe_pressure).non_negative().convert('psi', company_unit).val();
+        var mud_volume = parseFloat(record.mud_volume).non_negative().convert('bbl', company_unit).val();
+        var spm = parseFloat(record.pump_spm_1) + parseFloat(record.pump_spm_2) + parseFloat(record.pump_spm_3);
+        spm = spm.non_negative();
+        var diff_press = parseFloat(record.diff_press).non_negative().convert('psi', company_unit).val();
+
+        if (mud_flow_in > 0) {
+          offline_graph = false;
+        }
+
+        graph_data.push({
+          time: record.entry_at || '',
+          pump_pressure: pump_pressure,
+          mud_volume: mud_volume,
+          spm: spm,
+          diff_press: diff_press
+        });
+      }
+
+      DV_CHARTS['raw_spp'].dataProvider = graph_data;
+      DV_CHARTS['raw_spp'].validateData();
+      DV_CHARTS['raw_spp'].validateNow();
+    }
+  } else {
+    // Raw / WOB chart
+    if (DV_CHARTS['raw_wob']) {
+      DV_CHARTS['raw_wob'].dataProvider = [];
+      DV_CHARTS['raw_wob'].validateData();
+    }
+//      $("#dv_raw_wob_axis").html("");
+
+    // Raw / ROP chart
+    if (DV_CHARTS['raw_rop']) {
+      DV_CHARTS['raw_rop'].dataProvider = [];
+      DV_CHARTS['raw_rop'].validateData();
+    }
+    //$("#dv_raw_rop_axis").html("");
+
+    // Raw / SPP chart
+    if (DV_CHARTS['raw_spp']) {
+      DV_CHARTS['raw_spp'].dataProvider = [];
+      DV_CHARTS['raw_spp'].validateData();
+    }
+    //$("#dv_raw_flow_axis").html("");
+  }
+
+  if (update_dv_raw(DV_CURSOR_POS) == true && offline_graph == true) {
+    $('#dv_raw_offline_box').show();
+  } else {
+    $('#dv_raw_offline_box').hide();
+  }
+}
+
+/* ############################################# */
+/* ################# Formation ################# */
+/* ############################################# */
+
+function update_dv_formation(pos) {
+  var offline = true;
+  var current_record = {};
+  if (DV_CURRENT_WITS) {
+    current_record = pos == -1 ? DV_CURRENT_WITS[DV_CURRENT_WITS.length - 1] : DV_CURRENT_WITS[pos];
+  }
+
+  // Formation / rock hardness
+  if (typeof current_record.drill_hardness != 'undefined' && typeof current_record.drill_hardness != null) {
+    offline = false;
+    var drill_hardness = current_record.drill_hardness;
+    drill_hardness = parseFloat(drill_hardness).non_negative();
+    drill_hardness = Math.round(drill_hardness * 10000000) / 10000000;
+//      drill_hardness = drill_hardness.number_with_delimiter();
+    $("#dv_formation_rock_hardness").html(drill_hardness);
+    $("#dv_formation_rock_hardness_label").removeClass("value-gray");
+  } else {
+    $("#dv_formation_rock_hardness").html("-");
+    $("#dv_formation_rock_hardness_label").addClass("value-gray");
+  }
+
+  // Formation / gamma
+  if (typeof current_record.gamma_ray != 'undefined' && typeof current_record.gamma_ray != null) {
+    offline = false;
+    var gamma_ray = current_record.gamma_ray;
+    gamma_ray = parseFloat(gamma_ray).non_negative().toFixed(0);
+    gamma_ray = parseFloat(gamma_ray).number_with_delimiter();
+    $("#dv_formation_gamma").html(gamma_ray);
+    $("#dv_formation_gamma_label").removeClass("value-gray");
+  } else {
+    $("#dv_formation_gamma").html("-");
+    $("#dv_formation_gamma_label").addClass("value-gray");
+  }
+
+  var current_date = Math.floor((new Date(current_record.entry_at).getTime()) / 1000);
+  update_right_menu(current_date);
+
+  return offline;
+}
+
+function draw_dv_formation() {
+  var offline_graph = true;
+
+  if (DV_CURRENT_WITS) {
+
+    // Formation / Rock hardness chart
+    if (DV_CHARTS['formation_rock_hardness']) {
+      var max_value = parseFloat(DV_CURRENT_WITS[0].drill_hardness) || 0,
+          min_value = parseFloat(DV_CURRENT_WITS[0].drill_hardness) || 0;
+
+      var graph_data = [];
+      for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+        var record = DV_CURRENT_WITS[i];
+        var drill_hardness = parseFloat(record.drill_hardness).non_negative();
+
+        if (drill_hardness > 0) {
+          offline_graph = false;
+        }
+
+        max_value = drill_hardness > max_value ? drill_hardness : max_value;
+        min_value = drill_hardness < min_value ? drill_hardness : min_value;
+        graph_data.push({
+          id: i,
+          time: record.entry_at || '',
+          rock_hardness: drill_hardness
+        });
+      }
+
+      var padding_value = (max_value - min_value) == 0 ? 1 : parseFloat((max_value - min_value) / 100 * 10);
+      min_value = min_value - padding_value;
+      min_value = Math.max(min_value, 0);
+      max_value = max_value + padding_value;
+      max_value = Math.max(max_value, padding_value);
+
+      var valueAxis = DV_CHARTS['formation_rock_hardness'].getValueAxisById('formation_rock_hardness_axis');
+
+      valueAxis.minimum = min_value;
+      valueAxis.maximum = max_value;
+
+      DV_CHARTS['formation_rock_hardness'].dataProvider = graph_data;
+      DV_CHARTS['formation_rock_hardness'].validateData();
+      DV_CHARTS['formation_rock_hardness'].validateNow();
+
+      min_value = valueAxis.min || valueAxis.minimum;
+      max_value = valueAxis.max || valueAxis.maximum;
+
+      var html_str = "";
+      html_str += "<span class='left'>" + Math.round(min_value * 1000000) / 1000000 + "</span>";
+      html_str += "<span class='right'>" + Math.round(max_value * 1000000) / 1000000 + "</span>";
+      $("#dv_formation_rock_hardness_axis").html(html_str);
+    }
+
+    // Formation / Gamma chart
+    if (DV_CHARTS['formation_gamma']) {
+      var max_value = parseFloat(DV_CURRENT_WITS[0].drill_hardness) || 0,
+          min_value = parseFloat(DV_CURRENT_WITS[0].drill_hardness) || 0;
+
+      var graph_data = [];
+      for (var i = 0; i < DV_CURRENT_WITS.length; i++) {
+        var record = DV_CURRENT_WITS[i];
+        var gamma_ray = parseFloat(record.gamma_ray).non_negative();
+
+        if (gamma_ray > 0) {
+          offline_graph = false;
+        }
+
+        max_value = record.gamma_ray > max_value ? record.gamma_ray : max_value;
+        min_value = record.gamma_ray < min_value ? record.gamma_ray : min_value;
+        graph_data.push({
+          time: record.entry_at || '',
+          gamma: gamma_ray
+        });
+      }
+
+      var padding_value = (max_value - min_value) == 0 ? 1000 : Math.round((max_value - min_value) / 100 * 10);
+      min_value = Math.round(min_value) - padding_value;
+      min_value = Math.max(min_value, 0);
+      max_value = Math.round(max_value) + padding_value;
+      max_value = Math.max(max_value, padding_value);
+
+      var valueAxis = DV_CHARTS['formation_gamma'].getValueAxisById('formation_gamma_axis');
+
+      valueAxis.minimum = min_value;
+      valueAxis.maximum = max_value;
+
+      DV_CHARTS['formation_gamma'].dataProvider = graph_data;
+      DV_CHARTS['formation_gamma'].validateData();
+      DV_CHARTS['formation_gamma'].validateNow();
+
+      min_value = valueAxis.min || valueAxis.minimum;
+      max_value = valueAxis.max || valueAxis.maximum;
+
+      var html_str = "";
+      html_str += "<span class='left'>" + Math.round(min_value) + "</span>";
+      html_str += "<span class='right'>" + Math.round(max_value) + "</span>";
+      $("#dv_formation_gamma_axis").html(html_str);
+    }
+
+  } else {
+
+    // Formation / Rock hardness chart
+    if (DV_CHARTS['formation_rock_hardness']) {
+      DV_CHARTS['formation_rock_hardness'].dataProvider = [];
+      DV_CHARTS['formation_rock_hardness'].validateData();
+    }
+    $("#dv_formation_rock_hardness_axis").html("");
+
+    // Formation / Gamma chart
+    if (DV_CHARTS['formation_gamma']) {
+      DV_CHARTS['formation_gamma'].dataProvider = [];
+      DV_CHARTS['formation_gamma'].validateData();
+    }
+    $("#dv_formation_gamma_axis").html("");
+
+  }
+
+  if (update_dv_formation(DV_CURSOR_POS) == true && offline_graph == true) {
+    $('#dv_mse_offline_box').show();
+  } else {
+    $('#dv_mse_offline_box').hide();
+  }
+}
+
+/* ############################################# */
+/* ################ Right Menu ################# */
+/* ############################################# */
+
+function update_right_menu(current_date) {
+  $('.dv-remote-tray-toggle').each(function () {
+    $(this).closest('li').removeClass('abnormal color-low color-high color-moderate');
+    $(this).closest('li').addClass('normal');
+    $(this).find("span").remove();
+  });
+
+  var has_warning = {};
+  for (var i = 0; i < DV_WARNINGS.length; i++) {
+    var warning = DV_WARNINGS[i];
+    if (warning.opened_at <= current_date && (warning.closed_at == 0 || warning.closed_at >= current_date)) {
+      has_warning[warning.family] = 1;
+      tray_nav_item = $(".dv-remote-tray-toggle[data-tray=" + warning.tray_name + "]");
+      tray_nav_item.closest('li').removeClass('normal');
+      tray_nav_item.closest('li').addClass('abnormal');
+      tray_nav_item.closest('li').addClass('color-' + warning.severity);
+    }
+  }
+}
+
+$(document).ready(function () {
+
+  // Variables
+  var currentDate = lastDate,
+      uuid = 0;
+
+  // Replay control
+  var SECS_PER_UPDATE = 20, // constant
+      _RIG_NAME = "<%= @job.well.rig.name %>";
+
+  // Playback control
+  var live_status = false,
+      liveUpdateId = -1;
+
+  // Zoom
+  var timeSpan = 120,
+      interval = 60,
+      step = 12;
+
+  var axis_fade_timeout;
+
+  window.dv_ajax_call = function (ts, hide_spinner, live, fade_axis) {
+    ts = ts || currentDate;
+    hide_spinner = hide_spinner || false;
+    live = live || live_status || false;
+    fade_axis = fade_axis || false;
+
+    uuid++;
+
+    if (!hide_spinner) {
+      $('.mdv-spinner').show();
+    }
+
+    var add_query = '';
+
+    switch (DV_CURRENT_TAB) {
+      case DV_TAB_TORQUE:
+        add_query = '&torque=1';
+        break;
+      case DV_TAB_WELLBORE:
+        add_query = '&ecd=1';
+        break;
+      case DV_TAB_CLEANING:
+        add_query = add_query + '&cleaning=1';
+        break;
+      case DV_TAB_BIT:
+        add_query = add_query + '&bit=1';
+        break;
+      case DV_TAB_MOTOR:
+        add_query = add_query + '&motor=1';
+        break;
+      case DV_TAB_BIT_FUNCTION:
+        add_query = add_query + '&bit_function=1';
+        break;
+      default:
+        break;
+    }
+
+    // ajax call to load wits data
+    $.ajax({
+      url: "<%= drill_view_job_path %>?date=" + ts +
+          "&zoom=" + 120 +
+          "&uuid=" + uuid +
+          "&interval=" + 60 +
+          "&live=" + live +
+          '&step=' + 12 +
+          add_query,
+      type: "GET",
+      dataType: "json"
+    }).done(function (data) {
+      if (uuid == data.uuid) {
+        // Update job status
+        job_status = data.job_status;
+
+        // live playback
+        if (live) {
+          lastDate = data.last_date;
+
+          if (liveUpdateId == -1) {
+            start_live_update();
+          }
+
+          DV_WARNINGS_ALL = data.warnings;
+        } else if (liveUpdateId != -1) {
+          stop_live_update();
+        }
+
+        var wits_records = data.wits_records;
+
+        if (DV_CURRENT_TAB != DV_TAB_TORQUE && DV_CURRENT_TAB != DV_TAB_WELLBORE && DV_CURRENT_TAB != DV_TAB_CLEANING) {
+          // Update depth row
+          var bottom = 10;
+          $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row").html("");
+          var total = timeSpan * 60 / interval;
+          for (var i = 1; i <= 5; i++) {
+            if ((total - wits_records.length) / total * 100 < bottom) {
+              var depth = "";
+              var formattedTime = "";
+              if (wits_records[Math.floor(wits_records.length / 100 * bottom)]) {
+                depth = wits_records[Math.floor(total / 100 * bottom) - (total - wits_records.length)].bit_depth;
+                var date = new Date(wits_records[Math.floor(total / 100 * bottom) - (total - wits_records.length)].entry_at);
+                var hours = date.getHours();
+                var minutes = "0" + date.getMinutes();
+                formattedTime = hours + ':' + minutes.substr(minutes.length - 2);
+              }
+              $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row").append("<span class='depth-pip' style='bottom: calc(" + (100 - bottom) + "% - 12px);'>" + parseFloat(depth).non_negative().convert('ft', company_unit).val().round_to_decimal().with_delimiter() + "<br/><span style='font-size: 10px;'>" + formattedTime + "</span></span>");
+            }
+            bottom += 20;
+          }
+        }
+
+        // Update viewport
+        if (wits_records.length > 0) {
+          // Save records to global variables.
+          DV_CURRENT_ACTIVITY = data.activity_lists;
+          DV_CURRENT_WITS = wits_records;
+          DV_CURRENT_GACTIVITY = data.gactivity;
+            if (data.driller_notes) {
+                DV_CURRENT_DRILLER_NOTES = data.driller_notes;
+            }
+
+          if (data.torque) {
+            DV_CURRENT_TORQUE = {};
+            DV_CURRENT_TORQUE['broomstick'] = JSON.parse(data.torque.broomstick);
+            DV_CURRENT_TORQUE['ff'] = !data.torque.ff ? null : JSON.parse(data.torque.ff);
+            var other = JSON.parse(data.torque.other || "{}");
+            DV_CURRENT_TORQUE['axial_load'] = other['Force_Chart'];
+            DV_CURRENT_TORQUE['stress'] = other['Stresses_Chart'];
+            DV_CURRENT_TORQUE['surface_torque'] = other['Torque_Chart'];
+            DV_HOLE_SIZES = data.hole_sizes;
+          } else {
+            DV_CURRENT_TORQUE = null;
+            DV_HOLE_SIZES = null;
+          }
+
+          if (data.ecd && data.ecd.length > 0) {
+            DV_CURRENT_ECD = data.ecd;
+          } else {
+            DV_CURRENT_ECD = null;
+          }
+
+          if (data.vibration && data.vibration.length > 0) {
+            DV_CURRENT_VIBRATION = data.vibration;
+            DV_VIBRATION_COUNT = 30 * 60 / 60;
+          } else {
+            DV_CURRENT_VIBRATION = null;
+          }
+
+          if (data.bit_score) {
+            DV_CURRENT_BIT_SCORE = data.bit_score;
+          } else {
+            DV_CURRENT_BIT_SCORE = null;
+          }
+
+          if (data.motor_score) {
+            DV_CURRENT_MOTOR_SCORE = data.motor_score;
+          } else {
+            DV_CURRENT_MOTOR_SCORE = null;
+          }
+
+          if (data.efficiency) {
+            DV_CURRENT_EFFICIENCY = data.efficiency;
+          } else {
+            DV_CURRENT_EFFICIENCY = null;
+          }
+
+          if (DV_CURRENT_TAB == DV_TAB_CLEANING) {
+            DV_CURRENT_HC = data.hole_cleaning;
+            DV_CURSOR_POS = -1;
+//            update_chart_cursor_point(DV_CURRENT_TAB);
+          } else {
+            DV_CURRENT_HC = null;
+          }
+        } else {
+          DV_CURRENT_ACTIVITY = null;
+          DV_CURRENT_WITS = null;
+          DV_CURRENT_GACTIVITY = null;
+          DV_CURRENT_ECD = null;
+          DV_CURRENT_TORQUE = null;
+          DV_HOLE_SIZES = null;
+          DV_CURRENT_EFFICIENCY = null;
+          DV_CURRENT_HC = null;
+          DV_CURRENT_BIT_SCORE = null;
+          DV_CURRENT_MOTOR_SCORE = null;
+          DV_CURRENT_VIBRATION = null;
+            DV_CURRENT_DRILLER_NOTES = null;
+        }
+
+        $('.mdv-spinner').hide();
+        $('.dv-sub-container').show();
+
+        switch (DV_CURRENT_TAB) {
+          case DV_TAB_OVERVIEW:
+            draw_dv_overview();
+            break;
+          case DV_TAB_RAW:
+            draw_dv_raw();
+            break;
+          case DV_TAB_BIT_FUNCTION:
+            draw_dv_bit_function();
+            break;
+          case DV_TAB_CLEANING:
+            draw_dv_cleaning();
+            break;
+          case DV_TAB_LOSS:
+            draw_dv_losses();
+            break;
+          case DV_TAB_FORMATION:
+            draw_dv_formation();
+            break;
+          case DV_TAB_TORQUE:
+            draw_dv_torque();
+            break;
+          case DV_TAB_WELLBORE:
+            draw_dv_wellbore();
+            break;
+          case DV_TAB_BIT:
+            draw_dv_bit();
+            break;
+          case DV_TAB_MOTOR:
+            draw_dv_motor();
+            break;
+        }
+
+        if (fade_axis) {
+          if (axis_fade_timeout) {
+            clearTimeout(axis_fade_timeout);
+          }
+          $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row-container").show();
+          $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".label-top").show();
+          $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".label-bottom").show();
+          axis_fade_timeout = setTimeout(function () {
+            $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".depth-row-container").hide('slide', {direction: 'left'});
+            $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".label-top").hide('slide', {direction: 'up'});
+            $("#drillview-content .remote-tray:not(.custom-data-closed)").find(".label-bottom").hide('slide', {direction: 'down'});
+          }, 1500);
+        }
+      }
+    });
+  }
+
+  function init_warnings() {
+    <%# cache(cache_key_for_warnings(@job)) do %>
+    <% @job.warnings_asc.each do |warning| %>
+    <%# cache(warning) do %>
+    DV_WARNINGS.push({
+      id: <%= warning.id %>,
+      opened_at: <%= warning.opened_at.to_time.to_i %>,
+      closed_at: <%= warning.closed_at.present? ? warning.closed_at.to_time.to_i : 0 %>,
+      name: "<%= warning.name %>",
+      duration: "<%= warning.duration %>",
+      activity_name: "<%= warning.activity_name %>",
+      depth_from: "<%= warning.depth_from.to_f %>",
+      depth_to: "<%= warning.closed_at.present? ? warning.depth_to.to_f : '' %>",
+      resolution: "<%==j warning.resolution %>",
+      opened_at_str: "<%= warning.opened_at.strftime("%b %e, %Y %k:%M") %>",
+      tray_name: "<%= warning.tray_name %>",
+      family: '<%= warning.event_warning_type.category %>',
+      short_resolution: "<%==j warning.short_resolution %>",
+      severity: "<%= warning.event_warning_type.severity %>"
+    });
+    <% end %>
+    <%# end %>
+    <%# end %>
+  }
+
+  function start_live_update() {
+    live_status = true;
+    liveUpdateId = setInterval(function () {
+      dv_ajax_call(null, true);
+    }, SECS_PER_UPDATE * 1000);
+  }
+
+  function stop_live_update() {
+    live_status = false;
+    clearInterval(liveUpdateId);
+  }
+
+  function init() {
+    $('#drillview-content').css('height', $(window).innerHeight() - 95);
+    $(window).resize(function () {
+      $('#drillview-content').css('height', $(window).innerHeight() - 95);
+    });
+
+    init_warnings();
+    update_right_menu(currentDate);
+
+    if (job_status == 6) {
+      start_live_update();
+    }
+
+    $('.drill-view-chart').live('tap', function (e) {
+      if (axis_fade_timeout) {
+        clearTimeout(axis_fade_timeout);
+      }
+      if ($(this).find('.depth-row-container').is(":visible")) {
+        $(this).find('.depth-row-container').hide('slide', {direction: 'left'}, 300);
+        $(this).find('.label-top').hide('slide', {direction: 'up'}, 300);
+        $(this).find('.label-bottom').hide('slide', {direction: 'down'}, 300);
+      } else {
+        $(this).find('.depth-row-container').show('slide', {direction: 'left'}, 300);
+        $(this).find('.label-top').show('slide', {direction: 'up'}, 300);
+        $(this).find('.label-bottom').show('slide', {direction: 'down'}, 300);
+      }
+      e.preventDefault();
+    });
+
+    if (document.location.hash == '') {
+      tray = $(".remote-tray[data-tray='rig_overview_overview']");
+      tray.find('.content').hide();
+      tray.find('.remote-loading').removeClass('hidden');
+      tray.find('.loading').removeClass('hidden');
+      setTimeout(function () {
+        $.ajax({
+          url: "/jobs/<%= @job.id %>?section=rig_overview_overview",
+          type: "GET",
+          dataType: "script"
+        });
+      }, 1);
+    }
+  };
+
+  init();
+
+});

@@ -1,0 +1,9 @@
+<!-- toastr notification -->
+<script type="text/javascript">
+  (function ($) {
+    <% flash.each do |key, value| %>
+    toastr.<%= key %>("<%= value %>", "", {timeOut: 1000000000});
+    <% end %>
+    <% flash.clear %>
+  }(jQuery));
+</script>

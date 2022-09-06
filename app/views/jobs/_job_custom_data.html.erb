@@ -1,0 +1,53 @@
+<div class="job-tray custom-data-closed" data-tray="custom_data">
+
+  <div class="page_header">
+    <h1>Job Information</h1>
+
+    <div class="btn-group inline pull-right">
+      <a class="custom-data-toggle-jobs" data-toggle="dropdown" href="#">
+        Export
+      </a>
+      <ul class="dropdown-menu">
+        <li>
+          <%= link_to "Export as Excel", dynamic_fields_path(job: job.id, format: "xlsx"),
+                      target: "_blank",
+                      class: "dropdown-menu-link tooltip-info submit-form",
+                      "data-placement" => "left",
+                      "data-title" => "Export data as Microsoft Excel file." %>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <%= render 'wells/inline_well_fields', well: job.well %>
+
+
+  <hr>
+
+  <div class="content">
+    <h3 class='orange-text'>Required Info</h3>
+    <br>
+    <% job_number = DynamicField.new(name: "Job Number", value_type: DynamicField::STRING) %>
+    <% job_number.value = job.job_number %>
+    <% job_number.job = job %>
+    <%= render 'jobs/job_custom_data_field', df: job_number, job_editable: job_editable %>
+    <% api_number = DynamicField.new(name: "API Number", value_type: DynamicField::STRING) %>
+    <% api_number.value = job.api_number %>
+    <% api_number.job = job %>
+    <%= render 'jobs/job_custom_data_field', df: api_number, job_editable: job_editable %>
+    <br><br>
+    <% job.dynamic_fields_required.each do |df| %>
+        <%= render 'jobs/job_custom_data_field', df: df, job_editable: job_editable %>
+    <% end %>
+
+    <% if job.dynamic_fields_optional.count > 0 %>
+        <br>
+        <hr>
+        <h3 class='orange-text'>Optional Info</h3>
+        <br>
+        <% job.dynamic_fields_optional.each do |df| %>
+            <%= render 'jobs/job_custom_data_field', df: df, job_editable: job_editable %>
+        <% end %>
+    <% end %>
+  </div>
+</div>

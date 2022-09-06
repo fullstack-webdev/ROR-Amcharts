@@ -1,0 +1,563 @@
+<div class="remote-tray" data-tray="rig_overview_raw">
+
+  <div class='tray-content content-loaded' style="position: relative;">
+
+    <div class="dv-spinner" id="dv_raw_spinner">
+
+      <%= render 'jobs/inline_spinner' %>
+
+    </div>
+
+    <div class="dv-sub-container" style="display: none; width: 100%;">
+
+      <div class="drill-view-chart" style="width: 33%; min-height: 100px;">
+
+        <div class="label-top" style="width: 100%;">
+          <div class="inline-block" style="width: 50%; text-align: left;">
+
+            <p class="inline-block" id="dv_raw_wob_label" style="color: #58c9c2; font-size: 12px;">WOB</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #58c9c2; font-size: 12px;" id="dv_raw_wob">15,000
+              <span>lbs</span>
+            </p>
+          </div>
+
+          <div class="inline-block"  style="width: 50%; float: right; text-align: left;">
+            <p class="inline-block" id="dv_raw_hookload_label" style=" color: #b858c9; font-size: 12px;">Hookload</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #b858c9; font-size: 12px;" id="dv_raw_hookload">234
+              <span>klbs</span>
+            </p>
+          </div>
+        </div>
+
+          <!--<div class="arrow-down"></div>-->
+        <div id="chart_drillview_raw_wob" class="amChart block chart-view"></div>
+
+
+      <div style="width: 100%;">
+        <div class="inline-block" style="width: 50%; text-align: left;">
+          <p class="inline-block title" id="dv_raw_rpm_label" style="color: #2da5f2; font-size: 12px;">RPM</p>
+
+          <p class="inline-block value-white" style="font-size: 30px; color: #2da5f2; font-size: 12px;" id="dv_raw_rpm">110</p>
+        </div>
+
+        <div class="inline-block"  style="width: 50%; float: right;">
+
+        </div>
+      </div>
+
+        <!--<div class="label-bottom" id="dv_raw_wob_axis"><span class="left">8k</span><span class="right">12k</span></div>-->
+      </div>
+
+
+      <div class="drill-view-chart" style="width: 30%; padding-left: 10px; min-height: 100px;">
+
+        <div class="label-top" style="width: 100%;">
+          <div class="inline-block" style="width: 55%; text-align: left;">
+            <p class="inline-block" id="dv_raw_torque_label" style="color: #987cf4; font-size: 12px;">Torque</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #987cf4; font-size: 12px;" id="dv_raw_torque">0
+              <span>ft-lbf</span>
+            </p>
+          </div>
+
+          <div class="inline-block"  style="width: 45%; float: right; text-align: left;">
+            <p class="inline-block" id="dv_raw_rop_label" style=" color: #23fcff; font-size: 12px;">ROP</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #23fcff; font-size: 12px;" id="dv_raw_rop">0
+              <span>ft/hr</span>
+            </p>
+          </div>
+        </div>
+
+        <div id="chart_drillview_raw_rop" class="amChart block chart-view"></div>
+
+
+        <div style="width: 100%;">
+          <div class="inline-block" style="width: 50%; text-align: left;">
+            <p class="inline-block title" id="dv_raw_flow_label" style="color: #f79a62; font-size: 12px;">Flow</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #f79a62; font-size: 12px;" id="dv_raw_flow">0
+              <span>gpm</span></p>
+          </div>
+
+          <div class="inline-block"  style="width: 50%; float: right;">
+
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="drill-view-chart" style="width: 30%; padding-left: 10px; min-height: 100px;">
+
+        <div class="label-top" style="width: 100%;">
+          <div class="inline-block" style="width: 50%; text-align: left;">
+            <p class="inline-block" id="dv_raw_pump_press_label" style="color: #23c9ff; font-size: 12px;">SPP</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #23c9ff; font-size: 12px;" id="dv_raw_pump_press">0
+              <span>psi</span>
+            </p>
+          </div>
+
+          <div class="inline-block"  style="width: 50%; float: right; text-align: left;">
+            <p class="inline-block" id="dv_raw_spm_label" style=" color: #9eddde; font-size: 12px;">SPM</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #9eddde; font-size: 12px;" id="dv_raw_spm">0
+              <span>spm</span>
+            </p>
+          </div>
+        </div>
+
+
+        <div id="chart_drillview_raw_spp" class="amChart block chart-view"></div>
+        <!--<div class="label-bottom" id="dv_raw_flow_axis"><span class="left">8k</span><span class="right">12k</span></div>-->
+
+        <div style="width: 100%;">
+          <div class="inline-block" style="width: 50%; text-align: left;">
+            <p class="inline-block title" id="dv_raw_mv_label" style="color: #9aea6a; font-size: 12px;">MV</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #9aea6a; font-size: 12px;" id="dv_raw_mv">0
+              <span>bbl</span></p>
+          </div>
+
+          <div class="inline-block"  style="width: 50%; float: right;">
+
+          </div>
+
+
+          <div class="inline-block" style="width: 50%; float: right; text-align: left;">
+            <p class="inline-block title" id="dv_raw_diff_press_label" style="color: #ffc777; font-size: 12px;">Diff Press</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #ffc777; font-size: 12px;" id="dv_raw_diff_press">0
+              <span>psi</span></p>
+          </div>
+
+          <div class="inline-block"  style="width: 50%; float: right;">
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+    (function ($) {
+
+        DV_CURRENT_TAB = DV_TAB_RAW;
+
+        function tune_dv_raw() {
+
+            var drillviewHeight = 425;
+            var innerHeight = Math.max($(window).innerHeight() - 186, drillviewHeight);
+            var viewHeight = Math.max(innerHeight, DV_MENU_HEIGHT - 44);
+            $('.drillview').css({ "height": viewHeight });
+            $('#vertical-slider').css({ "height": viewHeight - 20 });
+            $('#depth-row').css({ "height": viewHeight });
+            $('#activity-row').css({ "height": viewHeight });
+            $('.menuBlock').css({ "height": viewHeight + 44 });
+            $('#chart_drillview_raw_wob').css({ "height": viewHeight });
+            $('#chart_drillview_raw_rop').css({ "height": viewHeight });
+            $('#chart_drillview_raw_spp').css({ "height": viewHeight });
+            $('#dv_warnings').css({ "height": viewHeight - 20 });
+            $('#dv_raw_spinner').css({ "padding-top": viewHeight / 2 - 20 });
+            $('#dv_raw_spinner').css({ "height": viewHeight });
+            DV_CHARTS['raw_wob'].validateNow();
+            DV_CHARTS['raw_rop'].validateNow();
+            DV_CHARTS['raw_spp'].validateNow();
+
+            update_chart_cursor_point('dv_raw');
+
+        }
+
+        $(".remote-tray-toggle[data-tray='rig_overview_raw']").click(function () {
+            DV_CURRENT_TAB = DV_TAB_RAW;
+
+            $('.dv-spinner').show();
+            $('.dv-sub-container').hide();
+
+            $('#depth-row-wide').hide();
+            $('#depth-row').html("");
+            $('#depth-row').show();
+            $('#activity-row').html("");
+            $('#activity-row').show();
+
+            setTimeout(function () {
+                tune_dv_raw();
+                $slider = $('.slider');
+                $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+            }, 0);
+        });
+
+        // Tune view height
+        $(window).resize(tune_dv_raw);
+
+        // Draw chart
+        DV_CHARTS['raw_wob'] = AmCharts.makeChart("chart_drillview_raw_wob", {
+            "type": "serial",
+            "theme": "none",
+            "pathToImages": "https://www.amcharts.com/lib/3/images/",
+            "backgroundColor": "#2a2e2e",
+            "backgroundAlpha": 0,
+            "rotate": true,
+            "marginRight": 0,
+            "marginTop": 0,
+            "marginLeft": 0,
+            "marginBottom": 0,
+            "autoMargins": false,
+            "dataProvider": [],
+            "valueAxes": [
+                {
+                    "axisAlpha": 0,
+                    "position": "bottom",
+                    "reversed": false,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false,
+                    "id": "raw_wob_axis",
+                    "autoGridCount": false,
+//          "minimum": -1000,
+//          "maximum": 1000
+                },
+                {
+                    "axisAlpha": 0,
+                    "position": "bottom",
+                    "reversed": false,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false,
+                    "id": "raw_hl_axis",
+                    "autoGridCount": false,
+//          "minimum": -1000,
+//          "maximum": 1000
+                },
+                {
+                    "axisAlpha": 0,
+                    "position": "bottom",
+                    "reversed": false,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false,
+                    "id": "raw_rpm_axis",
+                    "autoGridCount": false,
+//          "minimum": -1000,
+//          "maximum": 1000
+                }
+            ],
+            "graphs": [
+                {
+                    "lineColor": "#58c9c2",
+                    "lineThickness": 2,
+                    "type": "smoothedLine",
+                    "valueField": "wob",
+                    "valueAxis": "raw_wob_axis"
+                },
+                {
+                    "lineColor": "#b858c9",
+                    "lineThickness": 2,
+                    "type": "smoothedLine",
+                    "valueField": "hookload",
+                    "valueAxis": "raw_hl_axis"
+                },
+                {
+                    "lineColor": "#2da5f2",
+                    "lineThickness": 2,
+                    "type": "smoothedLine",
+                    "valueField": "rpm",
+                    "valueAxis": "raw_rpm_axis"
+                }
+            ],
+            "chartCursor": {
+                "zoomable": false,
+                "enabled": true,
+                "selectWithoutZooming": true,
+                "valueLineEnabled": false,
+                "valueLineBalloonEnabled": false,
+                "valueBalloonsEnabled": false,
+                "categoryBalloonEnabled": false
+            },
+            "categoryField": "time",
+            "categoryAxis": {
+                "gridPosition": "start",
+                "startOnAxis": true,
+                "labelsEnabled": false,
+                "parseDates": false,
+                "minorGridAlpha": 0.3,
+                "tickLength": 0,
+//        "labelFunction": formatLabel,
+                "minorGridEnabled": true,
+                "position": "left",
+                "color": "#2a2e2e",
+                "axisColor": "#fefefe",
+                "axisAlpha": 1,
+                "gridAlpha": 1,
+                "gridColor": "#373b3b",
+                "inside": true,
+                "labelOffset": -3,
+                "fontSize": 10
+            }
+        });
+
+        DV_CHARTS['raw_rop'] = AmCharts.makeChart("chart_drillview_raw_rop", {
+            "type": "serial",
+            "theme": "none",
+            "pathToImages": "https://www.amcharts.com/lib/3/images/",
+            "backgroundColor": "#2a2e2e",
+            "backgroundAlpha": 0,
+            "rotate": true,
+            "marginRight": 0,
+            "marginTop": 0,
+            "marginLeft": 0,
+            "marginBottom": 0,
+            "autoMargins": false,
+            "dataProvider": [],
+            "valueAxes": [
+                {
+                    "axisAlpha": 0,
+                    "position": "bottom",
+                    "reversed": false,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false,
+                    "id": "raw_rop_axis",
+                    "autoGridCount": false,
+//          "minimum": 0,
+//          "maximum": 15000
+                },
+                {
+                    "axisAlpha": 0,
+                    "position": "bottom",
+                    "reversed": false,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false,
+                    "id": "raw_flow_axis",
+                    "autoGridCount": false,
+//          "minimum": 0,
+//          "maximum": 15000
+                },
+                {
+                    "axisAlpha": 0,
+                    "position": "bottom",
+                    "reversed": false,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false,
+                    "id": "raw_torque_axis",
+                    "autoGridCount": false,
+//          "minimum": 0,
+//          "maximum": 15000
+                }
+            ],
+            "graphs": [
+                {
+                    "lineColor": "#f79a62",
+                    "lineThickness": 2,
+                    "type": "smoothedLine",
+                    "valueField": "flow",
+                    "valueAxis": "raw_flow_axis"
+                },
+                {
+                    "lineColor": "#23fcff",
+                    "lineThickness": 2,
+                    "type": "smoothedLine",
+                    "valueField": "rop",
+                    "valueAxis": "raw_rop_axis"
+                },
+                {
+                    "lineColor": "#987cf4",
+                    "lineThickness": 2,
+                    "type": "smoothedLine",
+                    "valueField": "torque",
+                    "valueAxis": "raw_torque_axis"
+                }
+            ],
+            "chartCursor": {
+                "zoomable": false,
+                "enabled": true,
+                "selectWithoutZooming": true,
+                "valueLineEnabled": false,
+                "valueLineBalloonEnabled": false,
+                "valueBalloonsEnabled": false,
+                "categoryBalloonEnabled": false
+            },
+            "categoryField": "time",
+            "categoryAxis": {
+                "gridPosition": "start",
+                "startOnAxis": true,
+                "parseDates": false,
+                "minorGridAlpha": 0.3,
+                "minorGridEnabled": true,
+                "position": "left",
+                "color": "#fefefe",
+                "axisColor": "#fefefe",
+                "axisAlpha": 0,
+                "gridAlpha": 1,
+                "gridColor": "#373b3b"
+            }
+        });
+
+        DV_CHARTS['raw_spp'] = AmCharts.makeChart("chart_drillview_raw_spp", {
+            "type": "serial",
+            "theme": "none",
+            "pathToImages": "https://www.amcharts.com/lib/3/images/",
+            "backgroundColor": "#2a2e2e",
+            "backgroundAlpha": 0,
+            "rotate": true,
+            "marginRight": 0,
+            "marginTop": 0,
+            "marginLeft": 0,
+            "marginBottom": 0,
+            "autoMargins": false,
+            "dataProvider": [],
+            "valueAxes": [
+
+                {
+                    "axisAlpha": 0,
+                    "position": "bottom",
+                    "reversed": false,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false,
+                    "id": "raw_pump_axis",
+                    "autoGridCount": false,
+//          "minimum": 0,
+//          "maximum": 15000
+                },
+                {
+                    "axisAlpha": 0,
+                    "position": "bottom",
+                    "reversed": false,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false,
+                    "id": "raw_mv_axis",
+                    "autoGridCount": false,
+//          "minimum": 0,
+//          "maximum": 15000
+                },
+                {
+                    "axisAlpha": 0,
+                    "position": "bottom",
+                    "reversed": false,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false,
+                    "id": "raw_spm_axis",
+                    "autoGridCount": false,
+//          "minimum": 0,
+//          "maximum": 15000
+                },
+                {
+                    "axisAlpha": 0,
+                    "position": "bottom",
+                    "reversed": false,
+                    "gridAlpha": 0,
+                    "labelsEnabled": false,
+                    "id": "raw_diff_press_axis",
+                    "autoGridCount": false,
+                }
+            ],
+            "graphs": [
+                {
+                    "lineColor": "#23c9ff",
+                    "lineThickness": 2,
+                    "type": "smoothedLine",
+                    "valueField": "pump_pressure",
+                    "valueAxis": "raw_pump_axis"
+                },
+                {
+                    "lineColor": "#9aea6a",
+                    "lineThickness": 2,
+                    "type": "smoothedLine",
+                    "valueField": "mud_volume",
+                    "valueAxis": "raw_mv_axis"
+                },
+                {
+                    "lineColor": "#9eddde",
+                    "lineThickness": 2,
+                    "type": "smoothedLine",
+                    "valueField": "spm",
+                    "valueAxis": "raw_spm_axis"
+                },
+            {
+                "lineColor": "#ffc777",
+                "lineThickness": 2,
+                "type": "smoothedLine",
+                "valueField": "diff_press",
+                "valueAxis": "raw_diff_press_axis"
+            }
+            ],
+            "chartCursor": {
+                "zoomable": false,
+                "enabled": true,
+                "selectWithoutZooming": true,
+                "valueLineEnabled": false,
+                "valueLineBalloonEnabled": false,
+                "valueBalloonsEnabled": false,
+                "categoryBalloonEnabled": false
+            },
+            "categoryField": "time",
+            "categoryAxis": {
+                "gridPosition": "start",
+                "startOnAxis": true,
+                "parseDates": false,
+                "minorGridAlpha": 0.3,
+                "minorGridEnabled": true,
+                "position": "left",
+                "color": "#fefefe",
+                "axisColor": "#fefefe",
+                "axisAlpha": 0,
+                "gridAlpha": 1,
+                "gridColor": "#373b3b"
+            }
+        });
+
+        DV_CHARTS['raw_wob'].addListener("rendered", addListeners);
+        DV_CHARTS['raw_wob'].addListener("changed", handleChanged);
+        DV_CHARTS['raw_rop'].addListener("changed", handleChanged);
+        DV_CHARTS['raw_spp'].addListener("changed", handleChanged);
+
+        var myCursor;
+
+        $('#chart_drillview_raw_wob, #chart_drillview_raw_rop, #chart_drillview_raw_spp').click(function () {
+            DV_CURSOR_POS = myCursor;
+            update_chart_cursor('dv_raw');
+        });
+
+        $('#chart_drillview_raw_wob, #chart_drillview_raw_rop, #chart_drillview_raw_spp').mouseleave(function () {
+            update_dv_raw(DV_CURSOR_POS);
+        });
+
+        function handleChanged(event) {
+            myCursor = event.index;
+            update_dv_raw(event.index);
+        }
+
+        function addListeners() {
+            var categoryAxis = DV_CHARTS['raw_wob'].categoryAxis;
+//      categoryAxis.addListener("clickItem", handleClick);
+//      categoryAxis.addListener("rollOverItem", handleOver);
+//      categoryAxis.addListener("rollOutItem", handleOut);
+        }
+
+        function handleClick(event) {
+            DV_CURSOR_POS = event.serialDataItem.dataContext.id;
+            update_chart_cursor('dv_raw');
+        }
+
+        function handleOut(event) {
+            event.target.setAttr("cursor", "default");
+            update_dv_raw(DV_CURSOR_POS);
+//      event.target.setAttr("fill", "#fefefe");
+        }
+
+        function handleOver(event) {
+            event.target.setAttr("cursor", "pointer");
+            update_dv_raw(event.serialDataItem.dataContext.id);
+//      event.target.setAttr("fill", "#CC0000");
+        }
+
+        tune_dv_raw();
+        $('#dv_raw').show();
+        $slider = $('.slider');
+        $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+
+    }(jQuery))
+</script>

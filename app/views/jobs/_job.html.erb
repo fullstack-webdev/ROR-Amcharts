@@ -1,0 +1,7 @@
+<% if job.present? %>
+    <%= link_to job, class: "job-link tooltip-info",
+                "data-placement" => "left",
+                "data-title" => "Click to open job" do %>
+        <%= render 'jobs/job_data', job: job, form_editable: false, in_form: false, new_line_job_type: false %>
+    <% end %>
+<% end %>

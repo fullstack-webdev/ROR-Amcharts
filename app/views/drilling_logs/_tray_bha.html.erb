@@ -1,0 +1,65 @@
+<div class="remote-tray" data-tray="drilling-bha">
+
+  <% @document = Document.where("documents.job_id = ?", drilling_log.job_id).where(:document_type => Document::BOTTOM_HOLE_ASSEMBLY).last %>
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading BHA totals..." %>
+  </div>
+
+  <div class="content tray-content content-loaded">
+
+    <% @bhas = Bha.joins(job: :well).where("bhas.master_bha_id IS NULL").where("wells.id = ?", drilling_log.job.well_id).order("bhas.name ASC") %>
+    <% @bha = nil %>
+    <% query = URI.parse(request.url).query %>
+    <% if !query.blank? %>
+        <% p = CGI.parse(query) %>
+        <% if p["bha"].present? %>
+            <% @bha = Bha.find_by_id(p["bha"]) %>
+        <% end %>
+    <% end %>
+    <% if @bha.nil? %>
+        <% query = URI.parse(request.referrer).query %>
+        <% if !query.blank? %>
+            <% p = CGI.parse(query) %>
+            <% if p["bha"].present? %>
+                <% @bha = Bha.find_by_id(p["bha"]) %>
+            <% else %>
+
+            <% end %>
+        <% end %>
+    <% end %>
+    <% if @bha.nil? %>
+        <% @bha = @bhas.first %>
+    <% end %>
+
+    <%= render "bhas/bha_header", bhas: @bhas %>
+
+    <div id="bha">
+      <% if  @bha.present? %>
+          <%= render "bhas/bha_tally", job: @job, bha: @bha %>
+      <% end %>
+
+      <div id="bha_loader" class="push-down center hidden inline">
+        <br><br>
+
+        <div class="">
+          <span class="ajax-loading search-loading"><b>Loading..</b></span>
+        </div>
+      </div>
+    </div>
+
+
+    <br><br>
+
+
+    <div id="modal_popup2" class="modal-popup-background">
+      <div class="modal-popup modal-popup-fixed">
+        <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal2" %>
+        <div class="modal-content">
+        </div>
+        <%= render "layouts/inline_loading", title: "Loading..." %>
+      </div>
+    </div>
+  </div>
+</div>

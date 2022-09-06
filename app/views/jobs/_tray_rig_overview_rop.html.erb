@@ -1,0 +1,43 @@
+<div class="remote-tray" data-tray="rig_overview_rop">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading rig ROP..." %>
+  </div>
+
+  <div class='tray-content content-loaded' style="margin: 20px 0 15px 7%; position:relative;">
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Rate of Penetration</h1>
+    </div>
+
+    <div class="menuContentBlock">
+
+      <div style="margin-top:20px;">
+        <div class="inline-block" style="width: 25%;">
+          <p class="title">ROP</p>
+
+          <p class="value-red" style="font-size: 30px;">119 <span>ft/hr</span></p>
+        </div>
+
+        <div class="inline-block" style="width: 25%;">
+          <p class="title">Average</p>
+
+          <p class="value-red" style="font-size: 30px;">123 <span>ft/hr</span></p>
+        </div>
+
+        <div class="inline-block" style="width: 25%;">
+          <p class="title">Maximum</p>
+
+          <p class="value-white" style="font-size: 30px;">239 <span>ft/hr</span></p>
+        </div>
+      </div>
+
+      <div style="width: 100%; margin-top: 45px;">
+        <%= image_tag "rig/rop_chart.png" %>
+      </div>
+
+    </div>
+
+  </div>
+</div>

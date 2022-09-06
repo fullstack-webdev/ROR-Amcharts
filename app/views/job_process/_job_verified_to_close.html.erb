@@ -1,0 +1,18 @@
+<div class="form" data-form="close_job_form">
+  <%= form_for "/job_process/" + job.id.to_s, :html => {class: "", id: "job_ready_to_close", :method => :put}, remote: true do |f| %>
+      <div class="job-process-div">
+        Job Ready to Close
+        <p class="">Make sure all Post-Job documents are correct and complete</p>
+        <%= f.submit "Approve and Close Job", class: "bluebtn green inline tooltip-info form-loading-on-click",
+                     "data-form" => "close_job_form",
+                     "data-placement" => "left",
+                     "data-title" => "Closes job and generates the post job report." %>
+      </div>
+  <% end %>
+</div>
+
+
+<div class="form-loading hidden" data-form="close_job_form">
+  <%= render 'layouts/inline_loading', title: "Closing job..." %>
+  <br>
+</div>

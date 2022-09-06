@@ -1,0 +1,44 @@
+<div id="witsml_server_<%= witsml_server.id %>" class="witsml-server" style="min-height: 30px; margin-bottom: 20px;">
+  <div class="inline-block align-top" style="font-family: orgonboldregular; color: #FFFFFF; width: 300px; font-size: 20px; overflow-x: hidden; text-overflow: ellipsis;">
+    <%= witsml_server.name %>
+  </div>
+
+  <div class="inline-block">
+    <div class="inline-block align-top" style="font-family: orgonboldregular; color: #c8e6d1; width: 400px; overflow-x: hidden; text-overflow: ellipsis; text-wrap: none;">
+      <%= witsml_server.location %>
+    </div>
+
+    <div class="inline-block">
+      <%= link_to "x", witsml_server, method: :delete, remote: true, data: {confirm: "Remove WITSML Server?"},
+                  class: "align-top remove-server",
+                  style: "margin-left: 10px; margin-top: 0px; color: #d01111;" %>
+    </div>
+
+    <div id="witsml_server_<%= witsml_server.id %>_status" style="margin-left: 0px;">
+      Attempting Connection...
+    </div>
+  </div>
+</div>
+
+
+
+<script type="text/javascript">
+
+    (function ($) {
+        setTimeout(function () {
+            $.ajax('/witsml_servers/<%= witsml_server.id %>/connected', {
+                type: 'get',
+                dataType: 'script',
+                success: function (response) {
+                    $('#witsml_server_<%= witsml_server.id %>_status').empty();
+                    if (response == 'true') {
+                        $('#witsml_server_<%= witsml_server.id %>_status').append('<span style="color: greenyellow;">Connected&nbsp;&nbsp; ✓</span>');
+                    }
+                    else {
+                        $('#witsml_server_<%= witsml_server.id %>_status').append('<span style="color: red;">Problem Connecting&nbsp;&nbsp; ✘</span>');
+                    }
+                }
+            });
+        }, 1000);
+    }(jQuery));
+</script>

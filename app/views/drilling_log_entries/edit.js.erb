@@ -1,0 +1,6 @@
+$('#modal_popup').find('.modal-content').append('<%= j render 'drilling_log_entries/edit', drilling_log_entry: @drilling_log_entry %>');
+$('#modal_popup').css('visibility', 'visible');
+$('#modal_popup').find('.loading').addClass('hidden');
+
+
+$('#modal_popup').find('.custom-select').customSelect();

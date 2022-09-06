@@ -1,0 +1,68 @@
+<div class="remote-tray" data-tray="hole_size">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading hole-size program..." %>
+  </div>
+
+  <div class='tray-content content-loaded'>
+
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Hole-Size Program</h1>
+
+      <div class='inline-block push-right-small align-top push-down-small'>
+        <%= link_to "#",
+                    class: "btn btn-primary white-text push-right-small" do %>
+            <i class="icon-plus-sign icon-white"></i>
+            <span>Configure</span>
+        <% end %>
+      </div>
+    </div>
+
+
+    <!-- 9 5/8" 6,000 -->
+
+    <div style="margin-left: 20px; margin-top: 20px;">
+      <div>
+        <div class='inline-block' style="width: 150px; text-align: center; margin-top: 0px;">
+          <div style="width: <%= 9.625 * 10 %>px; background: #6b8393; height: 200px; margin-left: auto; margin-right: auto;"></div>
+        </div>
+
+        <div class="inline-block align-top" style="margin-left: 10px;">
+          <div style="vertical-align: top; font-family: orgonboldregular ; font-size: 18px; margin-top: 10px;">9 5/8"</div>
+          <div style="vertical-align: bottom; font-family: gothambookregular; font-size: 11px; margin-top: 5px;">6,000 ft</div>
+        </div>
+      </div>
+
+      <div>
+        <div class='inline-block' style="width: 150px; text-align: center; margin-top: -3px;">
+          <div style="width: <%= 7 * 10 %>px; background: #6b8393; height: 200px; margin-left: auto; margin-right: auto;"></div>
+        </div>
+
+        <div class="inline-block align-top" style="margin-left: 10px;">
+          <div style="vertical-align: top; font-family: orgonboldregular ; font-size: 18px; margin-top: 10px;">7"</div>
+          <div style="vertical-align: bottom; font-family: gothambookregular; font-size: 13px; margin-top: 5px;">12,000 ft</div>
+        </div>
+      </div>
+
+      <div>
+        <div class='inline-block' style="width: 150px; text-align: center; margin-top: -3px;">
+          <div style="width: <%= 5.875 * 10 %>px; background: #6b8393; height: 200px; margin-left: auto; margin-right: auto;"></div>
+        </div>
+
+        <div class="inline-block align-top" style="margin-left: 10px;">
+          <div style="vertical-align: top; font-family: orgonboldregular ; font-size: 18px; margin-top: 10px;">5 7/8"</div>
+          <div style="vertical-align: bottom; font-family: gothambookregular; font-size: 12px; margin-top: 5px;">16,700 ft</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 7" 12,000 -->
+
+    <!-- 5 7/8" 16,500 -->
+
+
+  </div>
+</div>

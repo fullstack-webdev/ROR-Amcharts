@@ -1,0 +1,17 @@
+<div class="dropdown dropdown-styled" style="display: inline-block">
+  <button class="btn" type="button" data-toggle="dropdown" aria-expanded="true" id="program_selected" data-id="-1">
+    All Programs <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" role="menu" id="program_list">
+    <% if @programs.empty? then %>
+      <li role="presentation" data-id="-2"><a href="javascript:void(0);">No programs</a></li>
+    <% else %>
+      <li role="presentation"><a href="javascript:void(0);" data-id="-1">All Programs</a></li>
+      <% @programs.each do |program| %>
+        <li role="presentation"><%= link_to program.name, "javascript:void(0);", "data-id" => program.id, "tabindex" => "-1" %></li>
+      <% end %>
+    <% end %>
+  </ul>
+</div>
+
+<%= render 'performance/history' %>

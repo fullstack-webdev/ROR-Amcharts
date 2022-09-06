@@ -1,0 +1,14 @@
+<div class="user-line">
+  <p class="job-well-field-title job-status-avatar blue-text"><b>Well</b></p>
+
+  <h3><%= well.name %></h3>
+
+  <% if well.field.present? && well.field.district.present? %>
+      <div class="user-line-title"><%= well.field.district.country.name %></div>
+      <div class="user-line-district"><%= well.field.district.state.present? ? well.field.district.state.name : "" %></div>
+
+      <p class="job-well-field-title job-status-avatar">Field</p>
+
+      <h3><%= well.field.name %></h3>
+  <% end %>
+</div>

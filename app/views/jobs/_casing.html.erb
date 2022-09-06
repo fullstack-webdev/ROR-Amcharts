@@ -1,0 +1,40 @@
+<% casings ||= [] %>
+<div class="section-sub-header">
+  Casing
+
+  <div class='inline-block align-top pull-right'>
+    <a href="javascript:void(null)" class="btn btn-sub tooltip-info align-top hole_string_casing_add_button">Add</a>
+  </div>
+</div>
+
+<div class="block">
+  <table class="table-normal">
+    <thead>
+    <tr>
+      <th style="width: 20%;">I.D.(<%= unit(:in, company_unit) %>)</th>
+      <th style="width: 20%;">Length(<%= unit(:ft, company_unit) %>)</th>
+      <th style="width: 20%;">Top Depth</th>
+      <th style="width: 20%;">Btm Depth</th>
+      <th style="width: 20%;"></th>
+    </tr>
+    </thead>
+    <tbody id="hole_string_casing_container">
+    <% if casings.empty? %>
+    <tr id='hs_casing_row0' class='hs_casing_row'>
+      <td><input type="text" id='hs_casing_id0' class="job-field-value-editable tooltip-info text-field"/></td>
+      <td><input type="text" id='hs_casing_length0' class="job-field-value-editable tooltip-info text-field"/></td>
+      <td><input type="text" id='hs_casing_depth_from0' class="job-field-value-editable tooltip-info text-field"/></td>
+      <td><input type="text" id='hs_casing_depth_to0' class="job-field-value-editable tooltip-info text-field"/></td>
+      <td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_casing_remove0' class='hs_casing_remove' data-id='0'><i class='fa fa-remove'></i></a></td>
+    </tr>
+    <% else %>
+      <% casings.each_with_index do |casing, index| %>
+        <tr id='hs_casing_row<%= index %>' class='hs_casing_row'>
+          <td><input type="text" id='hs_casing_id<%= index %>' class="job-field-value-editable tooltip-info text-field" value="<%= casing.inner_diameter.convert(:in, company_unit) %>"/></td>
+          <td><input type="text" id='hs_casing_length<%= index %>' class="job-field-value-editable tooltip-info text-field" value="<%= casing.length.to_f.convert(:ft, company_unit).round %>"/></td>
+          <td class='remove' style='width: 10%; display: none;'><a href='javascript:void(null)' id='hs_casing_remove<%= index %>' class='hs_casing_remove' data-id='<%= index %>'><i class='fa fa-remove'></i></a></td>
+        </tr>
+      <% end %>
+    <% end %>
+  </table>
+</div>

@@ -1,0 +1,9 @@
+<div id="timesheet">
+
+  <div class="section-header" style="margin-top: 15px;">
+    <h1>Timesheet</h1>
+  </div>
+
+  <% @page = (params[:page] || "0").to_i %>
+  <% @start_date = @page != 0 ? Time.zone.now + (@page * 10.days) : Time.zone.now %>
+</div>

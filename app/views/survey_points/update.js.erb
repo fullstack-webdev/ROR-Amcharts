@@ -1,0 +1,22 @@
+$('#modal_popup').css('visibility', 'hidden');
+$('#modal_popup').find(".modal-content").children().remove();
+$('#modal_popup').height(0);
+
+<% if @survey_point.errors.any? %>
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem With Update", message: @survey_point.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show: true});
+<% end %>
+
+<% if @survey_point.present? %>
+    <% @survey = @survey_point.survey %>
+    <% @well_plan = Survey.includes(job: :well).where(:plan => true).where("wells.id = ?", @survey.job.well_id).first %>
+    <% if @survey.present? && @well_plan.present? %>
+        <% calculated_points_survey = @survey.calculated_points(@well_plan.vertical_section_azimuth) %>
+        $('#survey_list').replaceWith("<%= j render 'surveys/survey_list', points: calculated_points_survey %>");
+    <% end %>
+<% end %>
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.tooltip-info').tooltip();
+}

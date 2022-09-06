@@ -1,0 +1,22 @@
+<% fluid ||= {} %>
+<div class="section-sub-header">
+  Gel Strengths
+</div>
+
+<div class="block">
+  <table class="table-normal">
+    <tbody>
+    <tr>
+      <td>10 seconds</td>
+      <td class="text-bold">
+        <input id="fluids_form_10seconds" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['seconds10'] unless fluid['seconds10'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>10 minutes</td>
+      <td><input id="fluids_form_10minutes" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['minutes10'] unless fluid['minutes10'].nil? %>"/>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

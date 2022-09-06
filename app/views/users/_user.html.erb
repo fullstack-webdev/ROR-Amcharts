@@ -1,0 +1,29 @@
+<%= link_to signed_in_admin? ? edit_user_path(user) : user_path(user),
+            class: "link tooltip-info",
+            "data-placement" => "left",
+            "data-title" => "Click to open/edit user" do %>
+  <div>
+
+    <%= render 'users/user_icon', user: user, use_link: false, use_name: false, table_cell: true %>
+
+    <div class="inline-block title" style="width: 25%;">
+      <%= user.name %>
+    </div>
+
+    <div class="inline-block cell" style="width: 20%;">
+      <% if user.district.present? %>
+        <%= user.district.name %>
+      <% else %>
+        -
+      <% end %>
+    </div>
+
+    <div class="inline-block cell" style="width: 25%;">
+      <%= user.title %>
+    </div>
+
+    <div class="inline-block cell" style="width: 20%;">
+      <%= user.email %>
+    </div>
+  </div>
+<% end %>

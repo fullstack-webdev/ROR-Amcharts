@@ -1,0 +1,144 @@
+<% provide(:title, "Inventory") %>
+
+
+<div style='height: 14px;'>
+  <div style='position: absolute; left: 0; top: 54px; width: 100%; height: 52px;'>
+    <ul class="nav nav-pills alert alert-nav parent-tray-nav" style='border-radius: 0px; border-width: 0px;'>
+      <li class="active">
+        <a href="#" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @district.id %>"
+           data-tray-controller="inventory"
+           data-tray="overview">Overview</a>
+      </li>
+
+      <li class="">
+        <a href="#" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @district.id %>"
+           data-tray-controller="inventory"
+           data-tray="full">Owned Assets</a>
+      </li>
+
+      <li class="">
+        <a href="#" class="remote-tray-toggle custom-data-toggle"
+           data-id="<%= @district.id %>"
+           data-tray-controller="inventory"
+           data-tray="maintenance">In Maintenance</a>
+      </li>
+
+
+
+
+
+
+    </ul>
+  </div>
+</div>
+
+
+<div class="remote-tray" data-tray="overview">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading overview..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="maintenance">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading assets in maintenance..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="shipping">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading assets in shipping..." %>
+  </div>
+</div>
+
+<div class="remote-tray custom-data-closed" data-tray="full">
+  <div class="remote-loading">
+    <%= render 'layouts/inline_loading', title: "Please wait, loading full asset list..." %>
+  </div>
+</div>
+
+
+<div id="modal_popup" class="modal-popup-background">
+  <div class="modal-popup modal-popup-fixed">
+    <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal" %>
+    <div class="modal-content">
+    </div>
+    <%= render "layouts/inline_loading", title: "Loading..." %>
+  </div>
+</div>
+
+<div id="modal_popup2" class="modal-popup-background">
+  <div class="modal-popup modal-popup-fixed">
+    <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal2" %>
+    <div class="modal-content">
+    </div>
+    <%= render "layouts/inline_loading", title: "Loading..." %>
+  </div>
+</div>
+
+
+
+<script type="text/javascript">
+
+    (function ($) {
+        $(document).ready(function () {
+            $('.part-search').data("autocomplete")._renderItem = function (ul, item) {
+                return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                        "<a><div>" + (item.id > 0 ? "<img src='/assets/tool.png' class='job-member-avatar pull-left'>" : "") + "</div><div><div class='job-user'><strong>" + item.value + " </strong>" + (item.id > 0 ? "<p class='job-user-district pull-right help-text'>" + item.material_number + "</p>" : "") + (item.id > 0 ? "<div>" + (item.serial_number != null ? ("<p class='job-user-title'><span class='help-text'>Serial # </span><b class='orange-text'>" + item.serial_number + "</b>" + (item.district_serial_number != '' ? " / <span class='help-text'>District # </span><b class='orange-text'>" + item.district_serial_number + "</b>" : "") + "</p>") : "<p class='job-user-title'><b class='blue-text'>Master Part</b></p>") + "</div>" : "") + "</div><div style='margin: 0px;" + (item.id == -1 ? '' : "margin-left: 31px; margin-top: -5px;") + "'>" + item.status + "</div></div></a>").appendTo(ul)
+            }
+        });
+    }(jQuery));
+</script>
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+            $('#district_name').data("autocomplete")._renderItem = function (ul, item) {
+                return $("<li class='item_" + item.id + "'></li>").data("item.autocomplete", item).append(
+                        "<a><div>" + (item.id > 0 ? "<img src='/assets/district_extrasmall.png' class='job-member-avatar pull-left'>" : "") + "</div><div><div class='job-user'><strong>" + item.value + " </strong>" + (item.id > 0 ? "<div><p class='job-user-title'>" + item.country + ", " + item.state + "  " + item.city + "</p><p class='job-user-district'>" + item.region + "</p></div>" : "") + "</div></div></a>").appendTo(ul)
+            }
+        });
+    }(jQuery));
+</script>
+
+
+<script type='text/javascript'>
+
+    var oldHide = $.fn.popover.Constructor.prototype.hide;
+
+    $.fn.popover.Constructor.prototype.hide = function () {
+        if (this.options.trigger === "hover" && this.tip().is(":hover")) {
+            var that = this;
+            // try again after what would have been the delay
+            setTimeout(function () {
+                return that.hide.call(that, arguments);
+            }, that.options.delay.hide);
+            return;
+        }
+        oldHide.call(this, arguments);
+    };
+
+
+    if (document.location.hash == '') {
+        tray = $(".remote-tray[data-tray='overview']");
+        tray.find('.content').hide();
+        tray.find('.remote-loading').removeClass('hidden');
+        tray.find('.loading').removeClass('hidden');
+        setTimeout(function () {
+            window.auid++;
+            $.ajax({
+                url: "/inventory/<%= @district.id %>?section=overview" + "&auid=" + window.auid,
+                type: "GET",
+                dataType: "script"
+            });
+        }, 1);
+    }
+
+
+</script>
+
+
+
+

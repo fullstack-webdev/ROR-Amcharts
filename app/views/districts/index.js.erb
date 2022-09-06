@@ -1,0 +1,19 @@
+if ($('#district_name_id').length != 0) {
+    $('#similar_districts').find('*').remove();
+
+<% @districts.take(5).each do |district| %>
+    $('#similar_districts').append("<p class='inline'><%= district.name %></p><span class='push-right-small'></span>");
+<% end %>
+
+<% if @query.blank? || @districts.count == 0 %>
+    $('.alert').addClass('hidden');
+<% else %>
+    $('.alert').removeClass('hidden');
+<% end %>
+}
+else {
+$("#districts_list").html("<div id='districts' class='list'><%= j render(@districts) %></div><%= j will_paginate %>");
+
+$('.paginated-count').empty();
+$('.paginated-count').append('<%= @districts.count.to_s %>');
+}

@@ -1,0 +1,2 @@
+module RigMembershipsHelper
+end

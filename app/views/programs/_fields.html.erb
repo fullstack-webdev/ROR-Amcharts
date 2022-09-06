@@ -1,0 +1,246 @@
+<%= render 'shared/error_messages', object: f.object %>
+
+
+<div class="job-creating-part2">
+
+  <div class="">
+
+    <div class="field">
+
+      <div class="">
+        <p class='job-field-title inline-block'>Drilling Program Name</p>
+
+        <div class="inline-block">
+          <%= text_field_tag "program_name", "", placeholder: "Drilling Program Name",
+                             value: @program.name.present? ? @program.name : '',
+                             id: "program_name_id",
+                             style: "min-width: 450px;",
+                             class: "job-field-value-editable" %>
+
+          <br>
+
+          <div class="alert-box hidden">
+            &nbsp;&nbsp;
+            <p class='inline-block'><b class='orange-text'>Warning!</b> Drilling Program that already exist</p>
+
+            <p class='inline-block push-right-small' style='font-family: orgonboldregular ;' id="similar_well"></p>
+          </div>
+        </div>
+
+      </div>
+
+
+
+
+    </div>
+
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+      $(document).ready(function () {
+          var ids = split($('#well_ids').val());
+
+          ids.forEach(function (value) {
+              console.log(value);
+              var well_item = $(".selected_well_item[data-well-id='" + value +"']");
+              well_item.removeClass("hidden");
+          });
+      });
+    function log(message) {
+      $("<div>").text(message).prependTo("#log");
+      $("#log").scrollTop(0);
+    }
+
+
+    function split(val) {
+      return val.split(/,\s*/);
+    }
+
+    function extractLast(term) {
+      return split(term).pop();
+    }
+    $(".selected_well_delete").on('click', function() {
+      var well_id = $(this).attr("data-well-id");
+        var ids = split($('#well_ids').val());
+      var selected_well_item = $(".selected_well_item[data-well-id='" + well_id +"']");
+      var option_well_item = $(".option_well_item[data-well-id='" + well_id +"']");
+
+      selected_well_item.addClass("hidden");
+        option_well_item.removeClass("hidden");
+
+      var index = ids.indexOf(well_id);
+      if (index >= 0) {
+          ids.splice( index, 1 );
+      }
+        $('#well_ids').val(ids.join(","));
+
+    });
+
+    $.widget("custom.combobox", {
+      _create: function () {
+        this.wrapper = $("<span>")
+            .addClass("custom-combobox")
+            .insertAfter(this.element);
+
+        this.element.hide();
+        this._createAutocomplete();
+        this._createShowAllButton();
+      },
+
+      _createAutocomplete: function () {
+        var selected = this.element.children(":selected"),
+            value = selected.val() ? selected.text() : "";
+
+        this.input = $("<input>")
+            .appendTo(this.wrapper)
+            .val("")
+            .attr("title", "")
+            .attr("placeholder", "Type well name...")
+            .attr("style", "padding-right: 20px; min-width: 450px;")
+            .addClass("job-field-value-editable custom-combobox-input")
+            .autocomplete({
+              delay: 0,
+              minLength: 0,
+              source: $.proxy(this, "_source"),
+              focus: function () {
+                // prevent value inserted on focus
+                return false;
+              },
+              select: function (event, ui) {
+
+                var ids = split($('#well_ids').val());
+                var well_id = ui.item.value;
+                var selected_well_item = $(".selected_well_item[data-well-id='" + well_id +"']");
+                var option_well_item = $(".option_well_item[data-well-id='" + well_id +"']");
+
+                selected_well_item.removeClass("hidden");
+                  option_well_item.addClass("hidden");
+
+
+                  var index = ids.indexOf(well_id);
+                  if (index < 0) {
+                      ids.push(well_id);
+                  }
+
+
+                this.value = ui.item.label;
+                console.log(this.value);
+                $('#well_ids').val(ids.join(","));
+
+                return false;
+              }
+            })
+            .tooltip({
+              tooltipClass: "ui-state-highlight"
+            });
+
+        this._on(this.input, {
+          autocompletechange: "_removeIfInvalid"
+        });
+      },
+
+      _createShowAllButton: function () {
+        var input = this.input,
+            wasOpen = false;
+
+        $("<a>")
+            .attr("tabIndex", -1)
+            .attr("title", "Show All Items")
+            .tooltip()
+            .appendTo(this.wrapper)
+            .button({
+              icons: {
+                primary: "ui-icon-triangle-1-s"
+              },
+              text: false
+            })
+            .removeClass("ui-corner-all")
+            .addClass("custom-combobox-toggle ui-corner-right")
+            .mousedown(function () {
+              wasOpen = input.autocomplete("widget").is(":visible");
+            })
+            .click(function () {
+              input.focus();
+
+              // Close if already visible
+              if (wasOpen) {
+                return;
+              }
+
+              // Pass empty string as value to search for, displaying all results
+              input.autocomplete("search", "");
+            });
+      },
+
+      _source: function (request, response) {
+        var matcher = new RegExp($.ui.autocomplete.escapeRegex(extractLast(request.term)), "i");
+        response(this.element.children("option").map(function () {
+          var text = $(this).text();
+            var ids = split($('#well_ids').val());
+            var index = ids.indexOf(this.value);
+
+          if (this.value && index < 0 && ( !extractLast(request.term) || matcher.test(text) ))
+            return {
+              label: text,
+              value: this.value,
+              option: this
+            };
+        }));
+      },
+
+      _removeIfInvalid: function (event, ui) {
+
+        // Selected an item, nothing to do
+        if (ui.item) {
+          return;
+        }
+
+        var terms = split(this.input.val());
+        var ids = [];
+        var newTerms = [];
+        terms.pop();
+        var that = this;
+
+        terms.forEach(function (value) {
+          var valid = false;
+          var id;
+
+          that.element.children("option").each(function () {
+            if ($(this).text() == value) {
+              this.selected = valid = true;
+              id = $(this).val();
+            }
+          });
+
+          if (valid) {
+            newTerms.push(value);
+            ids.push(id);
+          }
+        });
+
+        newTerms.push("");
+        var value = newTerms.join(", ");
+
+        this.input.val(value);
+        this.element.val(value);
+//        $('#well_ids').val(ids.join(','));
+//                this.input.autocomplete("instance").term = "";
+      },
+
+      _destroy: function () {
+        this.wrapper.remove();
+        this.element.show();
+      }
+    });
+  })(jQuery);
+
+  $(function () {
+    $("#combobox").combobox();
+    $("#toggle").click(function () {
+      $("#combobox").toggle();
+    });
+  });
+</script>

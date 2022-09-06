@@ -1,0 +1,79 @@
+<% provide(:title, @survey.name) %>
+
+
+<div class="page_header">
+  <h1><%= @survey.name %></h1>
+
+
+  <div class='pull-right'>
+    <%= render 'jobs/job_multi_link', job: @survey.document.job %>
+  </div>
+</div>
+
+<% if @active_well_plan.nil? || @active_well_plan.survey_points.empty? %>
+    <br>
+    <h3>No Well Plan</h3>
+    <p>Please add a well plan before continuing with survey.</p>
+
+    <% document = Document.where("documents.job_id = ?", @survey.document.job.id).where("documents.document_type = ?", Document::WELL_PLAN).last %>
+    <% if !document.nil? %>
+        <br>
+        <%= link_to "Update " + document.name, "/surveys?document=" + document.id.to_s, class: "bluebtn" %>
+    <% end %>
+<% else %>
+
+    <% calculated_points = @active_well_plan.survey_points %>
+    <% calculated_points_survey = @survey.calculated_points(@active_well_plan.vertical_section_azimuth) %>
+
+
+    <% if @survey.survey_points.empty? %>
+        <%= render 'surveys/tie_in' %>
+    <% end %>
+
+    <div>
+      <span><div class='well-plan'></div> Well Plan</span>
+      <span class='push-right-small'><div class='active-survey'></div> Active Survey</span>
+    </div>
+
+    <div id="chartdiv" class='inline-block amChart' style="width: 500px; height: 500px;"></div>
+    <div id="chartdiv2" class='inline-block amChart' style="width: 400px; height: 500px;"></div>
+
+    <div class='push-down'>
+      <div class="list-item-column list-item-column-short">M. Depth</div>
+      <div class="list-item-column list-item-column-short">Inclination</div>
+      <div class="list-item-column list-item-column-short">Azimuth</div>
+      <div class="list-item-column list-item-column-short">Course</div>
+      <div class="list-item-column list-item-column-short">TVD</div>
+      <div class="list-item-column list-item-column-short">V Sect</div>
+      <div class="list-item-column list-item-column-short">+N/S-</div>
+      <div class="list-item-column list-item-column-short">+E/W-</div>
+      <div class="list-item-column list-item-column-count">DLS</div>
+    </div>
+    <hr>
+
+
+    <%= render 'surveys/survey_list', points: calculated_points_survey %>
+
+    <br><br>
+
+    <% if @survey.survey_points.empty? %>
+        <div id="survey_entry" class="hidden">
+        </div>
+    <% else %>
+        <%= render 'surveys/survey_entry' %>
+    <% end %>
+
+    <%= render 'surveys/charting', calculated_points_survey: calculated_points_survey, calculated_points: calculated_points %>
+<% end %>
+
+<script type='text/javascript'>
+    <% if @survey.document.job.status == Job::ON_JOB %>
+        setTimeout(function() {
+            $.ajax({
+                url: "/surveys/<%= @survey.id %>",
+                type: "GET",
+                dataType: "script"
+            });
+        }, 1000 * 60 * 5);
+  <% end %>
+</script>

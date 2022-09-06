@@ -1,0 +1,14 @@
+
+$('#modal_popup').find('.modal-content').append('<%= j render 'surveys/modal_new' %>');
+$('#modal_popup').css('visibility', 'visible');
+$('#modal_popup').find('.loading').addClass('hidden');
+
+
+
+$('#import_tie_on').live("click", function() {
+    if ($(this).is(':checked')) {
+        return $('#tie_on_fields').addClass("hidden");
+    } else {
+        return $('#tie_on_fields').removeClass("hidden");
+    }
+});

@@ -1,0 +1,114 @@
+html, body {
+//  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.main {
+  padding-top: 50px;
+  position: relative;
+  font-family: $main-font;
+  color: $white;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+
+  .main-content {
+    padding: 0 10px;
+    height: 100%;
+
+    &.no-space {
+      padding: 0;
+    }
+  }
+}
+
+.page-title {
+  color: $white;
+  font-size: 18px;
+  line-height: 50px;
+  font-family: $main-font;
+  vertical-align: -webkit-baseline-middle;
+  text-overflow: ellipsis;
+  width: 100%;
+  padding-right: 80px;
+  display: inline-block;
+  padding-left: 50px;
+  white-space: nowrap;
+  float: left;
+  overflow: hidden;
+  position: absolute;
+  box-sizing: border-box;
+  top: 0;
+  left: 0;
+}
+
+#toast-container {
+  z-index: 10003;
+
+  >div {
+    width: 220px
+  }
+}
+
+@media (orientation:landscape) {
+  html.ipad.ios7 > body {
+//    position: fixed;
+//    bottom: 0;
+//    width:100%;
+//    height: 672px !important;
+  }
+}
+
+//img {
+//  width: 100%;
+//}
+//
+//ul {
+//  list-style-type: none;
+//}
+//
+//.body {
+//  background: #354849;
+//  font-family: orgonlightregular;
+//  padding: 0;
+//  margin: 0;
+//}
+//
+//p {
+//  margin: 0;
+//}
+//
+//a {
+//  color: $white;
+//  text-decoration: none;
+//}
+//
+//.hidden {
+//  display: none;
+//}
+//
+//.center {
+//  text-align: center;
+//}
+
+.circles-wrp {
+  display: block;
+  margin: 0px auto 0px auto;
+}
+
+.alert-box.alert-mobile {
+  .warning-title {
+    font-size: 16px;
+  }
+
+  .info-text {
+    margin-left: 0;
+  }
+}
+
+.icon-mobile {
+  img {
+    height: 50px;
+  }
+}

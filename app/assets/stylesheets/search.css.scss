@@ -1,0 +1,44 @@
+
+
+.add-search-field {
+
+  display: inline-block;
+  text-align: center;
+  font-size: 14px;
+  padding: 0px 0px 0px 0px;
+  margin: 0px;
+  margin-top: 20px;
+  text-transform: none;
+
+  &:link, &:visited, &:active  {
+    background: transparent;
+    color: #0058a8;
+    text-decoration: none;
+  }
+
+  &:hover {
+    background: transparent;
+    color: #0058a8;
+    text-decoration: underline;
+  }
+}
+
+.search-units {
+  width: 30px !important;
+  font-size: 13px;
+}
+
+.search-constraint-line {
+  background: #0058a8;
+  height: 2px;
+}
+
+.search-loading {
+  display: inline-block;
+  padding-right: 80px;
+  color: #ffffff;
+}
+
+.search-count {
+  padding: 4px 10px 4px 10px;
+}

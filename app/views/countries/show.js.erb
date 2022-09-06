@@ -1,0 +1,7 @@
+$('#district_state_id').find('option').remove();
+
+$('<option>').val('-1').text('Select a State...').appendTo('#district_state_id');
+
+<% @states.each do |s| %>
+$('<option>').val('<%= s.id %>').text('<%= s.name %>').appendTo('#district_state_id');
+<% end %>

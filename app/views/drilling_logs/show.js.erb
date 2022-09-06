@@ -1,0 +1,155 @@
+tray = $(".remote-tray[data-tray='<%= params[:section] %>']");
+if(tray != null && !tray.hasClass('custom-data-closed')) {
+function removeOldContent(section) {
+    $('.remote-tray').each(function() {
+        if($(this).hasClass('custom-data-closed')) {
+            generating_report = $(this).find('.generating-report:not(.hidden)');
+            download_report = $(this).find('.download-report:not(.hidden)');
+            if(generating_report.length > 0 || download_report.length > 0) {
+
+            }
+            else {
+                $(this).find('.tray-content').remove();
+                $(this).find('.tray-content').removeClass('content-loaded');
+            }
+        }
+    });
+}
+
+//removeOldContent('<%= params[:section] %>');
+
+<% if params[:section] == "drilling-overview" %>
+    tray.replaceWith("<%= j render 'drilling_logs/tray_overview', drilling_log: @drilling_log %>");
+
+    <% if @drilling_log.job.status == Job::ON_JOB %>
+        setTimeout(function() {
+            window.auid++;
+            $.ajax('/drilling_logs/' + <%= @drilling_log.id %> + "?section=drilling-overview" + "&auid=" + window.auid, {
+                type: 'get',
+                dataType: 'script'
+            });
+        }, 1000 * 60 * 5);
+    <% end %>
+
+<% elsif params[:section] == "log" %>
+    tray.replaceWith("<%= j render 'drilling_logs/tray_log', drilling_log: @drilling_log %>");
+    $('#drilling_log_filter').trigger("change");
+    $('.custom-select').customSelect();
+    $('.date-picker').datepicker();
+
+    $('#wmd_type').change(function() {
+        var current_value = $(this).find('option:selected').val();
+        if (current_value === '1') {
+            $('#em_parameters').removeClass('hidden');
+            $('#pulse_parameters').addClass('hidden');
+        } else {
+            $('#em_parameters').addClass('hidden');
+            $('#pulse_parameters').removeClass('hidden');
+        }
+        return false;
+    });
+
+    // Load rest of log
+    setTimeout(function() {
+        window.auid++;
+        $.ajax('/drilling_logs/' + <%= @drilling_log.id %> + "?section=log2" + "&auid=" + window.auid, {
+            type: 'get',
+            dataType: 'script'
+        });
+    }, 1);
+
+<% elsif params[:section] == "log2" %>
+    <% entries = @drilling_log.drilling_log_entries.includes(:bha).to_a %>
+    <% dates = entries.group_by { |item| item.entry_at.in_time_zone(Time.zone).to_date } %>
+    <% dates.each_with_index do |date, index| %>
+        <% if date[0].strftime("%m/%d/%Y") == params[:date] %>
+                group = $(".log-entry-group[data-date='<%= date[0].strftime("%m/%d/%Y") %>']");
+                is_visible = group.is(":visible");
+                group.replaceWith("<%= j render 'drilling_log_entries/drilling_log_entry_group', date: date[0], entries: date[1], empty: false %>");
+                group = $(".log-entry-group[data-date='<%= date[0].strftime("%m/%d/%Y") %>']");
+                if(!is_visible) {
+                    group.hide();
+                }
+        <% end %>
+    <% end %>
+<% elsif params[:section] == "drilling-rop" %>
+    tray.replaceWith("<%= j render 'drilling_logs/tray_rop', drilling_log: @drilling_log %>");
+<% elsif params[:section] == "logs" %>
+    tray.replaceWith("<%= j render 'drilling_logs/tray_logs', drilling_log: @drilling_log %>");
+<% elsif params[:section] == "drilling-runs" %>
+    tray.replaceWith("<%= j render 'drilling_logs/tray_runs', drilling_log: @drilling_log %>");
+<% elsif params[:section] == "drilling-daily" %>
+    tray.replaceWith("<%= j render 'drilling_logs/tray_daily', drilling_log: @drilling_log %>");
+<% elsif params[:section] == "drilling-bha" %>
+    tray.replaceWith("<%= j render 'drilling_logs/tray_bha', drilling_log: @drilling_log %>");
+    $('.popover').popover({  delay: { show: 500, hide: 200 } });
+<% elsif params[:section] == "drilling-npt" %>
+    tray.replaceWith("<%= j render 'drilling_logs/tray_npt', drilling_log: @drilling_log %>");
+<% elsif params[:section] == "drilling-reports" %>
+    tray.replaceWith("<%= j render 'drilling_logs/tray_reports', drilling_log: @drilling_log %>");
+
+    $('.generate-report').each(function() {
+        $(this).click(function() {
+            report = $(this).closest('.report');
+            report.find('.generating-report').removeClass('hidden');
+            $(this).addClass('hidden');
+            $(this).closest('.generate-report-div').addClass('hidden');
+        });
+    });
+
+
+    $('.report-type').change(function() {
+        report = $(this).closest('.report');
+        report.find('.generate-report').removeClass('hidden');
+        report.find('.download-report').addClass('hidden');
+    });
+<% elsif params[:section] == "survey" %>
+    tray.replaceWith("<%= j render 'drilling_logs/tray_survey', drilling_log: @drilling_log %>");
+    $('.custom-select').customSelect();
+    $('.date-picker').datepicker();
+<% else %>
+    (function ($) {
+    report = $(".report[data-report='<%= @report_name %>']");
+    if(report.length > 0) {
+        report_generation = report.find('.generating-report');
+        report_generation.attr("data-report", "<%= @report_id %>");
+        check = function(report_id) {
+            $.ajax('/report_status/' + report_id, {
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    report_generation = $('.generating-report[data-report=' + data["id"] + ']');
+                    report = report_generation.closest('.report');
+                    if(data["url"] != "") {
+                        report_generation.addClass('hidden');
+                        report.find('.generate-report-div').removeClass('hidden');
+                        download_link = report.find('.download-report');
+                        download_link.attr('href', data["url"]);
+                        download_link.removeClass('hidden');
+                    }
+                    else {
+                        setTimeout(function() {
+                            check(report_id);
+                        }, 1000 * 4);
+                    }
+                }
+            });
+        }
+        setTimeout(function() {
+          check("<%= @report_id %>");
+        }, 1000 * 4);
+    }
+    }(jQuery));
+<% end %>
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.tooltip-info').tooltip();
+}
+
+$('.custom-select-ajax').each(function() {
+    span_tag = $(this).next('span');
+    if($(this).prop("tagName").toLowerCase() == 'select' && span_tag.length <= 0 && !span_tag.hasClass('customSelect')) {
+       $(this).customSelect();
+    }
+});
+}

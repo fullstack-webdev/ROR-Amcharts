@@ -1,0 +1,33 @@
+<% provide(:title, "New Drilling Program") %>
+
+<div class="section-header" style="margin-top: 10px;">
+  <h1>New Drilling Program</h1>
+</div>
+
+
+<div class="form" data-form="new-program-form">
+  <%= form_for(@program) do |f| %>
+      <%= render 'fields', f: f %>
+
+      <br>
+
+      <%= link_to button_tag("Cancel", class: "btn btn-sub push-left-small tooltip-info","data-title" => "Cancel edit and go back", :type => 'button'), wells_path(anchor: "programs") %>
+      <%= f.submit "Create", class: "btn btn-primary tooltip-info form-loading-on-click",
+                   "data-form" => "new-program-form",
+                   "data-title" => "Create new drilling program. You edit/add more information on next page." %>
+  <% end %>
+</div>
+
+<div class="form-loading hidden" data-form="new-program-form">
+  <%= render "layouts/inline_loading", title: "Creating drilling program, please wait" %>
+</div>
+
+
+<div id="modal_popup" class="modal-popup-background">
+  <div class="modal-popup modal-popup-fixed">
+    <%= link_to "close", "#", class: "delete-button modal-popup-close", id: "close_modal" %>
+    <div class="modal-content">
+    </div>
+    <%= render "layouts/inline_loading", title: "Loading..." %>
+  </div>
+</div>

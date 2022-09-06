@@ -1,0 +1,50 @@
+<div class="remote-tray" data-tray="drilling-daily">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading daily totals..." %>
+  </div>
+
+  <div class="content tray-content content-loaded">
+
+    <% entries = drilling_log.drilling_log_entries.to_a %>
+    <% dates = entries.group_by { |item| item.entry_at.to_date } %>
+
+    <div class='well'>
+
+      <h1 class="donut-text inline"><%= dates.count %></h1>
+
+      <div class='inline-block push-down push-right-small'>
+        <h3 class="inline-block">Days</h3>
+      </div>
+
+    </div>
+
+
+    <% if dates.any? %>
+        <% dates.each_with_index do |date, index| %>
+            <% log = DrillingLog.calculate(date[1]) %>
+            <div class="page_header">
+              <h1><%= date[0].strftime("%A") %></h1>
+
+              <p class='inline-block push-right-small'><%= date[0].strftime("%m/%d/%Y") %></p>
+            </div>
+
+            <div>
+            <%= render 'drilling_logs/overview', drilling_log: log, drilling_log_entries: date[1], show_drilled: true %>
+            </div>
+            <div>
+              <p class='push-right-small' style='font-family: gothambookregular;'>
+                <% start = log.ranges["battery_1_amps_max"].to_f + log.ranges["battery_2_amps_max"].to_f %>
+                <% final = log.ranges["battery_1_amps_min"].to_f + log.ranges["battery_2_amps_min"].to_f %>
+              Battery Usage <b class='blue-text'><%= (final - start).round(1) %></b> amps
+              </p>
+            </div>
+            <br><br>
+
+        <% end %>
+    <% else %>
+        <p class='help-text'>No drilling info...</p>
+    <% end %>
+  </div>
+</div>

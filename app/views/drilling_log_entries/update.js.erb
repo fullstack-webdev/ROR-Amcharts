@@ -1,0 +1,17 @@
+$('#modal_popup').css('visibility', 'hidden');
+$('#modal_popup').find(".modal-content").children().remove();
+$('#modal_popup').height(0);
+
+<% if @drilling_log_entry.errors.any? %>
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem With Update", message: @drilling_log_entry.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show: true});
+<% end %>
+
+<% if @drilling_log_entry.present? %>
+$("#drilling_log_entry_<%= @drilling_log_entry.id %>").replaceWith("<%= j render 'drilling_log_entries/drilling_log_entry', entry: @drilling_log_entry, editable: true %>");
+<% end %>
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+    //$('.tooltip-info').tooltip();
+}

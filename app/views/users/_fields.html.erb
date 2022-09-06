@@ -1,0 +1,236 @@
+<%= render 'shared/error_messages', object: f.object %>
+
+<div class="">
+
+  <div>
+    <div class="">
+      <div class='job-field-title inline-block'>Name</div>
+      <%= f.text_field :name, placeholder: "Full Name", class: "job-field-value-editable tooltip-info",
+                       "data-placement" => "bottom",
+                       "data-title" => "Full Name" %>
+    </div>
+
+
+    <div class="push-down">
+      <div class='job-field-title inline-block'>Email</div>
+
+      <%= f.text_field :email, placeholder: "Email Address", class: "job-field-value-editable tooltip-info",
+                       "data-placement" => "bottom",
+                       "data-title" => "Email Address" %>
+    </div>
+
+
+    <div class="push-down">
+      <div class='job-field-title inline-block'>Phone #</div>
+      <%= f.text_field :phone_number, placeholder: "Phone Number", class: "job-field-value-editable small tooltip-info",
+                       "data-placement" => "bottom",
+                       "data-title" => "Phone Number" %>
+    </div>
+
+    <div class="hidden">
+      <%= image_tag "district_extrasmall.png", class: "job-status-avatar" %>
+
+      <%= f.hidden_field :district_id, id: "district_id", value: @districts.first.id %>
+      <%= text_field_tag "", "", data: {autocomplete_source: districts_path},
+                         value: @user.district.present? ? @user.district.name : nil,
+                         placeholder: "Type a district name...",
+                         id: "district_name", class: "txtfield small tooltip-info",
+                         "data-placement" => "bottom",
+                         "data-title" => "District Name" %>
+    </div>
+
+
+    <div class="push-down">
+
+      <div class="inline-block">
+        <div class='job-field-title inline-block'>Access</div>
+
+        <%= f.select :role_id, options_for_select([["Full Access", UserRole::ROLE_FULL_ACCESS], ["Limited (Restrict to Active Rig)", UserRole::ROLE_FIELD_ENGINEER], ["Administrator", UserRole::ROLE_ADMIN]], @user.role_id),
+                     {},
+                     id: "roles_list",
+                     class: "custom-select custom-select-ajax ",
+                     style: "width: 230px;" %>
+      </div>
+
+
+      <div id="rig_select" class='inline-block align-top push-right-small <%= @user.role_id == UserRole::ROLE_FIELD_ENGINEER ? "" : "hidden" %>'>
+
+        <%= hidden_field_tag "rig_id", {}, id: "rig_id", name: "rig_id", value: @rig.present? ? @rig.id : nil %>
+
+
+        <div class="inline-block align-top">
+          <select id="rig_combobox">
+            <option value="">Select rig...</option>
+            <% @rigs.each do |rig| %>
+                <option value="<%= rig.id %>"><%= rig.name %></option>
+            <% end %>
+          </select>
+        </div>
+
+
+      </div>
+    </div>
+
+  </div>
+
+
+</div>
+
+
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+
+            $('#roles_list').change(function () {
+                if ($(this).find("option:selected").val() == <%= UserRole::ROLE_FIELD_ENGINEER %>) {
+                    $("#rig_select").removeClass("hidden");
+                }
+                else {
+                    if (!$("#rig_select").hasClass("hidden")) {
+                        $("#rig_select").addClass("hidden");
+                    }
+                }
+
+            });
+
+        });
+    }(jQuery));
+</script>
+
+<script type="text/javascript">
+    (function ($) {
+        function log(message) {
+            $("<div>").text(message).prependTo("#log");
+            $("#log").scrollTop(0);
+        }
+
+
+        function split(val) {
+            return val.split(/,\s*/);
+        }
+
+        function extractLast(term) {
+            return split(term).pop();
+        }
+
+        $.widget("custom.combobox", {
+            _create: function () {
+                this.wrapper = $("<span>")
+                        .addClass("single-custom-combobox")
+                        .insertAfter(this.element);
+
+                this.element.hide();
+                this._createAutocomplete();
+                this._createShowAllButton();
+            },
+
+            _createAutocomplete: function () {
+                var selected = this.element.children(":selected"),
+                        value = selected.val() ? selected.text() : "";
+
+                this.input = $("<input>")
+                        .appendTo(this.wrapper)
+                        .val("")
+                        .attr("title", "")
+                        .attr("placeholder", "Type rig name...")
+                        .attr("style", "padding-right: 20px; width: 215px;")
+                        .addClass("job-field-value-editable single-custom-combobox-input")
+                        .autocomplete({
+                            delay: 0,
+                            minLength: 0,
+                            source: $.proxy(this, "_source"),
+                            focus: function () {
+                                // prevent value inserted on focus
+                                return false;
+                            },
+                            select: function (event, ui) {
+                                this.value = ui.item.label;
+                                $('#rig_id').val(ui.item.value).trigger('change');
+                                return false;
+                            }
+                        })
+                        .tooltip({
+                            tooltipClass: "ui-state-highlight"
+                        });
+
+                this._on(this.input, {
+                    autocompletechange: "_removeIfInvalid"
+                });
+            },
+
+            _createShowAllButton: function () {
+                var input = this.input,
+                        wasOpen = false;
+
+                $("<a>")
+                        .attr("tabIndex", -1)
+                        .attr("title", "Show All Items")
+                        .tooltip()
+                        .appendTo(this.wrapper)
+                        .button({
+                            icons: {
+                                primary: "ui-icon-triangle-1-s"
+                            },
+                            text: false
+                        })
+                        .removeClass("ui-corner-all")
+                        .addClass("single-custom-combobox-toggle ui-corner-right")
+                        .mousedown(function () {
+                            wasOpen = input.autocomplete("widget").is(":visible");
+                        })
+                        .click(function () {
+                            input.focus();
+
+                            // Close if already visible
+                            if (wasOpen) {
+                                return;
+                            }
+
+                            // Pass empty string as value to search for, displaying all results
+                            input.autocomplete("search", "");
+                        });
+            },
+
+            _source: function (request, response) {
+                var matcher = new RegExp($.ui.autocomplete.escapeRegex(extractLast(request.term)), "i");
+                response(this.element.children("option").map(function () {
+                    var text = $(this).text();
+                    if (this.value && ( !extractLast(request.term) || matcher.test(text) ))
+                        return {
+                            label: text,
+                            value: this.value,
+                            option: this
+                        };
+                }));
+            },
+
+            _removeIfInvalid: function (event, ui) {
+
+                // Selected an item, nothing to do
+                if (ui.item) {
+                    return;
+                }
+                this.input.val("");
+                this.element.val("");
+                $('#rig_id').val("").trigger('change');
+//                this.input.autocomplete("instance").term = "";
+            },
+
+            _destroy: function () {
+                this.wrapper.remove();
+                this.element.show();
+            }
+        });
+    })(jQuery);
+
+    $(function () {
+        $("#rig_combobox").combobox();
+        $("#toggle").click(function () {
+            $("#rig_combobox").toggle();
+        });
+
+        <% if @rig != nil %>
+        $("#rig_combobox").find('option[value="<%= @rig.id %>"]').attr("selected", true);
+        <% end %>
+    });
+</script>

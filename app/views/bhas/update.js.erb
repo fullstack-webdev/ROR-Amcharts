@@ -1,0 +1,7 @@
+$('#bha_header').replaceWith('<%= j render "bha/bha_header", job: @job, bhas: @bhas %>');
+$('#bha').replaceWith('<%= j render 'bha/bha_tally', bhas: @bha %>');
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+//$('.tooltip-info').tooltip();
+}
+$('.unitsSelect').customSelect();

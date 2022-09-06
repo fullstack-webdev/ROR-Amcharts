@@ -1,0 +1,434 @@
+<div class="remote-tray" data-tray="rig_overview_raw">
+
+  <div class='tray-content content-loaded' style="position: relative;">
+
+    <div class="mdv-spinner" id="dv_raw_spinner">
+
+      <%= render 'jobs/inline_spinner' %>
+
+    </div>
+
+    <div class="dv-sub-container" style="display: none; width: 100%;">
+
+      <div class="drill-view-chart mdv-slide" style="width: 33%;">
+        <div class="hidden" style="width: 100%;">
+          <div class="inline-block" style="width: 50%; text-align: left;">
+
+            <p class="inline-block" id="dv_raw_wob_label" style="color: #58c9c2; font-size: 12px;">WOB</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #58c9c2; font-size: 12px;" id="dv_raw_wob">15,000
+              <span>lbs</span>
+            </p>
+          </div>
+
+          <div class="inline-block" style="width: 50%; float: right; text-align: left;">
+            <p class="inline-block" id="dv_raw_hookload_label" style=" color: #b858c9; font-size: 12px;">Hookload</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #b858c9; font-size: 12px;" id="dv_raw_hookload">234
+              <span>klbs</span>
+            </p>
+          </div>
+        </div>
+
+        <!--<div class="arrow-down"></div>-->
+        <div id="chart_drillview_raw_wob" class="amChart block chart-view" data-id="raw_wob"></div>
+
+
+        <div class=" hidden" style="width: 100%;">
+          <div class="inline-block" style="width: 50%; text-align: left;">
+            <p class="inline-block title" id="dv_raw_rpm_label" style="color: #589dc9; font-size: 12px;">RPM</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #589dc9; font-size: 12px;" id="dv_raw_rpm">110</p>
+          </div>
+
+          <div class="inline-block" style="width: 50%; float: right;">
+
+          </div>
+        </div>
+
+        <!--<div class="label-bottom" id="dv_raw_wob_axis"><span class="left">8k</span><span class="right">12k</span></div>-->
+      </div>
+
+
+      <div class="drill-view-chart mdv-slide" style="width: 33%; display: none;">
+
+        <div class="hidden" style="width: 100%;">
+          <div class="inline-block" style="width: 55%; text-align: left;">
+            <p class="inline-block" id="dv_raw_torque_label" style="color: #987cf4; font-size: 12px;">Torque</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #987cf4; font-size: 12px;" id="dv_raw_torque">0
+              <span>ft-lbf</span>
+            </p>
+          </div>
+
+          <div class="inline-block" style="width: 45%; float: right; text-align: left;">
+            <p class="inline-block" id="dv_raw_rop_label" style=" color: #23fcff; font-size: 12px;">ROP</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #23fcff; font-size: 12px;" id="dv_raw_rop">0
+              <span>ft/hr</span>
+            </p>
+          </div>
+        </div>
+
+        <div id="chart_drillview_raw_rop" class="amChart block chart-view" data-id="raw_rop"></div>
+
+
+        <div class=" hidden" style="width: 100%;">
+          <div class="inline-block" style="width: 50%; text-align: left;">
+            <p class="inline-block title" id="dv_raw_flow_label" style="color: #9babee; font-size: 12px;">Flow</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #9babee; font-size: 12px;" id="dv_raw_flow">0
+              <span>gpm</span></p>
+          </div>
+
+          <div class="inline-block" style="width: 50%; float: right;">
+
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="drill-view-chart mdv-slide" style="width: 33%; display: none;">
+
+        <div class="hidden" style="width: 100%;">
+          <div class="inline-block" style="width: 50%; text-align: left;">
+            <p class="inline-block" id="dv_raw_pump_press_label" style="color: #23c9ff; font-size: 12px;">SPP</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #23c9ff; font-size: 12px;" id="dv_raw_pump_press">0
+              <span>psi</span>
+            </p>
+          </div>
+
+          <div class="inline-block" style="width: 50%; float: right; text-align: left;">
+            <p class="inline-block" id="dv_raw_spm_label" style=" color: #9eddde; font-size: 12px;">SPM</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #9eddde; font-size: 12px;" id="dv_raw_spm">0
+              <span>spm</span>
+            </p>
+          </div>
+        </div>
+
+
+        <div id="chart_drillview_raw_spp" class="amChart block chart-view" data-id="raw_spp"></div>
+        <!--<div class="label-bottom" id="dv_raw_flow_axis"><span class="left">8k</span><span class="right">12k</span></div>-->
+
+        <div class="hidden" style="width: 100%;">
+          <div class="inline-block" style="width: 50%; text-align: left;">
+            <p class="inline-block title" id="dv_raw_mv_label" style="color: #9aea6a; font-size: 12px;">MV</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #9aea6a; font-size: 12px;" id="dv_raw_mv">0
+              <span>bbl</span></p>
+          </div>
+
+          <div class="inline-block" style="width: 50%; float: right;">
+
+          </div>
+
+
+          <div class="inline-block" style="width: 50%; float: right; text-align: left;">
+            <p class="inline-block title" id="dv_raw_diff_press_label" style="color: #ffc777; font-size: 12px;">Diff
+              Press</p>
+
+            <p class="inline-block value-white" style="font-size: 30px; color: #ffc777; font-size: 12px;" id="dv_raw_diff_press">0
+              <span>psi</span></p>
+          </div>
+
+          <div class="inline-block" style="width: 50%; float: right;">
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+
+    DV_CURRENT_TAB = DV_TAB_RAW;
+
+    $('.dv-subtitle').html("Trace Curves");
+
+    $(".remote-tray-toggle[data-tray='rig_overview_raw']").click(function () {
+      DV_CURRENT_TAB = DV_TAB_RAW;
+      $('.dv-subtitle').html("Trace Curves");
+      dv_ajax_call();
+    });
+
+    // Draw chart
+    DV_CHARTS['raw_wob'] = AmCharts.makeChart("chart_drillview_raw_wob", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#2a2e2e",
+      "backgroundAlpha": 0,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "raw_wob_axis",
+          "autoGridCount": false,
+        },
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "raw_hl_axis",
+          "autoGridCount": false,
+        },
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "raw_rpm_axis",
+          "autoGridCount": false,
+        }
+      ],
+      "graphs": [
+        {
+          "lineColor": "#58c9c2",
+          "lineThickness": 2,
+          "type": "smoothedLine",
+          "valueField": "wob",
+          "valueAxis": "raw_wob_axis"
+        },
+        {
+          "lineColor": "#b858c9",
+          "lineThickness": 2,
+          "type": "smoothedLine",
+          "valueField": "hookload",
+          "valueAxis": "raw_hl_axis"
+        },
+        {
+          "lineColor": "#589dc9",
+          "lineThickness": 2,
+          "type": "smoothedLine",
+          "valueField": "rpm",
+          "valueAxis": "raw_rpm_axis"
+        }
+      ],
+      "categoryField": "time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "startOnAxis": true,
+        "labelsEnabled": false,
+        "parseDates": false,
+        "minorGridAlpha": 0.3,
+        "tickLength": 0,
+        "minorGridEnabled": true,
+        "position": "left",
+        "color": "#2a2e2e",
+        "axisColor": "#fefefe",
+        "axisAlpha": 1,
+        "gridAlpha": 1,
+        "gridColor": "#373b3b",
+        "inside": true,
+        "labelOffset": -3,
+        "fontSize": 10
+      },
+      "panEventsEnabled": false
+    });
+
+    DV_CHARTS['raw_rop'] = AmCharts.makeChart("chart_drillview_raw_rop", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#2a2e2e",
+      "backgroundAlpha": 0,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "raw_rop_axis",
+          "autoGridCount": false,
+        },
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "raw_flow_axis",
+          "autoGridCount": false,
+        },
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "raw_torque_axis",
+          "autoGridCount": false,
+        }
+      ],
+      "graphs": [
+        {
+          "lineColor": "#9babee",
+          "lineThickness": 2,
+          "type": "smoothedLine",
+          "valueField": "flow",
+          "valueAxis": "raw_flow_axis"
+        },
+        {
+          "lineColor": "#23fcff",
+          "lineThickness": 2,
+          "type": "smoothedLine",
+          "valueField": "rop",
+          "valueAxis": "raw_rop_axis"
+        },
+        {
+          "lineColor": "#987cf4",
+          "lineThickness": 2,
+          "type": "smoothedLine",
+          "valueField": "torque",
+          "valueAxis": "raw_torque_axis"
+        }
+      ],
+      "categoryField": "time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "startOnAxis": true,
+        "parseDates": false,
+        "minorGridAlpha": 0.3,
+        "minorGridEnabled": true,
+        "position": "left",
+        "color": "#fefefe",
+        "axisColor": "#fefefe",
+        "axisAlpha": 0,
+        "gridAlpha": 1,
+        "gridColor": "#373b3b"
+      },
+      "panEventsEnabled": false
+    });
+
+    DV_CHARTS['raw_spp'] = AmCharts.makeChart("chart_drillview_raw_spp", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#2a2e2e",
+      "backgroundAlpha": 0,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "valueAxes": [
+
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "raw_pump_axis",
+          "autoGridCount": false,
+        },
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "raw_mv_axis",
+          "autoGridCount": false,
+        },
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "raw_spm_axis",
+          "autoGridCount": false,
+        },
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "raw_diff_press_axis",
+          "autoGridCount": false,
+        }
+      ],
+      "graphs": [
+        {
+          "lineColor": "#23c9ff",
+          "lineThickness": 2,
+          "type": "smoothedLine",
+          "valueField": "pump_pressure",
+          "valueAxis": "raw_pump_axis"
+        },
+        {
+          "lineColor": "#9aea6a",
+          "lineThickness": 2,
+          "type": "smoothedLine",
+          "valueField": "mud_volume",
+          "valueAxis": "raw_mv_axis"
+        },
+        {
+          "lineColor": "#9eddde",
+          "lineThickness": 2,
+          "type": "smoothedLine",
+          "valueField": "spm",
+          "valueAxis": "raw_spm_axis"
+        },
+        {
+          "lineColor": "#ffc777",
+          "lineThickness": 2,
+          "type": "smoothedLine",
+          "valueField": "diff_press",
+          "valueAxis": "raw_diff_press_axis"
+        }
+      ],
+      "categoryField": "time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "startOnAxis": true,
+        "parseDates": false,
+        "minorGridAlpha": 0.3,
+        "minorGridEnabled": true,
+        "position": "left",
+        "color": "#fefefe",
+        "axisColor": "#fefefe",
+        "axisAlpha": 0,
+        "gridAlpha": 1,
+        "gridColor": "#373b3b"
+      },
+      "panEventsEnabled": false
+    });
+
+    dv_ajax_call();
+
+  }(jQuery))
+</script>

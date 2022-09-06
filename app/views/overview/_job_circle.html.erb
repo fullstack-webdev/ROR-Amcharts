@@ -1,0 +1,83 @@
+<% drilling_log = job.drilling_log %>
+<% if drilling_log.present? %>
+    <%= link_to job, class: "empty-link" do %>
+        <% last_entry = drilling_log.drilling_log_entries.any? ? drilling_log.drilling_log_entries.last : nil %>
+        <% max_less_than = (drilling_log.max_depth.present? ? drilling_log.max_depth : 0) + 200 < (drilling_log.td_depth.present? ? drilling_log.td_depth : 0) %>
+        <% problem = (last_entry.present? && max_less_than && (last_entry.activity_code == DrillingLogEntry::POOH || last_entry.activity_code >= 100)) %>
+        <% max_depth = drilling_log.max_depth.present? ? drilling_log.max_depth : 0 %>
+        <% td_depth = drilling_log.td_depth.present? ? drilling_log.td_depth : 0 %>
+        <% @jobs << [job.id, max_depth, td_depth, problem ? "#fa381e" : (td_depth == 0 || max_depth == 0 ? "#e0e0e0" : "#b0b0b0")] %>
+        <div class="chart-block tooltip-info" style="margin-bottom: 15px; margin-right: 23px;"
+             data-placement="top"
+             data-html="true"
+             data-title="<%= render 'jobs/well_tooltip', job: job, show_summary_data: false %>">
+          <div class="chart-title" style="color: #266eab; font-family: 'orgonboldregular '; color: #343434;"><%= job.well.rig.present? ? job.well.rig.name : "-" %>
+            <br>
+
+            <p class='help-text' style='font-weight: normal; font-size: 12px;'><%= job.well_name %></p>
+          </div>
+          <div class="donut-chart-div">
+            <div id="rig_chart_<%= job.id %>" class="donut-chart "></div>
+            <div class="donut-inner-circle <%= problem ? "inner-circle-red" : "inner-circle-gray" %>"></div>
+            <div class="donut-text" style="font-size: 18px; color: <%= problem ? "#fa381e" : "#343434" %>; text-shadow: 1px 2px 2px #FFFFFF;"><%= drilling_log.nil? || drilling_log.max_depth.nil? ? "0" : number_with_delimiter(drilling_log.max_depth.to_i, :delimiter => ',') %></div>
+            <div class="percentage-circle">
+
+            </div>
+            <div style="color: #7aa8d0; position: absolute; bottom: 5px; right: 0px;"><%= drilling_log.drilling_rop.present? ? drilling_log.drilling_rop.round(1) : 0.0 %>
+              ft/hr
+            </div>
+          </div>
+        </div>
+        <% if false %>
+            <div class='overview-job'>
+              <div class='name'><%= job.field.name %> | <%= job.well.name %></div>
+              <div class='rig'>
+                <div class='inline-block align-top orange-text'><%= job.well.rig.present? ? job.well.rig.name : "-" %></div>
+                <div class='inline-block align-top push-right-small light-blue-text'><%= job.job_number.present? ? job.job_number : "-" %></div>
+              </div>
+
+              <% if drilling_log.present? %>
+
+                  <div class=''>
+                    <div class='stat'>
+                      <p class='warning-text'>ft/hr</p>
+
+                      <h1 class='warning-text'><%= drilling_log.drilling_rop.present? ? drilling_log.drilling_rop.round(1) : "-" %></h1>
+                    </div>
+                  </div>
+                  <div>
+                    <div class='stat'>
+                      <p>TD <%= drilling_log.td_depth.present? ? number_with_delimiter(drilling_log.td_depth.round(0).to_i, :delimiter => ',') : "-" %>
+                        ft</p>
+
+                      <h1><%= drilling_log.max_depth.present? ? number_with_delimiter(drilling_log.max_depth.round(0).to_i, :delimiter => ',') : "-" %></h1>
+                    </div>
+                    <div class='stat'>
+                      <p>drill hours</p>
+
+                      <h1><%= drilling_log.drilling_time.present? ? drilling_log.drilling_time.round(1) : "-" %></h1>
+                    </div>
+                  </div>
+                  <div class='align-top'>
+                    <% last_entry = drilling_log.drilling_log_entries.last %>
+                    <% if last_entry.present? %>
+                        <p class='inline-block help-text'>
+                          <%= last_entry.entry_at.in_time_zone(Time.zone).strftime("%a") %>
+                        </p>
+
+                        <div class='inline-block'>
+                          <b><%= last_entry.entry_at.in_time_zone(Time.zone).strftime("%H:%M %p") %></b>
+                        </div>
+                        <br>
+
+                        <div class='inline-block blue-text'>
+                          <b><%= DrillingLogEntry.activity_code_string(last_entry.activity_code) %></b>
+                        </div>
+                    <% end %>
+                  </div>
+              <% end %>
+
+            </div>
+        <% end %>
+    <% end %>
+<% end %>

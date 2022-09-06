@@ -1,0 +1,11 @@
+<% if @move_up %>
+
+var doc = $('#dynamic_field_<%= @dynamic_field.id.to_s %>');
+var prev = doc.prev();
+doc.remove();
+prev.before(doc);
+
+doc.addClass('document-reorder-background');
+setTimeout(function() { doc.removeClass('document-reorder-background') }, 1000);
+
+<% end %>

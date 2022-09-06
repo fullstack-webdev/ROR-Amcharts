@@ -1,0 +1,28 @@
+<% fluid ||= {} %>
+<div class="section-sub-header">
+  Methylene Blue Test
+</div>
+
+<div class="block">
+  <table class="table-normal">
+    <tbody>
+    <tr>
+      <td>Methylene Blue</td>
+      <td class="bold">
+        <input id="fluids_form_methylene_blue" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['methylene_blue'] unless fluid['methylene_blue'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>Drilling Fluid</td>
+      <td>
+        <input id="fluids_form_drilling_fluid" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['drilling_fluid'] unless fluid['drilling_fluid'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>Bentonite</td>
+      <td><input id="fluids_form_bentonite" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['bentonite'] unless fluid['bentonite'].nil? %>"/>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,12 @@
+<% if @dynamic_field.new_record? %>
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding Custom Field", message: @dynamic_field.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show:true});
+
+<% else %>
+    $("#dynamic_fields").append("<%= j render(@dynamic_field) %>");
+    $('#new_dynamic_field_name').val('');
+    $('#dynamic_field_priority').removeAttr('checked');
+    $('#dynamic_field_value').val('');
+<% end %>

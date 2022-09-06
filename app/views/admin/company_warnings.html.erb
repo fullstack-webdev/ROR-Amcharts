@@ -1,0 +1,382 @@
+<div class="company-overview">
+  <div class="section-header">
+    <h1>Warnings</h1>
+
+    <div class='inline-block align-top pull-right'>
+      <%= link_to "Manage Warnings", event_warning_types_path, class: "btn btn-sub tooltip-info align-top" %>
+    </div>
+  </div>
+
+  <div id="warning_new_popup" class="modal-popup-background" style="visibility: visible; height: 0px; opacity: 0.9;">
+    <div class="modal-popup modal-popup-fixed" style="width: 30%; padding: 0; right: 0; margin-right: 30px; border-radius: 0; margin-top: 135px; max-width: 300px; box-sizing: border-box;">
+
+      <div style="padding: 10px 24px; background: #233736;">
+        <h2 style="font-size: 16px;
+            color: #ffffff;
+            text-align: left;
+            padding: 0;
+            margin: 0;">New Warning</h2>
+      </div>
+
+      <div class="modal-content" style="overflow: auto; width: 100%; height: 100%; padding: 0px 24px 30px 24px; box-sizing: border-box;">
+        <div class="block">
+          <p class="job-field-title" style="width: auto;">Well</p>
+          <%= hidden_field_tag "job_id", "" %>
+
+          <div class="inline-block align-top">
+            <select id="well_combobox">
+              <option value="">Select one...</option>
+              <% @company.jobs.each do |job| %>
+                <option value="<%= job.id %>"><%= job.well.name %></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+
+        <div class="block">
+          <p class="job-field-title" style="width: auto;">Warning</p>
+          <%= hidden_field_tag "warning_id", "" %>
+
+          <div class="inline-block align-top">
+            <select id="warning_combobox">
+              <option value="">Select one...</option>
+              <% EventWarningType.all.each do |warning| %>
+                <option value="<%= warning.id %>"><%= warning.name %></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+
+        <div class="block">
+          <p class="job-field-title" style="width: 100%;">From</p>
+
+          <div class="block align-top">
+            <div class="datetimepicker input-append date">
+              <input id="date_from" data-format="MM/dd/yyyy hh:mm:ss" class="job-field-value-editable" style="width: calc(100% - 50px);" type="text" placeholder="Warning start date"></input>
+              <span class="add-on" style="height: 40px; box-sizing: border-box; border-radius: 0px; border: none; background: #58C9C2;">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar" style="margin-top: 10px;">
+                </i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
+          <p class="job-field-title" style="width: 100%;">To</p>
+
+          <div class="block align-top">
+            <div class="datetimepicker input-append date">
+              <input id="date_to" data-format="MM/dd/yyyy hh:mm:ss" class="job-field-value-editable" style="width: calc(100% - 50px);" type="text" placeholder="Warning end date"></input>
+              <span class="add-on" style="height: 40px; box-sizing: border-box; border-radius: 0px; border: none; background: #58C9C2;">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar" style="margin-top: 10px;">
+                </i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="block" style="margin-top: 20px;">
+          <a href="#" class="btn btn-primary" id="add_btn">Add</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="warnings_tree_container">
+    <%= render 'event_warnings/warning_tree', warnings: @warnings, active_jobs: @company.active_jobs, current_warnings_list: @company.current_warnings_list, prev_time: @prev_time %>
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+    $("#warning_new_popup .datetimepicker").datetimepicker({
+      language: 'en',
+      pick12HourFormat: false
+    });
+
+    function log(message) {
+      $("<div>").text(message).prependTo("#log");
+      $("#log").scrollTop(0);
+    }
+
+
+    function split(val) {
+      return val.split(/,\s*/);
+    }
+
+    function extractLast(term) {
+      return split(term).pop();
+    }
+
+    $.widget("custom.combobox", {
+      _create: function () {
+        this.wrapper = $("<span>")
+            .addClass("single-custom-combobox")
+            .attr("style", "width: 100%;")
+            .insertAfter(this.element);
+
+        this.element.hide();
+        this._createAutocomplete();
+        this._createShowAllButton();
+      },
+
+      _createAutocomplete: function () {
+        var selected = this.element.children(":selected"),
+            value = selected.val() ? selected.text() : "";
+
+        this.input = $("<input>")
+            .appendTo(this.wrapper)
+            .val("")
+            .attr("title", "")
+            .attr("id", "job_label")
+            .attr("placeholder", "Type well name...")
+            .attr("style", "")
+            .addClass("job-field-value-editable single-custom-combobox-input")
+            .autocomplete({
+              delay: 0,
+              minLength: 0,
+              source: $.proxy(this, "_source"),
+              focus: function () {
+                // prevent value inserted on focus
+                return false;
+              },
+              select: function (event, ui) {
+                this.value = ui.item.label;
+                $('#job_id').val(ui.item.value).trigger('change');
+                return false;
+              }
+            })
+            .tooltip({
+              tooltipClass: "ui-state-highlight"
+            });
+
+        this._on(this.input, {
+          autocompletechange: "_removeIfInvalid"
+        });
+      },
+
+      _createShowAllButton: function () {
+        var input = this.input,
+            wasOpen = false;
+
+        $("<a>")
+            .attr("tabIndex", -1)
+            .attr("title", "Show All Items")
+            .tooltip()
+            .appendTo(this.wrapper)
+            .button({
+              icons: {
+                primary: "ui-icon-triangle-1-s"
+              },
+              text: false
+            })
+            .removeClass("ui-corner-all")
+            .addClass("single-custom-combobox-toggle ui-corner-right")
+            .mousedown(function () {
+              wasOpen = input.autocomplete("widget").is(":visible");
+            })
+            .click(function () {
+              input.focus();
+
+              // Close if already visible
+              if (wasOpen) {
+                return;
+              }
+
+              // Pass empty string as value to search for, displaying all results
+              input.autocomplete("search", "");
+            });
+      },
+
+      _source: function (request, response) {
+        var matcher = new RegExp($.ui.autocomplete.escapeRegex(extractLast(request.term)), "i");
+        response(this.element.children("option").map(function () {
+          var text = $(this).text();
+          if (this.value && ( !extractLast(request.term) || matcher.test(text) ))
+            return {
+              label: text,
+              value: this.value,
+              option: this
+            };
+        }));
+      },
+
+      _removeIfInvalid: function (event, ui) {
+
+        // Selected an item, nothing to do
+        if (ui.item) {
+          return;
+        }
+        this.input.val("");
+        this.element.val("");
+        $('#job_id').val("").trigger('change');
+      },
+
+      _destroy: function () {
+        this.wrapper.remove();
+        this.element.show();
+      }
+    });
+
+    $("#well_combobox").combobox();
+    $("#toggle").click(function () {
+      $("#well_combobox").toggle();
+    });
+
+    // Warning autocomplete
+    $.widget("custom.combobox", {
+      _create: function () {
+        this.wrapper = $("<span>")
+            .addClass("single-custom-combobox")
+            .attr("style", "width: 100%;")
+            .insertAfter(this.element);
+
+        this.element.hide();
+        this._createAutocomplete();
+        this._createShowAllButton();
+      },
+
+      _createAutocomplete: function () {
+        var selected = this.element.children(":selected"),
+            value = selected.val() ? selected.text() : "";
+
+        this.input = $("<input>")
+            .appendTo(this.wrapper)
+            .val("")
+            .attr("title", "")
+            .attr("id", "warning_label")
+            .attr("placeholder", "Type warning name...")
+            .attr("style", "")
+            .addClass("job-field-value-editable single-custom-combobox-input")
+            .autocomplete({
+              delay: 0,
+              minLength: 0,
+              source: $.proxy(this, "_source"),
+              focus: function () {
+                // prevent value inserted on focus
+                return false;
+              },
+              select: function (event, ui) {
+                this.value = ui.item.label;
+                $('#warning_id').val(ui.item.value).trigger('change');
+                return false;
+              }
+            })
+            .tooltip({
+              tooltipClass: "ui-state-highlight"
+            });
+
+        this._on(this.input, {
+          autocompletechange: "_removeIfInvalid"
+        });
+      },
+
+      _createShowAllButton: function () {
+        var input = this.input,
+            wasOpen = false;
+
+        $("<a>")
+            .attr("tabIndex", -1)
+            .attr("title", "Show All Items")
+            .tooltip()
+            .appendTo(this.wrapper)
+            .button({
+              icons: {
+                primary: "ui-icon-triangle-1-s"
+              },
+              text: false
+            })
+            .removeClass("ui-corner-all")
+            .addClass("single-custom-combobox-toggle ui-corner-right")
+            .mousedown(function () {
+              wasOpen = input.autocomplete("widget").is(":visible");
+            })
+            .click(function () {
+              input.focus();
+
+              // Close if already visible
+              if (wasOpen) {
+                return;
+              }
+
+              // Pass empty string as value to search for, displaying all results
+              input.autocomplete("search", "");
+            });
+      },
+
+      _source: function (request, response) {
+        var matcher = new RegExp($.ui.autocomplete.escapeRegex(extractLast(request.term)), "i");
+        response(this.element.children("option").map(function () {
+          var text = $(this).text();
+          if (this.value && ( !extractLast(request.term) || matcher.test(text) ))
+            return {
+              label: text,
+              value: this.value,
+              option: this
+            };
+        }));
+      },
+
+      _removeIfInvalid: function (event, ui) {
+
+        // Selected an item, nothing to do
+        if (ui.item) {
+          return;
+        }
+        this.input.val("");
+        this.element.val("");
+        $('#warning_id').val("").trigger('change');
+      },
+
+      _destroy: function () {
+        this.wrapper.remove();
+        this.element.show();
+      }
+    });
+
+    $("#warning_combobox").combobox();
+    $("#toggle").click(function () {
+      $("#warning_combobox").toggle();
+    });
+
+    // draw warning tree
+    function draw_warning() {
+
+    }
+
+    // add button click
+    $('#warning_new_popup #add_btn').live('click', function () {
+      var that = this;
+      var job_id = $('#job_id').val();
+      var warning_id = $('#warning_id').val();
+      var date_from = $('#date_from').val();
+      var date_to = $('#date_to').val();
+      var company_id = <%= @company.id %>;
+
+      console.log(job_id, date_from, date_to);
+
+      // validation
+      if (job_id == '') {
+        toastr.warning("Please select well");
+      } else if (warning_id == '') {
+        toastr.warning("Please select warning");
+      } else if (date_from == '') {
+        toastr.warning("Please select start date");
+      } else {
+        $(that).attr("disabled", "disabled");
+        $.ajax({ url: "<%= event_warnings_path %>",
+          type: "POST",
+          dataType: "jsonp",
+          data: {
+            job_id: job_id,
+            date_from: date_from,
+            date_to: date_to,
+            warning_id: warning_id,
+            company_id: company_id
+          }
+        });
+      }
+    });
+  })(jQuery);
+</script>

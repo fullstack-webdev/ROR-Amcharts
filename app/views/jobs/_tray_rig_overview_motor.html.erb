@@ -1,0 +1,255 @@
+<div class="remote-tray" data-tray="rig_overview_motor">
+
+  <div class='tray-content content-loaded' style="position: relative;">
+
+    <div class="dv-spinner" id="dv_motor_spinner">
+
+      <%= render 'jobs/inline_spinner' %>
+
+    </div>
+
+    <div class="dv-sub-container" style="display: none;">
+
+      <div class="drill-view-chart" style="width: 35%; min-height: 100px;">
+        <div class="label-top">Stall</div>
+        <div id="chart_drillview_motor" class="amChart block chart-view"></div>
+        <div class="label-bottom" id="dv_motor_stall_axis"></div>
+      </div>
+
+      <div class="drill-view-port" style="width: 65%;" id="dv_motor">
+
+        <div class="menuContentBlock">
+
+          <div class="section-header" style="margin-top: 15px;">
+            <h1>Motor</h1>
+          </div>
+
+          <div class="offline-box" id="dv_motor_offline_box">
+            <h5>System offline</h5>
+
+            <ul class="abnormal-list">
+              <li>
+                <p class="inline-block">Specify correct configurations</p>
+                <a href="#"
+                   class="show-tray inline-block" data-tray="configurations"
+                   style="cursor:hand; text-decoration: underline; padding: 0px; line-height: 10px; margin: 0px; margin-left: 15px;"
+                   style="color: #ffffff;">More details</a>
+
+              </li>
+            </ul>
+          </div>
+
+          <div id="dv_motor_warning_box">
+          </div>
+
+          <div style="display: flex;">
+            <div class="inline-block" style="float: left; width: 50%;">
+              <div class="block">
+                <p class="title" id="dv_motor_stall_label">Stall</p>
+
+                <p class="value-white" style="font-size: 30px;" id="dv_motor_stall"></p>
+              </div>
+
+              <div class="divider divider-lg"></div>
+
+              <div class="block hidden">
+                <p class="title" id="dv_motor_trip_label">Trip Necessary</p>
+
+                <p class="value-white" style="font-size: 30px;" id="dv_motor_trip">-</p>
+              </div>
+            </div>
+
+            <div id='dv_motor_health' class="inline-block" style="width: 50%; float: left;">
+              <div style="position: absolute; text-align: center; margin-top: 35px; width: 140px; color: #ffffff; font-size: 14px;">Motor
+                Wear
+              </div>
+              <div class="circles" id="dv_motor_circles"></div>
+            </div>
+          </div>
+
+          <div class="divider" style="height: 40px;"></div>
+
+          <div class="chart-legend-block" id="dv_motor_stall_chart_legend" style="display: none;">
+            <div class="chart-legend">
+              <div class="circle" style="background: #b858c9;">
+              </div>
+              <div class="legend-label">
+                <p>Stall</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+
+    DV_CURRENT_TAB = DV_TAB_MOTOR;
+
+    function tune_dv_motor() {
+
+      var innerHeight = $(window).innerHeight() - 186;
+      var viewHeight = Math.max(innerHeight, DV_MENU_HEIGHT - 44);
+      $('.drillview').css({ "height": viewHeight });
+      $('#dv_motor').css({ "height": viewHeight });
+      $('#vertical-slider').css({ "height": viewHeight - 20 });
+      $('#depth-row').css({ "height": viewHeight });
+      $('#activity-row').css({ "height": viewHeight });
+      $('.menuBlock').css({ "height": viewHeight + 44 });
+      $('#dv_warnings').css({ "height": viewHeight - 20 });
+      $('#chart_drillview_motor').css({ "height": viewHeight });
+
+      $('#dv_motor_spinner').css({ "padding-top": viewHeight / 2 - 20 });
+      $('#dv_motor_spinner').css({ "height": viewHeight });
+
+      DV_CHARTS['motor'].validateNow();
+
+      update_chart_cursor_point('dv_motor');
+
+      $('#dv_motor_stall_chart_legend').show();
+
+    }
+
+    $(".remote-tray-toggle[data-tray='rig_overview_motor']").click(function () {
+      DV_CURRENT_TAB = DV_TAB_MOTOR;
+
+      $('.dv-spinner').show();
+      $('.dv-sub-container').hide();
+
+      $('#depth-row-wide').hide();
+      $('#depth-row').html("");
+      $('#depth-row').show();
+      $('#activity-row').html("");
+      $('#activity-row').show();
+
+      setTimeout(function () {
+        tune_dv_motor();
+        $('#dv_motor').perfectScrollbar('update');
+        $slider = $('.slider');
+        $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+      }, 0);
+
+    });
+
+    // Tune view port height and etc..
+    $(window).resize(tune_dv_motor);
+
+    // Create chart
+    DV_CHARTS['motor'] = AmCharts.makeChart("chart_drillview_motor", {
+      "type": "serial",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundColor": "#2a2e2e",
+      "backgroundAlpha": 0,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [],
+      "valueAxes": [
+        {
+          "axisAlpha": 0,
+          "position": "bottom",
+          "reversed": false,
+          "gridAlpha": 0,
+          "labelsEnabled": false,
+          "id": "motor_axis",
+          "autoGridCount": false,
+        }
+      ],
+      "graphs": [
+        {
+          "lineColor": "#58c9c2",
+          "lineThickness": 3,
+          "type": "line",
+          //"fillColorsField": "fillColor",
+          //"fillAlphas": 1,
+          "valueField": "microstall"
+        },
+        {
+          "lineColor": "#b858c9",
+          "lineThickness": 3,
+          "type": "line",
+          //"fillColorsField": "fillColor",
+          //"fillAlphas": 1,
+          "valueField": "stall"
+        }
+      ],
+      "chartCursor": {
+        "zoomable": false,
+        "enabled": true,
+        "selectWithoutZooming": true,
+        "valueLineEnabled": false,
+        "valueLineBalloonEnabled": false,
+        "valueBalloonsEnabled": false,
+        "categoryBalloonEnabled": false
+      },
+      "categoryField": "time",
+      "categoryAxis": {
+        "gridPosition": "start",
+        "startOnAxis": true,
+        "labelsEnabled": false,
+        "parseDates": false,
+        "minorGridAlpha": 0.3,
+        "tickLength": 0,
+        "minorGridEnabled": true,
+        "position": "left",
+        "color": "#2a2e2e",
+        "axisColor": "#fefefe",
+        "axisAlpha": 1,
+        "gridAlpha": 1,
+        "gridColor": "#373b3b",
+        "inside": true,
+        "labelOffset": -3,
+        "fontSize": 10
+      }
+    });
+
+    DV_CHARTS['motor'].addListener("changed", handleChanged);
+
+    var myCursor;
+
+    $('#chart_drillview_motor').click(function () {
+      DV_CURSOR_POS = myCursor;
+      update_chart_cursor('dv_motor');
+    });
+
+    $('#chart_drillview_motor').mouseleave(function () {
+      update_dv_motor(DV_CURSOR_POS);
+    });
+
+    function handleChanged(event) {
+      myCursor = event.index;
+      update_dv_motor(event.index);
+    }
+
+    DV_MOTOR_CIRCLE = Circles.create({
+      id: 'dv_motor_circles',
+      radius: 70,
+      value: 0,
+      maxValue: 100,
+      width: 15,
+      text: function (value) {
+        return value + '%';
+      },
+      duration: 0,
+      wrpClass: 'circles-wrp',
+      styleWrapper: true,
+      styleText: true
+    });
+
+    tune_dv_motor();
+
+    $('#dv_motor').perfectScrollbar();
+
+    $('#dv_motor').show();
+
+    $slider = $('.slider');
+    $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+  }(jQuery));
+</script>

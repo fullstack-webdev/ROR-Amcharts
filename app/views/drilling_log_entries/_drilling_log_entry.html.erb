@@ -1,0 +1,26 @@
+<div id="drilling_log_entry_<%= entry.id %>"
+     class=' drilling-log-entry' style="width: 100%; padding-top: 10px;">
+
+  <div class="">
+
+    <div class="inline-block" style="width: 20%; vertical-align: top;">
+      <% if !entry.additional %>
+          <div class="inline-block" style="width: 100px; color: #FFFFFF;">
+            <b class=''><%= entry.entry_at.in_time_zone(Time.zone).strftime("%H:%M %p") %></b>
+          </div>
+
+          <div class="inline-block" style="width: 100px;">
+            <b><%= entry.hours.round(2) %></b> hrs
+          </div>
+      <% else %>
+          <div class="inline-block" style="width: 100px; color: #BFE9CF;">
+            Day Summary
+          </div>
+      <% end %>
+    </div>
+
+    <div class="inline-block" style="width: 70%; color: #FFFFFF; vertical-align: top;">
+      <%= entry.comment %>
+    </div>
+  </div>
+</div>

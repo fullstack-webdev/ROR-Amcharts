@@ -1,0 +1,27 @@
+
+<% if @document.new_record? %>
+
+$('#modal_popup').find('.loading').addClass('hidden');
+$('#modal_popup').find('.form').removeClass('hidden');
+
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: "Problem Adding Document", message: @document.errors.full_messages.join(', ').html_safe %>");
+$('#alert').modal({show:true});
+
+<% else %>
+
+    $('#modal_popup').css('visibility', 'hidden');
+    $('#modal_popup').find(".modal-content").children().remove();
+    $('#modal_popup').height(0);
+
+
+    <% if @document.category == Document::PRE_JOB %>
+        $('#documents').append("<%= j render 'documents/document', document: @document, editable: false, can_upload: true %>");
+    <% elsif  @document.category == Document::ON_JOB %>
+        $('#documents_on_job').append("<%= j render 'documents/document', document: @document, editable: false, can_upload: true %>");
+    <% elsif  @document.category == Document::POST_JOB %>
+        $('#documents2').append("<%= j render 'documents/document', document: @document, editable: false, can_upload: true %>");
+    <% end %>
+
+
+<% end %>

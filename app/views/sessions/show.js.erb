@@ -1,0 +1,19 @@
+<% if @is_signed_in %>
+    $('#logged_out').find('*').remove();
+    $('#logged_out').addClass('hidden');
+
+    $('html, body').css({
+        'overflow': 'visible',
+        'height': 'auto'
+    });
+
+<% else %>
+
+    $('#logged_out').replaceWith('<%= j render 'sessions/signin_curtain' %>');
+    $('body').animate({scrollTop: 0 }, 'fast');
+    $('html, body').css({
+        'overflow': 'hidden',
+        'height': '100%'
+    });
+
+<% end %>

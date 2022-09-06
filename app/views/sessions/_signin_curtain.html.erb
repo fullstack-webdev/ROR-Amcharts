@@ -1,0 +1,13 @@
+<div id="logged_out" class="curtain">
+  <div class='inline-block push-right-small'>
+    <%= link_to "Corva", root_path, id: "logo", class: "inline-block push-down-small push-right-small" %>
+  </div>
+  <div class='curtain-content'>
+    <%= image_tag "corva-logo-big.png", :style => "width: 300px;" %>
+
+    <br><br><br>
+    <h1>Please Log In</h1>
+    <p style='opacity: 0.5;'>For company security, you have been logged out.</p>
+    <%= render 'sessions/signin2' %>
+  </div>
+</div>

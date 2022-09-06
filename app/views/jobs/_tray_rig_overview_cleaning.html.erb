@@ -1,0 +1,317 @@
+<div class="remote-tray" data-tray="rig_overview_cleaning">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading rig Hole Cleaning..." %>
+  </div>
+
+  <div class='tray-content content-loaded' style="position: relative;">
+    <div class="dv-spinner" id="dv_cleaning_spinner">
+
+      <%= render 'jobs/inline_spinner' %>
+
+    </div>
+
+    <div class="dv-sub-container" style="display: none;">
+
+      <div class="drill-view-chart" style="width: 35%; min-height: 100px;">
+        <div class="label-top">Transport Ratio</div>
+        <div style="position: relative;">
+          <div id="chart_drillview_cleaning" class="amChart block chart-view" style="background: none;"></div>
+          <div id="cursor_dv_cleaning" class="dv-chart-cursor"></div>
+        </div>
+        <div class="label-bottom" id="dv_cleaning_transport_ratio_axis" style="width: 100%;"></div>
+      </div>
+
+      <div class="drill-view-port" style="width: 65%;" id="dv_cleaning">
+
+        <div class="menuContentBlock">
+
+          <div class="section-header" style="margin-top: 15px;">
+            <h1>Hole Cleaning</h1>
+          </div>
+
+          <div class="offline-box" id="dv_cleaning_offline_box">
+            <h5>No circulation - Static condition</h5>
+          </div>
+
+          <div id="dv_cleaning_warning_box">
+          </div>
+
+          <!--<div class="abnormal-box" id="dv_cleaning_abnormal_box" style="display: none;">-->
+          <!--<h5>Abnormal cuttings transport</h5>-->
+
+          <!--<ul class="abnormal-list">-->
+          <!--<li>-->
+          <!--<p id="dv_cleaning_alert_depth">4,349 ft</p>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<p id="dv_cleaning_alert_date">Jan 19 16:34</p>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<p id="dv_cleaning_alert_duration">20 minutes</p>-->
+          <!--</li>-->
+          <!--</ul>-->
+          <!--</div>-->
+
+
+          <div id="dv_cleaning_stale" class="block clearfix" style="position: relative; display: none; margin-bottom: 20px;">
+            <%= image_tag 'error_orange.png', style: 'position: absolute; left: 0px; top: 2px;' %>
+            <div style="float: left; margin-left: 30px;">
+              <p style="color: #ef891b; margin: 0; padding: 0;">These values represent last
+                non-static values : <span class="time-diff"></span>.</p>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="stats-box stats-box2">
+              <h4 id="dv_cleaning_net_cuttings_velocity_label">Net Cuttings Velocity</h4>
+
+              <h3 id="dv_cleaning_net_cuttings_velocity">274.9 <span>ft/min</span></h3>
+            </div>
+
+            <div class="stats-box stats-box1">
+              <h4 id="dv_cleaning_annular_velocity_label">Annular Velocity</h4>
+
+              <h3 id="dv_cleaning_annular_velocity">310.3 <span>ft/min</span></h3>
+            </div>
+          </div>
+
+          <div class="divider divider-md"></div>
+
+          <div class="block">
+            <div class="stats-box stats-box3">
+              <h4 id="dv_cleaning_cuttings_transport_ratio_label">Cuttings Transport Ratio</h4>
+
+              <h1 id="dv_cleaning_cuttings_transport_ratio">0.65</h1>
+            </div>
+          </div>
+
+          <div class="divider divider-md" style="height: 90px;"></div>
+
+          <div class="chart-legend-block" id="dv_cleaning_chart_legend" style="display: none;">
+            <div class="chart-legend">
+              <div class="circle">
+              </div>
+              <div class="legend-label">
+                <p>Transport Ratio</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #da421a;">
+              </div>
+              <div class="legend-label">
+                <p>Poor</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #dac61a;">
+              </div>
+              <div class="legend-label">
+                <p>Moderate</p>
+              </div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="circle" style="background: #62da1a;">
+              </div>
+              <div class="legend-label">
+                <p>Good</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+
+    DV_CURRENT_TAB = DV_TAB_CLEANING;
+    $("#depth-row-wide").html("");
+
+    function tune_dv_cleaning() {
+      var innerHeight = $(window).innerHeight() - 186;
+      var viewHeight = Math.max(innerHeight, DV_MENU_HEIGHT - 44);
+      $('.drillview').css({ "height": viewHeight });
+      $('#dv_cleaning').css({ "height": viewHeight });
+      $('#vertical-slider').css({ "height": viewHeight - 20 });
+      $('#depth-row-wide').css({ "height": viewHeight });
+      $('#dv_warnings').css({ "height": viewHeight - 20 });
+//      $('.menuBlock').css({ "height": viewHeight + 44 });
+      $('#chart_drillview_cleaning').css({ "height": viewHeight });
+      $('#dv_cleaning_spinner').css({ "padding-top": viewHeight / 2 - 20 });
+      $('#dv_cleaning_spinner').css({ "height": viewHeight });
+      DV_CHARTS['cleaning'].validateNow();
+
+      update_chart_cursor_point('dv_cleaning');
+
+      $('#dv_cleaning_chart_legend').show();
+    }
+
+    $(".remote-tray-toggle[data-tray='rig_overview_cleaning']").click(function () {
+      DV_CURRENT_TAB = DV_TAB_CLEANING;
+      $('.dv-spinner').show();
+      $('.dv-sub-container').hide();
+
+      $("#depth-row-wide").html("");
+      $('#depth-row-wide').show();
+      $('#depth-row').hide();
+      $('#activity-row').hide();
+
+      setTimeout(function () {
+        tune_dv_cleaning();
+        $('#dv_cleaning').perfectScrollbar('update');
+        $slider = $('.slider');
+        $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+      }, 0);
+    });
+
+    // Tune view port height and etc..
+    $(window).resize(tune_dv_cleaning);
+
+    // Create chart
+    DV_CHARTS['cleaning'] = AmCharts.makeChart("chart_drillview_cleaning", {
+      "type": "xy",
+      "theme": "none",
+      "pathToImages": "https://www.amcharts.com/lib/3/images/",
+      "backgroundAlpha": 0,
+      "rotate": true,
+      "marginRight": 0,
+      "marginTop": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "dataProvider": [
+      ],
+      "fontFamily": "orgonlightregular",
+      "valueAxes": [
+        {
+          "position": "bottom",
+          "axisAlpha": 0,
+          "dashLength": 1,
+          "gridAlpha": 0,
+          "reversed": false,
+          "labelsEnabled": false,
+          "id": "cleaning_axis",
+          "autoGridCount": false,
+          "minimum": 0,
+          "maximum": 1,
+          "guides": [
+            {
+              "fillAlpha": 0.9,
+              "value": 0,
+              "toValue": 0.5,
+              "lineAlpha": 0,
+              "fillColor": "#da421a",
+              "lineThickness": 0
+            },
+            {
+              "fillAlpha": 0.9,
+              "value": 0.5,
+              "toValue": 0.8,
+              "lineAlpha": 0,
+              "fillColor": "#dac61a",
+              "lineThickness": 0
+            },
+            {
+              "fillAlpha": 0.9,
+              "value": 0.8,
+              "toValue": 1,
+              "lineAlpha": 0,
+              "fillColor": "#62da1a",
+              "lineThickness": 0
+            }
+          ]
+        },
+        {
+          "axisAlpha": 0,
+          "dashLength": 1,
+          "position": "right",
+          "reversed": true,
+          "inside": false,
+          "fontSize": 13,
+          "color": "#ffffff",
+          "gridColor": "#ffffff",
+          "gridAlpha": 0.5,
+          "autoWrap": true,
+          "tickLength": 0,
+          "showFirstLabel": false,
+          "showLastLabel": false,
+          "id": "depth_axis",
+          "minHorizontalGap": 0.5,
+          "minVerticalGap": 0.5,
+          "minorGridEnabled": true,
+          "autoGridCount": false,
+          "labelsEnabled": false
+        }
+      ],
+      "graphs": [
+        {
+          "xField": "actual",
+          "yField": "depth",
+          "lineColor": "#ffffff",
+          "lineThickness": 7,
+          "valueAxis": "depth_axis"
+        }
+      ]
+    });
+
+    var myCursor;
+    var chartCursor = new AmCharts.ChartCursor();
+
+    function handleMove(event) {
+      var yAxis = DV_CHARTS['cleaning'].getValueAxisById('depth_axis');
+      var yValue = AmCharts.roundTo(yAxis.coordinateToValue(event.y - yAxis.axisY), 2);
+      $('#cursor_dv_cleaning').css('top', event.y);
+      if (myCursor != yValue) {
+        update_dv_cleaning(yValue);
+
+        var current_depth = parseFloat(yValue).non_negative().round_to_decimal().with_delimiter();
+        $("#dv_current_depth").html(current_depth);
+
+        myCursor = yValue;
+      }
+    }
+
+    chartCursor.addListener("moved", handleMove);
+    chartCursor.cursorAlpha = 0;
+    chartCursor.zoomable = false;
+    DV_CHARTS['cleaning'].addChartCursor(chartCursor);
+
+    $('#chart_drillview_cleaning').on('mouseenter', function () {
+      $('#cursor_dv_cleaning').show();
+      update_dv_cleaning(myCursor);
+    });
+    $('#chart_drillview_cleaning').on('mouseleave', function (e) {
+      var target = e.toElement || e.relatedTarget
+      if (target.id != 'cursor_dv_cleaning') {
+        $('#cursor_dv_cleaning').hide();
+        update_dv_cleaning(-1);
+      }
+    });
+    $('#cursor_dv_cleaning').on('mouseleave', function (e) {
+      var target = e.toElement || e.relatedTarget
+      if (target.nodeName != 'rect') {
+        $('#cursor_dv_cleaning').hide();
+        update_dv_cleaning(-1);
+      }
+    });
+
+    tune_dv_cleaning();
+
+    $('#dv_cleaning').perfectScrollbar();
+
+    $('#dv_cleaning').show();
+
+    $slider = $('.slider');
+    $slider.slider('option', 'change').call($slider, $slider, {value: $('.slider').slider('option', 'value')});
+
+  }(jQuery));
+</script>

@@ -1,0 +1,4 @@
+$('#config_detail_popup').html('<%= j render 'jobs/config_detail', title: "Current Hole/Drill String  -  #{number_with_delimiter(@depth, :delimiter => ',')}" %>');
+$('#config_detail_popup').css('visibility', 'visible');
+$('#config_detail_popup .modal-popup').height(window.innerHeight - 200);
+$('#config_detail_popup .modal-content').perfectScrollbar();

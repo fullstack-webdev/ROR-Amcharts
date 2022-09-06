@@ -1,0 +1,161 @@
+<div style='margin-top: 20px;'>
+<div>
+
+  <div class="pull-right overview-options">
+    <%= link_to "Clear", overview_path, class: "inline activity-user-link clear-filter-link" %>
+  </div>
+
+  <b class="orange-text">Filters</b>
+
+  <a id="show_hide_overview_filters" class="activity-user-link push-right-small" href="#" data-showing="basic">
+    <%= @filters_open == "open" ? "Hide" : "Show Filters" %>
+  </a>
+
+  <div class='inline-block align-top pull-right' style='margin-top: -10px; margin-right: 20px;'>
+    <% options = [["All Time", "all"], ["Last 30 Days", "30"], ["Last 60 Days", "60"], ["Last 90 Days", "90"], ["30-60 Days", "previous 30"], ["Last 12 months", "year"]] %>
+    <%= select_tag "time", options_for_select(options, "all"),
+                   class: "custom-select align-top overview-time-filters",
+                   style: "" %>
+  </div>
+
+</div>
+
+
+<div id="overview_filters" class='hidden'>
+
+  <br><br>
+
+  <%= hidden_field_tag "", "", name: "district_id", id: "district_filter_id" %>
+  <%= image_tag "district_extrasmall.png", class: "job-status-avatar push-right-small" %>
+  <%= text_field_tag "", "", data: {autocomplete_source: districts_path},
+                     placeholder: "Filter by District name",
+                     id: "district_filter",
+                     value: @district_name,
+                     class: "inline txtfield small job-note-assign custom-data-input tooltip-info",
+                     "data-placement" => "top",
+                     "data-title" => "Filter by District Name" %>
+
+
+  <%= hidden_field_tag "", "", name: "user_id", id: "person_filter_id" %>
+  <%= image_tag "user_avatar_extrasmall.png", class: "job-status-avatar push-right-small" %>
+  <%= text_field_tag "", "", data: {autocomplete_source: users_path},
+                     placeholder: "Filter by Person",
+                     id: "person_filter",
+                     value: @user_name,
+                     class: "inline txtfield small job-note-assign custom-data-input tooltip-info",
+                     "data-placement" => "top",
+                     "data-title" => "Filter by Person" %>
+
+  <hr>
+
+  <div>
+    <%= hidden_field_tag "", "", name: "time", id: "time_filter_id" %>
+
+    <% if false %>
+        <ul class="nav nav-pills">
+
+          <li>
+            <a class="filter-label">
+              <b class="inline">Time</b>
+            </a>
+          </li>
+
+
+          <li class="active push-right-small">
+            <a href="#"
+               class="overview-time-filter custom-data-toggle tooltip-info"
+               data-time="all"
+               data-placement="bottom"
+               data-title="Jobs performed at any time in the past">All time</a>
+          </li>
+          <li class=" push-right-small">
+            <a href="#"
+               class="overview-time-filter custom-data-toggle tooltip-info"
+               data-time="30"
+               data-placement="bottom"
+               data-title="Jobs performed in the last 0-30 days">0-30 days</a>
+          </li>
+          <li class=" push-right-small">
+            <a href="#"
+               class="overview-time-filter custom-data-toggle tooltip-info"
+               data-time="previous 30"
+               data-placement="bottom"
+               data-title="Jobs performed in the last 30-60 days">30-60 days</a>
+          </li>
+          <li class=" push-right-small">
+            <a href="#"
+               class="overview-time-filter custom-data-toggle tooltip-info"
+               data-time="60"
+               data-placement="bottom"
+               data-title="Jobs performed in the last 0-60 days">0-60 days</a>
+          </li>
+          <li class=" push-right-small">
+            <a href="#"
+               class="overview-time-filter custom-data-toggle tooltip-info"
+               data-time="year"
+               data-placement="bottom"
+               data-title="Jobs performed in the last 12 months">Last 12 months</a>
+          </li>
+        </ul>
+    <% end %>
+
+  </div>
+
+
+  <div>
+    <%= hidden_field_tag "", "", name: "rating", id: "rating_filter_id" %>
+    <ul class="nav nav-pills">
+      <li>
+        <a class="filter-label">
+          <b class="inline">Rating</b>
+        </a>
+      </li>
+
+      <li class="active push-right-small">
+        <a href="#"
+           class="overview-rating-filter custom-data-toggle tooltip-info"
+           data-rating="all"
+           data-placement="bottom"
+           data-title="Jobs with any star rating level">All rating levels</a>
+      </li>
+      <li class=" push-right-small">
+        <a href="#"
+           class="overview-rating-filter custom-data-toggle tooltip-info"
+           data-rating="1"
+           data-placement="bottom"
+           data-title="Jobs with 1 star rating level">1 star</a>
+      </li>
+      <li class=" push-right-small">
+        <a href="#"
+           class="overview-rating-filter custom-data-toggle tooltip-info"
+           data-rating="2"
+           data-placement="bottom"
+           data-title="Jobs with 2 star rating level">2 star</a>
+      </li>
+      <li class=" push-right-small">
+        <a href="#"
+           class="overview-rating-filter custom-data-toggle tooltip-info"
+           data-rating="3"
+           data-placement="bottom"
+           data-title="Jobs with 3 star rating level">3 star</a>
+      </li>
+      <li class=" push-right-small">
+        <a href="#"
+           class="overview-rating-filter custom-data-toggle tooltip-info"
+           data-rating="4"
+           data-placement="bottom"
+           data-title="Jobs with 4 star rating level">4 star</a>
+      </li>
+      <li class=" push-right-small">
+        <a href="#"
+           class="overview-rating-filter custom-data-toggle tooltip-info"
+           data-rating="5"
+           data-placement="bottom"
+           data-title="Jobs with 5 star rating level">5 star</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+</div>

@@ -1,0 +1,192 @@
+<div class="remote-tray" data-tray="treatment_analysis">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading treatment analysis..." %>
+  </div>
+
+  <div class='tray-content'>
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Treatment</h1>
+    </div>
+
+    <% graph_data = job.treatment_by_depth() %>
+    <% if graph_data.present? %>
+      <div class='pull-right' style="margin-top: 10px; margin-right: 10px;">
+        <div class="chart-legend inline-block">
+          <div class="circle inline-block" style="background: #38732E; width: 12px; height: 12px;">
+          </div>
+          <div class="legend-label inline-block">
+            <p>Reaming Upwards</p>
+          </div>
+        </div>
+
+        <div class="chart-legend inline-block push-right-small">
+          <div class="circle inline-block" style="background: #5DD94B; width: 12px; height: 12px;">
+          </div>
+          <div class="legend-label inline-block" style="margin-left: 5px;">
+            <p>Reaming Downwards</p>
+          </div>
+        </div>
+
+        <div class="chart-legend inline-block push-right-small">
+          <div class="circle inline-block" style="background: #EFD34B; width: 12px; height: 12px;">
+          </div>
+          <div class="legend-label inline-block" style="margin-left: 5px;">
+            <p>Washing Upwards</p>
+          </div>
+        </div>
+
+        <div class="chart-legend inline-block push-right-small">
+          <div class="circle inline-block" style="background: #E99100; width: 12px; height: 12px;">
+          </div>
+          <div class="legend-label inline-block" style="margin-left: 5px;">
+            <p>Washing Downwards</p>
+          </div>
+        </div>
+
+        <div class="chart-legend inline-block push-right-small">
+          <div class="circle inline-block" style="background: #9500B7; width: 12px; height: 12px;">
+          </div>
+          <div class="legend-label inline-block" style="margin-left: 5px;">
+            <p>Circulation</p>
+          </div>
+        </div>
+      </div>
+
+      <% graph_data = graph_data.group_by { |i| i['range'] } %>
+      <div id="treatment_depth_chart" class="amChart" style="width: 100%; height: <%= graph_data.length * 30 + 50 %>px; background-color: #3d4f50; font-family: inherit; font-size: 15px;"></div>
+    <% end %>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    var graph_data = [];
+    var item = {};
+
+    <% _WITS_RECORD_INTERVAL = 10 %>
+
+    <% graph_data.each do |key, value| %>
+    item = {};
+    item.range = "<%= number_with_delimiter(key.to_i.convert(:ft, company_unit).round) %> - <%= number_with_delimiter(key.to_i.convert(:ft, company_unit).round + 250.convert(:ft, company_unit).round) %>";
+    <% value.each do |item| %>
+    <% case item['state'] %>
+    <% when 'PoohPumpRot(Reaming out)' %>
+    item["Reaming Upwards"] = <%= item['count'].to_i * _WITS_RECORD_INTERVAL%>;
+    <% when 'RihPumpRot(Reaming in)' %>
+    item["Reaming Downwards"] = <%= item['count'].to_i * _WITS_RECORD_INTERVAL %>;
+    <% when 'PoohPump(Sliding out)' %>
+    item["Washing Upwards"] = <%= item['count'].to_i * _WITS_RECORD_INTERVAL %>;
+    <% when 'RihPump(Sliding in)' %>
+    item["Washing Downwards"] = <%= item['count'].to_i * _WITS_RECORD_INTERVAL %>;
+    <% when 'Unclassified(Circulating)', 'StaticPump(Circulating)', 'StaticPumpRot(Circulating&Rot)' %>
+    item["Circulation"] = (item["Circulation"] || 0) + <%= item['count'].to_i * _WITS_RECORD_INTERVAL %>;
+    <% end %>
+    <% end %>
+    if (item["Reaming Upwards"]) {
+      item["Reaming Upwards Label"] = item["Reaming Upwards"].format_time();
+    }
+    if (item["Reaming Downwards"]) {
+      item["Reaming Downwards Label"] = item["Reaming Downwards"].format_time();
+    }
+    if (item["Washing Upwards"]) {
+      item["Washing Upwards Label"] = item["Washing Upwards"].format_time();
+    }
+    if (item["Washing Downwards"]) {
+      item["Washing Downwards Label"] = item["Washing Downwards"].format_time();
+    }
+    if (item["Circulation"]) {
+      item["Circulation Label"] = item["Circulation"].format_time();
+    }
+    graph_data.push(item);
+    <% end %>
+
+    var chart = AmCharts.makeChart("treatment_depth_chart", {
+      "type": "serial",
+      "theme": "none",
+      "dataProvider": graph_data,
+      "valueAxes": [
+        {
+          "stackType": "regular",
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "labelsEnabled": false
+        }
+      ],
+      "graphs": [
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "Reaming Upwards",
+          "lineColor": "#38732E",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[Reaming Upwards Label]]</bold> Reaming Upwards"
+
+        },
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "Reaming Downwards",
+          "lineColor": "#5DD94B",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[Reaming Downwards Label]]</bold> Reaming Downwards"
+        },
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "Washing Upwards",
+          "lineColor": "#EFD34B",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[Washing Upwards Label]]</bold> Washing Upwards"
+        },
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "Washing Downwards",
+          "lineColor": "#E99100",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[Washing Downwards Label]]</bold> Washing Downwards"
+        },
+        {
+          "fillAlphas": 1,
+          "lineAlpha": 0,
+          "title": "",
+          "type": "column",
+          "color": "#fefefe",
+          "valueField": "Circulation",
+          "lineColor": "#9500B7",
+          "fixedColumnWidth": 20,
+          "balloonText": "<bold>[[Circulation Label]]</bold> Circulation"
+        }
+      ],
+      "rotate": true,
+      "categoryField": "range",
+      "categoryAxis": {
+        "title": "Depth (MD - <%= unit('ft', company_unit) %>)",
+        "titleColor": "#fefefe",
+        "gridPosition": "start",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "position": "left",
+        "fontSize": 15,
+        "color": "#fefefe"
+      },
+      "fontFamily": "orgonlightregular"
+    });
+  });
+</script>

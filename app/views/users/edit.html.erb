@@ -1,0 +1,42 @@
+<% provide(:title, "Update user") %>
+
+<% if @user.admin? %>
+    <div class="alert">
+      This is an admin user account
+    </div>
+<% end %>
+
+
+<div class="section-header">
+  <h1>Edit User</h1>
+
+  <div class='inline-block align-top pull-right'>
+    <%= link_to "Delete User", @user, method: :delete,
+                data: {confirm: "Delete User " + @user.name + "?"},
+                class: "btn btn-sub tooltip-info align-top",
+                "data-placement" => "left",
+                "data-title" => "Permanently delete user. Jobs and data created will still exist however." %>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="form">
+  <%= form_for(@user) do |f| %>
+
+      <%= render 'fields', f: f %>
+
+      <br>
+      <br>
+
+      <%= link_to button_tag("Cancel", class: "btn btn-sub push-left-small tooltip-info", "data-title" => "Cancel edit and go back", :type => 'button'), :back %>
+
+      <%= f.submit "Save", class: "btn btn-primary tooltip-info form-loading-on-click",
+                   "data-title" => "Save user and return to list of all users" %>
+
+  <% end %>
+</div>
+<div class="remote-loading hidden" style="margin-top: 30px;">
+  <%= render "layouts/inline_loading", title: "Saving user, please wait" %>
+</div>
+

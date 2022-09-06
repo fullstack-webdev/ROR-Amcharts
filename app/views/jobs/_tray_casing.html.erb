@@ -1,0 +1,29 @@
+<div class="remote-tray" data-tray="casing">
+
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading casing program..." %>
+  </div>
+
+  <div class='tray-content content-loaded'>
+
+
+    <div class="section-header" style="margin-top: 15px;">
+      <h1>Casing Program</h1>
+
+      <div class='inline-block push-right-small align-top push-down-small'>
+        <%= link_to "#",
+                    class: "btn btn-primary white-text push-right-small" do %>
+            <i class="icon-plus-sign icon-white"></i>
+            <span>Add Casing</span>
+        <% end %>
+      </div>
+    </div>
+
+    <br>
+
+    <b>No casing program defined...</b>
+
+
+  </div>
+</div>

@@ -1,0 +1,11 @@
+<% provide(:title, "Update Role") %>
+
+<div class="page_header">
+  <h1>Update Role</h1>
+</div>
+
+<%= form_for edit_user_role_path(@role.role_id), method: :put do |f| %>
+    <%= render 'fields', f: f %>
+    <%= f.submit "Save Role", class: "bluebtn pull-right tooltip-info",
+                 "data-title" => "Save role and return to all roles"%>
+<% end %>

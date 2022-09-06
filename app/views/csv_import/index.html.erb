@@ -1,0 +1,17 @@
+<table class="import-table">
+  <thead>
+  <tr>
+    <th>Filenames</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @files.each do |file| %>
+      <tr>
+        <td><%= file %></td>
+        <td><%= link_to 'Import', "/admin/company/#{@company.id}/import/#{file}", :remote => true %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

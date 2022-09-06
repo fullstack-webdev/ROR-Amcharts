@@ -1,0 +1,21 @@
+<% if @move_up %>
+
+var doc = $('#post_job_report_document_<%= @post_job_report_document.id.to_s %>');
+
+var tooltip = doc.find('.order-button').data('tooltip');
+if(tooltip != null) {
+    tooltip.hide();
+}
+
+var prev = doc.prev();
+doc.remove();
+prev.before(doc);
+
+doc.addClass('document-reorder-background');
+setTimeout(function() { doc.removeClass('document-reorder-background') }, 1000);
+
+<% end %>
+
+if (!window.matchMedia || !window.matchMedia("(max-device-width: 1024px)").matches) {
+//$('.tooltip-info').tooltip();
+}

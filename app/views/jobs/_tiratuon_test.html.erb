@@ -1,0 +1,70 @@
+<% fluid ||= {} %>
+<div class="section-sub-header">
+  Titration Test
+</div>
+
+<div class="block">
+  <table class="table-normal">
+    <tbody>
+    <tr>
+      <td>Total Cl-</td>
+      <td class="bold">
+        <input id="fluids_form_total_cl" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['total_cl'] unless fluid['total_cl'].nil? %>"/></td>
+      <td>K+ in K-Acetate</td>
+      <td><input id="fluids_form_k_acetate" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['k_acetate'] unless fluid['k_acetate'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>Br- in Potassium Bromide</td>
+      <td>
+        <input id="fluids_form_potassium_bromide" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['potassium_bromide'] unless fluid['potassium_bromide'].nil? %>"/>
+      </td>
+      <td>Br- in Sodium Bromide</td>
+      <td>
+        <input id="fluids_form_sodium_bromide" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['sodium_bromide'] unless fluid['sodium_bromide'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>Br- in Calcium Bromide</td>
+      <td>
+        <input id="fluids_form_calcium_bromide" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['calcium_bromide'] unless fluid['calcium_bromide'].nil? %>"/>
+      </td>
+      <td>Formate in Potassium Formate</td>
+      <td>
+        <input id="fluids_form_potassium_formate" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['potassium_formate'] unless fluid['potassium_formate'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>Formate in Sodium Formate</td>
+      <td>
+        <input id="fluids_form_sodium_formate" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['sodium_formate'] unless fluid['sodium_formate'].nil? %>"/>
+      </td>
+      <td>Formate in Cesium Formate</td>
+      <td>
+        <input id="fluids_form_cesium_formate" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['cesium_formate'] unless fluid['cesium_formate'].nil? %>"/>
+      </td>
+    </tr>
+    <tr>
+      <td>Cl- in Ammonium Chloride</td>
+      <td>
+        <input id="fluids_form_ammonium_chloride" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['ammonium_chloride'] unless fluid['ammonium_chloride'].nil? %>"/>
+      </td>
+      <td>K+ in KCI</td>
+      <td><input id="fluids_form_kci" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['kci'] unless fluid['kci'].nil? %>"/></td>
+    </tr>
+    <tr>
+      <td>K+ in K2SO4</td>
+      <td><input id="fluids_form_k2so4" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['k2so4'] unless fluid['k2so4'].nil? %>"/></td>
+      <td>Ca2+ in CaCl2</td>
+      <td><input id="fluids_form_cacl2" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['cacl2'] unless fluid['cacl2'].nil? %>"/></td>
+    </tr>
+    <tr>
+      <td>Mg2+ in MgCl2</td>
+      <td><input id="fluids_form_mgcl2" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['mgcl2'] unless fluid['mgcl2'].nil? %>"/></td>
+      <td class="text-bold">Brine Density</td>
+      <td><input id="fluids_form_brine_density" type="text" class="job-field-value-editable tooltip-info text-field" value="<%= fluid['brine_density'] unless fluid['brine_density'].nil? %>"/>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

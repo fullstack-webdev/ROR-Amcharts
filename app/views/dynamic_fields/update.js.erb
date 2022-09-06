@@ -1,0 +1,25 @@
+<% if !@dynamic_field.job.nil? %>
+<% if false %>
+$.ajax({
+    url: "/job_process/" + <%= @dynamic_field.job.id.to_s %>,
+    type: "GET",
+    dataType: "script"
+});
+<% end %>
+
+$('#job-progress-status').find(':first').hide().remove();
+$('#job-progress-status').append('<%= j render 'jobs/job_progress_status', job: @dynamic_field.job %>');
+
+<% if !@is_valid %>
+$('#alert').remove();
+$('body').append("<%= j render 'layouts/modal_error', title: @dynamic_field.name + " is not a valid number format", message: "The data entered for " + @dynamic_field.name + " is not in valid number format. Fractions should be expressed as decimals. The final value was recorded as " + @dynamic_field.value.to_f.round(3).to_s %>");
+$('#alert').modal({show: true});
+<% end %>
+
+<% else %>
+
+$('#edit_dynamic_field_<%= @dynamic_field.id %>').remove();
+
+$('#dynamic_field_<%= @dynamic_field.id %>').replaceWith('<%= j render 'dynamic_fields/dynamic_field', dynamic_field: @dynamic_field %>');
+
+<% end %>

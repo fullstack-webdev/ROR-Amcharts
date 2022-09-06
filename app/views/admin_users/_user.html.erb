@@ -1,0 +1,32 @@
+<li class="field">
+  <%= link_to signed_in_admin? ? edit_user_path(user) : user_path(user),
+              class: "list-item-header user-header tooltip-info",
+              "data-placement" => "left",
+              "data-title" => "Click to open/edit user" do %>
+
+      <%= render 'users/user_icon', user: user, use_link: false, use_name: false  %>
+
+
+      <p class="list-item-header-text list-item-column">
+        <%= user.name %>
+      </p>
+
+      <p class="user-line-email list-item-column2">
+        <% if user.district.present? %>
+            <%= user.district.name %>
+        <% else %>
+            -
+        <% end %>
+      </p>
+
+      <p class="user-line-email list-item-column2">
+        <%= user.title %>
+      </p>
+
+      <p class="list-item-column2 user-line-email inline">
+        <%= user.email %>
+      </p>
+  <% end %>
+
+
+</li>

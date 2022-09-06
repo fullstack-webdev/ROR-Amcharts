@@ -1,0 +1,356 @@
+<div class="remote-tray" data-tray="time_analysis">
+
+<div class="remote-loading hidden">
+  <br><br>
+  <%= render 'layouts/inline_loading', title: "Please wait, loading time analysis..." %>
+</div>
+
+<div class='tray-content content-loaded'>
+
+<% @drilling_log = @job.drilling_log %>
+
+<% entries = @drilling_log.drilling_log_entries.includes(:bha).to_a %>
+<% dates = entries.group_by { |item| item.entry_at.in_time_zone(Time.zone).to_date } %>
+<% filter_options = [] %>
+<% dates.each_with_index do |d, index| %>
+    <% filter_options << [d[0].strftime("%A %m/%d/%Y"), d[0].strftime("%m/%d/%Y")] %>
+<% end %>
+<% filter_timeframe = [] %>
+<% filter_crew = [] %>
+
+<div class="section-header" style="margin-top: 15px;">
+  <h1>Time Analysis</h1>
+</div>
+
+<div class="time-analysis analysis-subtab">
+
+<div class="block">
+  <div class="analysis-filter">
+    <p style="font-size: 18px;">Timeframe</p>
+    <%= select_tag "#",
+                   options_for_select(filter_options, 0),
+                   id: "drilling_log_filter",
+                   "data-id" => @drilling_log.id.to_s,
+                   class: "custom-select custom-select-ajax align-top push-right-small" %>
+
+  </div>
+  <div class="analysis-filter">
+    <p style="font-size: 18px;">Crew Shift</p>
+    <%
+       crew_shift_filters = []
+       crew_shift_filters << ["6AM - 6PM", 0]
+       crew_shift_filters << ["6PM - 6AM", 1]
+    %>
+    <%= select_tag "#",
+                   options_for_select(crew_shift_filters, 0),
+                   id: "drilling_log_filter",
+                   "data-id" => @drilling_log.id.to_s,
+                   class: "custom-select custom-select-ajax align-top push-right-small" %>
+  </div>
+</div>
+
+<div class="block">
+  <p style="font-size: 14px; margin-bottom: 12px;">Productive Well Time</p>
+
+  <div class="overview-bar" style="height: 32px;">
+    <div style="background: #5dd94a; width: 66%;"></div>
+    <div style="background: #efd34a; width: 18%;"></div>
+    <div style="background: #f70000; width: 16%;"></div>
+  </div>
+  <div class="overview-bar" style="height: 32px;">
+    <div style="width: 66%;"><p style="margin-top: 7px; color: #fefefe;">Productive Time - 66%</p></div>
+    <div style="width: 18%;"><p style="margin-top: 7px; color: #fefefe;">Invisible Lost Time - 18%</p></div>
+    <div style="width: 16%;"><p style="margin-top: 7px; color: #fefefe;">Down Time - 16%</p></div>
+  </div>
+</div>
+
+<div class="block">
+  <p style="font-size: 14px; margin-bottom: 12px;">Activity Well Time</p>
+  <!--<div class="overview-bar">-->
+  <!--<div style="background: #c2c2c2; width: 3%;"></div>-->
+  <!--<div style="background: #f781a8; width: 6%;"></div>-->
+  <!--<div style="background: #dd1759; width: 9%;"></div>-->
+  <!--<div style="background: #58e80a; width: 9%;"></div>-->
+  <!--<div style="background: #3e940f; width: 15%;"></div>-->
+  <!--<div style="background: #af7bf5; width: 15%;"></div>-->
+  <!--<div style="background: #203fe0; width: 43%;"></div>-->
+  <!--</div>-->
+
+  <div id="activityChart" style= "width: 100%; background-color: #354849; font-size: 12px;">
+    <%= image_tag "analysis/activity_time_chart.png" %>
+  </div>
+
+  <!--<div id="activityChart" class="activity-chart">
+    <div class="min-axis">
+      <% 12.downto(0) do |i| %>
+          <div>
+            <%= i*5 %> <span></span>
+          </div>
+      <% end %>
+    </div>
+    <% (1..24).each do |i| %>
+        <div class="stacked-bar">
+          <div class="run-in-hole" style="height: 20px;"></div>
+          <div class="run-out-hole" style="height: 20px;"></div>
+          <div class="drilling-rotary" style="height: 20px;"></div>
+          <div class="drilling-sliding" style="height: 20px;"></div>
+          <div class="circulation" style="height: 20px;"></div>
+          <div class="connection" style="height: 20px;"></div>
+          <div class="ream-upwards" style="height: 20px;"></div>
+          <div class="ream-downwards" style="height: 20px;"></div>
+          <div class="wash-upwards" style="height: 20px;"></div>
+          <div class="wash-downwards" style="height: 20px;"></div>
+          <div class="other" style="height: 20px;"></div>
+          <div class="run-in-hole" style="height: 20px;"></div>
+          <div class="run-out-hole" style="height: 20px;"></div>
+          <div class="drilling-rotary" style="height: 20px;"></div>
+          <div class="dril,,ling-sliding" style="height: 20px;"></div>
+          <div class="circulation" style="height: 20px;"></div>
+          <div class="connection" style="height: 40px;"></div>
+        </div>
+    <% end %>
+    <div class="hour-axis">
+      <% (0..24).each do |i| %>
+          <div>
+            <span class="tick"></span>
+            <span class="axis-label"><%= i %></span>
+          </div>
+      <% end %>
+    </div>
+  </div>-->
+
+</div>
+
+
+<div class="notes block">
+  <div class="color-note">
+    <div class="color-bar" style="background: #4840d1"></div>
+    <div class="name">Drilling Rotary</div>
+    <div class="percentage">34.1 <span>%</span></div>
+    <div class="hours">840 <span>hrs</span></div>
+  </div>
+  <div class="color-note">
+    <div class="color-bar" style="background: #38732e"></div>
+    <div class="name">Ream Upwards</div>
+    <div class="percentage">7.6 <span>%</span></div>
+    <div class="hours">78 <span>hrs</span></div>
+  </div>
+  <div class="color-note">
+    <div class="color-bar" style="background: #0085e3"></div>
+    <div class="name">Drilling Sliding</div>
+    <div class="percentage">12.4 <span>%</span></div>
+    <div class="hours">138 <span>hrs</span></div>
+  </div>
+  <div class="color-note">
+    <div class="color-bar" style="background: #5dd94b"></div>
+    <div class="name">Ream Downwards</div>
+    <div class="percentage">8.9 <span>%</span></div>
+    <div class="hours">83 <span>hrs</span></div>
+  </div>
+  <div class="color-note">
+    <div class="color-bar" style="background: #9500b7"></div>
+    <div class="name">Circulation</div>
+    <div class="percentage">8.3 <span>%</span></div>
+    <div class="hours">121 <span>hrs</span></div>
+  </div>
+  <div class="color-note">
+    <div class="color-bar" style="background: #efd34b"></div>
+    <div class="name">Wash Upwards</div>
+    <div class="percentage">8.4 <span>%</span></div>
+    <div class="hours">85 <span>hrs</span></div>
+  </div>
+  <div class="color-note">
+    <div class="color-bar" style="background: #909f98"></div>
+    <div class="name">Connection</div>
+    <div class="percentage">7.8 <span>%</span></div>
+    <div class="hours">98 <span>hrs</span></div>
+  </div>
+  <div class="color-note">
+    <div class="color-bar" style="background: #e99100"></div>
+    <div class="name">Wash Downwards</div>
+    <div class="percentage">5.3 <span>%</span></div>
+    <div class="hours">67 <span>hrs</span></div>
+  </div>
+  <div class="color-note">
+    <div class="color-bar" style="background: #f70000"></div>
+    <div class="name">Run in Hole</div>
+    <div class="percentage">8.9 <span>%</span></div>
+    <div class="hours">98 <span>hrs</span></div>
+  </div>
+  <div class="color-note">
+    <div class="color-bar" style="background: #d2dfd8"></div>
+    <div class="name">Other</div>
+    <div class="percentage">2.3 <span>%</span></div>
+    <div class="hours">29 <span>hrs</span></div>
+  </div>
+  <div class="color-note">
+    <div class="color-bar" style="background: #940000"></div>
+    <div class="name">Run out of Hole</div>
+    <div class="percentage">8.5 <span>%</span></div>
+    <div class="hours">78 <span>hrs</span></div>
+  </div>
+</div>
+
+</div>
+
+<div class="section-header" style="margin-top: 15px;">
+  <h1>Invisible Lost Time (ILT)</h1>
+</div>
+
+<div class="invisible-lost-time">
+  <div class="inline-block" style="width: 30%;">
+    <p class="title" style="font-size: 20px;">Total Lost Time</p>
+
+    <p class="value">1.8 <span>days</span></p>
+  </div>
+
+  <div class="inline-block" style="width: 70%;">
+    <div class="inline-block" style="width: 25%;">
+      <p class="title">Slip to Slip</p>
+
+      <p class="value">0.4 <span>days</span></p>
+    </div>
+    <div class="inline-block" style="width: 25%;">
+      <p class="title">Pipe Moving</p>
+
+      <p class="value">0.8 <span>days</span></p>
+    </div>
+    <div class="inline-block" style="width: 25%;">
+      <p class="title">Weight to Weight</p>
+
+      <p class="value">0.6 <span>days</span></p>
+    </div>
+    <div class="inline-block" style="width: 25%;">
+      <p class="title">Drilling</p>
+
+      <p class="value">0.6 <span>days</span></p>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<script type="text/javascript">
+    //    var chart = AmCharts.makeChart("activityChart", {
+    //        "type": "serial",
+    //        "theme": "none",
+    //        "dataProvider": [{
+    //            "hour": "0",
+    //            "drillingRotaryTo": 25,
+    //            "drillingRotaryFrom": 20,
+    //            "drillingRotaryTo": 35,
+    //            "drillingRotaryFrom": 40
+    //        }],
+    //        "valueAxes": [{
+    //            //"stackType": "regular",
+    //            //"axisAlpha": 0,
+    //            "gridAlpha": 0,
+    //            "position": "left",
+    //            //"reversed": true,
+    //            "color": "#FEFEFE",
+    //            "fontSize": 14,
+    //            "boldLabels": false,
+    //            "minimum": 0,
+    //            "maximum": 60,
+    //            "autoGridCount": false,
+    //            "gridCount": 12,
+    //            //"labelFrequency":10,
+    //            //"offset": -80,
+    //            "labelFunction": function (value, valueString, axis) {
+    //                return value;
+    //            }
+    //        }],
+    //        "graphs": [{
+    //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+    //            "fillAlphas": 0.9,
+    //            "fontSize": 11,
+    //            "fillColor": "#4840d1",
+    //            //"labelText": "[[percents]]%",
+    //            "lineAlpha": 1,
+    //            "title": "Drilling Rotary",
+    //            "type": "column",
+    //            "valueField": "drillingRotaryTo",
+    //            "openField":"drillingRotaryFrom"
+    //        }, {
+    //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+    //            "fillAlphas": 0.9,
+    //            "fontSize": 11,
+    //            "fillColor": "#4840d1",
+    //            //"labelText": "[[percents]]%",
+    //            "lineAlpha": 1,
+    //            "title": "Drilling Rotary",
+    //            "type": "column",
+    //            "valueField": "drillingRotaryTo",
+    //            "openField":"drillingRotaryFrom"
+    //        }, {
+    //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+    //            "fillAlphas": 0.9,
+    //            "fontSize": 11,
+    //            "fillColor": "#0085e3",
+    //            //"labelText": "[[percents]]%",
+    //            "lineAlpha": 1,
+    //            "title": "Drilling Sliding",
+    //            "type": "column",
+    //            "valueField": "drillingSliding"
+    //        }, {
+    //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+    //            "fillAlphas": 0.9,
+    //            "fontSize": 11,
+    //            "fillColor": "#9500b7",
+    //            //"labelText": "[[percents]]%",
+    //            "lineAlpha": 1,
+    //            "title": "Circulation",
+    //            "type": "column",
+    //            "valueField": "circulation"
+    //        }, {
+    //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+    //            "fillAlphas": 0.9,
+    //            "fontSize": 11,
+    //            "fillColor": "#909f98",
+    //            //"labelText": "[[percents]]%",
+    //            "lineAlpha": 1,
+    //            "title": "Connection",
+    //            "type": "column",
+    //            "valueField": "connection"
+    //        }, {
+    //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+    //            "fillAlphas": 0.9,
+    //            "fontSize": 11,
+    //            "fillColor": "#f70000",
+    //            //"labelText": "[[percents]]%",
+    //            "lineAlpha": 1,
+    //            "title": "Run in Hole",
+    //            "type": "column",
+    //            "valueField": "runInHole"
+    //        }, {
+    //            //"balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+    //            "fillAlphas": 0.9,
+    //            "fontSize": 11,
+    //            "fillColor": "#940000",
+    //            //"labelText": "[[percents]]%",
+    //            "lineAlpha": 1,
+    //            "title": "Run 0ut of Hole",
+    //            "type": "column",
+    //            "valueField": "runOutHole"
+    //        }],
+    //        "marginTop": 30,
+    //        "marginRight": 0,
+    //        "marginLeft": 50,
+    //        "marginBottom": 40,
+    //        "autoMargins": false,
+    //        "categoryField": "hour",
+    //        "categoryAxis": {
+    //            "gridPosition": "start",
+    //            //"axisAlpha": 0,
+    //            "gridAlpha": 0,
+    //            "tickPosition": "start",
+    //            //"tickLength": "10",
+    //            "color": "#FEFEFE",
+    //            "fillColor": "#fffff",
+    //            "fontSize": 13,
+    //            "labelRotation": 90
+    //        },
+    //        "columnWidth": 0.99
+    //    });
+</script>

@@ -1,0 +1,170 @@
+<% @rig_names = Rig.select("rigs.id as rig_id, rigs.name as rig_name") %>
+<% @jobs = current_user.jobs_list %>
+<% @jobs = Job.include_models(@jobs).includes(well: :drilling_log) %>
+
+<div class="remote-tray" data-tray="maps">
+
+<div class="remote-loading hidden white" style="margin-top: 280px; color: white !important;">
+  <%= render 'layouts/inline_loading', title: "Please wait, loading maps..." %>
+</div>
+
+<div class='tray-content content-loaded'>
+
+  <div style='margin: 0px; left: 0; top: 106px; bottom: 0px; padding: 0px; height: (100% - 106px); width: 100%; background: #202020; position: absolute; '>
+
+    <div id="maps" style="height: 100%; width: 100%; background: #202020;">
+
+      <div class="map-container"
+           style='position:absolute; left: 0; top: 0px; width:100%; height:100%;'>
+        <div id='map' class='dark'></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div style="position: fixed;
+      bottom: 0;
+      background-color:rgba(0, 0, 0, 0.4);
+      width: 100%;
+      clear: both;
+      height: 48px;
+      left: 0;">
+
+    <div class="inline-block" style="margin: 3px 0 0 10px;">
+      <%= select_tag "program_id",
+                     options_from_collection_for_select(@programs, "id", "name"),
+                     prompt: "All Drilling Programs",
+                     style: "background-color: #080808 !important;",
+                     class: "custom-select custom-select-ajax" %>
+    </div>
+
+    <div class="inline-block" style="margin: 3px 0 0 10px;">
+      <%= select_tag "rig_id",
+                     options_from_collection_for_select(@rigs, "id", "name"),
+                     prompt: "All Rigs",
+                     style: "background-color: #080808 !important;",
+                     class: "custom-select custom-select-ajax" %>
+    </div>
+
+    <div class="inline-block" style="margin: 3px 0 0 10px;">
+      <%
+         history = []
+         history << ["Full History", '']
+         history << ["Last 3 months", 3]
+         history << ["Last 6 months", 6]
+         history << ["Last year", 12]
+      %>
+      <%= select_tag "history_id",
+                     options_for_select(history, 0),
+                     style: "background-color: #080808 !important;",
+                     class: "custom-select custom-select-ajax" %>
+    </div>
+
+  </div>
+
+  <script type='text/javascript'>
+
+    $(document).ready(function ($) {
+
+      var map = L.mapbox.map('map', 'elephant.im6cakbc');
+
+      map.markerLayer.setGeoJSON([]);
+      map.attributionControl = false;
+      map.scrollWheelZoom.disable();
+
+      var markerLayer = L.mapbox.markerLayer().addTo(map);
+
+      var geoJson = [];
+
+      var geoJsonData = {
+        type: "FeatureCollection",
+        features: []
+      };
+
+
+      markerLayer.on('layeradd', function (e) {
+        var marker = e.layer,
+            feature = marker.feature;
+
+        marker.setIcon(L.icon(feature.properties.icon));
+      });
+
+      markerLayer.setGeoJSON(geoJsonData);
+        //
+
+      $("#rig_id, #program_id, #history_id").change(function () {
+        var program_id = $('#program_id').val();
+        var rig_id = $('#rig_id').val();
+        var history_id = $('#history_id').val();
+
+        $.ajax({
+          url: "<%= jobs_path%>?program=" + program_id + "&rig=" + rig_id + "&history=" + history_id,
+          type: "GET",
+          dataType: "json"
+        }).done(function (data) {
+          markerLayer.clearLayers();
+
+          map.markerLayer.setGeoJSON([]);
+          map.attributionControl = false;
+          map.scrollWheelZoom.disable();
+
+          var geoJson = [];
+
+          var geoJsonData = {
+            type: "FeatureCollection",
+            features: []
+          };
+
+          for (var i = 0; i < data.length; i++) {
+            if (data[i].active) {
+              geoJsonData.features.push({
+                type: 'Feature',
+                properties: {
+                  title: data[i].well.name,
+                  url: '/jobs/' + data[i].id,
+                  icon: {
+                    iconUrl: "<%= "#{request.protocol}#{request.host_with_port}#{asset_path('map_pin.PNG')}" %>",
+                    iconSize: [26, 31]
+                  }
+                },
+                geometry: {
+                  type: 'Point',
+                  coordinates: [data[i].well.y_location, data[i].well.x_location]
+                }
+              });
+            } else {
+              geoJsonData.features.push({
+                type: 'Feature',
+                properties: {
+                  title: data[i].well.name,
+                  url: '/jobs/' + data[i].id,
+                  icon: {
+                    iconUrl: "<%= "#{request.protocol}#{request.host_with_port}#{asset_path('map_pin1.png')}" %>",
+                    iconSize: [9, 9]
+                  }
+                },
+                geometry: {
+                  type: 'Point',
+                  coordinates: [data[i].well.y_location, data[i].well.x_location]
+                }
+              });
+            }
+          }
+
+          markerLayer.setGeoJSON(geoJsonData);
+          map.fitBounds(markerLayer.getBounds());
+
+        });
+      });
+
+      $('.custom-select').customSelect();
+
+    }(jQuery));
+
+  </script>
+
+
+</div>
+</div>
+

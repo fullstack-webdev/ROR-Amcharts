@@ -1,0 +1,62 @@
+<div class="bha-content" id="bha_<%= bha.id %>">
+
+  <div class="page_header">
+    <h1><%= bha.name %> - <%= bha.description %></h1>
+  </div>
+
+  <div class='push-down'>
+    <%= render 'drilling_logs/bha', bha: bha, drilling_log: DrillingLog.includes(job: :well).where("wells.id = ?", bha.job.well.id).first %>
+  </div>
+
+  <br>
+
+  <div class='push-down'>
+    <ul class="nav nav-tabs">
+      <li class='active'>
+        <a href="#" data-toggle="tab" data-tabsection="drill-string" class='tab blue-text'><b>Drill
+          String</b></a>
+      </li>
+      <li><a href="#" data-toggle="tab" data-tabsection="tool-string" class='tab blue-text'><b>MWD Tool
+        String</b></a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="">
+    <p class="list-item-column list-item-column3 help-text">
+      <span class='push-right-small'>Tool</span>
+    </p>
+
+    <p class="list-item-column2 list-item-column-short  help-text">
+      ID <span class='help-text'>(in)</span>
+    </p>
+
+    <p class="list-item-column2 list-item-column-short  help-text">
+      OD <span class='help-text'>(in)</span>
+    </p>
+
+    <p class="list-item-column2 list-item-column-short  help-text">
+      Length <span class='help-text'>(in)</span>
+    </p>
+
+    <p class="list-item-column2 list-item-column-short  help-text">
+      Total <span class='help-text'>(in)</span>
+    </p>
+
+    <p class="list-item-column2 list-item-column-count  help-text tooltip-info"
+       data-title="Upward Connection">
+      <i class="icon-arrow-up"></i>
+      Up
+    </p>
+
+
+  </div>
+
+
+  <div class='tab-content' data-tabsection='drill-string'>
+    <%= render 'bhas/bha_tally_items', bha: bha, editable: false %>
+  </div>
+  <div class='tab-content hidden' data-tabsection='tool-string'>
+    <%= render 'bhas/bha_tally_items', bha: bha.tool_string, master_bha: bha, editable: false %>
+  </div>
+</div>

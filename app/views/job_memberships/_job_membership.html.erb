@@ -1,0 +1,44 @@
+<li class="job-member-list-item" id="job_membership_<%= job_membership.id %>">
+
+  <div class="activity-user-link-div-short">
+    <div class="inline  push-right-small">
+      <% if job_membership.user.present? %>
+          <%= render 'jobs/user', job_membership: job_membership, include_icon: false %>
+
+          <% if false %>
+              <span class="help-text">- <%= pluralize(job_membership.user.jobs.where("jobs.status >= 1 AND jobs.status < 50").count, "job") %></span>
+          <% end %>
+      <% elsif job_membership.external_user? %>
+          <%= link_to "mailto:" + job_membership.email, class: "activity-user-link tooltip-info", "data-title" => "External User, click to email", "data-placement" => "bottom" do %>
+              &nbsp;<%= job_membership.user_name %>
+          <% end %>
+      <% else %>
+          <%= job_membership.user_name %>
+      <% end %>
+    </div>
+  </div>
+  <div class='inline-block job-members-position-title'>
+    <p class="inline-block label <%= job_membership.icon_css_style %>"><%= job_membership.role_title %></p>
+    <% if job_membership.shift_type.present? && job_membership.shift_type == JobMembership::SHIFT_NIGHT %>
+        <%= image_tag "night_shift.png", class: "inline-block align-top" %>
+    <% end %>
+  </div>
+
+  <p class="job-members-position-title push-right-small orange-text">
+    <b><%= job_membership.user.present? ? job_membership.user.phone_number : job_membership.phone_number %></b></p>
+
+
+  <% if !job_membership.job.closed %>
+
+      <div class="push-right">
+        <%= link_to edit_job_membership_path(job_membership), remote: true,
+                    class: "job-member-edit-button" do %>
+            <i class="icon-edit"></i> change role
+        <% end %>
+
+        <%= link_to "remove", job_membership, method: :delete, remote: true,
+                    data: {confirm: "Remove " + (job_membership.user.present? ? job_membership.user.name : job_membership.user_name || '') + " from job?"},
+                    class: "delete-button-small job-member-button" %>
+      </div>
+  <% end %>
+</li>

@@ -1,0 +1,116 @@
+
+
+
+.no-alerts {
+   margin-top: 40px;
+
+  p {
+    color: #0058a8;
+  }
+}
+
+.old-alerts-div {
+  margin-top: 150px !important;
+}
+
+
+.alert-title {
+  font-size: 14px;
+  font-weight: bold;
+
+}
+
+.alerts-calendar-large {
+  background: #FFFFFF url(image_path('calendar_large.gif')) no-repeat !important;
+  height: 673px !important;
+}
+
+.alerts-calendar {
+  display: inline-block;
+  background: #FFFFFF url(image_path('calendar.gif')) no-repeat;
+  width: 900px;
+  height: 237px;
+  padding: 0px;
+
+  .header {
+    margin: 0px;
+    height: 18px;
+    width: 900px;
+    background: transparent;
+  }
+
+  .date {
+    display: inline-block;
+    padding: 0px;
+    width: 124.4px;
+    height: 105px;
+    background: transparent;
+    position: relative;
+
+    .number {
+      position: absolute;
+      display: inline-block;
+      float: right;
+      right: 0;
+      padding-left: 7px;
+      padding-right: 7px;
+      text-align: right;
+      font-family: orgonboldregular;
+      color: #0058a8;
+    }
+
+    .number2 {
+      position: absolute;
+      display: inline-block;
+      float: right;
+      right: 0;
+      padding-left: 7px;
+      padding-right: 7px;
+      text-align: right;
+      font-family: "gothambookregular";
+      color: #909090;
+    }
+
+    .today {
+      background: #ffda0f;
+      color: #000000;
+      border-radius: 3px;
+    }
+
+    .jobs {
+      width: 124.4px;
+      height: 85px;
+      display: inline-block;
+      position: absolute;
+      top: 25px;
+
+      .job {
+        display: inline-block;
+        border-radius: 3px;
+        background: #ddedfd;
+        color: #000000;
+        font-weight: bold;
+        width: 107px;
+        height: 15px;
+        font-size: 10px;
+        margin-left: 5px;
+        margin-bottom: 5px;
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-bottom: 3px;
+        text-wrap: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        p {
+          font-size: 10px;
+        }
+      }
+    }
+  }
+}
+
+.calendar-day {
+  width: 100%;
+  height: 80px;
+}

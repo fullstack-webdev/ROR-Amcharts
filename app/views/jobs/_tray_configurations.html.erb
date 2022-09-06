@@ -1,0 +1,113 @@
+<div class="remote-tray custom-data-closed" data-tray="configurations">
+  <div class="remote-loading hidden">
+    <br><br>
+    <%= render 'layouts/inline_loading', title: "Please wait, loading well configurations..." %>
+  </div>
+
+  <div class='' style="height: 48px;">
+    <div class="sub-nav">
+      <ul class="nav nav-tabs child-tray-nav">
+        <li class='active'>
+          <%= link_to "Hole/Drill String", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "hole_drill_string",
+                      "data-tray-parent" => "configurations",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small'>
+          <%= link_to "Fluids", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "pumps_fluids",
+                      "data-tray-parent" => "configurations",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small' style="display: none;">
+          <%= link_to "Well Plan", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "well_plan",
+                      "data-tray-parent" => "configurations",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small' style="">
+          <%= link_to "Trajectory", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "surveys",
+                      "data-tray-parent" => "configurations",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small' style="">
+          <%= link_to "Logs", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "lwd_logs",
+                      "data-tray-parent" => "configurations",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small' style="">
+          <%= link_to "Sensors", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "sensors",
+                      "data-tray-parent" => "configurations",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+        <li class='push-right-small' style="">
+          <%= link_to "Import", "#",
+                      "data-id" => @job.id,
+                      "data-tray-controller" => "jobs",
+                      "data-tray" => "import",
+                      "data-tray-parent" => "configurations",
+                      class: "job-tab job-sub-tab remote-tray-toggle" %>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class='tray-content content-loaded'>
+    <div class="remote-tray" data-tray="hole_drill_string">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading hole/drill string..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="pumps_fluids">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading fluids..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="well_plan">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading well plan..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="surveys">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading surveys..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="lwd_logs">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading logs..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="sensors">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading sensors..." %>
+      </div>
+    </div>
+
+    <div class="remote-tray custom-data-closed" data-tray="import">
+      <div class="remote-loading" style="margin-top: 30px;">
+        <%= render 'layouts/inline_loading', title: "Please wait, loading import configuration..." %>
+      </div>
+    </div>
+  </div>
+</div>

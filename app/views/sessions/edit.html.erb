@@ -1,0 +1,90 @@
+<% provide(:title, 'Create Password') %>
+<div class="">
+
+  <div class="section-header">
+    <h1>
+      <% if @new_account %>
+          Welcome To Corva
+      <% else %>
+          Change Password
+      <% end %>
+    </h1>
+
+    <% if @new_account %>
+        <div class="pull-right">
+          <%= link_to "Email Support", "mailto:support@corva.ai?subject=Help+With+New+Account", class: "btn btn-sub align-top", style: "" %>
+        </div>
+    <% end %>
+  </div>
+
+
+  <%= form_for(:session, url: create_password_path) do |f| %>
+
+
+      <% if @new_account %>
+          <div class="alert-box alert-info  ">
+            <b>To finish creating your account, you now need to create a password.</b>
+
+            <p class="">Your current password is temporary and needs to be changed.</p>
+          </div>
+      <% else %>
+          <div class="alert-box alert-info ">
+            <b>This form will change your current password.</b>
+
+            <p style="margin: 0; padding: 0;">Enter your current password and the new password below.</p>
+          </div>
+      <% end %>
+
+      <% if flash.any? %>
+          <div id="error_explanation">
+            <% flash.each do |key, value| %>
+                <% if key.to_s == 'error' %>
+                    <div class="alert alert-<%= key %>"><%= value %></div>
+                <% end %>
+            <% end %>
+          </div>
+      <% end %>
+
+      <div class="">
+        <div class="" style="margin-top: 20px;">
+          <% if @new_account %>
+              <div class="<%= !@email.blank? ? "hidden" : "" %>">
+
+                <b class="inline">Email Address</b>
+                <br><br>
+                <%= f.text_field :email, placeholder: "Type Email", value: @email.present? ? @email.html_safe : @email, class: "txtfield" %>
+
+                <hr>
+              </div>
+
+          <% else %>
+              <%= f.hidden_field :email, value: @email %>
+          <% end %>
+
+          <%= f.hidden_field :new_account, value: @new_account %>
+
+          <div class="">
+            <div class="<%= !@current_password.blank? ? "hidden" : "" %>">
+              <div class='job-field-title inline-block'>Current password</div>
+              <%= f.password_field :current_password, class: "txtfield small", value: @current_password.present? ? @current_password.html_safe : @current_password, placeholder: "Current Password" %>
+            </div>
+
+            <div>
+              <div class='job-field-title inline-block'>New password</div>
+              <%= f.password_field :password, class: "txtfield small", placeholder: "New Password" %>
+            </div>
+            <div>
+              <div class='job-field-title inline-block'>Confirm new password</div>
+              <%= f.password_field :password_confirmation, class: "txtfield small", placeholder: "Confirm New Password" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 40px;">
+        <%= link_to button_tag("Cancel", class: "btn btn-sub push-left-small tooltip-info", "data-title" => "Cancel", :type => 'button'), :back %>
+        <%= f.submit "Update Password", class: "btn btn-primary" %>
+      </div>
+
+  <% end %>
+</div>

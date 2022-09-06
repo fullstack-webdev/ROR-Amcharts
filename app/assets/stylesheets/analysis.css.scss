@@ -1,0 +1,172 @@
+.analysis-filter {
+  display: inline-block;
+  width: 49%;
+  line-height: 40px;
+
+  p {
+    line-height: 40px;
+    display: inline-block;
+    float: left;
+  }
+}
+
+.analysis-subtab {
+  color: #bfe9cf;
+  margin-bottom: 30px;
+
+  .block {
+    margin-top: 30px;
+    overflow: hidden;
+  }
+}
+
+.time-analysis {
+
+  .color-note {
+    display: inline-block;
+    float: left;
+    width: 50%;
+    color: #eef4f0;
+    margin-bottom: 10px;
+
+    div {
+      display: inline-block;
+      float: left;
+      line-height: 22px;
+      height: 22px;
+      margin-right: 20px;
+    }
+    .color-bar {
+      width: 50px;
+    }
+    .name {
+      font-size: 15px;
+      width: 40%;
+      font-family: orgonlightregular;
+    }
+    .percentage, .hours {
+      width: 15%;
+      font-size: 14px;
+      font-family: orgonlightregular;
+      span {
+        font-family: orgonlightregular;
+      }
+    }
+  }
+  .color-note1 {
+    display: inline-block;
+    float: left;
+    width: 100%;
+    color: #eef4f0;
+    margin-bottom: 20px;
+
+    div {
+      display: inline-block;
+      float: left;
+      line-height: 50px;
+      height: 50px;
+      margin-right: 20px;
+    }
+    .text-bar {
+      width: 250px;
+      font-family: orgonlightregular;
+
+      div {
+        line-height:25px;
+        height:25px;
+
+        display:block;
+        float:initial;
+
+      }
+      .name {
+        font-size: 17px;
+//        width: 50%;
+        font-family: orgonboldregular;
+      }
+      .bottom-text {
+
+        width: 100%;
+        font-size: 24px;
+        div {
+          display: inline-block;;
+          float: left;
+        }
+        .percentage, .hours {
+          width: 30%;
+          //            font-size: 20px;
+          font-size: 18px;
+          font-family: orgonlightregular;
+          font-weight: lighter;
+          color: #a0c0ac;
+          span {
+            font-size:14px;
+            font-family: orgonlightregular;
+          }
+        }
+      }
+
+    }
+    .color-bar {
+      width: 10px;
+      min-width: 10px;
+    }
+
+
+
+  }
+}
+
+.invisible-lost-time {
+  margin: 30px 0;
+  overflow: hidden;
+
+  div {
+    float: left;
+  }
+
+  .title {
+    color: #bfe9cf;
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+
+  .value {
+    color: #fefefe;
+    font-family: orgonboldregular;
+    font-size: 30px;
+    &.text-red {
+      color: #cc482c !important;
+    }
+    .text-red {
+      color: #cc482c !important;
+    }
+    span {
+      font-family: orgonlightregular;
+      font-size: 15px;
+    }
+  }
+}
+
+.performance-analysis {
+
+  .value {
+    color: #fefefe;
+    font-family: orgonboldregular;
+    font-size: 30px;
+
+    span {
+      font-family: orgonlightregular;
+      font-size: 15px;
+    }
+  }
+}
+
+#well_time_activity{
+//  -webkit-transform: rotate(90deg);
+//  -moz-transform: rotate(90deg);
+//  -o-transform: rotate(90deg);
+//  -ms-transform: rotate(90deg);
+//  transform: rotate(90deg);
+//  width: 100%;
+}
